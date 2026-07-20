@@ -1,0 +1,216 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/memizy/oqse-specification@main/schemas/oqse-v0.1.json",
+  "version": "0.1",
+  "meta": {
+    "id": "019f80c2-3800-74dd-afe3-e936da24f84b",
+    "language": "cs",
+    "title": "Diskrétní matematika - Státnice MFF UK",
+    "description": "Komplexní příprava na bakalářské státnice z diskrétní matematiky a kombinatoriky.",
+    "subject": "Diskrétní matematika",
+    "createdAt": "2026-07-20T12:00:00Z",
+    "updatedAt": "2026-07-20T12:00:00Z",
+    "requirements": {
+      "features": [
+        "markdown",
+        "math",
+        "html"
+      ]
+    },
+    "customData": {}
+  },
+  "items": [
+    {
+      "id": "019f80c2-3800-74dd-afe3-ef06fdec115d",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Relace"
+      ],
+      "title": "Teorie: Binární relace a jejich vlastnosti",
+      "content": "Většina diskrétní matematiky je postavena na tom, že dáváme prvky do nějakého vztahu. K tomu slouží relace.\n\n### Co je to binární relace?\nBinární relace $R$ na množině $X$ není nic jiného než **libovolná podmnožina kartézského součinu $X \\times X$** (tedy $R \\subseteq X \\times X$). Pokud prvek $x$ je v relaci s prvkem $y$, píšeme $(x,y) \\in R$ nebo jednodušeji $xRy$.\n*(Příklad: Množina lidí, relací je „být předkem“. Nebo množina čísel, relací je „být menší nebo roven“ $\\le$).*\n\n### 4 základní vlastnosti relací\nKomise často (např. na podzim 2025) vyžaduje přesný formální zápis těchto vlastností pomocí kvantifikátorů:\n\n1. **Reflexivita:** Každý prvek je v relaci sám se sebou.\n   $$ \\forall x \\in X : (x, x) \\in R $$\n   *(Příklad: $\\le$ je reflexivní, $<$ není reflexivní).*\n\n2. **Symetrie:** Pokud je $x$ v relaci s $y$, pak musí být i $y$ v relaci s $x$.\n   $$ \\forall x, y \\in X : (x, y) \\in R \\implies (y, x) \\in R $$\n   *(Příklad: Relace „být sourozencem“ je symetrická).*\n\n3. **Antisymetrie:** Pokud je $x$ v relaci s $y$ a zároveň $y$ v relaci s $x$, musí to být ten samý prvek.\n   $$ \\forall x, y \\in X : ((x, y) \\in R \\land (y, x) \\in R) \\implies x = y $$\n   *(Příklad: $\\le$ je antisymetrická, protože pokud $a \\le b$ a zároveň $b \\le a$, nutně $a=b$).*\n\n4. **Tranzitivita:** Pokud je $x$ v relaci s $y$ a $y$ je v relaci se $z$, pak musí být $x$ v relaci se $z$.\n   $$ \\forall x, y, z \\in X : ((x, y) \\in R \\land (y, z) \\in R) \\implies (x, z) \\in R $$\n   *(Příklad: $\\le$ i $<$ jsou tranzitivní).*"
+    },
+    {
+      "id": "019f80c2-3800-74dd-afe3-f15ea4295999",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Ekvivalence"
+      ],
+      "title": "Teorie: Ekvivalence a rozkladové třídy",
+      "content": "Pokud má binární relace ty „nejslušnější“ možné vlastnosti, nazýváme ji ekvivalencí. Ekvivalence je matematický způsob, jak říct, že různé objekty jsou z nějakého pohledu „to samé“ (například zlomky $1/2$ a $2/4$, nebo stavy v konečném automatu).\n\n### 1. Definice Ekvivalence\nBinární relace $R$ na množině $X$ je **ekvivalence**, právě když je současně:\n1. **Reflexivní**\n2. **Symetrická**\n3. **Tranzitivní**\n*(Značí se často vlnovkou $\\sim$ nebo $\\equiv$).*\n\n### 2. Třídy ekvivalence (Rozkladové třídy)\nKdyž máme na množině $X$ ekvivalenci $\\sim$, můžeme pro každý prvek $x \\in X$ vytvořit množinu všech prvků, které jsou s ním ekvivalentní. Tuto množinu nazýváme **třída ekvivalence prvku $x$** a značíme ji $[x]_{\\sim}$.\n$$ [x]_{\\sim} = \\{y \\in X \\mid y \\sim x\\} $$\n\n### 3. Věta o rozkladu (Zásadní vlastnost)\nEkvivalence dělá s množinou $X$ jednu úžasnou věc: **Rozseká ji na disjunktní kousky** (tzv. rozklad množiny).\nPlatí dvě klíčová pravidla pro libovolné dvě třídy $[x]$ a $[y]$:\n* Buď jsou tyto dvě třídy **zcela totožné** (pokud $x \\sim y$, pak $[x] = [y]$).\n* Nebo jsou tyto dvě třídy **zcela disjunktní** (nemají ani jeden společný prvek, pokud $x \\not\\sim y$).\n\nTřídy ekvivalence tedy tvoří jakési „chlívečky“. Každý prvek z $X$ bydlí v právě jednom chlívečku. Počet ekvivalencí na množině $n$ prvků je tak přesně roven počtu způsobů, jak lze těchto $n$ prvků rozdělit do neprázdných hromádek (což úzce souvisí s Bellovými čísly a Stirlingovými čísly 2. druhu)."
+    },
+    {
+      "id": "019f80c9-4404-71ca-878e-3c6c023335f2",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "Ekvivalence",
+        "Termíny"
+      ],
+      "title": "Praxe: Testování relací a počítání ekvivalencí (Září 2025)",
+      "content": "U státnic na podzim 2025 komise testovala, jak dobře studenti chápou vlastnosti relací a jak se ekvivalence projevuje na konkrétní malé množině.\n\n### Zkoušková úloha (Podzim 2025)\nMějme množinu $X = \\{a, b, c, d\\}$.\n**Úkoly:**\n1. Definujte podmínky, které musí splňovat binární relace $R$ na neprázdné množině $X$, aby byla ekvivalencí. Podmínky formulujte pomocí matematických zápisů s použitím logických spojek, kvantifikátorů a podobně.\n2. Určete, kolik různých ekvivalencí na množině $X$ existuje.\n3. Najděte příklad binární relace na $X$, která **je tranzitivní, ale není symetrická ani (slabě) antisymetrická**. Zdůvodněte, že nalezená relace má požadované vlastnosti.\n*(Připomenutí: Antisymetrie znamená $\\forall x, y \\in X : ((x, y) \\in R \\land (y, x) \\in R) \\implies x = y$.)*\n\n*Nápověda:* K části 2 využijte Větu o rozkladu. Hledáte, kolika způsoby lze 4 prvky rozdělit na hromádky. Rozepište si možnosti podle velikosti hromádek (např. jedna hromádka po 4 prvcích). K části 3: Tranzitivita a zároveň „nesymetrie“ vás tlačí k nějakému uspořádání. Ale nesmí to být ani antisymetrické, takže tam někde musí být i šipky oběma směry mezi různými prvky.",
+      "hiddenContent": "**Vzorové řešení pro komisi:**\n\n**1. Podmínky ekvivalence:**\nTato část testovala čistě formální znalost definic (reflexivita, symetrie, tranzitivita zapsané pomocí kvantifikátorů $\\forall, \\implies, \\land$). Tyto vzorce jsme si do detailu rozebrali v předchozích teoretických poznámkách, proto je zde nebudeme znovu vypisovat.\n\n**2. Počet různých ekvivalencí na $X = \\{a,b,c,d\\}$:**\nKaždá ekvivalence jednoznačně odpovídá nějakému rozkladu množiny $X$ na disjunktní podmnožiny (třídy ekvivalence). Budeme je počítat podle možných velikostí těchto tříd:\n* **Jedna třída (velikost 4):** Všechny prvky jsou ekvivalentní. Existuje **1** takový rozklad (hromádka $\\{a,b,c,d\\}$).\n* **Dvě třídy (velikosti 3+1):** Vybereme 1 prvek, který bude sám ve své třídě. To lze udělat $\\binom{4}{1}$ způsoby = **4** rozklady.\n* **Dvě třídy (velikosti 2+2):** Vybíráme 2 prvky z 4 ($\\binom{4}{2} = 6$), ale protože nám nezáleží na pořadí hromádek (vybrat $\\{a,b\\}$ je stejné jako vybrat $\\{c,d\\}$), musíme to vydělit dvěma. Existují tedy $6/2$ = **3** rozklady.\n* **Tři třídy (velikosti 2+1+1):** Vybereme 2 prvky, které budou spolu ($\\binom{4}{2} = 6$), zbylé dva jsou každý zvlášť. Existuje **6** rozkladů.\n* **Čtyři třídy (velikosti 1+1+1+1):** Každý prvek je jen sám se sebou (tzv. identita). Existuje **1** rozklad.\nCelkový počet ekvivalencí na 4 prvcích je: $1 + 4 + 3 + 6 + 1 = \\mathbf{15}$.\n\n**3. Nalezení specifické relace (tranzitivní, nesymetrická, ne-antisymetrická):**\nNavrhneme relaci $R = \\{(a,b), (b,a), (a,a), (b,b), (c,d)\\}$.\n\nZkoumáme její vlastnosti:\n* **Není symetrická:** Obsahuje pár $(c,d)$, ale chybí v ní pár $(d,c)$.\n* **Není antisymetrická:** Obsahuje páry $(a,b)$ a $(b,a)$, přičemž ale $a \\neq b$. \n* **Je tranzitivní:** Musíme ověřit všechny řetězce $xRy \\land yRz \\implies xRz$. Jediné netriviální navázání vzniká u prvků $a$ a $b$, protože jsou vzájemně provázané oběma směry. Spojením $(a,b)$ a $(b,a)$ získáme $(a,a)$, který v relaci máme. Spojením $(b,a)$ a $(a,b)$ získáme $(b,b)$, který také máme. Pár $(c,d)$ na nic nenavazuje. Tranzitivita je splněna."
+    },
+    {
+      "id": "019f80c9-4405-7742-a841-0d3e387de571",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Posety"
+      ],
+      "title": "Teorie: Částečné uspořádání a Extrémy",
+      "content": "Zatímco ekvivalence hází prvky do jednoho pytle, **částečné uspořádání** (tzv. Poset - Partially Ordered Set) dává prvkům striktní hierarchii.\n\n### 1. Definice částečného uspořádání\nBinární relace $\\le$ na množině $X$ je (neostré) částečné uspořádání, pokud je současně:\n1. **Reflexivní:** $\\forall x \\in X : x \\le x$\n2. **Antisymetrická:** $\\forall x, y \\in X : (x \\le y \\land y \\le x) \\implies x = y$\n3. **Tranzitivní:** $\\forall x, y, z \\in X : (x \\le y \\land y \\le z) \\implies x \\le z$\n\n*Proč \"částečné\"?* V posetu mohou existovat prvky, které zkrátka nelze porovnat. (Příklad: Na množině přirozených čísel s relací dělitelnosti $x \\mid y$ platí, že 2 nedělí 3, ani 3 nedělí 2. Tyto prvky jsou tzv. *neporovnatelné*).\n\n### 2. Hasseovy diagramy\nAbychom posety nečmárali s miliony nepřehledných šipek, používáme chytré Hasseovy diagramy:\n* Vrcholy jsou prvky množiny.\n* Hranu nakreslíme zdola nahoru z $x$ do $y$, pokud $x < y$ a přitom neexistuje žádný prvek $z$ \"mezi nimi\".\n* Nekreslíme smyčky (reflexivita je implicitní) ani tranzitivní hrany (pokud $a \\to b$ a $b \\to c$, už nekreslíme $a \\to c$). Orientace je vždy brána *zdola nahoru*, šipky se nepíšou.\n\n### 3. Extrémy: Nejmenší vs. Minimální (Oblíbený chyták)\nTohle u zkoušky nesmíte zaměnit! Rozdíl je naprosto propastný:\n\n* **Nejmenší prvek (Least):** Prvek $a$, který je prokazatelně **menší než ÚPLNĚ VŠECHNY OSTATNÍ** prvky v posetu. (Může existovat nejvýše jeden! V Hasseově diagramu by to byl jediný společný \"kořen\" úplně dole).\n* **Minimální prvek (Minimal):** Prvek $a$, pod kterým už **NIC NENÍ**. (V Hasseově diagramu je to libovolný uzel, do kterého nevede žádná hrana zdola. Minimálních prvků může být v jednom posetu klidně stovka!).\n\nPodobně funguje vztah mezi **Největším** (větší než všichni, je nejvýše jeden) a **Maximálním** (nad ním už nic není, může jich být mnoho)."
+    },
+    {
+      "id": "019f80c9-4405-7742-a841-114d6aaf2989",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Posety",
+        "Důkazy"
+      ],
+      "title": "Teorie: Řetězce, antiřetězce a Věta o dlouhém a širokém",
+      "content": "Pokud máme poset vykreslený jako Hasseův diagram, můžeme zkoumat jeho geometrické vlastnosti – tedy jak je \"vysoký\" a jak je \"široký\". Zde narážíme na legendární kombinatorické pojmy a věty, které se na MFF velmi rády objevují u ústních i písemných částí.\n\n### 1. Řetězec a Antiřetězec\n* **Řetězec (Chain):** Podmnožina prvků posetu, kde jsou **každé dva prvky navzájem porovnatelné**. V Hasseově diagramu to odpovídá cestě orientované neustále vzhůru. Velikost nejdelšího řetězce v celém posetu nazýváme **výška posetu**.\n* **Antiřetězec (Antichain):** Podmnožina prvků, kde **žádné dva prvky nelze porovnat**. (V grafu to jsou uzly, které leží \"vedle sebe\" a nevede mezi nimi žádná cesta nahoru/dolů). Velikost největšího antiřetězce nazýváme **šířka posetu**.\n\n### 2. Rozklady posetů (Mirského a Dilworthova věta)\nPředstavme si, že chceme celý poset rozštípat na nezávislé řetězce nebo naopak na antiřetězce.\n* **Mirského věta:** Pokud má poset výšku $k$, pak ho lze vždy spolehlivě rozložit do přesně $k$ antiřetězců. (Myšlenka: prostě diagram \"rozřízneme\" na vodorovné vrstvy).\n* **Dilworthova věta (Hluboká a důležitá):** Pokud má poset šířku $w$, pak lze celý poset rozložit do přesně $w$ řetězců (vertikálních tras).\n\n### 3. Věta o dlouhém a širokém (Včetně důkazu!)\n**Znění věty:** Nechť $X$ je konečná částečně uspořádaná množina, která má celkem $n \\cdot m + 1$ prvků. Pak platí, že v tomto posetu musí existovat **buď řetězec délky alespoň $n+1$, nebo antiřetězec velikosti alespoň $m+1$.**\n\n**Důkaz (přes Dirichletův holubníkový princip):**\n1. Budeme postupovat sporem. Předpokládejme, že tvrzení neplatí, a tedy nejdelší řetězec má délku maximálně $n$.\n2. Podle Mirského věty (nebo jednoduše tak, že dáme prvky do vrstev podle toho, jaký nejdelší řetězec v nich končí) víme, že celý poset lze rozložit do tolika antiřetězců, jaká je jeho výška. Naši množinu lze tedy celou rozložit do maximálně $n$ antiřetězců.\n3. Zde nastupuje holubníkový princip. Máme celkem $n \\cdot m + 1$ prvků (holubů) a snažíme se je nacpat do nejvýše $n$ antiřetězců (holubníků).\n4. Alespoň v jednom holubníku musí být striktně více než průměrný počet prvků. Průměrný počet je $\\frac{n \\cdot m + 1}{n} = m + \\frac{1}{n}$.\n5. Jelikož je počet prvků celé číslo, musí v tomto antiřetězci být **alespoň $m+1$ prvků**.\n6. Tím jsme našli antiřetězec velikosti alespoň $m+1$, což je spor s naším předpokladem. Věta platí!"
+    },
+    {
+      "id": "019f80c9-4405-7742-a841-166d1c4dee28",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "Posety"
+      ],
+      "title": "Praxe: Analýza posetů a aplikace uspořádání",
+      "content": "V této úloze si spojíme teoretické znalosti z předchozích poznámek o posetech do typického cvičného/zkouškového příkladu na relaci dělitelnosti.\n\n### Typická zkoušková úloha (Dělitelnost)\nUvažujme množinu $X = \\{2, 3, 4, 6, 8, 12, 18, 24\\}$. Na této množině definujeme binární relaci $R$ jako relaci dělitelnosti. Tedy $x R y$ platí právě tehdy, když číslo $x$ beze zbytku dělí číslo $y$ (značíme $x \\mid y$).\n\n**Úkoly:**\n1. Nakreslete Hasseův diagram tohoto částečného uspořádání.\n2. Vypište všechny minimální, maximální, nejmenší a největší prvky tohoto posetu (pokud existují).\n3. Určete výšku a šířku tohoto posetu (tedy nalezněte konkrétní nejdelší řetězec a největší antiřetězec).\n4. Ověřte platnost Dilworthovy věty (rozdělte poset na minimální potřebný počet disjunktních řetězců, které pokryjí celou množinu $X$).\n\n*Nápověda:* Při kreslení Hasseova diagramu umisťujte čísla s více prvočíselnými děliteli logicky výše. Nezapomeňte, že se spojují pouze tzv. přímí následníci (např. od 2 nepovede hrana přímo k 8, ale půjde pouze oklikou přes 4). Úlohu vyřešte nejprve na papír.",
+      "hiddenContent": "**Vzorové řešení:**\n\n**1. Hasseův diagram:**\n* **Spodní vrstva:** Prvky, které v naší množině nic jiného nedělí. Jsou to prvočísla **2** a **3**.\n* **Vrstva nad nimi:** Jejich přímé násobky. Z 2 povede hrana do **4** a **6**. Z 3 povede hrana do **6**.\n* **Třetí vrstva:** Z 4 povede hrana do **8** a do **12**. Ze 6 povede hrana do **12** a do **18**.\n* **Nejvyšší vrstva:** Z 8 a z 12 povedou hrany společně do čísla **24**.\n\n**2. Extrémy:**\n* **Minimální prvky:** (leží úplně dole, nevede do nich nic zespodu) = $\\{2, 3\\}$.\n* **Nejmenší prvek:** (musel by dělit všechny ostatní) = **Neexistuje**, protože 2 a 3 jsou neporovnatelné (2 nedělí 3 a naopak).\n* **Maximální prvky:** (leží nahoře, nevede z nich nic dál) = $\\{18, 24\\}$.\n* **Největší prvek:** (všichni ostatní by ho museli dělit) = **Neexistuje**, protože 18 nedělí 24 ani naopak.\n\n**3. Výška a šířka:**\n* **Výška (délka nejdelšího řetězce):** Nacházíme cestu například $2 \\to 4 \\to 8 \\to 24$ nebo $3 \\to 6 \\to 12 \\to 24$. Počet uzlů v těchto řetězcích je **4**. Výška posetu je tedy 4.\n* **Šířka (velikost největšího antiřetězce):** Hledáme největší množinu čísel, z nichž žádné nedělí jiné. Rozhlédnutím do vrstev najdeme například $\\{8, 12, 18\\}$ (8 nedělí 12, 12 nedělí 18, 8 nedělí 18). Jiný antiřetězec je např. $\\{4, 6\\}$. Největší nalezený má velikost **3**. Šířka posetu je 3.\n\n**4. Dilworthova věta v praxi:**\nŠířka posetu je 3. Dilworthova věta zaručuje, že celou množinu $X$ lze pokrýt přesně třemi disjunktními řetězci.\nRozklad na 3 řetězce je například tento:\n* Řetězec 1: $\\{2, 4, 8, 24\\}$\n* Řetězec 2: $\\{3, 6, 12\\}$\n* Řetězec 3: $\\{18\\}$\nVšechny prvky z $X$ jsou obsaženy právě jednou, použili jsme právě 3 platné řetězce, takže věta platí."
+    },
+    {
+      "id": "019f80cf-1f32-703b-a275-10ccefd8a2da",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Funkce"
+      ],
+      "title": "Teorie: Typy funkcí a skládání (Pozor na značení!)",
+      "content": "Funkce (neboli zobrazení) z množiny $X$ do množiny $Y$ (píšeme $f: X \\to Y$) je vlastně speciální typ binární relace, kde **každý prvek z $X$ má přiřazen právě jeden prvek z $Y$**. \n\n### 1. Tři základní typy funkcí\nRozlišujeme tři klíčové vlastnosti, které zkoumají, jak funkce pokrývá cílovou množinu:\n\n1. **Injekce (prostá funkce):** Každý prvek v cíli má *nejvýše jeden* vzor. Zkrátka, dva různé vstupy se nikdy nesmí trefit do stejného výstupu.\n   Formálně: $\\forall x_1, x_2 \\in X : f(x_1) = f(x_2) \\implies x_1 = x_2$\n2. **Surjekce (funkce \"na\"):** Každý prvek v cíli má *alespoň jeden* vzor. Cílová množina je beze zbytku pokryta.\n   Formálně: $\\forall y \\in Y \\; \\exists x \\in X : f(x) = y$\n3. **Bijekce (vzájemně jednoznačná):** Funkce je současně injektivní i surjektivní. Každý cíl má *právě jeden* vzor. Prostor se dokonale spáruje kus za kus. Ke každé bijekci existuje inverzní funkce $f^{-1}$.\n\n### 2. Skládání funkcí a matfyzácký chyták\nPokud máme funkce $g: X \\to Y$ a $f: Y \\to Z$, můžeme je složit a vytvořit funkci z $X$ rovnou do $Z$. \n**Obrovský pozor na značení!** Zápis $f \\circ g$ čteme jako \"f po g\". Ale když jej aplikujeme na prvek $x$, zapiše se to takto:\n$$ (f \\circ g)(x) = f(g(x)) $$\nTo znamená, že ačkoliv je funkce $f$ napsaná vlevo jako první, **ve skutečnosti se na vstup $x$ fyzicky aplikuje jako první funkce $g$ (ta vpravo)!** Až na její výsledek $g(x)$ se aplikuje vnější funkce $f$. Komise velmi ráda zkoumá, zda si tento protichůdný zápis (čtení zleva doprava vs. počítání zevnitř ven) uvědomujete.\n\n### 3. Vlastnosti složených funkcí (Často testováno)\nCo se stane, když složíme určité typy funkcí? Platí krásná pravidla:\n* Složení dvou injekcí je vždy injekce.\n* Složení dvou surjekcí je vždy surjekce.\n* **Důležité obrácení:** Pokud víme, že výsledek $f \\circ g$ je **injekce**, pak nutně vnitřní (první) funkce **$g$ musí být injekce**. (Pokud by totiž $g$ spojila dva body do jednoho, vnější funkce $f$ by to už nikdy nedokázala rozplést).\n* Pokud je $f \\circ g$ **surjekce**, pak nutně vnější (druhá) funkce **$f$ musí být surjekce**."
+    },
+    {
+      "id": "019f80cf-1f33-727f-9474-e83e2284d833",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Kombinatorika",
+        "Funkce"
+      ],
+      "title": "Teorie: Počty zobrazení a Permutace",
+      "content": "Typickou úlohou v diskrétní matematice je spočítat, kolik různých funkcí daného typu lze mezi dvěma konečnými množinami vůbec vytvořit.\n\nNechť $|X| = n$ (počet prvků vstupu) a $|Y| = m$ (počet prvků výstupu).\n\n### 1. Počty základních zobrazení\n* **Všechna možná zobrazení:** Každý z $n$ prvků si může vybrat libovolný z $m$ cílů. Celkem je to $m \\cdot m \\dots m = \\mathbf{m^n}$.\n* **Počet prostých zobrazení (Injekcí):** Aby byla funkce prostá, musí platit $m \\ge n$. První prvek z $X$ má $m$ možností. Druhý už jen $m-1$ (nesmí se trefit do prvního). Třetí $m-2$ atd. \n  Počet je: $m \\cdot (m-1) \\cdots (m-n+1) = \\mathbf{\\frac{m!}{(m-n)!}}$.\n* **Počet bijekcí:** Bijekce vyžaduje, aby obě množiny byly stejně velké ($n = m$). Počet bijekcí je pak dán vzorcem pro injekci, ze kterého zbyde zkrátka $\\mathbf{n!}$ (faktoriál).\n* **Počet surjekcí:** Na to neexistuje jednoduchý jednorádkový vzorec (výpočet vyžaduje Princip inkluze a exkluze nebo Stirlingova čísla 2. druhu, ukážeme si to v dalším bloku).\n\n### 2. Permutace a pevný bod\nBijekci z množiny $X$ do té samé množiny $X$ (tedy $f: X \\to X$) nazýváme **permutace**. Množina všech permutací na $n$ prvcích se značí $S_n$ a je jich přesně **$n!$**.\n\nKlíčovou vlastností, kterou zkoumáme u permutací (často v pravděpodobnosti nebo v problému šatnářky), je **pevný bod**.\n* Prvek $x$ je pevným bodem permutace $f$, pokud ho permutace nechá na pokoji, tedy platí: **$f(x) = x$**.\n* Permutaci, která nemá **ani jeden pevný bod** (zcela všechny prvky přesune někam jinam), říkáme *derangement*. Počet takových permutací tvoří podstatu tzv. problému šatnářky (budeme řešit přes PIE)."
+    },
+    {
+      "id": "019f80cf-1f33-727f-9474-ef677150af99",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "Kombinatorika",
+        "Funkce"
+      ],
+      "title": "Praxe: Výpočty počtů funkcí a skládání",
+      "content": "Pojďme si ukázat, jak by vypadal typický cvičný (nebo zkouškový) test na počítání funkcí. Prověří, zda chápete vzorce z předchozí teorie a rozumíte logice skládání.\n\n### Zkoušková úloha\nMějme tři konečné množiny: $A = \\{1, 2, 3\\}$, $B = \\{1, 2, 3, 4, 5\\}$ a $C = \\{a, b, c\\}$.\n\n**Úkoly:**\n1. Určete celkový počet všech možných funkcí $f: A \\to B$.\n2. Určete počet všech prostých funkcí (injekcí) z $A$ do $B$.\n3. Existuje nějaká surjektivní funkce z $A$ do $B$? Proč?\n4. Určete počet všech bijekcí z $A$ do $C$.\n5. Mějme funkce $f: A \\to B$ a $g: B \\to C$. Víme, že složená funkce $(g \\circ f)$ je **prostá (injekce)**. Můžeme s jistotou tvrdit, že funkce $g$ je prostá? Vysvětlete.\n\n*Nápověda:* Pečlivě si napište velikosti množin (zde $|A|=3, |B|=5, |C|=3$). K úkolu 5: vzpomeňte si na definici $(g \\circ f)(x) = g(f(x))$. Pokud vnitřní funkce $f$ nevyužije celou množinu $B$, může funkce $g$ klidně nějaké nevyužité body spojit a přesto na celku zůstane prostá?",
+      "hiddenContent": "**Vzorové řešení:**\n\nIdentifikujeme velikosti: $n = |A| = 3$, $m = |B| = 5$, $k = |C| = 3$.\n\n**1. Počet všech funkcí z $A$ do $B$:**\nPro každý ze tří prvků z $A$ máme k dispozici 5 cílů v $B$. Výpočet je $m^n = 5^3 = \\mathbf{125}$.\n\n**2. Počet prostých funkcí (injekcí) z $A$ do $B$:**\nPrvní prvek má 5 možností. Druhý prvek už nesmí tam, kam první, má tedy 4 možnosti. Třetí prvek má 3 možnosti. \nVýpočet: $5 \\cdot 4 \\cdot 3 = \\mathbf{60}$. (Odpovídá to zlomku $\\frac{5!}{(5-3)!} = \\frac{120}{2}$). \n\n**3. Existence surjekce z $A$ do $B$:**\nAby byla funkce na (surjektivní), musí pokrýt všech 5 prvků z cílové množiny $B$. V množině $A$ ale máme k dispozici pouze 3 \"střelce\". I kdyby každý trefil jiný cíl, pokryjeme pouze 3 cíle z 5. Žádná surjekce proto **neexistuje** (pro existenci surjekce musí nutně platit $|A| \\ge |B|$).\n\n**4. Počet bijekcí z $A$ do $C$:**\nProtože obě množiny mají přesně stejný počet prvků ($|A| = 3, |C| = 3$), bijekce mohou existovat. Počet všech takových dokonalých spárování je dán permutacemi, tedy faktoriálem počtu prvků.\nVýpočet: $3! = 3 \\cdot 2 \\cdot 1 = \\mathbf{6}$.\n\n**5. Analýza skládání (Je $g$ prostá?):**\nVíme, že $g(f(x))$ je prostá z $A$ do $C$. Musí tedy platit, že funkce $f$ (ta, co funguje jako první) je prostá (viz teorie). Ptáme se ale na vnější funkci $g: B \\to C$.\n**Tvrzení, že $g$ musí být prostá, je NEPRAVDIVÉ.** \n*Důkaz protipříkladem:* Množina $B$ má 5 prvků, ale funkce $f$ (protože její doména $A$ má jen 3 prvky) využije jako svůj obraz maximálně 3 prvky z $B$. Zbydou 2 prvky v $B$, do kterých funkce $f$ vůbec nic nepošle. Funkce $g$ si může s těmito dvěma \"slepými\" prvky dělat co chce – může je klidně zobrazit do stejného bodu v $C$ (tím pádem by $g$ nebyla prostá na celé množině $B$). Přesto celá roura $A \\to B \\to C$ zůstane prostá, protože ty kolizní body se z naší počáteční množiny $A$ vůbec neaktivují."
+    },
+    {
+      "id": "019f80d1-f36d-705e-a696-2c7327088792",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "Kombinatorika",
+        "Binomická věta"
+      ],
+      "title": "Teorie: Kombinační čísla a Binomická věta",
+      "content": "Kombinační číslo $\\binom{n}{k}$ (čteme \"n nad k\") udává **počet $k$-prvkových podmnožin $n$-prvkové množiny** (tj. nezáleží nám na pořadí prvků, jen na tom, koho jsme vybrali). \nAlgebraicky je definováno pomocí faktoriálů: $\\binom{n}{k} = \\frac{n!}{k!(n-k)!}$.\n\n### Základní identity, které musíte znát jako když bičem mrská:\n1.  **Symetrie:** $\\binom{n}{k} = \\binom{n}{n-k}$ (Vybrat $k$ prvků, které si vezmu, je to samé jako vybrat $n-k$ prvků, které tam nechám).\n2.  **Pascalovo pravidlo:** $\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$ (Základ Pascalova trojúhelníku. Rozdělíme výběr na dva disjunktní případy podle toho, zda nějaký konkrétní fixní prvek do výběru vezmeme, nebo nevezmeme).\n3.  **Součet řádku Pascalova trojúhelníku:** $\\sum_{k=0}^{n} \\binom{n}{k} = 2^n$ (Počet úplně všech podmnožin $n$-prvkové množiny).\n\n### Binomická věta\nTato slavná věta umožňuje algebraicky umocnit libovolný dvojčlen. Udává, jak se po roznásobení seskupí koeficienty u jednotlivých mocnin.\n**Znění věty:** Pro libovolná reálná (či komplexní) čísla $x, y$ a přirozené číslo $n$ platí:\n$$ (x + y)^n = \\sum_{k=0}^{n} \\binom{n}{k} x^{n-k} y^k $$\n\n*Hlubší (kombinatorický) pohled:* Když roznásobujete $n$ závorek $(x+y)(x+y)\\dots(x+y)$, z každé závorky musíte vybrat buď $x$, nebo $y$. Kolika způsoby můžete vybrat přesně $k$ ypsilonů? Přece tak, že si z celkových $n$ závorek vyberete $k$ konkrétních závorek, ze kterých $y$ vezmete. A to je přesně definice čísla $\\binom{n}{k}$!"
+    },
+    {
+      "id": "019f80d1-f36d-705e-a696-33ff6c49b579",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "Kombinatorika",
+        "Důkazy"
+      ],
+      "title": "Praxe: Určování koeficientů a kombinatorický důkaz",
+      "content": "Pojďme si ukázat dva typy státnicových úloh k tomuto tématu. První je klasický výpočet pomocí binomické věty. Druhým je tzv. **kombinatorický důkaz**. Zkoušející se na něj často ptají, protože ukazuje, zda student vzorcům skutečně rozumí, nebo se je jen nabifloval.\n\n### Zkoušková úloha 1: Hledání koeficientu\nUrčete koeficient u členu $x^3$ v algebraickém rozvoji výrazu $\\left(2x^2 - \\frac{3}{x}\\right)^6$.\n\n### Zkoušková úloha 2: Kombinatorický důkaz\nDokažte následující identitu. Místo úpravy faktoriálů ale použijte **kombinatorickou úvahu** (tj. vymyslete nějakou životní situaci/výběr a ukažte, že obě strany rovnice počítají ten samý příklad, jen jiným způsobem):\n$$ \\binom{n}{k} \\binom{k}{m} = \\binom{n}{m} \\binom{n-m}{k-m} $$\n\n*Nápověda 1:* Dosadťe do vzorce pro $k$-tý člen z binomické věty a upravte mocniny u $x$ tak, aby exponent byl roven 3. Z toho zjistíte, které $k$ potřebujete.\n*Nápověda 2:* Představte si, že máte skupinu $n$ lidí. Hledáte tým o velikosti $k$. A v tom týmu musí být $m$ kapitánů.",
+      "hiddenContent": "**Vzorové řešení 1 (Hledání koeficientu):**\nPodle binomické věty má každý (v pořadí $k$-tý) člen rozvoje po úpravě tvar:\n$$ \\binom{6}{k} (2x^2)^{6-k} \\left(\\frac{-3}{x}\\right)^k $$\nNejprve si vyseparujeme čísla (koeficienty) a samotné neznámé $x$ s jejich exponenty:\n$$ \\binom{6}{k} \\cdot 2^{6-k} \\cdot (-3)^k \\cdot \\frac{(x^2)^{6-k}}{x^k} $$\nZajímá nás pouze mocnina u $x$. Zjednodušíme exponent:\n$$ \\frac{x^{12-2k}}{x^k} = x^{12-2k-k} = x^{12-3k} $$\nAbychom dostali požadovaný člen $x^3$, položíme exponent roven 3:\n$$ 12 - 3k = 3 \\implies 3k = 9 \\implies \\mathbf{k = 3} $$\nNyní už jen dosadíme $k = 3$ zpět do číselné (koeficientové) části:\n$$ \\binom{6}{3} \\cdot 2^{6-3} \\cdot (-3)^3 = 20 \\cdot 2^3 \\cdot (-27) = 20 \\cdot 8 \\cdot (-27) = 160 \\cdot (-27) = \\mathbf{-4320} $$\n*Závěr 1:* Koeficient u $x^3$ je $-4320$.\n\n**Vzorové řešení 2 (Kombinatorický důkaz identity):**\nSituace: Z množiny $n$ studentů vybíráme výbor o velikosti $k$ lidí. Uvnitř tohoto výboru pak ještě volíme $m$ členů do užšího vedení (předsednictva). Ukažme si dva způsoby, jak takový výběr provést:\n\n*   **Levá strana rovnice:** Nejprve z $n$ studentů vybereme celý výbor o velikosti $k$ lidí (to lze udělat $\\binom{n}{k}$ způsoby). Z tohoto již vybraného výboru pak zvolíme oněch $m$ členů užšího vedení (to lze $\\binom{k}{m}$ způsoby). Podle pravidla součinu se tyto dvě volby násobí.\n*   **Pravá strana rovnice (Opačný postup):** Vybereme to rovnou odshora. Nejprve z celkového počtu $n$ studentů rovnou vybereme oněch $m$ šťastlivců, kteří budou v užším vedení (to lze udělat $\\binom{n}{m}$ způsoby). Nyní musíme doplnit zbytek výboru. Chybí nám $k-m$ lidí. Ty budeme vybírat ze zbylých studentů ve třídě, kterých je $n-m$. Počet způsobů, jak to udělat, je $\\binom{n-m}{k-m}$. Opět to vynásobíme.\n\n*Závěr 2:* Protože oběma logickými úvahami jsme vybrali přesně to samé, musí se oba výrazy rovnat. Důkaz je hotov."
+    },
+    {
+      "id": "019f80d1-f36e-72dc-9790-5d5154bbd5c9",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "PIE",
+        "Důkazy"
+      ],
+      "title": "Teorie: Princip inkluze a exkluze (Vzorec a Důkaz)",
+      "content": "Princip inkluze a exkluze (PIE) je naprosto ústředním nástrojem diskrétní matematiky. Slouží k tomu, abychom dokázali přesně spočítat velikost sjednocení několika množin, které se mezi sebou mohou různě překrývat, aniž bychom jakýkoliv prvek započítali víckrát.\n\n### 1. Obecná formulace vzorce\nMáme-li konečné množiny $A_1, A_2, \\dots, A_n$, pak pro velikost jejich sjednocení platí:\n$$ |\\bigcup_{i=1}^n A_i| = \\sum_{i=1}^n |A_i| - \\sum_{i < j} |A_i \\cap A_j| + \\sum_{i < j < k} |A_i \\cap A_j \\cap A_k| - \\dots + (-1)^{n+1} |A_1 \\cap A_2 \\dots \\cap A_n| $$\n*(Lidsky: Sečti velikosti jednotlivých množin. Ale ty prvky, které leží ve dvou, jsi započítal dvakrát, tak je musíš jednou odečíst (proto odčítáme průniky dvojic). Tím jsi ale ty, které leží ve třech, odečetl moc, tak je zas musíš přičíst zpět... a takto to \"kmitá\" znaménky až dokonce).*\n\n### 2. Formální důkaz PIE (Velmi častá státnicová otázka)\nAbychom vzorec dokázali, musíme komisi přesvědčit o jedné jediné věci: **Ukázat, že libovolný prvek $x$, který leží v celém sjednocení, se na pravé straně vzorce po všech těch odčítáních a přičítáních započítá nakonec PŘESNĚ JEDNOU.**\n\n**Důkaz přes příspěvky prvků (s využitím Binomické věty):**\n1.  Mějme nějaký konkrétní prvek $x$, který se reálně nachází v přesně $k$ množinách (kde $k \\ge 1$).\n2.  Jak ho počítá pravá strana našeho vzorce?\n    *   V prvním součtu (jednotlivé množiny $|A_i|$) se prvek $x$ započítá přesně $k$-krát. (Což je $\\binom{k}{1}$). \n    *   V druhém součtu (průniky dvojic) se odečte za každou dvojici množin, ve kterých figuruje. Kolik takových dvojic z jeho $k$ množin lze vytvořit? Přesně $\\binom{k}{2}$.\n    *   Ve třetím součtu se opět přičte, a to za každou trojici. To je $\\binom{k}{3}$ krát.\n3.  Celkový „příspěvek“ prvku $x$ do pravé strany vzorce je tedy roven číslu $S$:\n    $$ S = \\binom{k}{1} - \\binom{k}{2} + \\binom{k}{3} - \\dots + (-1)^{k-1} \\binom{k}{k} $$\n4.  My ale známe vzorec z binomické věty pro $(1 - 1)^k$ (což je vždy rovno 0, protože $1-1=0$):\n    $$ 0 = (1 - 1)^k = \\binom{k}{0} - \\binom{k}{1} + \\binom{k}{2} - \\binom{k}{3} + \\dots $$\n5.  Upravíme tuto rovnici – přesuneme všechno kromě $\\binom{k}{0}$ na levou stranu a prohodíme znaménka:\n    $$ \\binom{k}{1} - \\binom{k}{2} + \\binom{k}{3} - \\dots = \\binom{k}{0} $$\n6.  Levá strana této upravené rovnice je naprosto přesně náš příspěvek $S$. A my víme, že $\\binom{k}{0} = 1$.\n7.  **Závěr důkazu:** Dokázali jsme, že $S = 1$. Každý prvek $x$, který patřil do nějakých $k$ množin, byl do obřího PIE vzorce započítán ve finále právě a jen jednou. Důkaz je hotov."
+    },
+    {
+      "id": "019f80d3-f562-7299-8b5f-63526cae276f",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "PIE",
+        "Kombinatorika"
+      ],
+      "title": "Praxe: Problém šatnářky a Počet surjekcí",
+      "content": "Když se řekne Princip inkluze a exkluze (PIE), komise si jako první aplikaci představí tzv. *Problém šatnářky* (nebo *Roztržité sekretářky*) a vzorec pro *Počet surjekcí*. V obou případech PIE nepoužíváme k tomu, abychom spočítali, co chceme, ale **abychom od všech možností odečetli to, co NECHCEME (tzv. špatné vlastnosti)**.\n\n### Zkoušková úloha 1: Problém šatnářky (Derangementy)\nDo divadla přijde $n$ pánů a odevzdají šatnářce klobouky. Šatnářka ztratí lístky a při odchodu rozdá klobouky zcela náhodně. Kolika způsoby to může udělat tak, aby **ani jeden pán nedostal svůj vlastní klobouk**? (Tedy hledáme počet permutací bez pevného bodu, tzv. derangementy, značíme $D_n$).\n\n### Zkoušková úloha 2: Počet surjekcí\nMějme množiny $N$ (velikost $n$) a $M$ (velikost $m$). Kolik existuje surjektivních zobrazení (funkcí \"na\") z množiny $N$ do $M$?\n\n*Nápověda k oběma úlohám:* \n1. Určete Univerzum $U$ (všechny myslitelné možnosti, bez omezení).\n2. Definujte si \"špatnou vlastnost\" $A_i$.\n3. Zjistěte velikost jedné špatné množiny $|A_i|$, průniku dvou $|A_i \\cap A_j|$ atd.\n4. Zadejte to do vzorce PIE a odečtěte to od Univerza: $Hledane = |U| - |A_1 \\cup A_2 \\dots|$",
+      "hiddenContent": "**Vzorové řešení 1 (Šatnářka):**\n1. **Univerzum $U$:** Všechny možné způsoby rozdání klobouků (všechny permutace). $|U| = n!$.\n2. **Špatná vlastnost $A_i$:** Pán číslo $i$ dostal svůj vlastní klobouk (má pevný bod).\n3. **Velikosti průniků:** \n   * $|A_i|$ (Pán $i$ má svůj klobouk, ostatní klobouky rozdáme jakkoliv): $(n-1)!$. \n   * $|A_i \\cap A_j|$ (Dva konkrétní pánové mají své klobouky): $(n-2)!$.\n   * Takto to pokračuje dále. Důležité je si uvědomit, kolik takových podmnožin v každém kroku existuje. Jeden klobouk mohu zafixovat $\\binom{n}{1}$ způsoby. Dva klobouky $\\binom{n}{2}$ způsoby atd.\n4. **Dosazení do PIE:** Hledáme permutace, které nemají ani jednu špatnou vlastnost.\n   $$ D_n = n! - \\left( \\binom{n}{1}(n-1)! - \\binom{n}{2}(n-2)! + \\binom{n}{3}(n-3)! - \\dots \\right) $$\n   *Matfyzácká úprava (zkrácení faktoriálů):* Protože $\\binom{n}{k} = \\frac{n!}{k!(n-k)!}$, po vynásobení s $(n-k)!$ se nám $(n-k)!$ vykrátí a zbyde $\\frac{n!}{k!}$.\n   Vzorec se po vytknutí $n!$ neuvěřitelně zjednoduší na slavnou řadu:\n   $$ D_n = n! \\left( 1 - \\frac{1}{1!} + \\frac{1}{2!} - \\frac{1}{3!} + \\dots + \\frac{(-1)^n}{n!} \\right) $$\n\n**Vzorové řešení 2 (Počet surjekcí):**\n1. **Univerzum $U$:** Všechny myslitelné funkce z $N$ do $M$. $|U| = m^n$.\n2. **Špatná vlastnost $A_i$:** Prvek $i$ z cílové množiny $M$ NENÍ zasažen (nebyl na něj poslán žádný prvek).\n3. **Velikosti průniků:**\n   * $|A_i|$ (Vyřadili jsme 1 cíl, šipky mohou jít jen do zbylých $m-1$ cílů): $(m-1)^n$. Možností, koho vyřadit, je $\\binom{m}{1}$.\n   * $|A_i \\cap A_j|$ (Vyřadili jsme 2 cíle, střílíme do $m-2$): $(m-2)^n$. Způsobů je $\\binom{m}{2}$.\n4. **Dosazení do PIE (Vzorec pro počet surjekcí):**\n   $$ Surj(n,m) = m^n - \\binom{m}{1}(m-1)^n + \\binom{m}{2}(m-2)^n - \\dots = \\sum_{k=0}^m (-1)^k \\binom{m}{k} (m-k)^n $$"
+    },
+    {
+      "id": "019f80d3-f563-75dc-954b-836e836b6ee4",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "PIE",
+        "Teorie čísel"
+      ],
+      "title": "Praxe: Eulerova funkce (Aplikace PIE)",
+      "content": "Třetí obrovskou aplikací Principu inkluze a exkluze je odvození vzorce pro slavnou Eulerovu funkci $\\varphi(n)$. \n\n### Co je to Eulerova funkce?\nFunkce $\\varphi(n)$ (čteme \"fí\") nám říká, **kolik existuje přirozených čísel v intervalu $\\{1, 2, \\dots, n\\}$, která jsou s číslem $n$ NESOUDĚLNÁ** (mají s ním největšího společného dělitele rovného jedné, $\\gcd(x, n) = 1$).\n*(Tato funkce je kriticky důležitá například v kryptografii při šifrování RSA).*\n\n### Zkoušková úloha (Odvození vzorce)\nMějme přirozené číslo $n$, které má prvočíselný rozklad $n = p_1^{k_1} p_2^{k_2} \\dots p_r^{k_r}$ (kde $p_1, p_2 \\dots$ jsou různá prvočísla).\n\n**Úkol:**\nOdvoďte vzorec pro $\\varphi(n)$ pomocí Principu inkluze a exkluze (PIE).\n\n*Nápověda:* Číslo $x$ je s $n$ nesoudělné právě tehdy, když není dělitelné ANI JEDNÍM z prvočísel $p_1, p_2, \\dots p_r$. \nVaše špatné vlastnosti (množiny $A_{p_i}$) budou reprezentovat \"číslo v intervalu $1 \\dots n$ je dělitelné prvočíslem $p_i$\". Kolik je v tomto intervalu takových čísel? Bude to přesně $\\frac{n}{p_i}$. Sestavte PIE a algebraicky ho upravte vytknutím $n$.",
+      "hiddenContent": "**Vzorové řešení pro komisi:**\n\n**1. Nastavení PIE:**\n*   **Univerzum $U$:** Všechna čísla $\\{1, \\dots, n\\}$. Tedy $|U| = n$.\n*   **Špatná množina $A_{p_i}$:** Čísla z Univerza, která JSOU dělitelná prvočíslem $p_i$.\n*   **Velikosti průniků:**\n    *   Velikost množiny $A_{p_i}$ (tj. počet násobků prvočísla $p_i$ do $n$) je přesně $\\frac{n}{p_i}$.\n    *   Velikost průniku $A_{p_i} \\cap A_{p_j}$ (tj. číslo je dělitelné $p_i$ a zároveň $p_j$) je $\\frac{n}{p_i p_j}$.\n    *   Průnik tří množin je $\\frac{n}{p_i p_j p_k}$, atd.\n\n**2. Sestavení vzorce:**\nPočet čísel, která nepatří do žádné špatné množiny (jsou tedy nesoudělná), je podle PIE:\n$$ \\varphi(n) = n - \\left( \\sum_{i} \\frac{n}{p_i} - \\sum_{i < j} \\frac{n}{p_i p_j} + \\sum_{i < j < k} \\frac{n}{p_i p_j p_k} - \\dots \\right) $$\n\n**3. Algebraická úprava:**\nVšimneme si, že v každém zlomku figuruje v čitateli číslo $n$. Můžeme ho tedy úplně z celého výrazu vytknout před závorku:\n$$ \\varphi(n) = n \\cdot \\left( 1 - \\sum_{i} \\frac{1}{p_i} + \\sum_{i < j} \\frac{1}{p_i p_j} - \\dots \\right) $$\n\nTato gigantická závorka plná přičítání a odčítání se dá velmi elegantně zapsat pomocí součinu jednoduchých závorek. (Když byste tento součin roznásobili, dostanete přesně výraz výše):\n$$ \\varphi(n) = n \\cdot \\prod_{i=1}^r \\left( 1 - \\frac{1}{p_i} \\right) $$\n\n**Závěr:**\nTím jsme přes PIE odvodili univerzální a mimořádně rychlý vzorec pro Eulerovu funkci. Zjistili jsme, že na nějakých exponentech $k$ v prvočíselném rozkladu vůbec nezáleží – záleží pouze na tom, o jaká unikátní prvočísla jde.\n*(Příklad na kontrolu: $\\varphi(12) = 12 \\cdot (1 - 1/2) \\cdot (1 - 1/3) = 12 \\cdot (1/2) \\cdot (2/3) = 4$. Skutečně to jsou čísla 1, 5, 7 a 11).*"
+    },
+    {
+      "id": "019f80d3-f563-75dc-954b-878a3b7a6b9a",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Teorie",
+        "SRR",
+        "Grafy"
+      ],
+      "title": "Teorie: Hallova věta o systému různých reprezentantů (SRR)",
+      "content": "Posledním tématem diskrétní matematiky je Systém různých reprezentantů (SRR). Toto téma je krásnou ukázkou toho, jak se abstraktní problém dá vyřešit převedením na grafy.\n\n### 1. Co je to SRR?\nMáme zadaný systém konečných množin $\\mathcal{M} = \\{M_1, M_2, \\dots, M_n\\}$.\n**Systém různých reprezentantů** je výběr přesně $n$ prvků (označme je $x_1, x_2, \\dots, x_n$) takových, že platí:\n1.  Každý prvek reprezentuje jednu množinu: $x_1 \\in M_1$, $x_2 \\in M_2$, atd.\n2.  Všechny vybrané prvky jsou **navzájem různé** ($x_i \\neq x_j$ pro $i \\neq j$).\n*(Příklad: Každá množina představuje jazyky, kterými mluví jeden delegát. Chceme sestavit komisi tak, aby z každé množiny byl vybrán právě jeden jazyk a každý delegát mluvil v komisi jiným jazykem).*\n\n### 2. Hallova podmínka (Zkouškový základ)\nKdy takový výběr existuje? Odpověď dává **Hallova věta o sňatcích**.\nSRR pro systém množin $\\mathcal{M}$ existuje **právě tehdy**, když je splněna tzv. Hallova podmínka:\n$$ \\forall I \\subseteq \\{1, \\dots, n\\} : \\left| \\bigcup_{i \\in I} M_i \\right| \\ge |I| $$\n*Lidsky:* Pro jakoukoliv libovolnou podskupinu množin musí platit, že když všechny tyto vybrané množiny nasypete na jednu hromadu, musí na této hromadě být **alespoň tolik různých prvků, kolik jste vzali množin**. \n*(Pokud byste vzali 3 množiny a dohromady by obsahovaly jen 2 různé prvky, nemáte šanci z nich vybrat 3 RŮZNÉ zástupce).*\n\n### 3. Vztah k bipartitním grafům\nTento problém lze naprosto dokonale namapovat na hledání **maximálního párování v bipartitním grafu**.\n*   Sestrojíme bipartitní graf $G = (A \\cup B, E)$.\n*   Partita $A$ (vlevo) obsahuje vrcholy reprezentující samotné množiny $M_1 \\dots M_n$.\n*   Partita $B$ (vpravo) obsahuje vrcholy reprezentující všechny unikátní prvky napříč všemi množinami.\n*   Hranu mezi množinou $M_i$ a prvkem $x$ nakreslíme právě tehdy, když prvek $x$ leží v množině $M_i$ ($x \\in M_i$).\n\nNalezení SRR je pak naprosto ekvivalentní s nalezením takového párování (nezávislých hran), které **nasytí celou levou partitu $A$** (z každého levého vrcholu vede právě jedna hrana do unikátního pravého vrcholu)."
+    },
+    {
+      "id": "019f80d3-f563-75dc-954b-8a90083f72a6",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Praxe",
+        "SRR",
+        "Algoritmy"
+      ],
+      "title": "Praxe: Algoritmické nalezení SRR (Střídavé cesty)",
+      "content": "Jelikož se problém SRR transformoval na párování v bipartitním grafu, můžeme na něj poštvat efektivní algoritmy. To je u státnic velmi oblíbené, protože to propojuje diskrétní matematiku s datovými strukturami.\n\n### Jak najít SRR algoritmicky? (Metoda střídavých cest)\nAlgoritmus začíná s prázdným párováním a postupně ho zvětšuje. Využívá k tomu tzv. **Bergeovo lemma**, které říká: *Párování je maximální právě tehdy, když v grafu neexistuje žádná zlepšující cesta.*\n\n**Základní pojmy (Nutno znát k ústní i písemné!):**\n1.  **Střídavá cesta:** Cesta v grafu, která pravidelně střídá hrany, které už v párování jsou (tlusté), a hrany, které v něm nejsou (tenké).\n2.  **Zlepšující cesta:** Je to střídavá cesta, která **začíná i končí ve VOLNÉM (nenasyceném) vrcholu**. To je klíčové!\n\n**Algoritmus krok za krokem:**\n1.  Zvolíme nějaký volný (ještě nespárovaný) vrchol z levé partity $A$ (nějakou množinu $M_i$, která ještě nemá svého reprezentanta).\n2.  Spustíme z něj speciální Prohledávání do šířky (BFS):\n    *   Když jdeme zleva doprava (do partity prvků), smíme jít POUZE po hranách, které **nejsou** v párování.\n    *   Když jdeme zprava doleva, musíme jít POUZE po hraně, která **je** v párování (musíme se vrátit přes už spárovaného partnera).\n3.  Prohledáváme tak dlouho, dokud v pravé partitě $B$ nenarazíme na **volný vrchol** (prvek, který si ještě nikdo nezabral).\n4.  Tím jsme našli **zlepšující cestu**! Vezmeme tuto cestu a všechny hrany na ní \"prohodíme\" (to, co v párování bylo, vyhodíme; to, co nebylo, tam dáme). Protože cesta začala i skončila volným vrcholem, po překlopení nám v párování **jedna hrana přibyde**!\n5.  Tohle opakujeme, dokud nenasytíme celou partitu $A$ (máme SRR), nebo dokud BFS neselže (algoritmus zaručeně najde důkaz, že Hallova podmínka neplatí).\n\n**Složitost:**\nProtože se párování v každém úspěšném kroku zvětší o 1 (a maximální velikost párování je $V$), provedeme maximálně $|V|$ hledání zlepšující cesty. Jedno BFS prohledá graf v čase $O(|E|)$. Celková časová složitost hledání SRR je tedy polynomiální, přesněji **$O(|V| \\cdot |E|)$**."
+    }
+  ]
+}

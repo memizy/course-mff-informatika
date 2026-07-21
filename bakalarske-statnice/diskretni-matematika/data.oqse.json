@@ -20,6 +20,17 @@
   },
   "items": [
     {
+      "id": "019f8103-f7ee-7371-98df-9e4330966389",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Analýza",
+        "Diskrétní matematika"
+      ],
+      "title": "Analýza testů a další témata: Diskrétní matematika",
+      "content": "## Analýza testů podle termínů (Reálná zadání)\n\nZ analýzy doposud dostupných státnicových zadání vyplývá, že **čistá diskrétní matematika a kombinatorika (bez teorie grafů) se v písemných testech vyskytuje poměrně zřídka**. Většina \"diskrétních\" bodů v testech je alokována do úloh z teorie grafů, zatímco zbytek prostoru zabírá algebra a analýza. \n\nV dostupných materiálech se objevila pouze jedna dedikovaná úloha:\n\n### 8. 9. 2025 (Podzim 2025)\n**Téma: Binární relace a Ekvivalence**\n* **Teorie (Kvantifikátory):** Definovat podmínky, které musí splňovat binární relace, aby byla ekvivalencí. (Vyžadován byl přísný matematický zápis reflexivity, symetrie a tranzitivity pomocí kvantifikátorů $\\forall, \\implies, \\land$).\n* **Kombinatorika (Rozklady):** Určit počet všech možných ekvivalencí na konkrétní čtyřprvkové množině $\\{a, b, c, d\\}$. Znalost Věty o rozkladu a počítání tříd ekvivalence podle jejich velikosti.\n* **Konstrukce a Důkaz:** Vymyslet příklad binární relace na 4 prvcích, která je *tranzitivní, ale není symetrická ani antisymetrická*, a dokázat, že tyto vlastnosti opravdu splňuje.\n\n---\n\n## Další důležitá témata ze sylabu (V testech zatím nebylo)\n\nTo, že se diskrétní matematika v dostupných testech objevila jen jednou, může být poněkud zavádějící. Následující témata ze sylabu tvoří standardní znalostní základ a je velmi důležité se na ně v rámci písemné zkoušky připravit:\n\n### 1. Princip inkluze a exkluze (PIE) a jeho aplikace\n* **Zkouškový potenciál:** Velmi častý nástroj pro kombinatorické výpočty.\n* **Co znát:** Znění vzorce, formální důkaz (přes příspěvky prvků a binomickou větu) a tři hlavní aplikace: **Problém šatnářky** (počet permutací bez pevného bodu - derangementy), **Počet surjekcí** a vzorec pro **Eulerovu funkci $\\varphi(n)$**.\n\n### 2. Částečné uspořádání a Věta o dlouhém a širokém\n* **Zkouškový potenciál:** Klasické teoretické téma. Vyžaduje se přesnost v definicích.\n* **Co znát:** Rozdíl mezi *minimálním* a *nejmenším* prvkem. Definice řetězce a antiřetězce, šířky a výšky posetu. \n* **Hlavní zbraň:** Důkaz Věty o dlouhém a širokém (přes Dirichletův holubníkový princip a Mirského větu).\n\n### 3. Hallova věta (Systém různých reprezentantů)\n* **Zkouškový potenciál:** Tvoří most mezi diskrétní matematikou a grafy.\n* **Co znát:** Znění Hallovy podmínky pro existenci SRR. Propojení s maximálním párováním v bipartitních grafech a algoritmické hledání pomocí střídavých cest.\n\n### 4. Funkce a Permutace\n* **Zkouškový potenciál:** Určování počtů zobrazení a vlastnosti skládání.\n* **Co znát:** Vzorce pro počet všech zobrazení ($m^n$), prostých zobrazení (injekcí) a bijekcí ($n!$). Znalost faktu, že u zápisu $(f \\circ g)(x)$ se jako první aplikuje funkce $g$."
+    },
+    {
       "id": "019f80c2-3800-74dd-afe3-ef06fdec115d",
       "type": "note",
       "tags": [

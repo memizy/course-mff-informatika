@@ -1,0 +1,843 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/memizy/oqse-specification@main/schemas/oqse-v0.1.json",
+  "version": "0.1",
+  "meta": {
+    "id": "019f9a6b-054c-758f-b63d-0fdd207b20c7",
+    "language": "cs",
+    "title": "Programovací jazyky (C#) - Státnice MFF UK",
+    "description": "Komplexní příprava na bakalářské státnice z předmětu Programovací jazyky, zahrnující analýzu všech zkouškových úloh se zaměřením na jazyk C#.",
+    "subject": "Programovací jazyky (C#)",
+    "createdAt": "2026-07-25T17:50:00Z",
+    "updatedAt": "2026-07-25T17:50:00Z",
+    "requirements": {
+      "features": [
+        "markdown",
+        "math",
+        "html"
+      ]
+    },
+    "customData": {}
+  },
+  "items": [
+    {
+      "id": "019f9a6b-054c-758f-b63d-107bfe91b987",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Analýza",
+        "Strategie"
+      ],
+      "title": "Analýza testů a skryté hrozby ze sylabu",
+      "content": "## Analýza testů podle termínů (Reálná zadání)\n\nZ analýzy 9 dostupných zadání z let 2023–2026 vyplývá, že ačkoliv se testuje předmět *Programovací jazyky*, komise klade extrémní důraz na tři praktické pilíře: **Architekturu a OOP návrh**, **Multithreading a synchronizaci** a **Low-level manipulaci s pamětí a byty**. Všechny tyto úlohy (i ty hraničící s architekturou počítačů) lze bez problému řešit idiomatickým C#.\n\nZde je přesný rozpad toho, co se na zkouškách v rámci psaní kódu reálně testovalo:\n\n### 14. 9. 2023 (Podzim 2023)\n**Téma: Souběžnost a Race Conditions (LimitedStack)**\n* **Analýza kódu:** Zadaný kód třídy 'LimitedStack' se sdíleným datovým polem.\n* **Úkol (Analýza):** Najít kritickou sekci, identifikovat 'race condition' při volání 'pushValue' z více vláken a zdůvodnit, jak přesně může dojít k zápisu mimo alokované pole (přetečení zásobníku).\n* **Úkol (Kód):** Navrhnout úpravu odstraňující 'race condition'. V C# by se jednalo o zabalení kontroly velikosti a inkrementace indexu do bloku 'lock (syncObj)'. Inkrementace indexu typu 'currentDepth++' totiž není na úrovni instrukcí procesoru atomická.\n\n### 9. 2. 2024 (Jaro 2024)\n**Téma: Low-level programování (Ovladač disku)**\n* **Teorie a návrh:** Návrh struktury pro uchování informací o zařízení řízeném pěti paměťově mapovanými registry.\n* **Úkol (Kód):** Napsat funkce pro inicializaci a blokující čtení z disku (využívající aktivní čekání - polling) s ošetřením souběžného přístupu z více procesů.\n* **Aplikace v C#:** V jazyce C# komise očekává použití modifikátoru 'volatile', vytvoření paměťových mapování např. přes 'struct' a zapouzdření přístupu z více vláken pomocí struktury 'Mutex' (System.Threading).\n\n### 25. 6. 2024 (Léto 2024)\n**Téma: Vlákna a Semafory v C# (Deadlock)**\n* **Analýza kódu:** K zadání byl přiložen reálný C# program (třída 'Program', metoda 'Main', vlákna) používající 'System.Threading.Semaphore'. Dvě vlákna volala 'WaitOne()' a 'Release()' nad jedním semaforem a tiskla na konzoli.\n* **Úkol (Analýza):** Popsat chronologický scénář prokládání instrukcí vedoucí k uváznutí (deadlock) nebo chybnému pořadí výpisu.\n* **Úkol (Kód):** Zcela přepsat synchronizační kód. Napsat bezpečné řešení (bez časově závislých chyb) používající výhradně dva semafory, které zaručí korektní pořadí výpisu 'OneTwoThreeFourFive'.\n\n### 3. 9. 2024 (Podzim 2024)\n**Téma: Návrh OOP architektury (Reprezentace IDE typů)**\n* **Úkol (Návrh):** Navrhnout v C# hierarchii tříd a rozhraní (bez těl metod) pro uchovávání informací o typech a elementech v integrovaném vývojovém prostředí (Type, Method, Field).\n* **Úkol (Kód a Vzory):** Implementovat metodu pro průchod touto strukturou, která na libovolný typ aplikuje nějakou operaci.\n* **Chyták:** Bylo striktně vyžadováno explicitní pojmenování použitého vzoru (ideálně 'Visitor pattern') nebo návrh postavený na moderním C# 'pattern matchingu' s ohledem na rozšiřitelnost.\n\n### 4. 2. 2025 (Jaro 2025)\n**Téma: OOP Kontrakty a Návrhové vzory (Knihovna pro matice)**\n* **Úkol (Návrh):** Definovat 'interface' (kontrakt) pro reprezentaci 2D matice (získání velikosti, čtení hodnot, aritmetika).\n* **Úkol (Kód a Vzory):** Napsat implementaci metod tohoto rozhraní pro velmi velké řídké (sparse) matice ve formátu CSR (Compressed Sparse Row) a definovat prostorovou složitost.\n* **Úkol (Vzory):** Napsat metodu, která dostane data ze souboru a s využitím vhodného návrhového vzoru (Factory Method) rozhodne, zda vrátí instanci řídké nebo husté matice.\n\n### 23. 6. 2025 (Léto 2025)\n**Téma: Low-level paměť a bitové operace (Správce paměti)**\n* **Analýza kódu:** Zadaná třída 'Heap' v C#, která interně pracuje nad obřím polem 'byte[]'.\n* **Úkol (Kód):** Napsat alokační funkce (např. 'FindFirstFree' simulující first-fit) manipulující s 16bitovými (dvoubajtovými) hlavičkami volných bloků. Velikost i příznak obsazení se kódují na úrovni bitů.\n* **Chyták:** Nutnost číst a zapisovat 'ushort' (16-bit integer) z 'little-endian' formátu byte po bytu. Úloha končila nasimulováním 'hexdumpu' (ručním vypsáním hexadecimálních hodnot 22 bytů paměti) po provedení několika 'Alloc()' a 'Free()' operací.\n\n### 8. 9. 2025 (Podzim 2025)\n**Téma: Práce s binárními daty (Deserializace souboru)**\n* **Úkol (Návrh a Kód):** Implementovat C# třídy 'Reader' a 'Node' pro čtení neznámého binárního formátu. 'Reader' čte hlavičku, rozpoznává typy atributů podle poskytnutého 'enum' a načítá z instancí 'BinaryFile'.\n* **Chyták:** Konverze endianity (vstup byl big-endian, C# standardně operuje nad little-endian) a hard-core bitové operace s poli. Bylo nutné použít operátory bitového posunu ('<<') a logický součet ('|') pro korektní složení 'uint16' nebo 'int16' z dvou načtených bytů ze streamu.\n\n### 2. 2. 2026 (Jaro 2026)\n**Téma: Synchronizace a Semafory (Producent-Konzument)**\n* **Úkol (Kód):** Napsat C# implementaci funkcí 'send(byte)' a 'receive()' pro jednosměrný FIFO buffer mezi dvěma procesy bez použití aktivního čekání (jen 'Semaphore.WaitOne/Release').\n* **Úkol (Teorie a invarianty):** Specifikovat počáteční stavy semaforů závislé na velikosti bufferu $N$. Explicitně zapsat stavové invarianty platné před, během i po exekuci kritické sekce.\n\n### 22. 6. 2026 (Léto 2026)\n**Téma: Průchod pamětí (Spojový seznam na úrovni registrů)**\n* **Analýza kódu:** Ačkoliv byla úloha zadána pro 16bitový assembler, princip dokonale odpovídá low-level C# s 'unsafe' bloky a pointery.\n* **Úkol (Kód):** Identifikovat struktury spojového seznamu v surovém hexdumpu paměti (trasování pointrů z adresy na adresu). Následně dopsat program simulující smyčku počítající četnosti prvků v listu.\n\n---\n\n## Skryté hrozby ze sylabu (V testech zatím nebylo)\n\nAčkoliv se úlohy masivně točí kolem architektury a vláken, teoretické otázky nebo podotázky mohou pokrýt fundamenty jazyka ze sylabu, které se na papír ve formě větších programů psaly méně:\n\n### 1. Value types vs Reference types a Boxing\n* **Riziko:** Fundamentální znalost pro pochopení správy paměti a návrhu (struktura `struct` vs. třída `class`).\n* **Co znát:** Jak se alokuje 'struct' (stack) vs 'class' (heap). Co přesně je 'boxing' (přetypování value typu na 'object'), jakou nese výkonnostní penalizaci a jak tomu C# předchází (využitím reifikovaných Generik typu 'List<int>').\n\n### 2. Životní cyklus, Garbage Collector a IDisposable\n* **Riziko:** Testuje znalost uvolňování zdrojů a obsluhy výjimek.\n* **Co znát:** Proč v C# typicky nepoužíváme destruktory ('Finalizers'), ale interface 'IDisposable'. Jak kompilátor pod kapotou překládá blok 'using(var x = new...)' do struktury 'try-finally'. Jak pracují generace GC (0, 1, 2).\n\n### 3. VTable a vnitřní běh polymorfismu\n* **Riziko:** Typická \"podkapotová\" otázka z implementace jazyků.\n* **Co znát:** Tabulka virtuálních metod (VTable). Jaký je v paměti rozdíl mezi voláním klasické metody a metody označené 'virtual'/'override'. Kdy použít klíčové slovo 'new' (tzv. method hiding) a jeho důsledky pro dynamický polymorfismus.\n\n### 4. Běhové prostředí a Překlad (.NET Internals)\n* **Riziko:** Teorie vázaná na závěrečný bod sylabu.\n* **Co znát:** Rozdíl mezi zdrojovým kódem, CIL (Common Intermediate Language - to, co zkompiluje Roslyn), metadaty v assembly (.dll) a nativním strojovým kódem (vygenerovaným až za běhu procesem JIT - Just In Time překladu)."
+    },
+    {
+      "id": "019f9ad4-2107-74f5-a9ac-b1046a9392d4",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Low-level C#",
+        "Typový systém"
+      ],
+      "title": "Teorie: Hodnotové vs. Referenční typy (Paměťový model C#)",
+      "content": "V C# rozdělujeme typy do dvou hlavních kategorií. Toto rozdělení zásadně ovlivňuje, jak program spravuje paměť, a komise z něj ráda odvozuje teoretické i praktické chytáky.\n\n### 1. Hodnotové typy ('struct', 'enum', primitivní typy)\n* **Alokace:** Běžně se alokují na **zásobníku (Stack)**, případně in-line uvnitř jiného objektu na haldě. Zásobník je extrémně rychlý a úklid probíhá automaticky opuštěním bloku funkce.\n* **Chování:** Při přiřazení ('a = b') dochází ke **zkopírování celé hodnoty** bit po bitu.\n* **Vlastnosti:** Defaultně nemohou mít hodnotu 'null' (k tomu slouží obálka 'Nullable<T>' alias 'T?'). Jsou vždy odvozeny od skryté třídy 'System.ValueType'.\n* **Zástupci:** 'int', 'double', 'bool', uživatelské struktury ('struct').\n\n### 2. Referenční typy ('class', 'interface', 'delegate', pole)\n* **Alokace:** Alokují se VŽDY na **haldě (Heap)**. Na zásobníku je uložena pouze reference (ukazatel) na tuto alokovanou paměť.\n* **Chování:** Při přiřazení ('a = b') se kopíruje **pouze adresa v paměti**. Obě proměnné pak ukazují na stejný fyzický objekt.\n* **Vlastnosti:** Defaultní hodnota je 'null'. Paměť uvolňuje asynchronně **Garbage Collector (GC)**.\n* **Zástupci:** 'string' (sice referenční, ale imutabilní!), 'object', třídy, rozhraní a pole (i pole struktur je referenční objekt)."
+    },
+    {
+      "id": "019f9ad4-2107-74f5-a9ac-b441901de166",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Low-level C#",
+        "Deklarace"
+      ],
+      "title": "Praxe: Syntaxe deklarací a alokace polí",
+      "content": "**Zkouškový nácvik (Zkuste si zformulovat na papír):**\n\nPředstavte si, že máte navrhnout jednoduchou reprezentaci 3D bodu pro výpočetně náročnou grafickou aplikaci.\n\n1. Deklarujte hodnotový typ 'Point3D' se třemi souřadnicemi.\n2. Deklarujte referenční typ 'PointClass' se stejnými vlastnostmi.\n3. Napište kód, který vytvoří pole 100 prvků 'Point3D' a pole 100 prvků 'PointClass'.\n4. **Klíčová otázka:** Zhodnoťte a vysvětlete, kolik objektů se reálně alokuje na haldě (Heap) v obou případech. Proč je v C# první přístup diametrálně odlišný od jazyka Java?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// Hodnotový typ\npublic struct Point3D {\n    public double X, Y, Z;\n}\n\n// Referenční typ\npublic class PointClass {\n    public double X, Y, Z;\n}\n\n// Inicializace polí (oboje deklarováno jako referenční typ 'pole')\nPoint3D[] structArray = new Point3D[100];\nPointClass[] classArray = new PointClass[100];\n```\n\n**Paměťový rozbor (Častý chyták komise):**\n\n* **'structArray':** Na haldě (Heap) se alokuje **JEDEN jediný objekt** (samotné pole). Uvnitř tohoto paměťového bloku je rovnou in-line naskládáno 100 struktur (300 'double' hodnot vedle sebe). Všechny prvky jsou automaticky inicializovány na implicitní hodnotu ('0.0').\n* **'classArray':** Na haldě se alokuje **pole 100 referencí** (ukazatelů), které jsou inicializovány na 'null'. Zatím nevznikl ani jeden objekt 'PointClass'. Pro jejich použití by se musel zavolat 100x operátor 'new' v cyklu, což vytvoří dalších 100 malých izolovaných objektů rozesetých po haldě (celkem 101 objektů).\n\n*Poznámka k Javě (dle sylabu):* V Javě neexistují uživatelské hodnotové typy. Každý objekt je referenční. C# 'struct' zde přináší ohromnou výhodu ve využití paměťové cache procesoru (tzv. data locality) a ulehčení práce pro GC."
+    },
+    {
+      "id": "019f9ad4-2107-74f5-a9ac-b959131c3fc9",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Low-level C#",
+        "Parametry"
+      ],
+      "title": "Teorie: Předávání parametrů a Boxing/Unboxing",
+      "content": "Ačkoliv je C# silně typovaný objektový jazyk, občas se musí hodnotový typ zachovat jako objekt. Dále musíme rozlišovat, co se stane při předání parametru do funkce.\n\n### Boxing a Unboxing\nPokud hodnotový typ (např. 'int' nebo náš 'Point3D') uložíme do proměnné typu 'object' nebo do nějakého 'interface', musí ho běhové prostředí .NET (CLR) nějak zapouzdřit. Tomuto procesu se říká **Boxing**.\n\n1. Na haldě (Heap) se vytvoří nová tenká obálka (objekt).\n2. Hodnota ze zásobníku se do ní bit po bitu zkopíruje.\n3. Boxing je **výkonnostně velmi drahý** (alokace paměti a následná nutnost úklidu Garbage Collectorem).\n\nOpačný proces, kdy hodnotu z obálky dostáváme explicitním přetypováním zpět do struktury na zásobníku, se nazývá **Unboxing**.\n\n### Jak se předávají parametry do metod?\n\n1. **Předávání hodnotou (Default):** \nKopíruje se samotný obsah proměnné. U hodnotového typu se zkopíruje celá struktura. U referenčního typu se zkopíruje *adresa* (uvnitř metody tak můžeme upravovat existující objekt na haldě, ale pokud referenci přiřadíme 'new' instanci, volající se to nedozví, protože měníme jen lokální kopii adresy).\n\n2. **Předávání odkazem ('ref', 'out', 'in'):** \nMetodě se nepředává hodnota proměnné, ale **skrytý ukazatel na původní proměnnou** na zásobníku volajícího. \n* 'ref': Proměnná musí být inicializována před voláním. Umožňuje metodě objekt/strukturu zcela vyměnit za novou.\n* 'out': Proměnná nemusí být inicializována, ale volaná metoda do ní MUSÍ něco přiřadit (typické pro 'TryParse').\n* 'in': Metoda dostane strukturu odkazem (kvůli úspoře kopírování objemných struktur), ale kompilátor zaručí, že ji metodě nedovolí změnit (read-only reference)."
+    },
+    {
+      "id": "019f9e40-0df5-715a-86c7-3759c684bc89",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Low-level C#",
+        "Parametry"
+      ],
+      "title": "Praxe: Modifikátory parametrů na papíře ('ref', 'out', 'in')",
+      "content": "**Zkouškový nácvik:**\nNavrhněte strukturu 'Point3D' (hodnotový typ). Následně napište tři statické metody, které tuto strukturu přijímají. \n\n1. První metoda 'Move' strukturu posune o daný vektor (musí změnit původní hodnotu!).\n2. Druhá metoda 'TryParse' nasimuluje bezpečný pokus o vytvoření bodu ze stringu (vrací boolean úspěšnosti a samotný bod předává jako vedlejší výstup).\n3. Třetí metoda 'DistanceToOrigin' vypočítá vzdálenost od počátku, ale musí být optimalizována tak, aby nedocházelo k hlubokému kopírování struktury a zároveň byla zaručena její nezměnitelnost (read-only).\n\nNapište signatury těchto metod. Kde bude na zásobníku probíhat kopírování celých dat?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic struct Point3D {\n    public double X, Y, Z;\n}\n\npublic class PointOperations {\n    // 1. Změna původní hodnoty přes odkaz\n    public static void Move(ref Point3D point, double dx, double dy, double dz) {\n        point.X += dx;\n        point.Y += dy;\n        point.Z += dz;\n    }\n\n    // 2. Metoda vracející výsledek i stav (out parametr)\n    public static bool TryParse(string input, out Point3D result) {\n        // Zde by byl kód parsování. Kompilátor nás nutí proměnnou inicializovat:\n        result = new Point3D { X = 0, Y = 0, Z = 0 };\n        return true;\n    }\n\n    // 3. Optimalizace kopírování pomocí 'in'\n    public static double DistanceToOrigin(in Point3D point) {\n        // point.X = 10; // Toto by kompilátor zamítl, 'in' je read-only!\n        return Math.Sqrt(point.X * point.X + point.Y * point.Y + point.Z * point.Z);\n    }\n}\n```\n\n**Analýza a chytáky pro komisi:**\nKopírování 24 bytů (velikost 3x 'double') se u těchto tří metod NEKONÁ ani jednou. Předává se pokaždé pouze ukazatel (4 nebo 8 bytů podle architektury). Pokud bychom u třetí metody modifikátor 'in' vynechali (nebo použili třídu namísto struktury), chovalo by se to jinak. U 'in' parametru je kompilátorem vynucena neměnnost, proto funguje jako vysoce efektivní 'read-only' reference."
+    },
+    {
+      "id": "019f9e40-0df6-712f-b855-550955ced3d7",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Low-level C#",
+        "Bitové operace"
+      ],
+      "title": "Teorie: Interní reprezentace dat a bitové operátory",
+      "content": "Při manipulaci s pamětí (jako ve zkouškách 2024 a 2025) komise zkoumá hluboké porozumění datové reprezentaci. C# neabstahuje vše, paměť je reálná.\n\n### 1. Znaménková čísla (Doplňkový kód)\nVšechny znaménkové celočíselné typy ('sbyte', 'short', 'int', 'long') jsou v .NET paměti uloženy pomocí **doplňkového kódu (Two's complement)**. Nejvýznamnější bit (MSB) určuje znaménko (1 = záporné, 0 = kladné). Výhodou tohoto zápisu je, že procesor může sčítat kladná a záporná čísla stejným HW obvodem (sčítačkou) bez nutnosti řešit znaménko.\n\n### 2. Endianita (Pořadí bytů)\nVícebajtová čísla mohou být v paměti poskládána dvěma způsoby:\n* **Little-Endian:** Nejméně významný byte (LSB) je uložen na nejnižší adrese. Standard pro Intel/AMD x86 procesory a tudíž **nativní formát běhového prostředí CLR**.\n* **Big-Endian:** Nejvýznamnější byte je na nejnižší adrese (čte se zleva doprava). Běžné u síťových protokolů a mnoha binárních formátů.\n*Matfyzácký chyták:* Aplikace běžící na x86 obdrží ze sítě 2 byty, ale před složením čísla musí často jejich pořadí prohodit.\n\n### 3. Bitové operátory a implicitní přetypování v C#\nC# poskytuje standardní bitové operace: '&' (AND), '|' (OR), '^' (XOR), '~' (NOT), '<<' (posun doleva), '>>' (posun doprava).\n\n**Zásadní C# chyták:** Pokud v C# uděláte logický součet (OR) dvou hodnot typu 'byte', kompilátor je před operací **automaticky zkonvertuje (rozšíří) na 'int'**, a výsledek je typu 'int'. Proč? Procesory typicky nemají ALU operace pro menší typy než 32 bitů, C# tuto architekturu respektuje na úrovni jazyka."
+    },
+    {
+      "id": "019f9e40-0df6-712f-b855-59be7a46623b",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Low-level C#",
+        "Zkoušková úloha 2025"
+      ],
+      "title": "Praxe: Zkouška Září 2025 (Binární soubor a bitové posuny)",
+      "content": "**Zadání (Extrahováno ze zkoušky 8. 9. 2025):**\nPíšete C# třídu 'Reader', která deserializuje binární soubor. Čtete pole bytů ('byte[] buffer'), kde data leží za sebou. Vaším úkolem je napsat metodu, která ze dvou po sobě jdoucích bytů (např. 'buffer[0]' a 'buffer[1]') složí a vrátí 16bitové znaménkové číslo (typ 'short').\n\n**Varování v zadání:** Formát v souboru je uložen v **Big-Endian** pořadí (tzv. nejvýznamnější byte leží na nižším indexu 'buffer[0]').\n\nNapište jeden elegantní a výkonný řádek kódu, který toto přečte, s využitím bitových operátorů, aniž byste spoléhali na vestavěnou třídu 'BitConverter'. Upozorněte na případné typové pasti C#.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic short ReadInt16BigEndian(byte[] buffer) {\n    // buffer[0] je High-byte (nejvýznamnější)\n    // buffer[1] je Low-byte (nejméně významný)\n    \n    return (short)((buffer[0] << 8) | buffer[1]);\n}\n```\n\n**Detailní rozbor řešení a chytáků pro komisi:**\n\n1. **Big-Endian skládání:** Vezmeme nultý byte a posuneme ho o 8 bitů doleva ('<< 8'). V paměti se z něj stane horní část čísla. Následně k němu pomocí bitového logického součtu ('|' nebo matematického '+') připojíme první byte.\n2. **Implicitní přetypování (Zásadní věc na obhájení u komise!):** Jakmile v C# provedete operaci 'buffer[0] << 8', C# automaticky konvertuje hodnotu 'byte' (nepřímo) na 32bitový 'int', tam se provede posun. Následné 'OR' s 'buffer[1]' rovněž pracuje nad 32 bity (s nulami v horních pozicích, protože 'byte' je neznaménkový).\n3. **Klíčové explicitní přetypování:** Z důvodu (2) je výsledek '((buffer[0] << 8) | buffer[1])' formálně typu 'int'. Pokud bychom kód nenapsali s vnějším explicitním castem '(short)', **kód vůbec nepůjde zkompilovat**. Toto je klasická chyba studentů při psaní kódu od ruky!"
+    },
+    {
+      "id": "019f9e40-9e68-7729-a05d-5f431d7801c6",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "Zapouzdření"
+      ],
+      "title": "Teorie: Zapouzdření a modifikátory viditelnosti",
+      "content": "Druhý blok naší přípravy otevíráme fundamentálním pilířem OOP: **Zapouzdřením (Encapsulation)**. Jde o princip skrývání vnitřního stavu objektu (dat) a poskytnutí bezpečného rozhraní (metod/vlastností) pro manipulaci s ním.\n\n### Modifikátory viditelnosti v C#\nAbychom mohli zapouzdření řídit, jazyk C# poskytuje 4 základní modifikátory (plus jejich kombinace):\n\n1. **'private'**: Člen je viditelný pouze uvnitř třídy (nebo struktury), kde je deklarován. Toto je **implicitní (defaultní) viditelnost** pro všechny členy třídy, pokud modifikátor neuvedete.\n2. **'protected'**: Člen je viditelný uvnitř třídy a ve všech třídách, které z ní dědí (a to i v jiných knihovnách).\n3. **'public'**: Neomezený přístup odkudkoliv.\n4. **'internal'**: Člen je viditelný pouze v rámci stejného sestavení (Assembly / '.dll' nebo '.exe' projektu). Je to implicitní viditelnost pro samotné třídy (na nejvyšší úrovni namespace).\n\n### Srovnání s Javou (Bod sylabu: Moduly)\nZatímco Java poskytuje zapouzdření na úrovni balíčků (default package-private) a nověji pomocí plnohodnotného systému modulů (Jigsaw, 'module-info.java'), C# modulární systém tohoto typu nemá. V C# se logické celky oddělují do **Assemblies (Knihoven)** a právě modifikátor **'internal'** plní roli zapouzdření implementačních detailů knihovny před okolním světem (před uživateli vašeho API)."
+    },
+    {
+      "id": "019f9e40-9e68-7729-a05d-607657c27f42",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Vlastnosti"
+      ],
+      "title": "Praxe: Datové položky (Fields) vs. Vlastnosti (Properties)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nV jazyce Java se zapouzdření typicky řeší definicí privátní proměnné a napsáním dvou metod: 'getAge()' a 'setAge()'. Jazyk C# na to má speciální syntaxi tzv. **Vlastností (Properties)**.\n\n1. Napište třídu 'Person' pomocí staršího přístupu: definujte privátní datovou položku (field) 'age' a veřejnou vlastnost 'Age', která při zápisu zkontroluje, že věk není záporný (jinak vyhodí výjimku 'ArgumentException').\n2. Následně ukažte moderní zkrácený zápis tzv. **automatické vlastnosti (Auto-Property)** pro jméno ('Name').\n3. Ukažte použití klíčového slova **'init'** pro vytvoření imutabilní vlastnosti (nastavitelné jen při vytvoření objektu).",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class Person {\n    // 1. Plná vlastnost s privátním backing fieldem\n    private int age;\n    public int Age {\n        get { return age; }\n        set {\n            if (value < 0) {\n                throw new ArgumentException();\n            }\n            age = value;\n        }\n    }\n\n    // 2. Automatická vlastnost (kompilátor vygeneruje field sám)\n    public string Name { get; set; }\n\n    // 3. Imutabilní vlastnost (C# 9.0+)\n    public string BirthNumber { get; init; }\n}\n```\n\n**Chytáky a detaily pro komisi:**\n* **'value':** Zvláštní kontextové klíčové slovo v bloku 'set'. Reprezentuje hodnotu, kterou se programátor pokouší přiřadit (např. 'osoba.Age = 25;' -> 'value' je 25).\n* **VTable a kompilace:** Vlastnost (Property) **není paměťová položka**. Při kompilaci ji kompilátor C# rozloží na dvě standardní metody (např. 'get_Age()' a 'set_Age()'). Nezabírá tedy žádné místo v instanci objektu (místo zabírá jen onen skrytý backing field).\n* **'init':** Skvělá moderní alternativa k 'set'. Umožňuje naplnit objekt při jeho inicializaci (např. 'new Person { BirthNumber = 123 }'), ale po skončení inicializace se vlastnost stane striktně read-only. Podporuje to bezpečný funkcionální styl OOP."
+    },
+    {
+      "id": "019f9e40-9e68-7729-a05d-677516de683a",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "Konstruktory"
+      ],
+      "title": "Teorie: Inicializace objektů a volání předka",
+      "content": "Při alokaci referenčního objektu na haldě operátorem 'new' musí dojít k jeho inicializaci. K tomu slouží **Konstruktory** – speciální metody se stejným jménem jako má třída, které nemají návratový typ.\n\n### 1. Defaultní konstruktor\nPokud ve třídě nenapíšete žádný konstruktor, kompilátor C# (stejně jako v C++ a Javě) automaticky vygeneruje veřejný konstruktor bez parametrů (tzv. bezparametrický konstruktor). Jakmile ale napíšete **jakýkoliv vlastní konstruktor** (např. s jedním parametrem), kompilátor ten defaultní zruší a musíte si ho (v případě potřeby) dopsat ručně.\n\n### 2. Klíčové slovo 'this'\nUvnitř instančních metod a konstruktorů existuje skrytá reference 'this', která odkazuje na aktuální instanci objektu. Používá se především k odstranění nejednoznačnosti (tzv. shadowing), kdy se parametr konstruktoru jmenuje stejně jako datová položka třídy (např. 'this.name = name;').\n\n### 3. Volání předka ('base') a pořadí inicializace (Chyták!)\nV C# všechny třídy implicitně dědí od třídy 'System.Object'. Pokud dědíte z vlastní třídy, musíte často zavolat její konstruktor. V C# se to provádí přes dvojtečku a klíčové slovo **'base'** v hlavičce konstruktoru (na rozdíl od Javy, kde se volá 'super()' uvnitř těla metody).\n\n**Matfyzácký chyták (Pořadí inicializace):** Co se stane jako první, když vytvoříte instanci odvozené třídy?\n1. Nejprve se paměť na haldě vynuluje (všechny reference na 'null', čísla na '0').\n2. Inicializují se datové položky (fields) odvozené třídy, kterým byla rovnou přiřazena hodnota ('private int x = 5;').\n3. Zavolá se (byť i prázdný) **konstruktor BÁZOVÉ (rodičovské) třídy** (přes 'base').\n4. Až jako úplně poslední se spustí tělo konstruktoru samotné odvozené třídy."
+    },
+    {
+      "id": "019f9f69-5073-7049-8541-f845f1e0d5c5",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "Konstruktory",
+        "System.Object"
+      ],
+      "title": "Teorie: Řetězení konstruktorů a třída System.Object",
+      "content": "Při vytváření instance objektu se vždy musí zavolat konstruktory v celé hierarchii dědičnosti, a to od shora dolů (od předka k potomkovi). Komise se často ptá na to, co se děje, když volání předka explicitně nenapíšete, a jakou roli v tom hraje kořenová třída .NETu.\n\n### Implicitní volání 'base()'\nPokud v hlavičce konstruktoru nevyužijete dvojtečku a klíčové slovo 'base', kompilátor jazyka C# tam na pozadí automaticky doplní **': base()'**. To znamená, že se pokusí zavolat bezparametrický konstruktor rodičovské třídy. Pokud ale rodičovská třída bezparametrický konstruktor nemá (např. má jen konstruktor s parametrem 'int id'), **kód se nezkompiluje** a vy musíte předka zavolat explicitně.\n\n### Všechno dědí ze System.Object\nPokud vaše třída explicitně nedědí z žádné jiné třídy, kompilátor C# automaticky přidá dědičnost z kořenové třídy **'System.Object'**. \nZavolání jejího prázdného konstruktoru 'Object()' je tak vždy úplně prvním konstruktorem, který se při tvorbě jakéhokoliv referenčního typu vykoná.\n\n### Co inicializuje 'System.Object' a jaké má metody?\nZ matfyzáckého (CLR) pohledu konstruktor 'Object()' nedělá fyzicky skoro nic. Ještě *předtím*, než se spustí, běhové prostředí .NET vynuluje paměť na haldě a nastaví hlavičku objektu (tzv. **SyncBlockIndex** pro zámky a **TypeHandle / vptr** pro VTable). \nTřída 'System.Object' však vaší instanci propůjčuje fundamentální sadu metod, které má od té chvíle každý typ v C#:\n1. **'Equals(object)' a 'GetHashCode()'**: Virtuální metody pro porovnávání instancí a ukládání do hash tabulek (např. 'Dictionary').\n2. **'ToString()'**: Virtuální metoda vracející textovou reprezentaci objektu.\n3. **'GetType()'**: Nevirtuální metoda, která sahá do hlavičky objektu pro 'TypeHandle' a vrací exaktní informaci o typu pro Reflexi za běhu.\n4. **'MemberwiseClone()'**: Chráněná (protected) nevirtuální metoda, která provede mělkou kopii (shallow copy) objektu.\n5. **'Finalize()'**: Destruktor (volaný Garbage Collectorem před smazáním z haldy)."
+    },
+    {
+      "id": "019f9f69-5074-72da-8096-4939423ffa9c",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Konstruktory"
+      ],
+      "title": "Praxe: Explicitní volání 'base' a kompilátorové chytáky",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nToto je typická úloha testující znalost OOP syntaxe a kompilátoru C#.\n\n1. Napište abstraktní třídu 'Entity', která obsahuje 'Id' nastavené přes konstruktor. Jiný konstruktor neposkytuje.\n2. Napište odvozenou třídu 'User', která má navíc jméno ('Name'). \n3. Zkuste napsat konstruktor 'User' na papír. Záměrně ukažte komisi chybný (nekompilovatelný) zápis, kdy zapomenete zavolat předka, a vysvětlete proč spadne překlad.\n4. Následně zapište správné řešení s explicitním voláním klíčového slova 'base'.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic abstract class Entity {\n    public int Id { get; private set; }\n\n    // Třída poskytuje POUZE konstruktor s parametrem.\n    // Kompilátor proto NEVYGENERUJE implicitní bezparametrický konstruktor.\n    public Entity(int id) {\n        Id = id;\n    }\n}\n\npublic class User : Entity {\n    public string Name { get; private set; }\n\n    // 1. CHYBNÝ ZÁPIS (Nezkompiluje se):\n    // public User(int id, string name) { \n    //     Id = id;  <-- Nelze (private set v předkovi)\n    //     Name = name;\n    // }\n    // VYSVĚTLENÍ CHYBY: Kompilátor na konec hlavičky tajně přidal ': base()'. \n    // Hledá tedy v 'Entity' konstruktor bez parametrů, ale ten tam neexistuje! \n    // Překlad spadne chybou 'There is no argument given that corresponds to the required parameter'.\n\n    // 2. SPRÁVNÝ ZÁPIS:\n    // Parametr 'id' předáváme přímo do konstruktoru předka pomocí ': base(...)'.\n    public User(int id, string name) : base(id) {\n        // Inicializujeme už jen věci specifické pro potomka\n        Name = name;\n    }\n}\n```\n\n**Co se stane pod kapotou při zavolání 'new User(1, 'Admin')':**\n1. Alokuje se paměť na haldě, 'Id' i 'Name' jsou vynulovány.\n2. Vstoupí se do logiky inicializace 'User', ale HLAVNÍ TĚLO 'User' se ještě nespustí.\n3. Vyvolá se ': base(1)'. Tím se spustí konstruktor 'Entity(1)'.\n4. Protože 'Entity' za sebou nic nemá, implicitně zavolá ': base()' ze 'System.Object'.\n5. Provede se tělo 'System.Object' (nic nedělá).\n6. Provede se tělo 'Entity' a do properties 'Id' se uloží hodnota 1.\n7. Teprve nyní se program vrátí zpět a jako poslední provede tělo konstruktoru 'User', kde se nastaví jméno."
+    },
+    {
+      "id": "019f9f6a-cbb4-751b-98bc-5565b2feb512",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "base",
+        "System.Object"
+      ],
+      "title": "Praxe: Volání metod předka (base) a dědictví ze System.Object",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nPři přepisování metod se často stává, že potřebujeme zachovat původní chování předka a jen k němu něco přidat. Prostudujte si následující kód:\n\n```csharp\nclass Parent {\n    public virtual void Print() { Console.Write('P'); }\n}\n\nclass Child : Parent {\n    public override void Print() {\n        base.Print();\n        Console.Write('C');\n    }\n\n    public override string ToString() {\n        return 'Dítě!';\n    }\n}\n\n// Spouštěcí kód:\nChild c = new Child();\nc.Print();\n```\n\n1. Co přesně vypíše zavolání 'c.Print()'? Jak funguje klíčové slovo 'base' při volání metody (využívá se zde tabulka virtuálních metod)?\n2. Třída 'Parent' explicitně z ničeho nedědí. V metodě 'Child' přesto přepisujeme ('override') metodu 'ToString()'. Odkud se tato metoda vzala?\n3. Vyjmenujte 5 základních metod, které automaticky obsahuje každá třída v C# díky kořenové dědičnosti.",
+      "hiddenContent": "**Vzorové řešení pro komisi:**\n\n**1. Co se vypíše:**\nProgram vypíše **'PC'**. Klíčové slovo **'base'** slouží k explicitnímu zavolání implementace v rodičovské třídě. \n*Zásadní chyták:* Při volání 'base.Print()' kompilátor **obchází (ignoruje) tabulku virtuálních metod (VTable)**. Provede tvz. statickou vazbu (Early Binding) přímo na kód v předkovi. Kdyby se zde použila VTable, metoda by zavolala sama sebe a vznikla by nekonečná rekurze a přetečení zásobníku (StackOverflow).\n\n**2. Odkud je ToString():**\nJak jsme si říkali v teorii, každá třída v C#, která explicitně nedědí z jiné třídy, implicitně dědí z kořenové třídy **'System.Object'**. Metoda 'ToString()' je v této třídě definována jako 'virtual', proto ji můžeme v 'Child' přepsat ('override').\n\n**3. Pět základních metod třídy System.Object:**\nKaždá instance na haldě umí odpovídat na tyto metody:\n* 'ToString()' - Virtuální metoda pro textovou reprezentaci (defaultně vrací název typu).\n* 'Equals(object)' - Virtuální metoda pro porovnání rovnosti.\n* 'GetHashCode()' - Virtuální metoda vracející hash (důležité pro vkládání do 'Dictionary').\n* 'GetType()' - Nevirtuální metoda, z hlavičky objektu vrací exaktní typ pro Reflexi.\n* 'MemberwiseClone()' - Chráněná (protected) nevirtuální metoda pro mělkou kopii objektu."
+    },
+    {
+      "id": "019f9e50-345c-708f-9385-fa8e8d0066cd",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Imutabilita",
+        "Enum"
+      ],
+      "title": "Praxe: Výčtové typy (enum) a Imutabilní struktury",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nPři návrhu bezpečných vícevláknových (thread-safe) systémů je často vyžadováno, aby přenášená data byla nezměnitelná (imutabilní). \n\n1. Napište na papír definici výčtového typu (enum) 'ThreadState', který bude obsahovat stavy: 'New', 'Running', 'Blocked', 'Terminated'. Změňte jeho vnitřní datový typ tak, aby zabíral v paměti pouze 1 byte (místo standardních 4 bytů).\n2. Navrhněte strukturu 'JobRequest' (hodnotový typ), která bude obsahovat 'Id' (int) a 'State' (výše definovaný enum). \n3. Zapište strukturu tak, aby kompilátor C# striktně garantoval, že jakmile je instance vytvořena, její stav už nepůjde nikdy změnit (tzv. plně readonly struktura).",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// 1. Enum s explicitním bázovým typem 'byte'\npublic enum ThreadState : byte {\n    New, \n    Running, \n    Blocked, \n    Terminated\n}\n\n// 2. a 3. Plně imutabilní struktura\npublic readonly struct JobRequest {\n    public readonly int Id;\n    public readonly ThreadState State;\n\n    public JobRequest(int id, ThreadState state) {\n        Id = id;\n        State = state;\n    }\n}\n```\n\n**Chytáky a detaily pro komisi:**\n* **Enum v paměti:** 'enum' je v C# hodnotový typ. Pokud neuvedete bázový typ, C# použije 'int' (4 byty). Pokud potřebujeme šetřit paměť (např. posíláme data po síti nebo binárně ukládáme do souboru), syntaxe ': byte' to zredukuje na 1 byte.\n* **'readonly struct':** Nestačí udělat jen readonly položky ('fields'). Přidáním modifikátoru 'readonly' přímo k definici 'struct' říkáme kompilátoru, že celá struktura je neměnná. To dává kompilátoru (a JIT překladači) obrovský prostor pro optimalizaci (tzv. defenzivní kopírování při předávání parametru se vůbec nemusí provádět)."
+    },
+    {
+      "id": "019f9e50-345d-77de-83d0-5eae6088c891",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "Dědičnost",
+        "Polymorfismus"
+      ],
+      "title": "Teorie: Dědičnost a Dynamický Polymorfismus",
+      "content": "Tento bod sylabu tvoří jádro klasického OOP. \n\n### Jednoduchá dědičnost\nStejně jako Java, i C# podporuje u tříd **pouze jednoduchou dědičnost** (třída může dědit maximálně od jedné bázové třídy). Tím se jazyk elegantně vyhýbá kolizím (tzv. Diamantový problém), se kterými se potýká C++ při vícenásobné dědičnosti. (Vícenásobnost se v C# řeší přes rozhraní - viz další lekce).\n\n### Dynamický (Běhový) Polymorfismus\nPolymorfismus (mnohotvárnost) umožňuje, aby proměnná bázového typu ukazovala na instanci odvozeného typu, a při volání metody se zavolala správná implementace podle skutečného (dynamického) typu objektu na haldě.\n\n**Rozdíl oproti Javě (Chyták!):**\nV Javě jsou všechny instanční metody implicitně virtuální (polymorfní). V C# to tak NENÍ. Vývojář musí tento mechanismus explicitně povolit. C# designéři k tomu přistoupili kvůli výkonu (virtuální metody mají režii kvůli VTable).\n\n1. **'virtual'**: Označuje metodu v bázové třídě, kterou smějí (ale nemusí) potomci přepsat.\n2. **'abstract'**: Metoda nemá tělo, potomek ji MUSÍ přepsat (třída musí být také 'abstract').\n3. **'override'**: Označuje metodu v potomkovi, která přepisuje chování 'virtual' nebo 'abstract' metody předka. Tím se zajišťuje dynamická vazba (Dynamic Dispatch) za běhu programu."
+    },
+    {
+      "id": "019f9e50-345d-77de-83d0-61198ed744a4",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Polymorfismus",
+        "Chyták"
+      ],
+      "title": "Praxe: Chyták komise (Method Hiding - 'new' vs 'override')",
+      "content": "**Zkouškový nácvik (Analýza výstupu):**\nToto je pravděpodobně nejklasičtější teoretický chyták na pohovorech i zkouškách ohledně chování C# kompilátoru. Pozorně si přečtěte následující kód (lze jej zapsat na papír) a přesně určete, co program vypíše.\n\n```csharp\nclass BaseClass {\n    public virtual void Print() { Console.Write('A '); }\n}\n\nclass DerivedOverride : BaseClass {\n    public override void Print() { Console.Write('B '); }\n}\n\nclass DerivedNew : BaseClass {\n    public new void Print() { Console.Write('C '); }\n}\n\n// Spouštěcí kód:\nBaseClass obj1 = new DerivedOverride();\nBaseClass obj2 = new DerivedNew();\n\nobj1.Print();\nobj2.Print();\n```\n\nCo se vypíše na konzoli a jak přesně tento mechanismus v C# funguje?",
+      "hiddenContent": "**Vzorové řešení:**\n\nProgram vypíše: **'B A '**. \n\n**Detailní vysvětlení pro komisi:**\n* U 'obj1' dochází k pravému **dynamickému polymorfismu**. Proměnná je sice typu 'BaseClass', ale metoda v 'DerivedOverride' je označena slovem **'override'**. Běhové prostředí (CLR) se podívá do Tabulky virtuálních metod (VTable) skutečného objektu na haldě a zavolá přepsanou verzi. Vypíše se 'B'.\n* U 'obj2' je chyták. Třída 'DerivedNew' používá modifikátor **'new'** (tzv. Method Hiding / skrývání). Toto klíčové slovo říká: *\"Tato metoda nemá s tou v předkovi nic společného, jen se náhodou stejně jmenuje, přeruš polymorfní vazbu!\"*. \n* Jakmile je vazba přerušena, kompilátor nemůže použít dynamický typ (VTable). Musí rozhodnout staticky během kompilace. A protože je proměnná 'obj2' deklarována jako 'BaseClass', kompilátor prostě zavolá metodu z 'BaseClass'. Vypíše se 'A'.\n\n*(Poznámka: Kdybychom napsali 'DerivedNew obj3 = new DerivedNew(); obj3.Print();', vypsalo by se normálně 'C').*"
+    },
+    {
+      "id": "019f9e50-90f3-7338-be82-f109bf1cb725",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "VTable",
+        "Polymorfismus"
+      ],
+      "title": "Teorie: Polymorfismus pod kapotou (VTable)",
+      "content": "Předchozí ukázka s 'new' a 'override' ukázala, jak se C# chová navenek. Komise se ale velmi často ptá na bod ze sylabu: **Implementace dynamického polymorfismu (tabulka virtuálních metod)**. Jak tedy CLR (Common Language Runtime) ví, kterou metodu má zavolat?\n\n### Statická vs. Dynamická vazba\n* **Statická vazba (Early binding):** Pokud voláte běžnou, statickou, nebo 'new' metodu, kompilátor C# už při překladu přesně zná paměťovou adresu této metody. Volání se napevno \"zadrátuje\" do vygenerovaného kódu. Je to extrémně rychlé.\n* **Dynamická vazba (Late binding):** U metod označených jako 'virtual' nebo 'override' kompilátor v době překladu adresu nezná (neví, zda proměnná bázového typu neobsahuje instanci nějakého potomka). Musí se rozhodnout až za běhu.\n\n### Tabulka virtuálních metod (Virtual Method Table / VTable)\n1. Jakmile má třída alespoň jednu 'virtual' metodu, kompilátor pro tuto třídu vytvoří **VTable** – statické pole ukazatelů na paměťové adresy konkrétních metod.\n2. Každá instance (objekt) této třídy alokovaná na haldě dostane skrytý ukazatel (tzv. **vptr** - virtual pointer), který míří na VTable jejího skutečného typu.\n3. Když v programu zavoláte přes proměnnou bázového typu virtuální metodu, CLR nejprve sáhne do objektu na haldě, přečte 'vptr', dojde do VTable a odtud přečte reálnou adresu paměti, kam má instrukční pointr (CPU) skočit.\n\n*Matfyzácké shrnutí:* Dynamický polymorfismus není zadarmo. Každé volání virtuální metody stojí procesor několik instrukcí navíc (tzv. dereference ukazatele) a brání inlinování kódu JIT překladačem."
+    },
+    {
+      "id": "019f9f6a-cbb4-751b-98bc-59e1eb1f9445",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "VTable",
+        "Chyták"
+      ],
+      "title": "Praxe: Co vypíše kód? (Test VTable a skrývání metod)",
+      "content": "**Zkouškový nácvik (Extrémní test polymorfismu na papír):**\nKomise velmi ráda testuje, zda student rozumí tomu, kdy kompilátor použije Tabulku virtuálních metod (VTable) a kdy se rozhodne staticky podle typu proměnné. Analyzujte následující zápis:\n\n```csharp\nclass A {\n    public virtual void Foo() { Console.Write('A1 '); }\n    public virtual void Bar() { Console.Write('A2 '); }\n}\n\nclass B : A {\n    public override void Foo() { Console.Write('B1 '); }\n    public new void Bar() { Console.Write('B2 '); }\n}\n\nclass C : B {\n    public override void Foo() { Console.Write('C1 '); }\n    public new void Bar() { Console.Write('C2 '); }\n}\n\n// Spouštěcí kód:\nA obj1 = new C();\nB obj2 = new C();\n\nobj1.Foo();\nobj1.Bar();\nobj2.Foo();\nobj2.Bar();\n```\n\nS ohledem na modifikátory 'virtual', 'override' a 'new' napište přesný výstup tohoto programu na konzoli a u každého ze 4 volání zdůvodněte, jak C# vybral danou metodu.",
+      "hiddenContent": "**Vzorové řešení (Odpověď pro komisi):**\n\nProgram vypíše přesně: **'C1 A2 C1 B2 '**. \n\n**Detailní trasování přes VTable vs. Statickou vazbu:**\n\n* **'obj1.Foo();' -> Vypíše 'C1'**\nProměnná 'obj1' je typu 'A', ale ukazuje na objekt 'C' na haldě. Metoda 'Foo' je v 'A' označena jako 'virtual' a v celé hierarchii dolů ('B' i 'C') je propojována přes 'override'. CLR se podívá do VTable objektu 'C' a najde tam finální přepsanou metodu 'C.Foo'.\n\n* **'obj1.Bar();' -> Vypíše 'A2' (Chyták!)**\nProměnná 'obj1' je typu 'A'. V třídě 'A' je 'Bar' virtuální. Ale pozor! Třída 'B' použila modifikátor **'new'**. Tím zničila dědičnou linku a přerušila polymorfismus pro tuto metodu. VTable slot pro 'A.Bar' už nebyl dál přepsán. Protože proměnná je statického typu 'A', zavolá se jednoduše původní metoda 'A.Bar'.\n\n* **'obj2.Foo();' -> Vypíše 'C1'**\nProměnná 'obj2' je typu 'B', ukazuje na instanci 'C'. 'Foo' je propojeno polymorfně až do 'C' přes 'override'. Odkaz z VTable spolehlivě zavolá 'C.Foo'.\n\n* **'obj2.Bar();' -> Vypíše 'B2'**\nProměnná 'obj2' je typu 'B'. V třídě 'B' je nová (zcela nezávislá) metoda 'Bar' (vytvořená přes 'new'). Třída 'C' na ni reaguje opět přes 'new' (přerušuje vazbu). Vzhledem k tomu, že zde není žádný polymorfní řetězec ('virtual' -> 'override'), kompilátor provede striktně **statickou vazbu** podle typu proměnné (tedy typ 'B'). Zavolá se 'B.Bar'."
+    },
+    {
+      "id": "019f9e50-90f3-7338-be82-f5ceefdcb051",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Interfaces",
+        "Diamantový problém"
+      ],
+      "title": "Praxe: Rozhraní a Diamantový problém (Explicitní implementace)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nJazyk C++ umožňuje tzv. vícenásobnou dědičnost tříd, což způsobuje slavný **Diamantový problém** (potomek zdědí stav - data předka dvěma různými cestami, což vede k duplicitám a chaosu v paměti). C++ to řeší složitou *virtuální dědičností*.\n\nJazyk C# vícenásobnou dědičnost tříd zakazuje. Povoluje ale, aby třída implementovala více **rozhraní (interface)**. Co se ale stane, když dvě různá rozhraní definují metodu se stejnou signaturou?\n\n1. Definujte rozhraní 'IPrinter' a 'IScanner'. Obě ať obsahují metodu 'void Process()'.\n2. Vytvořte třídu 'MultiDevice', která implementuje obě rozhraní, ale **pro každé z nich poskytne zcela odlišnou implementaci** metody 'Process()'. Napište to na papír tak, aby to kompilátor přijal.",
+      "hiddenContent": "**Vzorové řešení (Explicitní implementace rozhraní):**\n\n```csharp\npublic interface IPrinter {\n    void Process();\n}\n\npublic interface IScanner {\n    void Process();\n}\n\npublic class MultiDevice : IPrinter, IScanner {\n    // Běžná implementace (splní kontrakt pro obě rozhraní, pokud chceme sdílené chování)\n    // public void Process() { Console.Write('X'); }\n\n    // 1. Explicitní implementace pro IPrinter\n    void IPrinter.Process() {\n        Console.Write('P');\n    }\n\n    // 2. Explicitní implementace pro IScanner\n    void IScanner.Process() {\n        Console.Write('S');\n    }\n}\n```\n\n**Chytáky a detaily pro komisi:**\n* **Absence 'public' modifikátoru:** Explicitní implementace se NIKDY nesmí označit jako 'public'. Je ze své podstaty privátní pro danou třídu.\n* **Použití v praxi:** Pokud vytvoříte instanci ('MultiDevice dev = new MultiDevice();'), metoda 'Process()' na ní **nebude vůbec vidět**. Abyste ji mohli zavolat, musíte objekt explicitně přetypovat na dané rozhraní:\n  '((IPrinter)dev).Process();' -> vypíše P.\n* Tímto mechanismem C# naprosto elegantně a bezpečně řeší kolize jmen při vícenásobné implementaci rozhraní."
+    },
+    {
+      "id": "019f9e50-90f3-7338-be82-fa852d0b7e55",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OOP",
+        "Interfaces",
+        "Default metody"
+      ],
+      "title": "Teorie: Defaultní metody v rozhraních (C# 8.0+)",
+      "content": "Původní definice OOP tvrdila, že 'interface' (rozhraní) obsahuje pouze čistě abstraktní signatury (kontrakt) a žádný kód (žádnou implementaci). Od verze C# 8.0 ale do jazyka přibyl koncept **Default Interface Methods (DIM)**, který do C# zavedl něco, co se nápadně podobá Traits nebo vícenásobné dědičnosti chování (známé z Javy 8).\n\n### Co je to defaultní metoda?\nRozhraní nyní může obsahovat i tělo metody. Pokud třída implementuje toto rozhraní a danou metodu nenadefinuje, použije se (zdědí se) defaultní implementace přímo z rozhraní.\n\n```csharp\npublic interface ILogger {\n    void LogError(); // Abstraktní kontrakt\n    \n    // Defaultní implementace\n    void LogWarning() {\n        Console.Write('W');\n    }\n}\n```\n\n### Proč to vzniklo? (Zásadní architektonický důvod)\nHlavním účelem není nahradit abstraktní třídy! Důvodem je **zpětná kompatibilita (Backward Compatibility)** API. Představte si, že máte populární veřejnou knihovnu. Rozhodnete se přidat do rozhraní 'ILogger' novou metodu. Kdybyste to udělali postaru, okamžitě tím **rozbijete veškerý cizí kód**, který vaše rozhraní implementoval, protože jim bude chybět definice nové metody. Díky defaultní metodě dostanou původní uživatelé novou funkcionalitu zdarma a jejich kód se zkompiluje.\n\n### Chyták (Rozdíl oproti Javě)\nV Javě, pokud třída zdědí defaultní metodu z interface, stane se tato metoda přímou součástí veřejného API třídy (lze zavolat 'objekt.LogWarning()').\nV C# to tak NENÍ. Třída tuto metodu fyzicky do svého veřejného API **nezdědí**. Jediný způsob, jak defaultní metodu zavolat, je opět přetypovat instanci striktně na typ rozhraní ('((ILogger)objekt).LogWarning()'). C# tím záměrně brání chaosu a případným kolizím, pokud by více rozhraní mělo stejně pojmenovanou defaultní metodu."
+    },
+    {
+      "id": "019f9f6e-ebf9-7325-99d4-581a13366862",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OOP",
+        "Zkoušková úloha 2024",
+        "Pattern Matching"
+      ],
+      "title": "Praxe: Zkouška Září 2024 (Návrh hierarchie a Pattern Matching)",
+      "content": "Přecházíme plynule z Bloku 3 (rozhraní) do Bloku 4 (Návrhové vzory). Tato zkoušková úloha dokonale testuje aplikaci OOP konceptů a schopnost oddělit data od operací.\n\n**Zadání (Extrahováno ze zkoušky 3. 9. 2024):**\nPředstavte si, že vyvíjíte integrované vývojové prostředí (IDE). \n1. Navrhněte sadu tříd/rozhraní (bez těl metod), které umožní uchovávat informace o typech tak, aby mohly být zobrazeny ve stromové struktuře IDE (jména typů, metod, datových položek a vnitřních typů).\n2. Implementujte metodu, která bere jako parametr element a aplikuje na něj zadanou operaci. Operace: 'vytiskne název elementu, ale pouze v případě, že reprezentuje datovou položku nebo typ'. \n3. Provedení založte na známém návrhovém vzoru nebo explicitně pojmenovaném mechanismu jazyka (C#).",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\nNejčistší a nejmodernější řešení v C# je využití prázdného označovacího (marker) rozhraní a moderního mechanismu **Pattern Matching** (který elegantně nahrazuje zastaralý a upovídaný Visitor pattern).\n\n```csharp\n// 1. Hierarchie elementů\npublic interface ITypeElement { }\n\npublic class TypeDefinition : ITypeElement {\n    public string Name { get; set; }\n    public List<ITypeElement> Members { get; set; }\n}\n\npublic class MethodElement : ITypeElement {\n    public string Signature { get; set; }\n}\n\npublic class FieldElement : ITypeElement {\n    public string FieldName { get; set; }\n}\n\n// 2. a 3. Operace pomocí C# Pattern Matchingu a delegátu Action\npublic class IdeProcessor {\n    public void ApplyOperation(ITypeElement element, Action<string> printOp) {\n        // Pattern matching vyhodnotí skutečný dynamický typ objektu na haldě\n        switch (element) {\n            case TypeDefinition typeDef:\n                printOp(typeDef.Name);\n                // Rekurzivní průchod vnitřních elementů\n                if (typeDef.Members != null) {\n                    foreach (var member in typeDef.Members) {\n                        ApplyOperation(member, printOp);\n                    }\n                }\n                break;\n                \n            case FieldElement fieldDef:\n                printOp(fieldDef.FieldName);\n                break;\n                \n            case MethodElement methodDef:\n                // Ignorujeme (dle zadání tiskneme jen typy a položky)\n                break;\n        }\n    }\n}\n```\n\n**Analýza pro komisi:**\nKlíčové je deklarovat kolekci podtypů přes bázové rozhraní ('List<ITypeElement>'). Tím vytváříme tzv. heterogenní kolekci. Mechanismus 'switch (element)' s 'case Typ jménoProměnné:' je zaveden od C# 7 a interně provádí bezpečné přetypování (operátor 'is'). Operaci 'vytiskni' jsme abstrahovali pomocí systémového delegátu 'Action<string>'."
+    },
+    {
+      "id": "019f9f6e-ebf9-7325-99d4-5e97d8064524",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "SOLID"
+      ],
+      "title": "Teorie: Oddělení kontraktu od implementace (DIP a IoC)",
+      "content": "Většina architektonických úloh u státnic testuje vaši schopnost nenapsat tzv. špagetový nebo těsně svázaný kód (Tight Coupling). \n\nZákladním pravidlem (které vychází z písmene D v SOLID principech - **Dependency Inversion Principle**) je:\n*Moduly vyšší úrovně nesmí záviset na modulech nižší úrovně. Oba musí záviset na abstrakcích (rozhraních).*\n\n### Co to znamená lidsky?\nPokud píšete aplikaci, která ukládá data do databáze, třída s obchodní logikou 'OrderProcessor' nesmí mít uvnitř sebe napsáno 'new SqlDatabase()'. Pokud by to tak bylo, 'OrderProcessor' je těsně svázán s SQL řešením. Kdybyste chtěli v budoucnu ukládat data do textového souboru, museli byste kód třídy 'OrderProcessor' složitě přepisovat.\n\n### C# Řešení (Programování vůči rozhraní)\nVytvoříte rozhraní 'IDatabase'. Třída 'OrderProcessor' bude mít v konstruktoru parametr typu 'IDatabase' (tomu se říká **Inversion of Control - IoC** / Dependency Injection). Při běhu programu někdo (nejčastěji nějaká Továrna / Factory) vloží do procesoru buď instanci 'SqlDatabase' nebo 'FileDatabase'. \n\nZ pohledu překladače (statická vazba) komunikuje 'OrderProcessor' jen s čistým rozhraním 'IDatabase', ale v paměti se pomocí polymorfismu volají metody reálné databáze. Toto je klíčový princip pro pochopení zadání zkoušky z jara 2025."
+    },
+    {
+      "id": "019f9f6e-ebf9-7325-99d4-6049d2dbc941",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Zkoušková úloha 2025",
+        "Factory Pattern"
+      ],
+      "title": "Praxe: Zkouška Jaro 2025 (Návrh rozhraní a Factory Pattern)",
+      "content": "**Zadání (Extrahováno ze zkoušky 4. 2. 2025):**\nVyvíjíte knihovnu pro výpočty s maticemi.\n1. Definujte kontrakt (rozhraní bez implementace) pro 2D matici. Musí obsahovat zjištění rozměrů, získání hodnoty na souřadnicích a sčítání s jinou maticí.\n2. Máte k dispozici třídu 'SparseMatrix' (řídká) a 'DenseMatrix' (hustá), které tento kontrakt implementují. S využitím **vhodného návrhového vzoru** napište prostředdek (metodu/třídu), která dostane cestu k souboru ('string path') a podle dat v souboru vrátí instanci s ideální implementací.\n\n*Poznámka:* Není třeba psát logiku parsování souboru (lze nahradit pseudo-funkcí 'IsFileSparse(path)'). Soustřeďte se na architektonický obal.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\nÚloha výslovně žádá aplikaci abstraktní továrny (Factory Method pattern).\n\n```csharp\n// 1. Definice kontraktu\npublic interface IMatrix {\n    int Rows { get; }\n    int Cols { get; }\n    double GetValue(int row, int col);\n    IMatrix Add(IMatrix other);\n}\n\n// (Skryté implementace - dle zadání není nutné psát těla)\npublic class SparseMatrix : IMatrix { /* implementace CSR formátu */ }\npublic class DenseMatrix : IMatrix { /* implementace 2D pole */ }\n\n// 2. Aplikace vzoru Factory\npublic static class MatrixFactory {\n    \n    // Tovární metoda vrací výhradně abstrakci (IMatrix)\n    public static IMatrix CreateMatrix(string filePath) {\n        \n        bool useSparse = IsFileSparse(filePath); // Pseudo-analýza\n        \n        if (useSparse) {\n            // Vracíme konkrétní typ ukrytý za rozhraním\n            return new SparseMatrix(filePath);\n        } else {\n            return new DenseMatrix(filePath);\n        }\n    }\n    \n    private static bool IsFileSparse(string path) {\n        // Logika pro detekci počtu nul (mimo rozsah zkoušky)\n        return true; \n    }\n}\n```\n\n**Analýza a chytáky pro komisi:**\nSíla tohoto kódu (a důvod, proč by dostal plný počet bodů) leží v návratovém typu 'IMatrix' v tovární metodě 'CreateMatrix'. Volající kód (konzument knihovny) zavolá: 'IMatrix m = MatrixFactory.CreateMatrix(\"data.txt\");'. Konzument vůbec netuší (a nepotřebuje to vědět), zda v paměti leží 'SparseMatrix' nebo 'DenseMatrix'. Ví jen to, že na proměnné 'm' může zavolat 'm.Add(m2)'. Toto je absolutní podstata zapouzdření a oddělení implementace v jazyce C#."
+    },
+    {
+      "id": "019f9f6f-3e84-736d-8b93-39e2926d7b45",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Návrhové vzory"
+      ],
+      "title": "Teorie: Strukturální a Vytvářecí vzory (Decorator, Singleton)",
+      "content": "Znalost základních vzorů (Design Patterns) z rodiny GoF (Gang of Four) je u státnic často vyžadována k prokázání inženýrského uvažování. Komise nečeká definice zpaměti, ale pochopení problému, který daný vzor řeší.\n\n### 1. Singleton (Vytvářecí vzor)\n* **Účel:** Zaručuje, že třída má právě jednu instanci po celou dobu běhu programu, a poskytuje k ní globální přístupový bod (např. 'Logger', 'ConfigurationManager').\n* **Problém:** V prostředí více vláken (multithreading) je vytvoření této jediné instance vysoce rizikovou kritickou sekcí. Čistý Singleton je navíc často považován za anti-pattern (skrývá závislosti, komplikuje Unit testování).\n\n### 2. Decorator (Strukturální vzor)\n* **Účel:** Dynamicky (za běhu) přidává chování k existujícímu objektu, aniž by se musela měnit jeho třída nebo vytvářet složitá hierarchie dědičnosti. Razí heslo: *Kompozice má přednost před dědičností*.\n* **Jak funguje:** Dekorátor i obalovaný objekt sdílejí stejné rozhraní. Dekorátor obsahuje referenci na obalovaný objekt, provede svou přidanou logiku a následně zavolá (deleguje) původní metodu obalovaného objektu.\n* **Ukázka ze základních knihoven .NET:** Práce s datovými proudy. Máme 'FileStream' (čtení z disku). Pokud chceme šifrování a bufferování, nevytváříme obludnosti typu 'BufferedCryptoFileStream' pomocí vícenásobné dědičnosti. Vytvoříme 'FileStream', předáme ho do konstruktoru 'CryptoStream', a ten předáme do 'BufferedStream'. Všechny mají rozhraní 'Stream'."
+    },
+    {
+      "id": "019f9f6f-3e84-736d-8b93-3f30b7a478b0",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Vlákna",
+        "Singleton"
+      ],
+      "title": "Praxe: Thread-safe Singleton (Od ruky na papír)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nNapište implementaci návrhového vzoru Singleton v jazyce C# pro třídu 'Configuration'. \n\n1. Popište, jak by vypadala naivní (nesprávná) implementace a vysvětlete, proč při volání z více vláken selže.\n2. Napište klasickou starší bezpečnou implementaci pomocí tzv. 'Double-checked locking' mechanismu.\n3. Napište moderní, nejkratší idiomatický způsob v C# od verze 4.0, který komise ocení nejvíce.",
+      "hiddenContent": "**1. Naivní (nesprávná) implementace:**\n```csharp\npublic class Configuration {\n    private static Configuration _instance;\n    private Configuration() { } // Privátní konstruktor zabrání 'new'\n\n    public static Configuration Instance {\n        get {\n            if (_instance == null) { \n                _instance = new Configuration(); // RACE CONDITION!\n            }\n            return _instance;\n        }\n    }\n}\n```\n*Proč to selže:* Pokud dvě vlákna vstoupí do vlastnosti 'Instance' současně a obě vyhodnotí 'if (_instance == null)' jako 'true', obě vlákna spustí operátor 'new'. Vzniknou DVĚ instance, což porušuje vzor Singleton.\n\n**2. Double-checked locking (Stará škola - C# 1.0 až 3.0):**\n```csharp\npublic class Configuration {\n    // Modifikátor volatile zaručí správnou viditelnost napříč registry procesorů\n    private static volatile Configuration _instance;\n    private static readonly object _syncRoot = new object();\n\n    private Configuration() { }\n\n    public static Configuration Instance {\n        get {\n            if (_instance == null) { // První check (bez zámku pro rychlost)\n                lock (_syncRoot) {   // Uzamčení pro vlákno\n                    if (_instance == null) { // Druhý check uvnitř uzamčené sekce!\n                        _instance = new Configuration();\n                    }\n                }\n            }\n            return _instance;\n        }\n    }\n}\n```\n\n**3. Moderní idiomatický C# (Lazy<T>):**\nTohle doporučuji u zkoušky napsat. Typ 'Lazy<T>' za vás v C# interně řeší všechny problémy s vlákny a paměťovými bariérami zcela automaticky a garantuje instanciaci pouze jednou.\n\n```csharp\npublic class Configuration {\n    // Lazy zapouzdřuje Thread-Safe volání factory metody (lambdy)\n    private static readonly Lazy<Configuration> _lazy = \n        new Lazy<Configuration>(() => new Configuration());\n\n    private Configuration() { }\n\n    public static Configuration Instance => _lazy.Value;\n}\n```"
+    },
+    {
+      "id": "019f9f6f-3e84-736d-8b93-403a82b66a7f",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Návrhové vzory",
+        "Behaviorální vzory"
+      ],
+      "title": "Teorie: Behaviorální vzory (Observer a Strategy v C#)",
+      "content": "Zatímco vytvářecí vzory řeší \"kdo a jak tvoří objekty\", behaviorální vzory řeší komunikaci, odpovědnosti a posílání zpráv mezi objekty.\n\n### 1. Strategy (Strategie)\n* **Účel:** Zapouzdřuje rodinu algoritmů tak, aby byly zaměnitelné za běhu. Klient používající algoritmus nemusí znát jeho složitou implementaci. \n* **Problém:** Chceme se zbavit obřích 'switch' nebo 'if-else' bloků.\n* **C# Implementace:** V C# se strategie dnes už málokdy řeší těžkopádně přes celou hierarchii tříd implementujících nějaké 'IStrategy' rozhraní (jak je zvykem v Javě). Idiomatický C# přístup je mnohem jednodušší: klientovi prostě předáme metodu zabalenou ve funkcionálním delegátu typu 'Func<T, TResult>' nebo 'Action<T>'.\n\n### 2. Observer (Pozorovatel)\n* **Účel:** Definuje závislost 1:N (jeden na mnoho) metodou Publish-Subscribe. Pokud jeden objekt (Subjekt) změní svůj stav, všichni registrovaní závislí pozorovatelé (Observers) jsou automaticky upozorněni.\n* **Problém:** Typicky propojení UI s obchodní logikou (tlačítko bylo stisknuto, notifikuj všechny okna, která to zajímá).\n* **C# Implementace (Chyták!):** Kdybyste chtěli na zkoušce psát Observer po vzoru C++ (kolekce 'List<IObserver>' a v nich cyklem for obvolávat metodu 'Update()'), zbytečně si komplikujete život. **Jazyk C# má vzor Observer nativně zabudovaný přímo v syntaxi jazyka pomocí událostí (klíčové slovo 'event')**. Představíme si to hned v další kódovací ukázce."
+    },
+    {
+      "id": "019f9f6f-9112-74f0-9fb8-dd08a8c2034e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Návrhové vzory",
+        "Observer"
+      ],
+      "title": "Praxe: Vzor Observer v C# (Události a delegáti)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nMáte za úkol naprogramovat senzor teploty ('WeatherStation'), který při změně teploty upozorní všechny zaregistrované displeje (pozorovatele). \n\n1. Jak byste tento vzor Observer implementovali v C++, nebo staré Javě? (Stačí popsat struktury).\n2. Jak se tento vzor idiomaticky implementuje v jazyce C#?\n3. Napište na papír třídu 'WeatherStation', která využívá klíčové slovo 'event' a systémový delegát 'Action<float>'. Zapište bezpečné vyvolání (notifikaci) události.\n4. Napište krátký kód, který k této události připojí (zaregistruje) nějakou metodu (posluchače).",
+      "hiddenContent": "**1. Tradiční implementace (Java / C++):**\nMuseli byste vytvořit rozhraní 'IObserver' s metodou 'Update(float temp)'. Třída 'WeatherStation' by musela obsahovat seznam 'List<IObserver> observers', metodu 'Subscribe(IObserver o)' a při změně teploty by musela v cyklu 'foreach' obvolávat metodu 'Update' všech registrovaných objektů.\n\n**2. a 3. Idiomatický C# (Kód na papír):**\nV C# cykly a seznamy posluchačů řeší jazyk sám (prostřednictvím tzv. Multicast Delegátů a událostí).\n\n```csharp\npublic class WeatherStation {\n    // Definice události (event). Action<float> je delegát přijímající 1 parametr.\n    public event Action<float> TemperatureChanged;\n\n    private float _temperature;\n    public float Temperature {\n        get { return _temperature; }\n        set {\n            _temperature = value;\n            // Bezpečné vyvolání události (upozornění všech posluchačů)\n            // Operátor '?.' (Null-conditional) zaručí, že to nespadne, \n            // pokud zrovna neposlouchá vůbec nikdo (event je null).\n            TemperatureChanged?.Invoke(_temperature);\n        }\n    }\n}\n```\n\n**4. Registrace posluchače:**\n```csharp\nWeatherStation station = new WeatherStation();\n\n// Připojení (registrace) metody k události pomocí operátoru '+='\nstation.TemperatureChanged += (temp) => Console.Write('Nová teplota: ' + temp);\n\n// Jakmile se změní hodnota, automaticky se zavolají všechny += metody\nstation.Temperature = 25.5f; \n```\n\n**Chyták pro komisi:** Komise ocení, když zmíníte operátor '?.Invoke()'. Pokud událost 'event' nemá ani jednoho odběratele, je její vnitřní hodnota 'null'. Pouhé zavolání 'TemperatureChanged(value)' by vyhodilo 'NullReferenceException'."
+    },
+    {
+      "id": "019f9f6f-9112-74f0-9fb8-e251fac6d953",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Generika",
+        "Typový systém"
+      ],
+      "title": "Teorie: Generické typy v C# (Srovnání C++, Java, C#)",
+      "content": "Pátý blok se věnuje Generikám. Toto je absolutně klíčová teoretická otázka. Sylabus C# vyžaduje znalost konceptů abstrakce typů a komise velmi ráda testuje, zda chápete zásadní rozdíly mezi třemi velkými jazyky. Každý na to šel úplně jinak:\n\n### 1. C++ (Šablony / Templates) - Statický polymorfismus\nV C++ nejsou šablony generiky v pravém slova smyslu, ale spíše pokročilá makra překladače. Když v C++ vytvoříte 'vector<int>' a 'vector<double>', překladač vezme zdrojový kód šablony a fyzicky ho dvakrát zkopíruje – jednou do něj natvrdo doplní 'int', podruhé 'double'. \n* **Výhoda:** Extrémní výkon, nedochází k boxingu, kompilátor to optimalizuje na dřeň.\n* **Nevýhoda:** Tzv. Code Bloat (nafukování binárky). Pro každý typ vzniká nová kopie kódu v paměti.\n\n### 2. Java (Type Erasure / Vymazání typů)\nJava zavedla generiky zpětně a zvolila nejhorší kompromis (kvůli starším JVM). Generika v Javě existují **pouze ve zdrojovém kódu**. Během kompilace jsou typy smazány (erased). 'ArrayList<String>' se zkompiluje do úplně obyčejného 'ArrayList<Object>'.\n* **Výhoda:** Stejný zkompilovaný kód pro všechny typy.\n* **Nevýhoda:** Za běhu program vůbec neví, jaký typ kolekce obsahovala. Nelze udělat 'new T()'. Navíc primitivní typy (int, double) se do generik vůbec nevejdou – musí se neustále výkonnostně tragicky obalovat do referencí (Boxing na typ 'Integer').\n\n### 3. C# (Reifikovaná / Zachovaná generika)\nC# a CLR řeší generika nejmoderněji. Typové parametry '<T>' jsou zachovány jak v metadatech (.dll), tak i za běhu programu. A JIT překladač dělá následující magii:\n* Pokud vytvoříte 'List<string>' a 'List<object>', sdílejí v paměti procesoru stejný strojový kód (jsou to jen 64bitové reference).\n* Pokud ale vytvoříte 'List<int>' a 'List<double>', JIT vygeneruje pro každý tento hodnotový typ na míru šitý, optimalizovaný strojový kód.\n* **Závěr:** C# tak spojuje výhody C++ (žádný boxing, vysoký výkon pro čísla) a Javy (sdílení kódu pro objekty a neomezená reflexe typů za běhu)."
+    },
+    {
+      "id": "019f9f6f-9112-74f0-9fb8-e50ea25d93ab",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Generika",
+        "Constraints"
+      ],
+      "title": "Praxe: Syntaxe generik na papíře a Omezení (Constraints)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nNavrhněte vlastní generickou třídu 'SafeStack<T>'. Abyste zabránili podivnému chování s hodnotovými typy, chcete kompilátoru nařídit (přidat Constraint), že 'T' smí být výhradně referenční typ (např. objekt) a zároveň musí mít dostupný veřejný bezparametrický konstruktor.\n\n1. Zapište hlavičku této třídy včetně těchto dvou omezení (Constraints).\n2. Uvnitř napište metodu 'PopOrDefault()'. Z ní vraťte implicitní výchozí hodnotu pro daný typ 'T', pokud je zásobník prázdný. Jak se v C# bezpečně vrátí nula/null, když neznáte konkrétní typ?\n3. Napište metodu 'FactoryCreate()', která do zásobníku vloží zcela novou instanci typu 'T' (lze to vůbec v Javě? V C# ano!).",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// 1. Klíčové slovo 'where' zavádí restrikce (Constraints) na typ T.\n// 'class' znamená, že T musí být referenční typ (ne struct, ne int).\n// 'new()' znamená, že typ musí mít bezparametrický konstruktor.\npublic class SafeStack<T> where T : class, new() {\n    \n    // (Pro zjednodušení vynecháme logiku ukládání dat zásobníku)\n    private bool _isEmpty = true;\n\n    // 2. Navrácení výchozí hodnoty pomocí 'default'\n    public T PopOrDefault() {\n        if (_isEmpty) {\n            // Nelze napsat 'return null', protože kompilátor by si bez\n            // klauzule 'class' nebyl jistý, jestli T není hodnotový typ.\n            // Klíčové slovo default(T) vrací null pro objekty a 0 pro čísla.\n            return default(T); \n        }\n        \n        // ... logika ...\n        return default(T); \n    }\n\n    // 3. Vytvoření nové instance neznámého typu\n    public void FactoryCreate() {\n        // Toto funguje POUZE díky omezení 'new()' v hlavičce třídy.\n        // V jazyce Java by toto kvůli 'Type Erasure' vůbec nešlo zkompilovat!\n        T newInstance = new T();\n    }\n}\n```\n\n**Co zmínit komisi:**\nKlíčová slova **'where'** a **'default'**. Bez 'default(T)' byste nemohli napsat generický kód vracející prázdnou hodnotu, protože 'null' pro 'int' neexistuje. Omezení (Constraints) jsou v C# mnohem silnější a flexibilnější než v jiných jazycích."
+    },
+    {
+      "id": "019f9fc1-32da-7296-ad5a-b80b3a846c28",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Generika",
+        "Pokročilá syntaxe",
+        "Constraints"
+      ],
+      "title": "Praxe: Pokročilá syntaxe Generik a vícenásobná omezení",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nObčas komise vyžaduje napsat vysoce znovupoužitelný kód. Představte si, že píšete metodu, která má pracovat s libovolným typem, ale potřebujete ho uvnitř metody porovnávat (zda je větší/menší) a případně vytvářet jeho nové instance.\n\n1. Napište generickou metodu 'GetMaxAndCreateNew<T>', která přijme dva parametry typu 'T'.\n2. Metoda porovná, který z nich je větší (k tomu 'T' musí implementovat systémové rozhraní 'IComparable<T>').\n3. Metoda vypíše větší z nich a následně vrátí **zcela novou instanci** tohoto typu.\n4. Zapište hlavičku metody tak, aby kompilátor C# garantoval, že 'T' je referenční typ (class), implementuje porovnávání a má bezparametrický konstruktor.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class GenericHelper {\n    // Vícenásobná omezení (Constraints) se řetězí za klíčovým slovem 'where'.\n    // Pořadí je striktní: 1. class/struct, 2. rozhraní/bázové třídy, 3. new()\n    public static T GetMaxAndCreateNew<T>(T a, T b) \n        where T : class, IComparable<T>, new() \n    {\n        // IComparable<T> nám odemyká metodu CompareTo.\n        // Vrací > 0 pokud je 'a' větší, 0 pokud jsou stejné, < 0 pokud je menší.\n        if (a.CompareTo(b) > 0) {\n            Console.WriteLine('Větší je první parametr.');\n        } else {\n            Console.WriteLine('Větší je druhý parametr.');\n        }\n\n        // Díky omezení 'new()' můžeme bezpečně zavolat konstruktor neznámého typu\n        return new T();\n    }\n}\n```\n\n**Chyták pro komisi (Kovariance a Kontravariance):**\nU složitějších generik se můžete setkat se syntaxí 'IEnumerable<out T>' nebo 'Action<in T>'. Slůvko **'out'** (Kovariance) znamená, že kolekci psů můžeme bezpečně přiřadit do proměnné typu kolekce zvířat (protože psy z kolekce jen čteme - jdou 'out'). Slůvko **'in'** (Kontravariance) se používá u delegátů, kde parametry do funkce pouze vstupují."
+    },
+    {
+      "id": "019f9fc1-32db-71ea-8d71-f5e8faa75e4b",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Syntaxe",
+        "IEnumerable",
+        "yield return"
+      ],
+      "title": "Praxe: Implementace vlastních kolekcí (IEnumerable a 'yield')",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nPředstavte si úlohu, kde navrhnete generický uzel binárního stromu 'TreeNode<T>'. Komise chce, abyste umožnili vývojářům procházet tento strom pomocí standardního C# cyklu 'foreach'.\n\nAby šel objekt použít ve 'foreach', musí implementovat rozhraní 'IEnumerable<T>'.\n1. Deklarujte třídu 'TreeNode<T>', která toto rozhraní implementuje.\n2. Rozhraní vyžaduje implementaci metody 'GetEnumerator()'. Využijte k tomu magické klíčové slovo **'yield return'** a napište tzv. In-order průchod stromem (levý syn, kořen, pravý syn).\n3. Vysvětlete teoreticky, jak kompilátor C# přeloží 'yield return' pod kapotou.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\nusing System.Collections.Generic;\nusing System.Collections;\n\npublic class TreeNode<T> : IEnumerable<T> {\n    public T Value { get; set; }\n    public TreeNode<T> Left { get; set; }\n    public TreeNode<T> Right { get; set; }\n\n    // Implementace generického rozhraní IEnumerable<T>\n    public IEnumerator<T> GetEnumerator() {\n        // Průchod levého podstromu\n        if (Left != null) {\n            foreach (var item in Left) {\n                yield return item;\n            }\n        }\n\n        // Vrácení aktuální hodnoty uzlu\n        yield return Value;\n\n        // Průchod pravého podstromu\n        if (Right != null) {\n            foreach (var item in Right) {\n                yield return item;\n            }\n        }\n    }\n\n    // Staré negenerické rozhraní IEnumerable (nutnost pro zpětnou kompatibilitu)\n    // Implementuje se explicitně!\n    IEnumerator IEnumerable.GetEnumerator() {\n        return GetEnumerator();\n    }\n}\n```\n\n**Analýza 'yield return' pro komisi:**\nKdyž kompilátor narazí na 'yield return', **nepřeloží to jako běžnou metodu**. Místo toho vygeneruje skrytou stavovou třídu (State Machine), která si pamatuje, kde metoda skončila. Když se ve 'foreach' požádá o další prvek, metoda nezačíná od začátku, ale probudí se přesně na řádku za posledním 'yield return'. Výpočet je tak tzv. líný (Lazy evaluation) a šetří ohromné množství paměti, protože se nemusí předem alokovat celý 'List' výsledků."
+    },
+    {
+      "id": "019f9fc1-32db-71ea-8d71-fbd1b283f520",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Syntaxe",
+        "Operátory",
+        "Indexery"
+      ],
+      "title": "Praxe: Přetěžování operátorů a Indexery (Úloha Matice 2025)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nVe zkouškovém termínu 4. 2. 2025 se navrhovala třída pro reprezentaci Matici. Aby se matice v C# používala elegantně, je ideální nepsat metody jako 'm.GetValue(1, 2)' nebo 'm.Add(m2)', ale použít syntaxi podobnou polím a klasické matematice: 'double val = m[1, 2];' a 'Matrix m3 = m1 + m2;'.\n\n1. Napište na papír syntaxi tzv. **Indexeru**, který umožní přistupovat k hodnotám matice pomocí hranatých závorek (dvourozměrné souřadnice).\n2. Napište syntaxi pro **přetížení operátoru '+'** (Operator Overloading), který umožní sečíst dvě instance vaší třídy 'Matrix'.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class Matrix {\n    private readonly double[,] _data;\n    public int Rows { get; }\n    public int Cols { get; }\n\n    public Matrix(int rows, int cols) {\n        Rows = rows;\n        Cols = cols;\n        _data = new double[rows, cols];\n    }\n\n    // 1. INDEXER (Syntaxe speciální vlastnosti se slovem 'this')\n    public double this[int row, int col] {\n        get {\n            return _data[row, col];\n        }\n        set {\n            _data[row, col] = value;\n        }\n    }\n\n    // 2. PŘETÍŽENÍ OPERÁTORU '+'\n    // Operátory MUSÍ být deklarovány jako 'public static'\n    public static Matrix operator +(Matrix a, Matrix b) {\n        if (a.Rows != b.Rows || a.Cols != b.Cols) {\n            throw new ArgumentException('Matice musí mít stejné rozměry.');\n        }\n\n        Matrix result = new Matrix(a.Rows, a.Cols);\n        for (int i = 0; i < a.Rows; i++) {\n            for (int j = 0; j < a.Cols; j++) {\n                // Zde využíváme náš vlastní Indexer z bodu 1\n                result[i, j] = a[i, j] + b[i, j];\n            }\n        }\n        return result;\n    }\n}\n```\n\n**Chytáky pro komisi:**\n* **Indexer:** Nemá jméno, definuje se klíčovým slovem 'this', za kterým následují hranaté závorky '[]'. Uvnitř může mít libovolný počet parametrů (zde 2D indexace) a chová se úplně stejně jako 'Property' (má 'get' a 'set' blok).\n* **Operátory:** V C# jsou přetížené operátory vždy **statické metody**, které berou instance jako své parametry. Není to instanční metoda jako v C++! Zajišťuje to, že operátor lze zavolat nezávisle na konkrétní instanci a dává to kompilátoru čistou strukturu."
+    },
+    {
+      "id": "019f9fcd-c420-7642-be29-c0fad2219812",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Funkcionální prvky",
+        "Delegáti"
+      ],
+      "title": "Teorie: Typy reprezentující funkce (Delegáti, Func a Action)",
+      "content": "Šestý blok naší osnovy se zaměřuje na funkcionální prvky v C#. Abychom mohli metodu předat jako parametr do jiné metody (např. jako callback nebo podmínku řazení), potřebujeme typ, který 'reprezentuje funkci'. V jazyce C (a C++) se to řeší přes surové ukazatele na funkce, v C# přes tzv. **Delegáty (Delegates)**.\n\n### Co je to Delegát pod kapotou?\nDelegát je **typově bezpečný objektový ukazatel na metodu**. Na pozadí (v CIL) je každý delegát plnohodnotná třída, která dědí ze systémové třídy 'System.MulticastDelegate'. Typově bezpečný znamená, že si hlídá přesnou shodu parametrů a návratového typu.\n\n### Moderní přístup: 'Func' a 'Action'\nHistoricky (v C# 1.0) se musel každý delegát zdlouhavě definovat ručně (např. 'public delegate int MathOp(int a, int b);'). Dnes to už neděláme, protože .NET nám poskytuje předpřipravené generické systémové delegáty:\n\n1. **'Action<T1, T2...>'**: Reprezentuje metodu, která bere až 16 parametrů, ale **nic nevrací** (návratový typ je 'void').\n2. **'Func<T1, T2..., TResult>'**: Reprezentuje metodu, která bere až 16 parametrů a **VŽDY vrací hodnotu** typu 'TResult'. Návratový typ je v zápisu VŽDY uveden jako **poslední parametr** v lomených závorkách.\n3. **'Predicate<T>'**: Speciální zástupce pro 'Func<T, bool>'. Reprezentuje podmínku, která dostane objekt a vrátí 'true/false'."
+    },
+    {
+      "id": "019f9fcd-c420-7642-be29-c658621f6cba",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Funkcionální prvky",
+        "Lambda výrazy"
+      ],
+      "title": "Praxe: Lambda výrazy a syntaxe na papíře",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nDelegát (např. 'Func<int, bool>') potřebuje vědět, na jakou metodu má ukázat. Původně jste museli psát klasické metody a předávat jejich názvy. Dnes se používají tzv. **Lambda výrazy**, což jsou vlastně nepojmenované (anonymní) metody zapsané přímo v místě volání.\n\n1. Napište na papír statickou metodu 'Filter', která dostane jako parametry seznam celých čísel ('List<int>') a funkcionální podmínku. Metoda vytvoří nový seznam, projde čísla, a pokud číslo splní podmínku, přidá ho do nového seznamu. Seznam pak vrátí.\n2. Zapište volání této metody, do kterého pošlete seznam čísel. Jako druhý parametr napište **Lambda výraz**, který propustí pouze **sudá čísla**.\n3. Co přesně udělá C# kompilátor s vaším Lambda výrazem při překladu?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// 1. Definice metody s použitím systémového delegátu\npublic static List<int> Filter(List<int> input, Func<int, bool> condition) {\n    List<int> result = new List<int>();\n    foreach (int number in input) {\n        // Zde voláme delegáta, jako by to byla běžná funkce\n        if (condition(number)) {\n            result.Add(number);\n        }\n    }\n    return result;\n}\n\n// 2. Použití s Lambda výrazem (operátor => znamená 'přejde na')\nList<int> numbers = new List<int> { 1, 2, 3, 4, 5, 6 };\nList<int> evens = Filter(numbers, x => x % 2 == 0);\n```\n\n**3. Co se děje pod kapotou (Pro komisi):**\nKdyž kompilátor uvidí lambda výraz 'x => x % 2 == 0', vytvoří na pozadí třídy novou, **skrytou privátní metodu** (např. s ošklivým názvem '<>c__DisplayClass0_b__1(int x)'). Na místo původního lambda výrazu v kódu vloží instanciaci delegátu, která ukazuje na tuto skrytou metodu. Lambda je tedy jen čistý syntaktický cukr, procesor žádné lambdy nezná."
+    },
+    {
+      "id": "019f9fcd-c420-7642-be29-c85d80952c9b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Praxe",
+        "Uzávěry",
+        "Chyták"
+      ],
+      "title": "Teorie a Praxe: Uzávěry (Closures) a obávaný 'for' chyták",
+      "content": "**Uzávěr (Closure)** je situace, kdy Lambda výraz uvnitř svého těla používá proměnnou, která byla deklarována *mimo* tuto lambdu (tzv. vnější lokální proměnná). Kompilátor C# takovou proměnnou musí 'zachytit' (capture), aby lambda mohla fungovat i poté, co původní metoda skončí.\n\n**Zkouškový nácvik (Chyták komise - Co vypíše tento kód?):**\nToto je absolutní klasika, na které padá u státnic spousta lidí. Pozorně analyzujte kód na papíře:\n\n```csharp\nList<Action> actions = new List<Action>();\n\nfor (int i = 0; i < 3; i++) {\n    actions.Add(() => Console.Write(i));\n}\n\nforeach (var action in actions) {\n    action(); // Vyvolání lambdy\n}\n```\n\nNapište, jaký výstup program vygeneruje. Bude to '012', nebo něco jiného? Detailně vysvětlete, co kompilátor provádí se zachycenou lokální proměnnou 'i' a navrhněte, jak tento kód případně opravit.",
+      "hiddenContent": "**Vzorové řešení (Odpověď):**\nProgram nevypíše '012', ale překvapivě vypíše **'333'**.\n\n**Detailní vysvětlení (Proč to tak je?):**\n* Lambda výraz '() => Console.Write(i)' používá lokální proměnnou 'i'. Dochází tak k vytvoření tzv. Uzávěru (Closure).\n* Zásadní pravidlo v C# říká: **Uzávěr zachycuje REFERENCI na proměnnou, nikoliv její aktuální hodnotu v době vytvoření lambdy.**\n* Aby proměnná 'i' přežila konec 'for' cyklu, kompilátor tajně vytvoří skrytou pomocnou třídu, přesune do ní 'i' jako členskou proměnnou (field) a alokuje ji na haldě (Heap). Tím ji udrží při životě.\n* Všechny tři lambdy v našem seznamu ale **sdílejí stejnou referenci** na tuto jedinou proměnnou 'i'.\n* Když se cyklus 'for' točí, hodnota uvnitř sdílené obálky roste (0, 1, 2). Cyklus 'for' se zastaví ve chvíli, kdy 'i = 3'.\n* Ve druhém cyklu 'foreach' začneme lambdy spouštět. Všechny tři se podívají do sdílené obálky na aktuální hodnotu 'i' – a v ní je zapsána koncová hodnota '3'. Proto '333'.\n\n**Oprava na papíře:**\nStačí vytvořit uvnitř cyklu novou lokální kopii. Tím vznikne pro každou lambdu samostatná obálka v paměti.\n\n```csharp\nfor (int i = 0; i < 3; i++) {\n    int copy = i; // Vytvoří se unikátní blok paměti pro každou iteraci\n    actions.Add(() => Console.Write(copy));\n}\n```"
+    },
+    {
+      "id": "019f9fff-db35-738d-a047-ae1b70e9186d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Správa paměti",
+        "Garbage Collector"
+      ],
+      "title": "Teorie: Správa paměti v .NET (Garbage Collector a Generace)",
+      "content": "Sedmý blok otevírá téma správy paměti a životního cyklu objektů. Zatímco v jazycích C a starém C++ musel programátor alokovanou paměť na haldě ručně uvolňovat (přes 'free' nebo 'delete'), C# využívá automatickou správu paměti pomocí **Garbage Collectoru (GC)**.\n\n### Jak funguje Tracing GC?\nC# nepoužívá počítání referencí (Reference Counting) jako např. C++ chytré ukazatele ('std::shared_ptr'), protože to selhává na cyklických referencích. Místo toho má tzv. **Tracing GC**. \n1. GC na chvíli pozastaví běžící vlákna programu.\n2. Najde všechny 'kořeny' (Roots) – to jsou aktuální lokální proměnné na zásobníku a statické proměnné.\n3. Z těchto kořenů projde graf všech dosažitelných objektů na haldě.\n4. Objekty, ke kterým neexistuje žádná cesta, prohlásí za 'smetí', paměť po nich uvolní a přeživší objekty sesype k sobě (kompakce), aby zamezil fragmentaci paměti.\n\n### Generace 0, 1 a 2\nProcházet celou haldu při každém úklidu by bylo extrémně pomalé. GC v .NET proto rozděluje objekty do tří generací podle hypotézy: *'Většina objektů umírá velmi mladá' (např. lokální objekty v metodě).* \n* **Generace 0:** Zde se alokují zcela nové objekty. Úklid zde probíhá velmi často a je bleskově rychlý.\n* **Generace 1:** Objekty, které přežily jeden úklid v Gen 0, se posunou sem. Slouží jako nárazník (buffer) před Gen 2.\n* **Generace 2:** Dlouho žijící objekty (např. Singletony, statická data). Úklid Gen 2 je velmi drahý (tzv. Full GC) a provádí se výjimečně.\n\n### LOH (Large Object Heap)\nPokud alokujete objekt (typicky pole) větší než **85 000 bytů**, nezařadí se do Gen 0, ale rovnou na speciální haldu zvanou LOH. Z důvodu výkonu GC tuto haldu (historicky) nekompaktoval (nepřesouval paměť), což může vést k její fragmentaci a pádu na 'OutOfMemoryException'."
+    },
+    {
+      "id": "019f9fff-db35-738d-a047-b080dc5f7c74",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Správa paměti",
+        "Finalizátory"
+      ],
+      "title": "Praxe: Nedeterministický úklid (Finalizátory / Destruktory)",
+      "content": "**Zkouškový nácvik (Kód a analýza):**\nPředstavte si, že si v C# vytvoříte třídu, která si v konstruktoru otevře síťové spojení. Logicky byste ho chtěli při zániku objektu zavřít. \n\n1. Napište na papír syntaxi tzv. finalizátoru (v C++ a C# označovaného jako destruktor), který spojení zavře.\n2. Detailně vysvětlete, proč je tento přístup v jazyce C# (na rozdíl od C++) silně nedoporučovaný, co znamená pojem **nedeterministický úklid**, a jak finalizátor negativně ovlivní výkon Garbage Collectoru (co se stane s objektem v generacích).",
+      "hiddenContent": "**1. Vzorové řešení (Syntaxe na papír):**\n```csharp\npublic class NetworkConnection {\n    // Konstruktor\n    public NetworkConnection() { \n        // Open connection\n    }\n\n    // Finalizátor (Destruktor) - začíná vlnovkou, nemá modifikátor přístupu!\n    ~NetworkConnection() { \n        // Close connection\n    }\n}\n```\n\n**2. Analýza chytáků pro komisi:**\n* **Nedeterministický úklid:** Na rozdíl od C++, kde se destruktor zavolá *okamžitě*, jakmile objekt opustí scope na zásobníku, v C# nevíte, KDY se finalizátor zavolá. Nevoláte ho vy, ale volá ho speciální vlákno Garbage Collectoru až ve chvíli, kdy GC usoudí, že je málo paměti. Může to být za sekundu, nebo za hodinu. Systémové prostředky (síť) by tak zůstaly blokované nesmyslně dlouho.\n* **Výkonnostní penalizace (Vliv na Generace):** Pokud GC objeví 'smetí', které má finalizátor, **nemůže ho smazat hned**. Místo toho ho přesune do speciální fronty (F-Reachable queue), čímž ho oživí a posune do **Generace 1 nebo 2**. Teprve jiné vlákno na pozadí spustí finalizátory z této fronty a objekt se smaže až při dalším, mnohem dražším běhu GC. \n* *Pravidlo pro praxi:* Finalizátory píšeme VÝHRADNĚ tehdy, pokud naše třída přímo obaluje tzv. Unmanaged resources (nativní handles OS, pointery mimo .NET)."
+    },
+    {
+      "id": "019f9fff-db35-738d-a047-b478c89c57f4",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Správa paměti",
+        "IDisposable"
+      ],
+      "title": "Teorie: Deterministický úklid zdrojů (IDisposable, RAII vs Java)",
+      "content": "Protože finalizátory jsou nedeterministické (nevíme, kdy proběhnou) a pomalé, vyžaduje C# pro úklid souborů, databází či semaforů **deterministický** přístup. Tedy chceme zdroj uklidit přesně v ten moment, kdy s ním dočteme data.\n\nK tomu v C# slouží standardizované rozhraní **'IDisposable'** s jedinou metodou **'Dispose()'**.\n\n### Zkouškové srovnání (C++ RAII vs. Java vs. C#)\nSylabus u tohoto tématu výslovně zmiňuje rozdíly mezi jazyky. Zde je dokonalé shrnutí pro komisi:\n\n1. **C++ (Koncepce RAII - Resource Acquisition Is Initialization):**\nC++ nepotřebuje 'Dispose'. Využívá fakt, že když na zásobníku (Stack) končí blok funkce, kompilátor C++ automaticky zničí lokální objekty a *okamžitě a deterministicky* u nich vyvolá destruktor. Spojení se souborem nebo uvolnění zámku (Mutexu) se dává přímo do destruktoru. Úklid je tak zaručený architekturou jazyka.\n\n2. **Java (try-with-resources):**\nJava má, podobně jako C#, Garbage Collector a objekty na haldě. Pro deterministický úklid používá rozhraní 'AutoCloseable' a speciální syntaxi 'try (Resource r = new Resource()) { ... }'. Po opuštění 'try' bloku se garantovaně zavolá 'r.close()'.\n\n3. **C# (IDisposable a blok 'using'):**\nC# jde cestou velmi podobnou Javě. Třída pracující se soubory implementuje rozhraní 'IDisposable'. Vývojář následně obalí práci s objektem do syntaktického bloku **'using'**. Kompilátor tento blok vnitřně přepíše na striktní konstrukci 'try-finally', která zaručí zavolání metody 'Dispose()' i v případě, že kód uprostřed bloku vyhodí kritickou výjimku.\n*(Přesný přepis C# using bloku do try-finally si ukážeme hned v další kódovací praxi).* "
+    },
+    {
+      "id": "019fa380-0a6b-755a-94fd-942e75ea5264",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Správa paměti",
+        "Výjimky",
+        "using"
+      ],
+      "title": "Praxe: Výjimky, přepis bloku 'using' a zrádné 'throw'",
+      "content": "Tato praktická část uzavírá téma paměti a výjimek. Komise často testuje znalost toho, co se děje pod povrchem elegantních C# konstrukcí.\n\n**Zkouškový nácvik (Kód na papír):**\n1. Napište na papír inicializaci třídy 'FileStream' (která implementuje 'IDisposable') obalenou do bloku **'using'** a přečtěte z něj data.\n2. Napište, na jaký kód (přesně do jaké struktury bloků) překladač C# tento váš 'using' blok vnitřně přepíše. Jakou to dává garanci?\n3. Pokud uvnitř bloku chytáte výjimku pomocí 'catch (Exception ex)', jaký je v C# fatální rozdíl mezi tím, když napíšete **'throw ex;'** oproti samostatnému **'throw;'**?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// 1. Zápis pomocí bloku 'using'\nusing (FileStream fs = new FileStream('data.txt', FileMode.Open)) {\n    // Čtení dat ze souboru...\n}\n\n// 2. Takto to kompilátor přepíše do 'try-finally'\nFileStream fs = new FileStream('data.txt', FileMode.Open);\ntry {\n    // Čtení dat ze souboru...\n}\nfinally {\n    // Blok finally se vykoná VŽDY, i když v 'try' dojde k chybě nebo zavoláme 'return'\n    if (fs != null) {\n        ((IDisposable)fs).Dispose();\n    }\n}\n```\n\n**3. Chyták s vyhozením výjimky (Pro komisi):**\n* Pokud v bloku catch napíšete **'throw ex;'**, říkáte CLR: *Zahoď původní historii a vyhoď tuto výjimku jako úplně novou od tohoto řádku*. Tím si **nevratně zničíte StackTrace** (informaci o tom, kde chyba původně vznikla) a znemožníte si debugování.\n* Pokud napíšete pouze **'throw;'**, děláte tzv. *re-throw*. Znamená to: *Pošli tuto zachycenou výjimku dál do vyšší vrstvy tak, jak je*. Celý StackTrace i původní kontext chyby zůstanou neporušené. Je to jediný správný způsob propagace zachycené výjimky v C#!"
+    },
+    {
+      "id": "019fa380-0a6b-755a-94fd-9b4f2f04ccb9",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Architektura OS"
+      ],
+      "title": "Teorie: Reprezentace vláken (OS vs. C#) a sdílení paměti",
+      "content": "Zahajujeme Blok 8, což je 'Boss-Fight' státnic z programování. Vlákna a synchronizace (multithreading) se objevují téměř v každém termínu. Nejprve musíme ustavit základní paměťový model.\n\n### Proces vs. Vlákno\n* **Proces:** Izolovaný kontejner, který OS vytvoří pro spuštění programu. Má vlastní vyhrazený virtuální adresní (paměťový) prostor. Aplikace z jednoho procesu nemůže (bez speciálních API) číst paměť jiného procesu.\n* **Vlákno (Thread):** Základní jednotka práce, které operační systém (Plánovač / Scheduler) přiděluje procesorový čas. Vlákno 'bydlí' uvnitř procesu.\n\n### Jak C# reprezentuje vlákno?\nV .NET Frameworku / .NET Core odpovídá třída **'System.Threading.Thread'** tzv. modelu 1:1. To znamená, že jedno C# vlákno je fyzicky namapováno na jedno skutečné vlákno operačního systému (OS Thread). O jejich přepínání se stará CPU ve spolupráci s OS.\n\n### Paměťový model (Kritické pro zkoušku!)\nProč dochází k časově závislým chybám (Race conditions)? Protože vlákna v jednom procesu **sdílejí paměť, ale ne všechnu**:\n1. **Co má každé vlákno SVÉ (izolované):** Vlastní Zásobník (Thread Stack), kam se ukládají lokální proměnné funkcí a call-stack (kdo koho zavolal). Dále má sadu vlastních CPU registrů (uložených v kontextu vlákna při jeho uspání).\n2. **Co všechna vlákna SDÍLEJÍ:** Haldu (Heap), na které leží všechny objekty vytvořené přes 'new'. Zároveň sdílejí statickou paměť (statické proměnné tříd). Kdykoliv 2 vlákna sahají na stejný objekt na haldě, hrozí katastrofa."
+    },
+    {
+      "id": "019fa380-0a6b-755a-94fd-9e33a914558c",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Syntaxe"
+      ],
+      "title": "Praxe: Vytvoření a spuštění vlákna od ruky",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nNež začneme řešit složité zkouškové blokování (Deadlocky a Semafory), musíme umět vlákno vůbec vytvořit.\n\n1. Napište na papír metodu 'PrintNumbers(int limit)', která v cyklu vypíše čísla od 0 do 'limit'.\n2. Napište spouštěcí kód (např. do metody 'Main'), který **vytvoří dvě nová vlákna**. \n3. Prvnímu vláknu předejte limit 50, druhému limit 100. Obě vlákna spusťte.\n4. Použijte klíčové slovo, které hlavnímu vláknu (Main) přikáže, aby počkalo, dokud obě pomocná vlákna neskončí svou práci.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class ThreadRunner {\n    // 1. Metoda, kterou budou vlákna vykonávat\n    public static void PrintNumbers(int limit) {\n        for (int i = 0; i < limit; i++) {\n            Console.Write(i + ' ');\n        }\n    }\n\n    public static void Main() {\n        // 2. a 3. Vytvoření vláken pomocí třídy Thread a Lambdy pro předání parametru\n        Thread t1 = new Thread(() => PrintNumbers(50));\n        Thread t2 = new Thread(() => PrintNumbers(100));\n\n        // Spuštění vláken (Scheduler OS je nyní začne libovolně prokládat)\n        t1.Start();\n        t2.Start();\n\n        // 4. Vyčkání na dokončení (Main vlákno se zde zablokuje)\n        t1.Join();\n        t2.Join();\n        \n        Console.WriteLine('Všechna vlákna dokončila práci.');\n    }\n}\n```\n\n**Chytáky pro komisi:**\n* **Předávání parametru:** Starší, neohrabaný způsob vyžadoval použití delegátu 'ParameterizedThreadStart' a parametru typu 'object', což nutilo programátora uvnitř metody nebezpečně přetypovávat. Moderní idiomatický C# používá **Lambda výraz** ('() => Metoda(parametr)'), který pomocí uzávěru bezpečně parametr zabalí.\n* **Metoda 'Join()':** Častá otázka: *Jaký je rozdíl mezi Sleep a Join?* 'Sleep(čas)' uspí aktuální vlákno na fixní čas nezávisle na čemkoliv. 'Join()' zablokuje volající vlákno PŘESNĚ na dobu, dokud cílové vlákno (zde 't1' a 't2') kompletně neskončí."
+    },
+    {
+      "id": "019fa381-2f54-702e-91dc-7baada8bdda7",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Race Condition"
+      ],
+      "title": "Teorie: Časově závislé chyby a (Ne)Atomicity operací",
+      "content": "Když více vláken přistupuje ke sdílené paměti (např. ke statické proměnné nebo k datové položce stejného objektu na haldě) a alespoň jedno z nich tuto paměť modifikuje, vzniká tzv. **Kritická sekce**. Pokud ji neochráníme, riskujeme **Časově závislou chybu (Race condition)**.\n\n### Chyták komise: Proč 'count++' není atomické?\nStudenti si často myslí, že jeden řádek kódu v C# se rovná jedné nedělitelné operaci. To je fatální omyl. Operace 'count++' se na úrovni procesoru rozpadá do tří nezávislých instrukcí:\n1. **READ:** Přečti aktuální hodnotu 'count' z hlavní paměti (RAM) do registru procesoru.\n2. **MODIFY:** Přičti k hodnotě v registru jedničku.\n3. **WRITE:** Zapiš novou hodnotu z registru zpět do paměti.\n\nZákeřnost spočívá v tom, že **Plánovač operačního systému (Scheduler) může vlákno uspat přesně mezi těmito kroky**. \n\n*Scénář havárie:* Vlákno A přečte hodnotu 5 a OS ho uspí. Vlákno B přečte hodnotu 5, přičte 1, zapíše 6. OS vzbudí Vlákno A. To má ve svém CPU registru uloženou hodnotu 5, přičte k ní 1 a zapíše 6. Dvě vlákna provedla inkrementaci, ale hodnota v paměti se zvýšila jen o jednu. Ztratili jsme data!"
+    },
+    {
+      "id": "019fa381-2f54-702e-91dc-7e48cf5530aa",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Zkoušková úloha 2023"
+      ],
+      "title": "Praxe: Zkouška Podzim 2023 (Analýza Race Condition v zásobníku)",
+      "content": "**Zadání (Extrahováno ze zkoušky 14. 9. 2023):**\nMáte zadanou třídu 'LimitedStack', do které přistupuje více vláken současně. Sdílená data jsou v proměnných 'currentDepth' (aktuální počet prvků), 'maxDepth' a poli 'stack'. Třída obsahuje metodu:\n\n```csharp\nbool pushValue(int v) {\n    if (currentDepth >= maxDepth)\n        return false;\n    stack[currentDepth] = v;\n    currentDepth++;\n    return true;\n}\n```\n\n**Úkol na papír:** Je možné, že v programu nastane *race condition*? Je možné, aby při volání této funkce přetekl zásobník (zápis mimo hranice alokovaného pole)? Detailně zdůvodněte trasováním běhu vláken.",
+      "hiddenContent": "**Vzorové řešení (Odpověď pro komisi):**\nAno, race condition jednoznačně nastane. Kritickou sekcí je celý blok od kontroly 'if' až po 'currentDepth++'. Zápis mimo pole (přetečení zásobníku) reálně hrozí.\n\n**Důkaz trasováním (Krok za krokem scénář):**\nPředpokládejme zásobník, který je těsně před naplněním ('maxDepth = 10', 'currentDepth = 9').\n1. **Vlákno T1** zavolá 'pushValue()' a provede test 'if (9 >= 10)'. Test vrátí 'false' (místo ještě je).\n2. *V tento kritický moment plánovač OS vlákno T1 uspí (ztratí procesorový čas).* Vlákno T1 si ale pamatuje, že testem prošlo.\n3. **Vlákno T2** dostane procesor. Zavolá 'pushValue()'. Provede test 'if (9 >= 10)'. Test vrátí 'false'.\n4. Vlákno T2 zapíše data: 'stack[9] = v;'.\n5. Vlákno T2 inkrementuje: 'currentDepth' se mění na 10.\n6. *Plánovač OS nyní vzbudí vlákno T1 a přidělí mu procesor.*\n7. Vlákno T1 **neprovádí test znovu** (tím už prošlo v bodě 1). Rovnou pokračuje na další instrukci.\n8. Vlákno T1 se pokusí provést 'stack[currentDepth] = v;'. Ale protože 'currentDepth' je nyní 10, provede 'stack[10] = v;'.\n9. **Výsledek:** Kód vyhodí 'IndexOutOfRangeException', program spadne nebo přepíše cizí paměť (přetečení zásobníku)."
+    },
+    {
+      "id": "019fa381-2f54-702e-91dc-82726007c48c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Paměťová viditelnost",
+        "volatile"
+      ],
+      "title": "Teorie: Paměťová viditelnost a modifikátor 'volatile'",
+      "content": "Představme si, že nepoužijeme 'count++', ale pouze prosté přiřazení booleovské hodnoty: 'isDone = true;'. Přiřazení booleanu je na moderních procesorech vždy plně atomické (nelze ho rozdělit napůl). Znamená to tedy, že máme vyhráno a vlákna jsou v bezpečí? **Ne.**\n\nNarážíme na druhý obrovský problém multithreadingu: **Paměťovou viditelnost (Memory Visibility)**.\n\n### Problém CPU Keší (L1/L2 Cache)\nModerní více jádrové (multi-core) procesory z důvodu výkonu nečtou proměnné pokaždé z hlavní pomalé paměti (RAM). Každé jádro si proměnnou stáhne do své ultrarychlé L1 cache. \n* Vlákno A (běžící na Jádru 1) změní ve while cyklu sdílenou proměnnou 'isDone = true'. Fyzicky se ale hodnota změní **pouze v L1 cache Jádra 1**.\n* Vlákno B (běžící na Jádru 2) čeká ve smyčce 'while (!isDone)'. Jelikož čte hodnotu ze své vlastní (neaktualizované) L1 cache Jádra 2, stále vidí hodnotu 'false' a zacyklí se navždy.\n\n### Řešení v C#: Klíčové slovo 'volatile'\nAbychom tomuto zabránili, můžeme deklarovat proměnnou s modifikátorem 'volatile' (např. 'private volatile bool isDone;').\n\n**Co přesně 'volatile' dělá kompilátoru a procesoru:**\n1. Zakáže JIT kompilátoru, aby agresivně optimalizoval čtení této proměnné (např. jejím trvalým načtením do registru).\n2. Vloží do strojového kódu tzv. **Memory Barriers (Paměťové bariéry)**.\n3. Každý zápis do 'volatile' proměnné se okamžitě \"propíše\" do hlavní paměti (vynuluje keše) a každé čtení musí jít napřímo do hlavní paměti.\n\n*Varování na závěr:* 'volatile' řeší POUZE viditelnost! Neřeší atomicitu. Modifikátor 'volatile' na proměnné 'count' by v případě 'count++' vůbec nepomohl s race condition!"
+    },
+    {
+      "id": "019fa381-a5ab-751a-820a-046b3d4cbd3e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Lock-free",
+        "Interlocked"
+      ],
+      "title": "Praxe: Atomické operace bez zámků (Třída Interlocked)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nV teoretické části jsme si dokázali, že operace 'count++' není atomická a při přístupu z více vláken selže. Mohli bychom použít zámek (např. 'lock'), ale to je výkonnostně velmi drahé (režie OS, pozastavení vlákna).\n\n1. Jak v jazyce C# vyřešíte inkrementaci celočíselné proměnné z více vláken tak, aby byla plně atomická, ale vyhnuli jste se použití klasických zámků (tzv. lock-free přístup)?\n2. Napište na papír řádek kódu, který bezpečně zvýší sdílenou proměnnou 'private int _count;' o jedničku.\n3. Vysvětlete komisi, jak je možné, že to funguje, aniž by došlo k race condition.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class Counter {\n    private int _count = 0;\n\n    public void IncrementSafely() {\n        // Atomická inkrementace s předáním proměnné odkazem (ref)\n        Interlocked.Increment(ref _count);\n    }\n}\n```\n\n**Vysvětlení pro komisi (Pod kapotou):**\n* Třída **'System.Threading.Interlocked'** poskytuje metody pro atomické operace ('Increment', 'Decrement', 'Add', 'Exchange', 'CompareExchange').\n* Funguje to tak, že metoda C# se přeloží přímo na speciální instrukce samotného procesoru (na architektuře x86/x64 je to typicky instrukce 'LOCK XADD'). \n* Procesor sám na úrovni hardwaru zajistí, že si sběrnici (memory bus) uzamkne pouze pro sebe na těch pár nanosekund potřebných k provedení celé čtecí-zápisové operace. Žádné jiné jádro mu do toho nemůže vstoupit.\n* Tím získáme absolutní bezpečnost bez toho, aby operační systém musel vlákno uspávat (což by se stalo u klasického zámku). Jde o extrémně výkonný základ tzv. *lock-free* programování."
+    },
+    {
+      "id": "019fa381-a5ab-751a-820a-0ab59ab450e7",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Synchronizace",
+        "Monitor"
+      ],
+      "title": "Teorie: Synchronizační primitiva (Třída Monitor a 'lock')",
+      "content": "Pokud nestačí 'Interlocked' (protože kritická sekce obsahuje více operací, např. 'if' následovaný zápisem pole), musíme použít tzv. **Vzájemné vyloučení (Mutual Exclusion)**.\n\n### Třída Monitor\nV C# je základním stavebním kamenem exkluzivních zámků statická třída **'Monitor'**. Umožňuje vláknu požádat o exkluzivní přístup k určitému paměťovému objektu (zavoláním 'Monitor.Enter(obj)'). Pokud objekt už drží jiné vlákno, OS aktuální vlákno zablokuje (uspí), dokud vlastník nezavolá 'Monitor.Exit(obj)'.\n\n### Syntaktický cukr 'lock'\nAby programátoři nezapomínali zámky uvolňovat (čímž by vznikl trvalý zásek - Deadlock), zavedl C# klíčové slovo **'lock'**. Kompilátor při překladu přepíše blok 'lock(obj) { ... }' do následující vnitřní podoby:\n\n```csharp\nbool lockTaken = false;\ntry {\n    Monitor.Enter(obj, ref lockTaken);\n    // Vaše kritická sekce...\n} \nfinally {\n    if (lockTaken) Monitor.Exit(obj);\n}\n```\nBlok 'finally' garantuje, že pokud uvnitř kritické sekce vyletí výjimka (např. dělení nulou), zámek se vždy uvolní pro ostatní čekající vlákna.\n\n### Vlastnost Reentrancy (Chyták!)\nZajímavá teoretická otázka: *Co se stane, když vlákno drží zámek a uvnitř kritické sekce zavolá jinou metodu, která se pokusí zamknout ten samý objekt?*\nZpůsobí si vlákno deadlock samo se sebou? **NE.** Monitor v C# je tzv. *Reentrantní*. Pamatuje si ID vlákna, které ho aktuálně vlastní. Pokud stejné vlákno požádá o zámek znovu, Monitor mu ho okamžitě povolí, jen si vnitřně zvedne počítadlo vnoření (+1). Odemkne se až po stejném počtu zavolání 'Exit'."
+    },
+    {
+      "id": "019fa381-a5ab-751a-820a-0e4093955c5a",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Zkoušková úloha 2023"
+      ],
+      "title": "Praxe: Pravidla uzamykání a oprava 'LimitedStack' (2023)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nVraťme se k úloze z podzimu 2023, kde docházelo k přetečení zásobníku kvůli *race condition*. Zadaný kód byl:\n\n```csharp\npublic class LimitedStack {\n    public bool pushValue(int v) {\n        if (currentDepth >= maxDepth) return false;\n        stack[currentDepth] = v;\n        currentDepth++;\n        return true;\n    }\n}\n```\n\n1. Opravte na papíře tuto metodu pomocí C# bloku 'lock'.\n2. C# k uzamčení vyžaduje referenční objekt. Popište, jaký objekt si pro uzamčení zvolíte a kam do třídy ho umístíte.\n3. **Zásadní architektonická otázka:** Proč zkušení programátoři pro uzamykání instančních metod PŘÍSNĚ zakazují používat samotný objekt 'this' (tj. proč se nesmí napsat 'lock(this)')?",
+      "hiddenContent": "**Vzorové řešení (Opravený kód na papíře):**\n\n```csharp\npublic class LimitedStack {\n    // Zlaté pravidlo C#: Pro zámek vždy vytvořte privátní readonly objekt!\n    private readonly object _syncRoot = new object();\n    \n    // ... zbytek proměnných (stack, currentDepth, maxDepth) ...\n\n    public bool pushValue(int v) {\n        // Celá kritická sekce včetně podmínky if musí být uvnitř zámku\n        lock (_syncRoot) {\n            if (currentDepth >= maxDepth) return false;\n            stack[currentDepth] = v;\n            currentDepth++;\n            return true;\n        }\n    }\n}\n```\n\n**Odpovědi pro komisi (Chytáky a pravidla designu):**\n* **Proč chránit celý blok:** Zámek musí obalovat i podmínku 'if'. Kdybychom dali 'lock' až za 'if', vznikne *race condition* mezi přečtením stavu a jeho následnou změnou (tzv. Time-of-check to time-of-use (TOCTOU) zranitelnost).\n* **Proč NIKDY nepoužívat 'lock(this)':** Klíčové slovo 'this' reprezentuje naši instanci 'LimitedStack'. Tato instance je ale veřejně viditelná i zvenčí pro kódy, které zásobník používají ('LimitedStack myStack = new...'). \nNěkdo cizí (třeba i omylem) by mohl ve svém kódu napsat 'lock(myStack) { Thread.Sleep(100000); }'. Tím by zvenku zamkl náš objekt, a všechna vnitřní volání 'pushValue' (která by byla designovaná jako 'lock(this)') by se trvale zablokovala. Způsobili bychom fatální **Deadlock**. \n* *Závěr:* Uzamykací (synchronizační) objekt musí být vždy striktně **'private'**, aby k němu nikdo zvenčí neměl přístup."
+    },
+    {
+      "id": "019fa382-445d-75ee-8149-2035e57ba1b0",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Signalizace"
+      ],
+      "title": "Teorie: Pokročilá synchronizace (Signalizace vláken)",
+      "content": "Představme si klasický problém **Producent-Konzument**. Jedno vlákno generuje data (do fronty) a druhé je zpracovává. Co se stane, když je fronta prázdná?\n\n### Aktivní čekání (Polling) - Anti-pattern\nKonzument by mohl neustále dokola zamykat frontu, ptát se, zda jsou data, odemykat a zkoušet to znovu ('while(queue.Count == 0) { }'). Tomuto se říká aktivní čekání. Je to obrovská chyba, protože vlákno zbytečně pálí 100 % výkonu jednoho jádra CPU jen na kontrolu prázdného stavu.\n\n### Signalizace (Monitor.Wait a Monitor.Pulse)\nSprávným řešením je **Uspání a Probuzení (Signalizace)**. Vlákno (Konzument) si zamkne frontu, zjistí, že je prázdná, a řekne operačnímu systému: *Uspi mě a vzbuď mě, až mi někdo dá signál, že jsou tu nová data.*\n\nTřída 'Monitor' k tomu v C# nabízí dvě kritické metody (obě se smí volat POUZE uvnitř uzamčeného bloku 'lock'):\n1. **'Monitor.Wait(syncObj)'**: Vlákno, které toto zavolá, je okamžitě uspáno. Tím se **dočasně uvolní onen zámek** pro ostatní vlákna! Jakmile je vlákno v budoucnu probuzeno, automaticky si zámek znovu uzamkne a pokračuje na dalším řádku kódu.\n2. **'Monitor.Pulse(syncObj)' / 'PulseAll()'**: Vlákno, které toto zavolá (např. Producent, který právě vložil data), pošle signál OS, aby vzbudil jedno (nebo všechna) uspaná vlákna čekající na daném zámku."
+    },
+    {
+      "id": "019fa382-445d-75ee-8149-25712f04e7b8",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Producent-Konzument"
+      ],
+      "title": "Praxe: Producent-Konzument přes Monitor.Wait (Chyták s 'while')",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nNapište na papír thread-safe frontu 'MyQueue<T>', která má fixní maximální kapacitu. \n1. Napište metodu 'Enqueue(T item)'. Pokud je fronta plná, Producent se musí uspět ('Monitor.Wait'). Po vložení dat musí probudit případné spící Konzumenty.\n2. Napište metodu 'Dequeue()'. Pokud je fronta prázdná, Konzument se usíní. Po odebrání dat vzbudí Producenty.\n\n**Zásadní teoretická otázka:** Proč se při testování podmínky pro 'Monitor.Wait' musí VŽDY použít cyklus 'while' a NIKDY nesmíte použít pouhé 'if'?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\npublic class MyQueue<T> {\n    private readonly Queue<T> _queue = new Queue<T>();\n    private readonly object _syncRoot = new object();\n    private readonly int _capacity = 10;\n\n    public void Enqueue(T item) {\n        lock (_syncRoot) {\n            // CHYTÁK: Musí to být 'while', nikoliv 'if'!\n            while (_queue.Count >= _capacity) {\n                Monitor.Wait(_syncRoot); // Uvolní zámek a usne\n            }\n            _queue.Enqueue(item);\n            Monitor.PulseAll(_syncRoot); // Vzbudí uspané konzumenty\n        }\n    }\n\n    public T Dequeue() {\n        lock (_syncRoot) {\n            while (_queue.Count == 0) {\n                Monitor.Wait(_syncRoot);\n            }\n            T item = _queue.Dequeue();\n            Monitor.PulseAll(_syncRoot); // Vzbudí uspané producenty\n            return item;\n        }\n    }\n}\n```\n\n**Analýza 'while' chytáku pro komisi (Spurious Wakeups):**\nPoužití 'while' místo 'if' je životně důležité ze dvou důvodů:\n1. **Krádež zámku (Lock Stealing):** Producent vzbudí Konzumenta A. Než ale Konzument A stihne znovu získat zámek a vzbudit se, na procesoru naskočí úplně cizí aktivní Konzument B, zámek mu vyfoukne a frontu vyprázdní. Když se následně probere Konzument A, kdyby použil jen 'if', rovnou by šel číst z prázdné fronty a havaroval by. Díky 'while' se po probuzení znovu zkontroluje podmínka a Konzument A zase usne.\n2. **Falešná probuzení (Spurious Wakeups):** Na některých operačních systémech může hardware občas vzbudit spící vlákno zcela bezdůvodně, i když žádný 'Pulse' nepřišel. Cyklus 'while' je proti tomu imunní."
+    },
+    {
+      "id": "019fa382-445d-75ee-8149-29366f2285c0",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Semafory",
+        "Mutex"
+      ],
+      "title": "Teorie: Synchronizační primitiva OS (Semaphore vs. Mutex)",
+      "content": "Ačkoliv je 'Monitor' (klíčové slovo 'lock') pro lokální synchronizaci uvnitř C# aplikace nejrychlejší, občas potřebujeme synchronizaci na úrovni celého Operačního Systému (např. synchronizovat dva úplně nezávislé procesy / aplikace). K tomu slouží těžší OS primitiva (System.Threading):\n\n### 1. Mutex (Mutual Exclusion)\n* Funguje velmi podobně jako 'Monitor'. Dovnitř pustí vždy pouze **1 vlákno**.\n* Lze ho pojmenovat (např. 'new Mutex(false, \"MojeAplikace_Zamek\")'). Tím z něj vznikne celosystémový zámek. Používá se např. k zamezení spuštění dvou instancí stejné aplikace (tzv. Single-Instance App).\n* **Vlastnictví:** Mutex si pamatuje, které vlákno ho zamklo. Pouze to samé vlákno ho smí odemknout (jinak letí 'ApplicationException'). Je také *reentrantní* (vlákno ho může zamknout vícekrát).\n\n### 2. Semaphore\n* Funguje jako vyhazovač v klubu. Omezuje počet vláken, která mohou současně vstoupit do kritické sekce, na pevně daný limit (např. kapacitu $N$).\n* Volání 'WaitOne()' sníží počítadlo (pokud je 0, vlákno se uspí). Volání 'Release()' počítadlo zvýší (a vzbudí spící vlákno).\n* **Kritický rozdíl (Chyták!):** Na rozdíl od Mutexu nebo Monitoru **Semafor NEMÁ VLASTNÍKA (Owner thread)**. To znamená, že Vlákno A může zavolat 'WaitOne()', uspat se uvnitř kritické sekce, a úplně cizí Vlákno B může zvenčí zavolat 'Release()' a Vlákno A osvobodit.\n\nPrávě této neuvěřitelné vlastnosti (absence vlastníka) se bohatě využívá při řešení komplexních úloh u zkoušek, například při sestrojování tzv. **Bariér** nebo řešení **Producenta-Konzumenta bez aktivního čekání** pouze za pomoci semaforů."
+    },
+    {
+      "id": "019fa382-987c-7635-9adc-58f409c8da31",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Zkoušková úloha 2024",
+        "Deadlock"
+      ],
+      "title": "Praxe: Zkouška Léto 2024 (Analýza Deadlocku se Semafory)",
+      "content": "**Zadání (Extrahováno ze zkoušky 25. 6. 2024):**\nMáme dvě vlákna. Vlákno T1 běží v metodě 'f1()' a má vypsat liché části textu ('One', 'Three', 'Five'). Vlákno T2 běží v metodě 'f2()' a má vypsat sudé části ('Two', 'Four'). Výsledkem musí být na konzoli souvislý text 'OneTwoThreeFourFive'.\n\nStudent napsal tento chybný kód pomocí jednoho binárního semaforu (inicializovaného na 0):\n```csharp\n// f1() kód:\nConsole.Write('One');\nsem.Release();\nsem.WaitOne();\nConsole.Write('Three');\n// ... další kód\n\n// f2() kód:\nsem.WaitOne();\nConsole.Write('Two');\nsem.Release();\nsem.WaitOne();\n// ... další kód\n```\n\n1. Co je to **Deadlock (Uváznutí)**? \n2. Vysvětlete, k jakému prokládání instrukcí (Trace) musí dojít, aby tento zadaný kód skončil deadlockem ihned po vypsání 'OneTwo'.\n3. Napište na papír zcela bezpečné řešení využívající **dva** semafory (bez použití 'lock' nebo sdílených proměnných).",
+      "hiddenContent": "**Vzorové řešení pro komisi:**\n\n**1. Teorie Deadlocku:** Deadlock je stav, kdy dvě (nebo více) vláken čekají na uvolnění zdroje, který drží to druhé vlákno. Vzniká zacyklení závislostí a program trvale zamrzne.\n\n**2. Analýza uváznutí v zadaném kódu:**\n* T1 vypíše 'One' a zavolá 'Release()' (Semafor = 1).\n* Plánovač přepne na T2. T2 zavolá 'WaitOne()' (Semafor klesne na 0, T2 projde).\n* T2 vypíše 'Two' a zavolá 'Release()' (Semafor = 1).\n* *Kritický okamžik:* Než se T1 stihne vzbudit a sebrat si semafor, plánovač nechá běžet T2 dál! T2 hned na dalším řádku zavolá 'WaitOne()' (Semafor klesne na 0, T2 projde a zablokuje se na dalším čtení, čekajíc na text 'Three').\n* Plánovač přepne na T1. T1 zavolá 'WaitOne()', ale semafor je 0. T1 se uspí.\n* **Výsledek:** Obě vlákna visí na 'WaitOne()'. Deadlock.\n\n**3. Oprava kódu na papíře (Dva semafory - Signalling):**\nAbychom vynutili striktní střídání (Ping-Pong), potřebujeme dva semafory. Jeden (semA) odjišťuje T2, druhý (semB) odjišťuje T1.\n\n```csharp\nSemaphore semA = new Semaphore(0, 1);\nSemaphore semB = new Semaphore(0, 1);\n\n// Vlákno T1 (Liché)\nConsole.Write('One');\nsemA.Release(); // Odjisti T2\nsemB.WaitOne(); // Čekej na T2\nConsole.Write('Three');\nsemA.Release();\nsemB.WaitOne();\nConsole.Write('Five');\n\n// Vlákno T2 (Sudé)\nsemA.WaitOne(); // Čekej na T1\nConsole.Write('Two');\nsemB.Release(); // Odjisti T1\nsemA.WaitOne();\nConsole.Write('Four');\nsemB.Release();\n```"
+    },
+    {
+      "id": "019fa382-987c-7635-9adc-5dd972e36954",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "Invarianty"
+      ],
+      "title": "Teorie: Invarianty stavu a synchronizace bez zámků",
+      "content": "Ve zkouškovém termínu z jara 2026 se po studentech vyžadovalo napsání **stavových invariantů**. Co to je a jak to souvisí s vlákny?\n\n### Co je to Invariant?\nInvariant je logické tvrzení o stavu systému (proměnných, semaforech, paměti), které **musí být pravdivé po celou dobu běhu programu** (s výjimkou krátkých okamžiků uvnitř chráněné kritické sekce, kdy se stav mění). \nPokud navrhujeme složitý multithreaded systém bez klasických 'lock' bloků, dokazujeme jeho správnost právě přes invarianty.\n\n### Klasický problém Producent-Konzument (Bounded Buffer)\nPředstavme si rouru (FIFO Buffer) o fixní kapacitě $N$ prvků. Jedno vlákno do ní cpe data (Producent), druhé je vybírá (Konzument). Nechceme použít 'lock' ani 'Monitor.Wait' z důvodu výkonu a blokování celého bufferu. Chceme použít čistě Semafory.\n\nJak to navrhnout?\nPotřebujeme evidovat dvě věci:\n1. **Počet VOLNÝCH míst (Capacity Semaphore):** Na začátku je prázdný buffer, takže volných míst je $N$. Producent před vložením musí jedno volné místo \"zabrat\" ('WaitOne').\n2. **Počet ZAPLNĚNÝCH míst (Content Semaphore):** Na začátku je 0. Konzument před výběrem musí jedno plné místo \"zabrat\" ('WaitOne').\n\n### Zásadní Invariant systému\nAť se děje, co se děje, počet volných míst plus počet zaplněných míst se musí vždy rovnat celkové kapacitě bufferu $N$. Matematicky zapsáno pro zkoušku:\n* **Invariant:** 'CapacitySemaphore.CurrentCount + ContentSemaphore.CurrentCount == N'\n(Za předpokladu, že obě funkce nebyly zrovna přerušeny uprostřed vkládání/vybírání z vnitřního pole)."
+    },
+    {
+      "id": "019fa382-987c-7635-9adc-6290d2a37f94",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Zkoušková úloha 2026",
+        "Semafory"
+      ],
+      "title": "Praxe: Zkouška Jaro 2026 (FIFO Buffer přes Semafory)",
+      "content": "**Zadání (Extrahováno ze zkoušky 2. 2. 2026):**\nImplementujte v C# funkce pro realizaci jednosměrného proudu bajtů mezi dvěma procesy (Producent a Konzument). K dispozici máte vnitřní naivní implementaci fronty (metody 'buffer_push(byte)' a 'buffer_pop()'), o kterých víte, že jsou uvnitř *atomické*, ale neposkytují **žádnou synchronizaci a blokování** (spadnou, pokud je zavoláte nad prázdným/plným bufferem o kapacitě $N$).\n\n1. Definujte potřebné Semafory a jejich počáteční stavy (kapacita je $N$).\n2. Napište implementaci metody 'void send(byte ch)', která čeká na volné místo, pak bajt zapíše.\n3. Napište implementaci metody 'byte receive()', která čeká na platný bajt a ten pak přečte.\n4. Zapište řešení tak, aby nespoléhalo na aktivní čekání (žádné while cykly ptající se na stav) a aby implementovalo invarianty popsané v předchozí lekci.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\n// 1. Inicializace semaforů (Sdílený stav pro obě vlákna)\n// Kapacita (Free spaces) začíná na N (všechno je volné)\nSemaphore capacity_sem = new Semaphore(N, N); \n\n// Obsah (Filled spaces) začíná na 0 (nic tam není)\nSemaphore content_sem = new Semaphore(0, N);\n\n// 2. Metoda pro vkládání dat (Volá Producent)\npublic void send(byte ch) {\n    // Čekáme, dokud není k dispozici alespoň 1 VOLNÉ místo (sníží capacity_sem)\n    capacity_sem.WaitOne();\n    \n    // Invariant v tento moment je dočasně rozbitý (Součet je N-1)\n    // Máme garantováno, že buffer není plný.\n    buffer_push(ch);\n    \n    // Signál Konzumentovi: Přibylo 1 PLNÉ místo (zvýší content_sem)\n    // Tím se Invariant opět opraví na součet N.\n    content_sem.Release();\n}\n\n// 3. Metoda pro čtení dat (Volá Konzument)\npublic byte receive() {\n    // Čekáme, dokud není k dispozici alespoň 1 PLNÉ místo (sníží content_sem)\n    content_sem.WaitOne();\n    \n    // Máme garantováno, že buffer není prázdný.\n    byte ch = buffer_pop();\n    \n    // Signál Producentovi: Uvolnilo se 1 VOLNÉ místo (zvýší capacity_sem)\n    capacity_sem.Release();\n    \n    return ch;\n}\n```\n\n**Bonusové body u komise:** Pokud student vysvětlí, že 'WaitOne' nekonzumuje procesorový čas (operační systém vlákno opravdu fyzicky uspí na úrovni kernelu), dokazuje tím zadání, že implementace nevyužívá tzv. 'aktivní čekání' (polling / busy waiting)."
+    },
+    {
+      "id": "019fa382-fb28-7481-88b3-f5c95cb5303d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Vlákna",
+        "TPL",
+        "Task"
+      ],
+      "title": "Teorie: Moderní abstrakce (ThreadPool a Task Parallel Library)",
+      "content": "Až doteď jsme pro souběžnost používali syrová vlákna OS (třída 'Thread'). V moderním C# (a u zkoušky, pokud to zadání výslovně nezakazuje) se tomuto přístupu pro běžnou logiku vyhýbáme. Založení nového vlákna je totiž **extrémně drahá operace** (OS musí alokovat typicky 1 MB paměti pro nový Stack a provést náročný Context Switch do jádra).\n\n### ThreadPool (Fond vláken)\nAbychom neplatili tuto obrovskou režii při každém spuštění asynchronní metody, obsahuje .NET tzv. **ThreadPool**. Je to předem vytvořená skupina (bazén) spících vláken na pozadí (Background threads). Když potřebujete provést práci, nebudíte nové vlákno, ale hodíte úkol (metodu) do fronty ThreadPoolu. Volné vlákno si úkol vezme, zpracuje ho, a místo aby zaniklo, vrátí se do bazénu čekat na další práci.\n\n### Task Parallel Library (TPL) a třída 'Task'\nTřída 'Task' (Úloha) NENÍ vlákno. Je to objektová abstrakce reprezentující **jednotku práce**, která se má vykonat v budoucnu. \nKdyž v C# založíte 'Task', runtime ho automaticky zařadí do fronty ThreadPoolu (pokud mu neřeknete jinak). 'Task' přidává nad 'Thread' obrovské výhody:\n1. Může vracet návratovou hodnotu (přes 'Task<T>').\n2. Umí propagovat výjimky zpět do volajícího vlákna.\n3. Umožňuje řetězení úloh ('task.ContinueWith(...)').\n4. Je základem pro moderní syntaktický cukr 'async/await'."
+    },
+    {
+      "id": "019fa382-fb28-7481-88b3-fb94f20413bf",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Vlákna",
+        "Task vs Thread",
+        "Výjimky"
+      ],
+      "title": "Praxe: Kdy použít Task vs. Thread (Návratové hodnoty a Výjimky)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nMáte za úkol spustit na pozadí výpočetně náročnou metodu 'int CalculateSum()', počkat na její dokončení a vypsat výsledek.\n\n1. Napište, jak byste tento problém řešili pomocí surové třídy 'Thread'. Kde vzniká architektonický problém s návratovou hodnotou?\n2. Napište moderní řešení pomocí třídy 'Task<T>'.\n3. **Klíčový chyták:** Co se stane, když metoda 'CalculateSum' uvnitř vyhodí 'DivideByZeroException'? Jak odlišně se zachová program s 'Thread' a program s 'Task'?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n**1. Zastaralý přístup přes Thread:**\nTřída 'Thread' neumí vracet hodnotu (bere jen delegát 'void'). Musíme použít sdílenou proměnnou (a s ní riziko race conditions).\n```csharp\nint result = 0;\nThread t = new Thread(() => {\n    result = CalculateSum(); \n});\nt.Start();\nt.Join(); // Čekáme na dokončení\nConsole.Write(result);\n```\n\n**2. Moderní idiomatický přístup přes TPL:**\n```csharp\n// Task.Run zařadí práci do ThreadPoolu a vrátí Task<int>\nTask<int> task = Task.Run(() => CalculateSum());\n\n// Čtení vlastnosti Result vlákno automaticky zablokuje, dokud výpočet neskončí\nConsole.Write(task.Result);\n```\n\n**3. Chyták s výjimkami (Pro komisi):**\n* **Chování 'Thread':** Pokud vlákno narazí na neošetřenou výjimku, **celý proces (aplikace) okamžitě spadne** (tzv. Unhandled Exception). Nelze tomu zabránit obalením 't.Start()' do bloku 'try-catch', protože výjimka žije na jiném zásobníku (Stacku).\n* **Chování 'Task':** 'Task' výjimku bezpečně zachytí (spolkne) a uloží ji do své vnitřní vlastnosti 'Exception'. Zpět do hlavního vlákna se výjimka \"vystřelí\" (re-throw) až v momentě, kdy hlavní vlákno zavolá 'task.Wait()' nebo se pokusí přečíst 'task.Result'. Výjimka bude zabalena do objektu 'AggregateException'. S 'Task' tedy můžete bezpečně používat 'try-catch' v hlavním vlákně!"
+    },
+    {
+      "id": "019fa382-fb28-7481-88b3-fcecf68241db",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Paměť",
+        "Alokátory",
+        "Low-level C#"
+      ],
+      "title": "Teorie: Koncepce Heap alokátoru na poli (First-fit a Hlavičky)",
+      "content": "Zahajujeme Blok 9, který se věnuje nízkoúrovňové správě paměti a hard-core C# úlohám z letních zkoušek 2025 a 2026.\n\n### Co je to halda (Heap)?\nZ pohledu OS a C# je paměť (halda) vlastně jen obrovské jednorozměrné pole bytů ('byte[]'). Dynamická alokace paměti (to, co dělá operátor 'new') je ve skutečnosti jen algoritmus, který v tomto poli najde souvislou řadu volných bytů, označí je za \"obsazené\" a vrátí na ně ukazatel (index).\n\n### Struktura paměťového bloku (Hlavička a Payload)\nAby mohl správce paměti fungovat, musí si někde evidovat, které bloky jsou volné a které obsazené. Tato metadata (tzv. **Hlavička / Header**) se ukládají *přímo do stejného pole* těsně před samotná data uživatele (Payload).\n\nPředstavme si zkouškové zadání (Léto 2025): Každý blok má 2bajtovou hlavičku ('ushort'). \n* Bit 0 určuje, zda je blok volný (0) nebo obsazený (1).\n* Zbylých 15 bitů určuje velikost bloku v bytech.\n\n### Algoritmus First-Fit\nKdyž přijde požadavek na alokaci (např. 10 bytů), musí správce (alokátor) najít dostatečně velký volný blok. Nejobvyklejší algoritmus je **First-Fit**:\n1. Alokátor začne na indexu 0 (první hlavička).\n2. Přečte velikost a stav. Pokud je blok obsazený, nebo je menší než 10 bytů, skočí na konec tohoto bloku (přičte jeho velikost k indexu) a narazí na hlavičku dalšího bloku.\n3. Pokud najde dostatečně velký volný blok, použije ho. \n4. Pokud je nalezený volný blok mnohem větší (např. má 100 bytů), alokátor ho **rozštěpí (Split)**: Vytvoří novou hlavičku pro obsazených 10 bytů a těsně za ně zapíše novou hlavičku označující zbylých 88 volných bytů (2 byty se sežraly na novou hlavičku).\n5. Tímto způsobem paměť funguje jako tzv. explicitní volný seznam (Free-list)."
+    },
+    {
+      "id": "019fa383-489f-7033-8b05-1848dbae3986",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Low-level C#",
+        "Zkoušková úloha 2025",
+        "Bitové operace"
+      ],
+      "title": "Praxe: Zkouška Léto 2025 (Alokátor na poli byte[])",
+      "content": "**Zadání (Extrahováno ze zkoušky 23. 6. 2025):**\nImplementujete jednoduchý heap (správce paměti) uvnitř velkého pole 'byte[]'. Každý blok paměti začíná 16bitovou (2 byty) hlavičkou 'Size'. \n\n* Velikost bloku musí být zarovnaná na sudé číslo (vždy dělitelná 2).\n* **Nejnižší bit (LSB, bit 0)** této hlavičky slouží jako stavový: '0' znamená, že je blok volný, '1' znamená, že je obsazený.\n* Velikost bloku (včetně hlavičky) se tedy skrývá ve zbylých 15 bitech.\n\nMáte k dispozici pomocnou funkci 'ushort GetUshort(ushort offset)', která z pole přečte hlavičku.\n\n1. Napište na papír podmínku v C#, která z načtené hlavičky 'header' zjistí, zda je blok obsazený (vrátí 'bool').\n2. Napište kód, který z hlavičky extrahuje skutečnou velikost bloku v bytech (ignoruje stavový bit 0).\n3. Napište kód, který volný blok označí jako obsazený (změní hlavičku) a zavolá 'SetUshort(offset, newHeader)'.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\nTato úloha ostře testuje znalost bitového maskování. Jelikož je velikost vždy sudá, víme jistě, že její nultý bit by byl normálně vždy 0. Proto ho můžeme \"ukrást\" pro stavovou vlajku.\n\n```csharp\nushort header = GetUshort(offset);\n\n// 1. Zjištění, zda je blok obsazený (Maskování bitu 0 pomocí logického AND)\nbool isAllocated = (header & 1) == 1;\n\n// 2. Extrakce skutečné velikosti (Vynulování bitu 0)\n// Využijeme logický součin s bitovou inverzí jedničky (~1). \n// ~1 (binárně ...1111111111111110) zachová horních 15 bitů a spodní bit vynuluje.\nushort blockSize = (ushort)(header & ~1);\n\n// 3. Označení bloku jako obsazeného (Nastavení bitu 0 na hodnotu 1)\n// Využijeme logický součet (OR). Ostatní bity zůstanou nezměněny.\nushort newHeader = (ushort)(header | 1);\nSetUshort(offset, newHeader);\n```\n\n**Chyták pro komisi:** Explicitní přetypování '(ushort)' je naprosto nutné! Jak jsme si vysvětlili v první lekci, operátor '&' i '|' nad typem 'ushort' (nebo 'byte') v C# automaticky vrací 32bitový 'int'. Bez manuálního zpětného castingu na '(ushort)' to na papíře prostě není zkompilovatelný kód!"
+    },
+    {
+      "id": "019fa383-489f-7033-8b05-1c5bd2c10519",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Low-level C#",
+        "Paměť",
+        "Hexdump"
+      ],
+      "title": "Teorie: Průchod pamětí, Pointery a Hexdump",
+      "content": "Předposlední blok naší přípravy zasahuje do architektury počítačů, která se na státnicích úzce prolíná s programováním v C/C# s využitím 'unsafe' kontextu.\n\n### Co je to ukazatel (Pointer)?\nKdyž v C# vytvoříte referenční objekt ('var obj = new MyClass()'), proměnná 'obj' je ve skutečnosti skrytý **ukazatel**. Je to prosté celé číslo (např. 64bitové), které udává přesnou adresu (offset) ve virtuální paměti, kde objekt fyzicky začíná. Pokud bychom programovali v surovém C nebo v 'unsafe' C#, uvidíme přímo adresy jako '0x000000000000900A'.\n\n### Reprezentace spojového seznamu (Linked List) v paměti\nStruktura typu 'Node' obsahuje svá data a **ukazatel na další uzel (Next)**. V paměti to znamená, že například prvních 4 byty zabírá hodnota 'data' a hned za nimi následují 4 byty (nebo 8 bytů na 64bitech), ve kterých je uložena cílová paměťová adresa (číslo) dalšího uzlu. Pokud je seznam u konce, ukazatel má hodnotu '0' (tj. 'null').\n\n### Čtení Hexdumpu a Endianita\nKomise občas předloží hrubý výpis paměti (Hexdump). Paměť je tabulka, kde každý bajt (2 hex znaky, např. '4F') leží na nějaké adrese. \n* Zásadní je **Endianita**. Pokud na x86 (Little-Endian) přečtete 2 bajty '0x42' a '0x90', které leží za sebou, výsledné 16bitové číslo NENÍ '0x4290', ale **'0x9042'**! Nejméně významný byte leží na nižší adrese. Toto pravidlo je u zkoušky kritické pro správné rozkódování adres dalších uzlů."
+    },
+    {
+      "id": "019fa383-489f-7033-8b05-23c6119671a9",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Low-level C#",
+        "Zkoušková úloha 2026",
+        "Hexdump"
+      ],
+      "title": "Praxe: Zkouška Léto 2026 (Trasování spojového seznamu v Hexdumpu)",
+      "content": "**Zadání (Extrahováno ze zkoušky 22. 6. 2026):**\nMáte k dispozici surový výpis paměti (Hexdump). Paměť obsahuje jednosměrný spojový seznam. Struktura jednoho prvku je definována jako tři 16bitové (2bajtové) unsigned integery (celkem 6 bytů pro uzel):\n1. `uint16 number;`\n2. `uint16 count;`\n3. `uint16 next;` (adresa dalšího uzlu, 0 znamená konec).\n\nZadání výslovně uvádí, že data jsou uložena v **Big-Endian** formátu (pro jednodušší lidské čtení – adresa zleva doprava). Kořenový prvek (head) je uložen na adrese **0x900a**.\n\nZde je ukázka Hexdumpu (první sloupec je adresa, následují data):\n```text\n9000: 89 e2 26 90 05 ff 00 de ad 00 90 10 90 14 00 00\n9010: 00 01 00 05 90 42 ca fe ca fe 42 90 30 be ef 35\n9040: 77 88 01 23 00 f0 90 3a 5e d3 41 90 48 90 4c 00\n```\n\n**Úkol na papír:** Najděte v hexdumpu adresu prvního a druhého uzlu seznamu. Jakou hodnotu má proměnná 'count' v prvním uzlu? Ukažte postup vašeho trasování.",
+      "hiddenContent": "**Vzorové řešení a logický postup:**\n\n**1. Nalezení prvního prvku:**\n* Zadání říká, že kořen (pointer na první uzel) leží na adrese '0x900a'.\n* Podíváme se na řádek '9000:'. Indexujeme od 0. Bajty na indexu 'a' (tj. desátý) a 'b' (jedenáctý) jsou '90' a '10'.\n* Protože systém je Big-Endian, čteme to tak, jak to leží: adresa prvního prvku je **0x9010**.\n\n**2. Dekódování prvního uzlu (Adresa 0x9010):**\nJdeme na řádek '9010:'. Uzel má 3 bloky po 2 bajtech (celkem 6 bytů):\n* 'number' (byty 0,1): '00 01' -> hodnota '0x0001' (v desítkové soustavě 1).\n* 'count' (byty 2,3): '00 05' -> **hodnota '0x0005' (odpověď na otázku ze zadání: count = 5)**.\n* 'next' (byty 4,5): '90 42' -> adresa dalšího prvku je **0x9042**.\n\n**3. Nalezení a dekódování druhého uzlu (Adresa 0x9042):**\nJdeme na řádek '9040:'. Zajímají nás bajty s offsetem 2 (třetí a čtvrtý byte).\n* 'number' (offset 2,3): '01 23' -> hodnota '0x0123'.\n* 'count' (offset 4,5): '00 f0' -> hodnota '0x00f0'.\n* 'next' (offset 6,7): '90 3a' -> adresa třetího prvku je **0x903a**.\n\n**Strategie pro komisi:** Tyto úlohy vyžadují naprostý klid. Nakreslete si tužkou čáry mezi offsety, abyste nepřehlédli bajt. Pokud by bylo zadání v **Little-Endian**, první dva bajty '00 01' by po převodu na číslo znamenaly '0x0100' (desítkově 256)! Je kritické číst hlavičku zadání."
+    },
+    {
+      "id": "019fa384-ee8b-7264-b787-d9e6fd16f07f",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Běhové prostředí",
+        "Překlad"
+      ],
+      "title": "Teorie: Od kódu k procesoru (CIL, Assemblies a Metadata)",
+      "content": "Poslední, desátý blok naší přípravy pokrývá závěrečný bod sylabu: **Nativní a interpretovaný běh, řízení překladu a sestavení programu**. Jak přesně váš C# kód ožije na procesoru?\n\n### 1. Kompilace zdrojového kódu (Roslyn)\nKdyž spustíte sestavení programu (Build), nepíšete kód přímo pro váš fyzický procesor (Intel, AMD, ARM). Moderní C# kompilátor (Roslyn) převezme vaše textové '.cs' soubory, provede lexikální, syntaktickou a sémantickou analýzu a vygeneruje tzv. **CIL (Common Intermediate Language)** – dříve známý jako MSIL.\n* **CIL** je nízkoúrovňový, na platformě nezávislý \"objektově orientovaný assembler\". Obsahuje instrukce pro virtuální zásobníkový procesor.\n\n### 2. Assemblies (.dll a .exe)\nKompilátor Roslyn zabalí vygenerovaný CIL kód do kontejneru zvaného **Assembly** (typicky soubory s příponou '.dll' nebo '.exe').\n\n### 3. Metadata a Manifest\nKromě CIL kódu je Assembly naplněno **Metadaty**. Zatímco C++ kompilátor při sestavení \"vygumuje\" názvy funkcí a typů (zbydou jen paměťové adresy), C# Assembly obsahuje kompletní popis sama sebe: jména všech tříd, metod, rozhraní a parametrů. \n* Tato vlastnost umožňuje tzv. **Reflexi (Reflection)** za běhu programu a zaručuje obrovskou typovou bezpečnost při spojování více knihoven dohromady."
+    },
+    {
+      "id": "019fa384-ee8b-7264-b787-dfc065ec364e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Sestavení programu",
+        "Linkování"
+      ],
+      "title": "Praxe: Proces sestavení a Dynamické vs. Statické linkování",
+      "content": "**Zkouškový nácvik (Teoretická argumentace na papíře):**\nBod ze sylabu výslovně zmiňuje 'oddělený překlad, linkování' a 'staticky a dynamicky linkované knihovny'. Představte si, že píšete projekt rozdělený do dvou částí: Hlavní program ('App.exe') a matematická knihovna ('MathLib.dll'). Program volá metodu z knihovny.\n\n1. Co je to oddělený překlad (Separate Compilation)?\n2. Zhodnoťte a vysvětlete rozdíl mezi **statickým linkováním** (typickým pro C/C++) a **dynamickým linkováním** (implicitním pro C#/.NET).\n3. Proč se běhové prostředí (CLR) v .NET chová jako pokročilý dynamický linker?",
+      "hiddenContent": "**Vzorové řešení (Argumentace pro komisi):**\n\n**1. Oddělený překlad:**\nJe to schopnost zkompilovat různé části programu (např. různé projekty nebo zdrojové soubory) nezávisle na sobě, v různý čas. Pokud změním kód v 'MathLib.dll', nemusím znovu kompilovat celou 'App.exe' (pokud se nezměnila signatura metod).\n\n**2. Statické vs. Dynamické linkování:**\n* **Statické linkování (C/C++):** Linker (spojovač) vezme přeložený kód z knihovny a **fyzicky ho zkopíruje a vloží** do výsledného binárního souboru '.exe'. Vznikne jeden obrovský, samostatně stojící soubor. Změna v knihovně vyžaduje opětovné slinkování celé aplikace.\n* **Dynamické linkování (C#/.NET):** Kompilátor do 'App.exe' zkopíruje **pouze odkaz (referenci)** na 'MathLib.dll' (tzv. Assembly Reference), nikoliv kód samotný.\n\n**3. Magie CLR za běhu:**\nKdyž OS spustí 'App.exe', zavede do paměti běhové prostředí .NET (CLR). Když program narazí na instrukci volající funkci z 'MathLib.dll', spustí se komponenta zvaná **Assembly Loader**. Ta teprve v tento okamžik najde na disku soubor 'MathLib.dll', nahraje ho do paměti, pomocí metadat ověří, že verze i typy sedí, a propojí volání. Toto je pravé dynamické linkování za běhu."
+    },
+    {
+      "id": "019fa384-ee8b-7264-b787-e3bb28e38f7a",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "JIT",
+        "AOT",
+        "Běhové prostředí"
+      ],
+      "title": "Teorie: Překlad za běhu (JIT vs. AOT kompilace)",
+      "content": "Jak už víme, v Assembly je uložen pouze CIL kód. Žádný procesor na světě ale nezná instrukce jazyka CIL. Musí tedy nutně dojít k překladu do nativního (strojového) kódu (assembleru daného CPU).\n\n### 1. JIT Kompilace (Just-In-Time)\nToto je klasický a výchozí běh .NET frameworku (i Javy). Překlad do strojového kódu se děje **až za běhu programu, a to přesně v okamžiku, kdy je to potřeba**.\n* Když program poprvé zavolá metodu 'Calculate()', CLR zjistí, že tato metoda ještě nebyla přeložena.\n* Pozastaví vlákno a zavolá **JIT Compiler**. \n* JIT vezme CIL kód metody 'Calculate', přeloží ho do strojového kódu (např. x86 instrukcí) a uloží do paměti.\n* Při každém dalším volání této metody už se spouští přímo rychlý, uložený strojový kód. JIT se znovu nevolá.\n\n**Výhody JIT:** JIT běží přímo na cílovém stroji. Ví přesně, jestli máte Intel Pentium nebo nejnovější procesor s AVX-512 instrukcemi, a vygeneruje strojový kód procesoru přímo na míru. Umí navíc kód optimalizovat podle toho, jak se reálně chová (Profile-Guided Optimization).\n**Nevýhody JIT:** Pomalý start aplikace (tzv. Cold start), protože při spuštění programu se masivně kompiluje.\n\n### 2. AOT Kompilace (Ahead-Of-Time)\nModerní trend pro cloud, microservices a mobilní aplikace. Znamená to, že překlad do nativního strojového kódu CPU proběhne **předem, už na počítači vývojáře** (stejně jako v C++ nebo Go).\n* V C# se tato technologie nazývá **Native AOT**.\n* Výsledkem kompilace už není CIL v '.dll', ale nativní binárka obsahující přímo strojový kód pro specifický OS a CPU.\n\n**Výhody AOT:** Aplikace startuje absolutně okamžitě (žádný JIT se nespouští) a má zlomkovou spotřebu paměti (neběží celý obrovský CLR).\n**Nevýhody AOT:** Jelikož ve zkompilované binárce chybí některá metadata a generování kódu za běhu není fyzicky možné, mnoho C# knihoven závislých na těžké Reflexi a dynamickém emitování kódu (Entity Framework, staré Newtonsoft.Json) v AOT režimu havaruje."
+    },
+    {
+      "id": "019fa385-2504-7034-bf51-ea19cbb86b81",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "JIT",
+        "Tiered Compilation",
+        "Běhové prostředí"
+      ],
+      "title": "Praxe: Interpretovaný vs. Nativní běh (Tiered Compilation v .NET)",
+      "content": "**Zkouškový nácvik (Teoretická argumentace na papíře):**\nSylabus výslovně zmiňuje 'Nativní a interpretovaný běh'. Zhodnoťte pro komisi, zda C# funguje jako interpret (podobně jako běžný Python), nebo nativně. Představte koncept moderní **Tiered Compilation (Odstupňované kompilace)** v .NET Core.\n\n*Otázka k obhajobě:* Proč by JIT překladač při startu aplikace úmyslně vygeneroval z CIL kódu pomalejší, neoptimalizovaný strojový kód?",
+      "hiddenContent": "**Argumentace pro komisi:**\n\n1. **Interpretace vs. Nativní běh:**\nC# (s výjimkou speciálních odnoží jako Blazor WebAssembly) se *neinterpretuje* řádek po řádku. Kód CIL je JIT překladačem vždy fyzicky přeložen (zkopírován do spustitelné paměti) jako nativní strojový kód a tento kód přímo vykonává CPU.\n\n2. **Tiered Compilation (Klíčová znalost moderního .NET):**\nKdyby se JIT při startu aplikace snažil všechny metody dokonale zoptimalizovat (vyhlazování cyklů, CPU cache alignment), start programu (tzv. Cold Start) by trval neúnosně dlouho. Proto CLR používá odstupňovaný přístup:\n\n* **Tier 0 (Rychlý start):** Při prvním volání metody se JIT ani nesnaží o optimalizaci. Přeloží CIL kód na nativní instrukce procesoru co nejrychleji to jde. Aplikace díky tomu bleskově nastartuje. Výsledný kód je ale pomalejší a obsahuje tzv. měřiče (counters).\n* **Analýza za běhu:** Běhové prostředí sleduje, kolikrát byla metoda volána. Pokud CLR zjistí, že metoda byla zavolána např. 30x (tzv. Hot Path), zařadí ji do fronty pro opětovnou kompilaci na pozadí.\n* **Tier 1 (Plná optimalizace):** JIT na pozadí přeloží tutéž metodu znovu, tentokrát pečlivě, s agresivním inlinováním funkcí a využitím SIMD instrukcí. Jakmile je překlad hotov, CLR za běhu elegantně prohodí adresu metody (ukazatel) v paměti a program od té chvíle transparentně volá vysoce optimalizovaný kód."
+    },
+    {
+      "id": "019fa385-2504-7034-bf51-eeda65f0496c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Běhové prostředí",
+        "Izolace procesu"
+      ],
+      "title": "Teorie: Běhové prostředí procesu (CLR) a jeho Izolace",
+      "content": "Když operační systém (Windows/Linux) spustí vaši zkompilovanou C# aplikaci (tzv. Host proces), nespustí napřímo váš CIL kód. Nejprve nahraje běhové prostředí zvané **CLR (Common Language Runtime)**. Až CLR následně spravuje váš kód.\n\nCo toto běhové prostředí procesu fyzicky poskytuje?\n1. **Správu paměti (GC):** Alokace haldy (Heap), LOH a asynchronní úklid (jak jsme rozebírali dříve).\n2. **Bezpečnost typu (Type Safety):** Nedovolí přístup k nepovolené paměti. Pokud pole (Array) o velikosti 10 adresujete na indexu 15, CLR nevpustí tento příkaz procesoru (jako v C++), ale včas zasáhne a vyhodí 'IndexOutOfRangeException'.\n3. **Izolaci:** Zabraňuje tomu, aby vadný kód ohrozil zbytek systému.\n\n### Vývoj izolace: AppDomains vs. AssemblyLoadContext\n* **V klasickém .NET Frameworku** poskytovalo CLR mechanismus tzv. **AppDomains** (Aplikační domény). Byly to virtuální hranice uvnitř JEDNOHO fyzického OS procesu. Umožňovaly spustit více izolovaných aplikací s jedním sdíleným CLR, což rapidně šetřilo paměť, a nešlo přímo číst paměť cizí domény.\n* **V moderním .NET Core (od .NET 5+)** se od domén upustilo. Proč? Protože masivní nasazení Docker kontejnerů a vylepšení OS dělá izolaci procesů mnohem levnější na systémové úrovni. \n* V .NET Core se nyní pro načítání zásuvných modulů (pluginů) používá **AssemblyLoadContext (ALC)**. Umožňuje bezpečně načíst dll knihovny za běhu, držet od nich oddělené závislosti a posléze celou knihovnu (a s ní spojené třídy) zase z paměti vyložit."
+    },
+    {
+      "id": "019fa385-2504-7034-bf51-f399f0c981dd",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Běhové prostředí",
+        "P/Invoke",
+        "OS API"
+      ],
+      "title": "Praxe: Vazba na operační systém (P/Invoke a Marshalling)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nSylabus a naši přípravu uzavíráme bodem 'vazba na operační systém'. Váš C# kód žije ve svém izolovaném (Managed) světě řízeném CLR. Co když ale potřebujete zavolat vysoce optimalizovanou nativní matematickou knihovnu napsanou v surovém C/C++ (např. 'FastMath.dll'), nebo použít přímo API kernelu operačního systému, ke kterému C# nemá zapouzdřené rozhraní?\n\n1. Jak se nazývá mechanismus v C#, který propojuje spravovaný (Managed) kód s nespravovaným (Unmanaged)?\n2. Napište na papír ukázku propojení s nativní (C) funkcí 'int calculate_hash(char* data)', která leží v knihovně 'NativeLib.dll'. Které klíčové slovo (atribut) a modifikátor v C# k tomu použijete?",
+      "hiddenContent": "**1. Mechanismus P/Invoke:**\nV C# se tomuto mechanismu říká **P/Invoke (Platform Invocation Services)**. Umožňuje bezpečně volat C-like funkce exportované z dynamických knihoven (přípona .dll ve Windows nebo .so v Linuxu).\n\n**2. Vzorové řešení (Kód na papír):**\n```csharp\nusing System.Runtime.InteropServices;\n\npublic class NativeIntegration {\n    // Atribut [DllImport] říká běhovému prostředí, kde má na disku hledat nativní knihovnu.\n    // Modifikátor 'static extern' signalizuje, že metoda nemá C# tělo, \n    // ale implementaci poskytne OS (nativní kód) při zavolání.\n    [DllImport(\"NativeLib.dll\", CallingConvention = CallingConvention.Cdecl)]\n    public static extern int calculate_hash(string data);\n    \n    public void Run() {\n        // Zde voláme céčkovou funkci, jako by to byla běžná C# metoda.\n        int hash = calculate_hash(\"Tajná zpráva\");\n    }\n}\n```\n\n**Závěrečný chyták (Marshalling):**\nKomise se může zeptat, jak CLR zvládne předat C# 'string' do Céčkového 'char*'. Paměťový model .NET řetězce a C-řetězce je diametrálně odlišný (C# spravuje délku, C hledá ukončovací znak '\\0').\n\nPři volání funkce CLR provádí proces zvaný **Marshalling (Zařazování)**. Pod kapotou dočasně alokuje blok nehlídané paměti, překopíruje a zkonvertuje tam náš string (přidá '\\0') a nativní funkci předá surový ukazatel (pointer) na tuto kopii. Všechna tato konverzní vrstva přidává mírnou výkonnostní penalizaci, ale umožňuje dokonalou interoperabilitu s jádrem OS (Windows API / POSIX)."
+    },
+    {
+      "id": "019fa391-bbfe-763e-9555-719a5329d86c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Bonus",
+        "Low-level C#",
+        "Span"
+      ],
+      "title": "Bonusová Teorie: Moderní low-level C# (Span<T> a ref struct)",
+      "content": "Gratuluji, úspěšně jsme prošli celých 60 bodů našeho plánu a pokryli 100 % sylabu! Protože se ale na MFF UK velmi cení orientace v moderních trendech, přidávám 3 bonusové otázky na téma extrémní optimalizace paměti v moderním .NET.\n\n### Problém zbytečných alokací (Heap Allocation)\nVe starém C# znamenala každá operace s textem (např. 'Substring' nebo 'Split') alokaci nového objektu ('string') na haldě (Heap). To znamenalo obrovskou zátěž pro Garbage Collector.\n\n### Řešení: Span<T> a ReadOnlySpan<T>\nModerní C# přinesl typ 'Span<T>'. Je to v podstatě bezpečné, typované 'okno' (pohled) do existující paměti. \n* Může ukazovat na pole na haldě ('byte[]').\n* Může ukazovat na paměť alokovanou na zásobníku ('stackalloc').\n* Může ukazovat na nativní (unmanaged) paměť přes pointery.\n'Span<T>' nevytváří kopie dat! Pokud uděláte 'span.Slice(1, 5)', získáte jen nové okno posunuté v existující paměti. Alokace = 0 bytů.\n\n### Zásadní koncept: 'ref struct'\nAby byl 'Span<T>' maximálně rychlý a bezpečný (aby se nestalo, že GC přesune pole na haldě, zatímco Span na něj ukazuje), byl do jazyka C# přidán nový modifikátor 'ref struct'.\n* Struktura označená jako 'ref struct' může žít VÝHRADNĚ na zásobníku (Stack).\n* Kompilátor fyzicky zakáže její přesun na haldu. Zabrání jejímu Boxingu, zakáže její použití jako datové položky (field) uvnitř třídy ('class') a zakáže její použití uvnitř 'async' metod (protože ty se překládají do stavových automatů na haldě)."
+    },
+    {
+      "id": "019fa391-bbfe-763e-9555-74cb4fc5fdc5",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Bonus",
+        "Optimalizace",
+        "stackalloc"
+      ],
+      "title": "Bonusová Praxe: Optimalizace bez alokací (stackalloc a parsování)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nPředstavte si, že se vás komise zeptá, jak v C# zpracovat data tak, aby to mělo výkon blížící se jazyku C nebo C++ (tedy bez spouštění Garbage Collectoru).\n\n1. Jak alokujete pole čísel (buffer) lokálně uvnitř metody tak, aby se alokovalo na rychlém zásobníku (Stack) a po skončení metody okamžitě zaniklo bez zásahu GC?\n2. Máte řetězec 'string data = \"12345,6789\";'. Napište kód, který z tohoto řetězce vysekne první část (po čárku) a naparsuje ji jako 'int', ale nesmíte použít metodu 'Split' ani 'Substring' (protože ty alokují paměť na haldě).",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n**1. Rychlá alokace na zásobníku ('stackalloc'):**\n```csharp\npublic void ProcessData() {\n    // Alokace 100 bytů přímo na Call-Stacku. \n    // Nevolá se operátor 'new', nevzniká tlak na Garbage Collector!\n    // Velikost by měla být malá (typicky do 1-2 KB), jinak hrozí StackOverflowException.\n    Span<byte> buffer = stackalloc byte[100]; \n}\n```\n\n**2. Zero-allocation parsování textu:**\n```csharp\npublic int ParseFirstNumber(string data) {\n    // Z řetězce uděláme read-only okno (0 alokací)\n    ReadOnlySpan<char> span = data.AsSpan();\n    \n    // Najdeme index čárky\n    int commaIndex = span.IndexOf(',');\n    \n    // Získáme pod-okno reprezentující pouze první část (0 alokací)\n    ReadOnlySpan<char> firstPart = span.Slice(0, commaIndex);\n    \n    // Moderní C# API umí parsovat int přímo ze Spanu\n    return int.Parse(firstPart);\n}\n```\n\n**Proč to komisi ohromí:** Tento kód ukazuje, že chápete fundamentální rozdíl mezi metodami, které tvoří nový stav (objekty na haldě), a metodami, které pouze operují nad pointry na existující paměť."
+    },
+    {
+      "id": "019fa391-bbfe-763e-9555-7ac969ec3e1a",
+      "type": "note",
+      "tags": [
+        "Strategie",
+        "Státnice",
+        "Shrnutí"
+      ],
+      "title": "Závěrečná Strategie: 5 smrtelných chyb u písemné státnice z C#",
+      "content": "Naše série je kompletní. Na závěr si zopakujme 5 absolutně nejčastějších a nejvíc penalizovaných chyb, které studenti dělají při psaní C# kódu propiskou na papír:\n\n### 1. Záměna 'override' a 'new'\nPokud potomek přepisuje metodu předka s klíčovým slovem 'new', dochází k tzv. Method Hidingu. Dynamický polymorfismus je zničen a volaná metoda se určí striktně podle statického typu proměnné (typický chyták při 'Co vypíše tento kód?'). Pro polymorfismus VŽDY hledejte dvojici 'virtual' -> 'override'.\n\n### 2. 'lock(this)' a chyby v synchronizaci\nU státnic NIKDY neuzamykejte aktuální instanci přes 'lock(this)'. Veřejně viditelné objekty mohou být zamčeny zvenčí (např. v jiném vlákně), což vede k fatálním Deadlockům. Vždy alokujte 'private readonly object _syncRoot = new object();'.\n\n### 3. 'if' místo 'while' u Monitor.Wait\nKdyž vkládáte vlákno ke spánku v Producent-Konzument scénáři, musíte podmínku VŽDY testovat v cyklu 'while' (např. 'while(queue.Count == 0) Monitor.Wait(obj);'). Pokud použijete jen 'if', vlákno po probuzení rovnou pokračuje, i když mu zámek mezi tím vyfouklo jiné probuzené vlákno (tzv. Spurious Wakeups / Lock Stealing).\n\n### 4. Bitové posuny s typem 'byte'\nPokud řešíte architekturu počítačů a low-level C# (skládání čísel z binárního souboru), nezapomeňte, že 'byte' posunutý přes '<<' je v C# automaticky konvertován na 32bitový 'int'. Pokud výsledek přiřazujete zpět do 'short' nebo 'ushort', MUSÍTE napsat explicitní přetypování '(ushort)((b1 << 8) | b2)'.\n\n### 5. Zničení StackTrace přes 'throw ex;'\nPokud uvnitř 'catch (Exception ex)' napíšete 'throw ex;', zahodili jste celou historii výjimky a začíná se počítat od aktuálního řádku. Pro propagaci zachycené výjimky nahoru pište vždy samostatné 'throw;'."
+    }
+  ]
+}

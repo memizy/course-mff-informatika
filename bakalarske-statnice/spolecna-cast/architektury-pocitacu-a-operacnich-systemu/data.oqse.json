@@ -1,0 +1,913 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/memizy/oqse-specification@main/schemas/oqse-v0.1.json",
+  "version": "0.1",
+  "meta": {
+    "id": "019fc29e-6ce8-7610-bc80-9da837421b84",
+    "language": "cs",
+    "title": "Architektura počítačů a operačních systémů - Státnice MFF UK",
+    "description": "Komplexní příprava na písemné bakalářské státnice z předmětu Architektura počítačů a OS.",
+    "subject": "Architektura a OS",
+    "createdAt": "2026-08-02T12:00:00Z",
+    "updatedAt": "2026-08-02T12:00:00Z",
+    "requirements": {
+      "features": [
+        "markdown",
+        "math",
+        "html",
+        "mermaid"
+      ]
+    },
+    "customData": {}
+  },
+  "items": [
+    {
+      "id": "019fc29e-6ce9-775c-9b30-5eed7f9f2a52",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Analýza",
+        "Strategie"
+      ],
+      "title": "Analýza testů a okruhy: Architektura a OS",
+      "content": "## Analýza testů podle termínů (Reálná zadání)\n\nZ analýzy 9 minulých státnicových zadání jasně vyplývá, že okruh Architektura a OS je u písemné zkoušky **extrémně praktický**. Nečekejte pouhé definice pojmů. Komise testuje především schopnost trasovat surovou paměť (hexdump), psát low-level kód (bitové operace, pointery, assembler) a řešit synchronizaci vláken. Některé z těchto úloh se prolínají s okruhem Programovací jazyky, ale zde je důraz na pochopení hardwaru a OS vrstvy.\n\n### 14. 9. 2023 (Podzim 2023)\n**Téma: Souběžnost a Race Conditions (LimitedStack)**\n* **Zadání a část úlohy:** Zadaný kód sdíleného zásobníku. Úkolem bylo identifikovat kritickou sekci, vysvětlit, jak může dojít k 'race condition' a přetečení pole při souběžném volání 'pushValue'. Následně kód opravit.\n* **Chytáky:** Inkrementace pole (např. 'currentDepth++') není instrukčně atomická. Je nutné chápat rozdělení operace na READ-MODIFY-WRITE a správně umístit zámek (mutex/lock) kolem celé podmínky i zápisu.\n\n### 9. 2. 2024 (Jaro 2024)\n**Téma: Ovladač pro řadič disku (PIO a mapované registry)**\n* **Zadání a část úlohy:** Napsat kód pro inicializaci disku a blokující čtení jednoho bloku. Zařízení bylo řízeno 5 paměťově mapovanými registry (Status, Size, Command, LBA, DMA).\n* **Chytáky:** Typická úloha na Programmed I/O (PIO). Bylo nutné navrhnout strukturu pro mapování do paměti (pomocí 'volatile'), implementovat *aktivní čekání* (polling) čtením bitu BUSY a ošetřit souběžný přístup více procesů (přidáním Mutexu do struktury ovladače).\n\n### 25. 6. 2024 (Léto 2024)\n**Téma: Vlákna a Semafory (Deadlock)**\n* **Zadání a část úlohy:** Kód dvou vláken, která se snaží vypsat text 'OneTwoThreeFourFive' pomocí jediného semaforu. Úkolem bylo napsat 'trace' prokládání instrukcí vedoucí k uváznutí (deadlock) a následně kód přepsat bezpečně pomocí 2 semaforů.\n* **Chytáky:** Chápání sémantiky 'WaitOne' a 'Release'. Uvědomění si, že semafor narozdíl od mutexu nemá vlastníka, což se využívá k vzájemnému odjišťování (signaling) mezi vlákny.\n\n### 23. 6. 2025 (Léto 2025)\n**Téma: Jednoduchý správce paměti (Heap allocator)**\n* **Zadání a část úlohy:** Implementace 'first-fit' alokátoru v obřím poli 'byte[]' na 32bit little-endian procesoru. Každý blok měl 16bit hlavičku, kde nultý bit označoval stav (0=volný, 1=obsazený) a zbytek určoval velikost.\n* **Chytáky:** Tvrdé bitové operace. Nutnost vymaskovat nultý bit přes logické AND ('& ~1') pro získání velikosti a složit výpis hexadecimální paměti (hexdump) po několika alokacích a uvolněních.\n\n### 8. 9. 2025 (Podzim 2025)\n**Téma: Reprezentace dat (Binární soubor a Endianita)**\n* **Zadání a část úlohy:** Čtení binárního souboru uzlů s atributy (TUInt16, TLink). Bylo nutné aplikovat znalosti architektury o reprezentaci čísel.\n* **Chytáky:** Data v souboru byla Big-Endian, ale aplikace běžela na Little-Endian. Úloha přímo testovala pochopení uspořádání bytů a posunů ('<<' a '|').\n\n### 2. 2. 2026 (Jaro 2026)\n**Téma: IPC a Bounded Buffer (Semafory)**\n* **Zadání a část úlohy:** Implementace funkcí 'send' a 'receive' pro jednosměrný FIFO buffer mezi dvěma procesy. Zakázáno aktivní čekání, povoleny jen semafory.\n* **Chytáky:** Nutnost definovat počáteční stav semaforů závislý na kapacitě N a exaktně zapsat platné invarianty (např. 'počet_prvků + volné_místo = N').\n\n### 22. 6. 2026 (Léto 2026)\n**Téma: Instrukční sada a Průchod pamětí (Assembler)**\n* **Zadání a část úlohy:** K dispozici hexdump paměti obsahující spojový seznam struktur (16bit Big-Endian). Bylo nutné pointerově odtrasovat uzly v hexdumpu a následně doplnit kód v RISC assembleru pro výpočet sumy prvků.\n* **Chytáky:** Přímá aplikace bodu sylabu 'reprezentace a přístup k datům v paměti' a 'instrukční sada'. Očekává se znalost pojmů jako Load Word (LW), Add, a podmíněné skoky (BNEZ).\n\n---\n\n## Skryté hrozby ze sylabu (V testech zatím nebylo)\n\nZatímco synchronizace a low-level reprezentace dat se zkouší neustále, zbytek sylabu OS zůstává ukryt a může kdykoliv 'udeřit'. Následující témata je nutné perfektně ovládat:\n\n### 1. Virtuální paměť a překlad adres\n* **Zkouškový potenciál:** Obrovský. Výpočetní úlohy na stránkování jsou stálicí u písemných zkoušek na mnoha univerzitách.\n* **Co znát:** Jak rozložit virtuální adresu na 'číslo stránky' a 'offset'. Schopnost na papíře provést překlad (Translation) z virtuální adresy na fyzickou pomocí zadané stránkovací tabulky (Page Table). Ochrana paměti a přístupová práva stránek.\n\n### 2. Přerušení (Interrupts) vs. PIO\n* **Zkouškový potenciál:** Běžná teoretická doplňovací otázka.\n* **Co znát:** Zkouška 2024 testovala PIO (aktivní čekání procesoru na I/O). Sylabus ale výslovně žádá umět popsat protipól – hardwarové přerušení (IRQ), vektor přerušení, přepnutí do privilegovaného režimu a reakci OS (uložení kontextu na zásobník a skok na Interrupt Service Routine - ISR).\n\n### 3. Plánování procesů a stavy vláken\n* **Zkouškový potenciál:** Nutný kontext k úlohám o zámcích.\n* **Co znát:** Přesný rozdíl mezi kooperativním (vlákno se musí samo vzdát CPU) a preemptivním (OS násilně odebere CPU přes časovač) multitaskingem. Umět nakreslit a vysvětlit stavový automat vlákna (New -> Ready -> Running -> Blocked -> Terminated)."
+    },
+    {
+      "id": "019fc370-ab12-749c-9fff-623412844a1b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Paměť"
+      ],
+      "title": "Teorie: Von Neumannova architektura a paměťový model",
+      "content": "Počítač není magie, ale deterministický stroj. Základem, ze kterého vychází naprostá většina hardwarových zkouškových úloh na MFF, je **Von Neumannova architektura**. Skládá se ze tří hlavních částí: Procesor (CPU), Paměť (RAM) a Sběrnice (Bus), která je propojuje.\n\n### 1. Procesor (CPU) a Registry\nZatímco RAM je obrovská a pomalá, CPU má uvnitř jen malinkou, ale extrémně rychlou paměť rozdělenou do tzv. **Registrů** (např. R0 až R9 v zadání RISC procesoru u zkoušky).\n* **PC (Program Counter / Instruction Pointer):** Ukazuje na adresu v paměti, kde leží DALŠÍ instrukce k vykonání.\n* **IR (Instruction Register):** Obsahuje bity aktuálně načtené a vykonávané instrukce.\n* **ALU (Arithmetic Logic Unit):** Obvod, který provádí matematiku (sčítání, logické AND/OR). Pracuje POUZE nad daty, která už byla z RAM přesunuta do registrů.\n\n### 2. Paměť (RAM) jako nekonečné pole\nPro C programátora i komisi je fyzická paměť prostě jedno obrovské jednorozměrné pole bajtů (kde 1 bajt = 8 bitů). Každý bajt má své unikátní číslo – **Adresu** (index v tomto poli). \n\n### 3. Komunikace přes Sběrnici\nKdyž instrukce 'LW R2, 0(R1)' (Load Word) nařizuje procesoru načíst data, CPU vystaví na *Adresovou sběrnici* číslo (např. '0x9010') a dá pokyn ke čtení. Paměťový řadič mu následně po *Datové sběrnici* pošle zpět elektrické signály reprezentující hodnotu bajtů ležících na dané adrese.\n\n```mermaid\ngraph LR\nCPU[CPU\\n- ALU\\n- Registry R0-R9\\n- PC, IR] <-->|Datová a Adresová sběrnice| RAM[Paměť RAM\\n0x0000: 45\\n0x0001: 2F\\n...]\n```\n\n*Matfyzácký chyták:* Na úrovni hardwaru nerozlišujeme, co je kód (instrukce) a co jsou data. Obojí jsou jen bity v paměti. Pokud Program Counter (PC) zbloudí do datové části, procesor se pokusí spustit data jako instrukce (což typicky končí havárií)."
+    },
+    {
+      "id": "019fc370-ab12-749c-9fff-6566fc17c136",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Hexdump",
+        "Zkouška 2026",
+        "Pointery"
+      ],
+      "title": "Praxe: [Zkouška 2026] Čtení surového Hexdumpu na papíře",
+      "content": "**Zkouškový nácvik (Zadání 22. 6. 2026):**\nPředpokládejme 16bitový procesor. Máme v paměti uložen jednosměrný spojový seznam. Struktura uzlu ('freq_t') se skládá ze tří 16bitových unsigned integerů (celkem tedy 6 bytů pro jeden uzel):\n1. 'number'\n2. 'count'\n3. 'next' (adresa dalšího uzlu, hodnota 0 znamená konec seznamu).\n\nZadání výslovně definuje, že data jsou uložena v **Big-Endian** formátu. Ukazatel na první prvek ('head') je uložen jako 16bitové číslo na pevné adrese **0x900a**.\n\nZde je výsek paměti (tzv. Hexdump - první sloupec je adresa řádku):\n```text\n9000: 89 e2 26 90 05 ff 00 de ad 00 90 10 90 14 00 00\n9010: 00 01 00 05 90 42 ca fe ca fe 42 90 30 be ef 35\n9020: 45 01 90 54 42 53 01 87 aa bb 01 23 45 67 90 24\n9030: 12 02 08 90 17 44 ab cd 90 48 20 17 00 5f 00 00\n9040: 77 88 01 23 00 f0 90 3a 5e d3 41 90 48 90 4c 00\n```\n\n**Úkol na papír:** Najděte v paměti první uzel, zjistěte desítkovou hodnotu jeho položky 'count' a zjistěte adresu, na které leží druhý uzel seznamu. Popište detailně své kroky.",
+      "hiddenContent": "**Vzorové řešení a logický postup:**\n\nToto je absolutně typická matfyzácká úloha na pointerovou aritmetiku v surové paměti. Řešíme ji striktně krok za krokem:\n\n**1. Nalezení adresy prvního uzlu (přečtení ukazatele 'head'):**\n* Proměnná 'head' leží na adrese '0x900a'.\n* Jdeme na řádek začínající '9000:'. Na řádku je 16 bajtů. Indexujeme je zleva od nuly (offsety 0, 1, 2... až do f).\n* Hledáme offset 'a' (10 v desítkové) a následně 'b' (11), protože čteme 16bitové číslo (2 bajty).\n* Na pozici 'a' a 'b' vidíme bajty '90' a '10'.\n* Protože systém je **Big-Endian**, čteme to přirozeně pro člověka zleva doprava: Adresa prvního uzlu je **0x9010**.\n\n**2. Analýza prvního uzlu (leží na adrese 0x9010):**\n* Jdeme na řádek '9010:'. Uzel má 6 bytů, čteme je od začátku řádku (offset 0):\n* Byty 0 a 1 tvoří 'number': '00 01' (hodnota 1).\n* Byty 2 a 3 tvoří 'count': '00 05' (desítkově **hodnota 5 - to je první část odpovědi!**).\n* Byty 4 a 5 tvoří 'next' (ukazatel dále): '90 42' $\\rightarrow$ adresa druhého uzlu je **0x9042**.\n\n**3. Kontrola druhého uzlu (leží na adrese 0x9042):**\n* Jdeme na řádek '9040:'. Adresa končí na '2', takže data začínají až na offsetu 2 (třetí bajt na řádku!).\n* Byty 2 a 3 tvoří 'number': '01 23'\n* Byty 4 a 5 tvoří 'count': '00 f0' (desítkově 240)\n* Byty 6 a 7 tvoří 'next': '90 3a' $\\rightarrow$ ukazuje dál na adresu '0x903a'.\n\n*Strategie pro písemku:* Vždy si na okraj papíru napište hexadecimální převodník ('a=10, b=11, c=12... f=15'), ať se při posouvání prstem po řádku hexdumpu nespletete o jeden bajt."
+    },
+    {
+      "id": "019fc370-ab12-749c-9fff-6b9e38663e29",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Reprezentace čísel",
+        "Endianita"
+      ],
+      "title": "Teorie: Reprezentace celých čísel a Endianita",
+      "content": "Při trasování paměti v předchozí ukázce nás zachránil fakt, že zadání definovalo architekturu jako Big-Endian. Pojďme si hardwarovou reprezentaci definovat formálně.\n\n### 1. Jak procesor ukládá záporná čísla? (Dvojkový doplněk)\nProcesory dnes pro reprezentaci záporných celých čísel nepoužívají jen jeden oddělený bit pro znaménko. Používají tzv. **Doplňkový kód (Two''s complement)**. Důvod je ryze inženýrský: HW sčítačka (ALU obvod) díky tomuto zápisu nemusí vůbec tušit, zda sčítá kladná nebo záporná čísla – prostě je binárně sečte pod sebou a výsledek magicky sedí.\n\n* **Jak vytvořit z 5 hodnotu -5:** Vezmu binární zápis 5 ('0000 0101'), **invertuji všechny bity** ('1111 1010') a k výsledku **přičtu 1** ('1111 1011').\n* **Důsledek pro hexdump:** Záporná čísla začínají (u nejvyšších bitů) vždy jedničkami. V šestnáctkové soustavě proto záporné hodnoty typicky \"svítí\" písmeny 'F' nebo 'E' (např. 16bitové '-1' je uloženo jako '0xFFFF').\n\n### 2. Endianita (Pořadí bytů)\nFyzická paměť je indexovaná striktně po 8 bitových bajtech. Procesor ale z registrů potřebuje uložit například 16bitové číslo (sestává ze 2 bajtů). Když chceme do paměti na adresu '0x00' uložit 16bitové číslo **0x1A2B** (kde '1A' je významnější horní bajt a '2B' méně významný spodní bajt), máme dvě hardwarové architektury:\n\n* **Big-Endian:** Nejvýznamnější (tzv. \"velký\") konec se uloží na nižší adresu. V paměti to bude: '0x00: 1A', '0x01: 2B'. Člověk to při pohledu do paměti čte normálně zleva doprava jako '1A2B'. Používá se na některých RISC procesorech a jako standard pro síťové TCP/IP přenosy.\n* **Little-Endian:** Nejméně významný konec se uloží na nižší adresu. V paměti to bude obráceně: '0x00: 2B', '0x01: 1A'. Čte se to zezadu. **Tuto architekturu používají procesory x86 (Intel/AMD) a ARM.** Proč to udělali? Zjednodušuje to hardwarové přetypování (downcasting). Pokud z paměti načítám jen menší 8bitový datový typ, procesor načte hodnotu přímo z první adresy '0x00' a má hned správnou hodnotu '2B' (bez nutnosti počítat jakýkoliv posun adresy).\n\n*Chyták ke zkoušce:* Pokud v Céčku alokujete strukturu přes 'malloc', na proměnné ve svém kódu endianitu nepoznáte (kompilátor to zamaskuje). Past zaklapne až ve chvíli, kdy bajty odešlete po síti nebo je uložíte do souboru a někdo s jinou architekturou (nebo v C#) se je pokusí po bajtech přečíst. (Přesně to byl test u zkoušky 2025)."
+    },
+    {
+      "id": "019fc68e-632a-771f-9777-e206f7e335c3",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Reprezentace dat",
+        "Endianita",
+        "Zkouška 2025"
+      ],
+      "title": "Praxe: [Zkouška 2025] Převody Endianity a čtení z Hexdumpu",
+      "content": "**Zkouškový nácvik (Zadání 8. 9. 2025):**\nArchitektura a OS vyžaduje hluboké porozumění tomu, jak jsou data fyzicky uložena. Ve zkoušce jste měli k dispozici následující výpis paměti binárního souboru:\n\n```text\n0000: 00 06 48 68 53 53 4C 4C 00 22 03 E8 FC 18 00 05 ..Hh SSLL .'... ....\n0010: 48 65 6C 6C 6F 00 05 57 6F 72 6C 64 00 00 00 00 Hell o..W orld ....\n```\n\nZadání jasně definuje, že vícebajtová čísla jsou v souboru uložena striktně v **Big-Endian** pořadí. Atribut 'TUInt16' (16bitové celé číslo bez znaménka) zabírá přesně dva bajty.\n\n1. Představte si, že jste načetli dva bajty z adresy '0x000A' a '0x000B' do pole 'unsigned char buf[]'. Na těchto adresách leží hodnoty '0x03' a '0xE8'.\n2. Napište na papír jediný řádek v jazyce C/C++ (nebo C#), který z těchto dvou bajtů v poli 'buf' korektně složí a vrátí 16bitové číslo pro váš procesor (x86, který je Little-Endian).\n3. Vysvětlete, proč prosté přetypování ukazatele (např. '*(uint16_t*)buf') povede na x86 architektuře k fatální chybě.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```c\n// Správný převod (nezávislý na endianitě procesoru, 0x03 je horní bajt, 0xE8 spodní)\nuint16_t value = (buf[0] << 8) | buf[1];\n```\n\n**Detailní rozbor pro komisi:**\n* **Proč funguje posun a OR:** První bajt 'buf[0]' (hodnota '0x03') je v Big-Endian formátu ten nejvýznamnější (nese nejvyšší řády). Abychom z něj udělali horní polovinu 16bitového čísla, musíme ho posunout o 8 bitů doleva ('<< 8'). Z '0x0003' se stane '0x0300'. Následně k němu pomocí bitového součtu (OR '|') připojíme druhý bajt 'buf[1]' ('0xE8'). Výsledek je korektních '0x03E8' (což je desítkově 1000).\n* **Chyba s přetypováním (Pointer Cast):** Pokud by student napsal '*(uint16_t*)buf', procesor x86 (který je Little-Endian) vezme první bajt '0x03' a uloží ho jako ten NEJMÉNĚ významný, a bajt '0xE8' jako NEJVÝZNAMNĚJŠÍ. Procesor by číslo přečetl obráceně jako '0xE803' (desítkově 59395 místo 1000). Tento bod demonstruje zásadní rozdíl mezi architekturou x86 a síťovým/souborovým Big-Endian formátem."
+    },
+    {
+      "id": "019fc68e-632b-756a-8773-7e77744567f6",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "IEEE 754",
+        "Float"
+      ],
+      "title": "Teorie: Reprezentace reálných čísel (IEEE 754)",
+      "content": "Kromě celých čísel (v doplňkovém kódu) potřebuje procesor reprezentovat zlomky a obrovská reálná čísla. K tomu slouží hardwarový standard **IEEE 754** (tzv. čísla s plovoucí řádovou čárkou).\n\nStandardní 32bitový 'float' (Single precision) se v paměti dělí na tři přesné bitové segmenty:\n1. **Znaménko (Sign bit - 1 bit):** Bit úplně vlevo. '0' znamená kladné číslo, '1' záporné.\n2. **Exponent (8 bitů):** Určuje, kam se má posunout desetinná (respektive binární) čárka. Ukládá se s tzv. vychýlením (bias). Pro 32bit float je bias $127$. Pokud chceme exponent $0$, uložíme $127$. Pokud chceme exponent $1$, uložíme $128$.\n3. **Mantisa / Frakce (23 bitů):** Vlastní platné číslice zlomku.\n\n### Matematický vzorec reprezentace\nHodnota čísla se vypočítá podle následujícího vzorce (s výjimkou speciálních hodnot jako nula, nekonečno a NaN):\n$$ (-1)^S \\times 1.M \\times 2^{E - 127} $$\n\n*Matfyzácký chyták:* Všimněte si zápisu $1.M$. Protože v binární soustavě začíná každé nenulové číslo jedničkou (např. $1.011_2$), standard tuto první jedničku do paměti **vůbec neukládá** (tzv. skrytý bit). Mantisa ukládá až bity za čárkou. Tím inženýři ušetřili 1 bit paměti navíc pro vyšší přesnost.",
+      "hiddenContent": "Příklad pro lepší představu:\nChceme uložit číslo $1.0$.\n- Znaménko je kladné $\\rightarrow S = 0$\n- Posun čárky je $0$ (chceme násobit $2^0$). Exponent se ukládá s biasem $127$, takže $E = 127$ (binárně '01111111').\n- Číslo je přesně $1.0$, bity za čárkou jsou nuly, takže mantisa $M = 0000...0$.\nBinární složení floatu 1.0 je tedy: '0 01111111 00000000000000000000000'."
+    },
+    {
+      "id": "019fc68e-632b-756a-8773-803cc3dc1fd4",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Float",
+        "Chyták"
+      ],
+      "title": "Praxe: Hardwarové anomálie floatů (Proč 0.1 + 0.2 != 0.3)",
+      "content": "**Zkouškový nácvik (Teoretická argumentace):**\nVětšina programátorů dříve či později narazí na klasickou past architektury počítačů. Představte si následující kód (v C, C++ i C#):\n\n```c\nfloat a = 0.1f;\nfloat b = 0.2f;\n\nif (a + b == 0.3f) {\n    printf('Rovná se');\n} else {\n    printf('Nerovná se');\n}\n```\n\n1. Co tento kód reálně vypíše?\n2. Detailně vysvětlete na úrovni hardwarové reprezentace čísel (IEEE 754), proč k tomuto jevu dochází. Proč zrovna číslo $0.1$ činí procesoru problém?\n3. Jak zapsat porovnání dvou floatů správně?",
+      "hiddenContent": "**1. Výsledek:**\nKód na všech standardních architekturách vypíše **'Nerovná se'**.\n\n**2. Argumentace pro komisi (Podstata problému):**\n* Jak jsme si ukázali v teoretické části, čísla 'float' se do paměti neukládají jako desítkové zlomky, ale jako součty mocnin dvojky ($\\frac{1}{2}$, $\\frac{1}{4}$, $\\frac{1}{8}$, $\\frac{1}{16}$ atd.).\n* Zatímco číslo $0.5$ ($\\frac{1}{2}$) lze uložit naprosto přesně, číslo $0.1$ ($\\frac{1}{10}$) se z mocnin dvojky přesně poskládat nedá. Vzniká **nekonečný periodický binární zlomek** (podobně jako $\\frac{1}{3}$ v desítkové soustavě je $0.3333...$).\n* Jelikož má mantisa pevnou velikost (23 bitů), procesor tento nekonečný rozvoj v paměti prostě **uřízne a zaokrouhlí**. Číslo '0.1f' v paměti tedy není přesně $0.1$, ale hodnota velmi nepatrně odlišná (např. $0.1000000014...$).\n* Když sečtete dvě takto nepřesná čísla (0.1 a 0.2), jejich zaokrouhlovací chyby se nasčítají. Výsledek se už na úrovni bitů neshoduje s binárním uříznutím čistého čísla 0.3.\n\n**3. Správné řešení (Kód na papír):**\nReálná čísla se NIKDY nesmí porovnávat pomocí operátoru '=='. Musíme definovat toleranci chyby (tzv. epsilon) a zkoumat, zda je absolutní hodnota jejich rozdílu menší než tato tolerance.\n\n```c\n#define EPSILON 0.00001f\n\nif (fabs((a + b) - 0.3f) < EPSILON) {\n    printf('Jsou si dostatečně blízká');\n}\n```"
+    },
+    {
+      "id": "019fc693-4b97-77db-b14f-bab275483bf5",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Bitové operace",
+        "Maskování"
+      ],
+      "title": "Teorie: Logické operace a bitové maskování",
+      "content": "Při programování operačních systémů nebo hardwarových ovladačů nemůžeme plýtvat pamětí na celé byty, když potřebujeme uložit pouhý boolean (Ano/Ne). C/C++ i C# proto poskytují **bitové (bitwise) operátory**, které pracují přímo s jednotlivými bity v registrech procesoru.\n\n### Základní operátory a jejich použití v OS\n1. **Bitový součin (AND '&'):** Jednička je ve výsledku pouze tam, kde byla v OBOU operandech. Používá se k **maskování (extrakci nebo nulování)** konkrétních bitů.\n   * *Ukázka nulování:* Chceme vynulovat (smazat) nultý bit v čísle 'x'. Zápis 'x & 0xFE' (kde 0xFE je binárně 11111110) ponechá horních 7 bitů beze změny, ale nultý bit zaručeně vynuluje.\n\n2. **Bitový součet (OR '|'):** Jednička je tam, kde byla ALESPOŇ v jednom operandu. Používá se pro **nastavování** konkrétních bitů na 1.\n   * *Ukázka nastavení:* Chceme nahodit nultý bit na 1. Zápis 'x | 0x01' nechá zbytek na pokoji, ale první pozici zprava natvrdo přepíše na 1.\n\n3. **Bitový exkluzivní součet (XOR '^'):** Jednička je tam, kde jsou bity RŮZNÉ. Typicky se používá k **přepínání (togglingu)** bitu. 'x ^ 1' změní nulu na jedničku a jedničku na nulu.\n\n4. **Negace (NOT '~'):** Unární operátor. Převrací všechny bity (0 na 1, 1 na 0). Často se pojí s AND pro vytvoření dokonalé masky. 'x & ~1' znamená: Vem jedničku (00...01), otoč ji na (11...10) a udělej AND s 'x'. To bezpečně ořízne ten nejnižší bit na jakkoli velkém datovém typu.\n\n5. **Posuny (Shift '<<' a '>>'):** Posunou všechny bity doleva (násobení dvěma) nebo doprava (dělení dvěma). Nezapomeňte, že při posunu doleva se zprava nasouvají nuly!"
+    },
+    {
+      "id": "019fc693-4b98-715c-98ac-91f786278e06",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Alokátor",
+        "Zkouška 2025"
+      ],
+      "title": "Praxe: [Zkouška Léto 2025] Správce paměti a hlavičky",
+      "content": "**Zkouškový nácvik (Zadání 23. 6. 2025):**\nMáte za úkol implementovat jednoduchý 'heap' (správce paměti) uvnitř pole 'byte[]'. Architektura je 32-bit Little-Endian, nultý bit ('bit 0') rozumíme nejméně významný bit (LSb). Všechny bloky jsou v paměti vždy zarovnány na **2 byty**.\n\nStruktura bloku paměti je následující:\n* První 2 byty (16 bitů) tvoří hlavičku s názvem 'Size'.\n* Jelikož je blok vždy zarovnaný na 2 byty, jeho skutečná velikost je vždy sudá (a tedy by nultý bit velikosti byl vždy 0). Autoři zadání tento nultý bit ušetřili a ukradli si ho pro jiný účel!\n* **Bit 0 udává stav bloku:** '0' = volný, '1' = obsazený.\n* **Zbylých 15 bitů udává celkovou velikost bloku** v bajtech.\n\nMáte pomocné funkce 'ushort GetUshort(ushort offset)' a 'void SetUshort(ushort offset, ushort value)'.\n\nNapište na papír metodu 'void Mark(ushort offset, bool isFree)', která pro zadaný offset načte hlavičku 'Size', nastaví nultý bit podle parametru 'isFree' (bez narušení 15 bitů velikosti) a zapíše ji zpět.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```csharp\nvoid Mark(ushort offset, bool isFree) {\n    // 1. Načtení původní hlavičky (16 bitů)\n    ushort header = GetUshort(offset);\n    \n    // Tímto krokem vymaskujeme stávající nultý bit (natvrdo ho vynulujeme).\n    // '~1' v 16bitech vytvoří masku 1111111111111110.\n    ushort sizeOnly = (ushort)(header & ~1);\n    \n    ushort newHeader;\n    if (isFree) {\n        // Pokud je volný, chceme na bit 0 zapsat nulu. V 'sizeOnly' už nula je.\n        newHeader = sizeOnly;\n    } else {\n        // Pokud je obsazený, chceme na bit 0 zapsat jedničku. Pomůže nám bitové OR.\n        newHeader = (ushort)(sizeOnly | 1);\n    }\n    \n    // 3. Zápis upravené hlavičky zpět do paměti\n    SetUshort(offset, newHeader);\n}\n```\n\n**Co může komise chtít vědět navíc:** \nPokud by se ptali, jak získáte čistou velikost bloku jako celé číslo (např. pro zjištění, kde začíná další blok), odpovědí je 'ushort trueSize = (ushort)(header & ~1);'. Žádný bitový posun (Shift) doprava není potřeba, bity velikosti zůstávají na svých původních pozicích, nultý bit se jen považuje za fixní nulu kvůli onomu zarovnání na sudá čísla."
+    },
+    {
+      "id": "019fc693-4b98-715c-98ac-979629018fb3",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Datové typy",
+        "Alignment"
+      ],
+      "title": "Teorie: Složené datové typy a Alignment (Zarovnání)",
+      "content": "Když v C nebo C++ (případně v C# struktuře s explicitním layoutem) deklarujete složený datový typ ('struct'), komise vyžaduje, abyste věděli, že velikost struktury v paměti NENÍ pouhým součtem velikostí jejích členů.\n\n### Pravidla Zarovnání paměti (Memory Alignment)\nProcesory nesnáší čtení dat napříč hranicemi sběrnice (např. paměťové slovo na 32bit CPU má 4 bajty). Pokud 32bitový 'int' začíná na adrese '0x01' místo '0x04', procesor by k jeho načtení musel udělat dva přístupy do RAM a data pracně skládat posuny. \n\nZ toho důvodu kompilátory uplatňují tzv. **Zarovnání (Alignment)**:\n* 1-bajtový typ ('char') může začínat na libovolné adrese.\n* 2-bajtový typ ('short') musí začínat na sudé adrese (dělitelné 2).\n* 4-bajtový typ ('int', 'float') musí začínat na adrese dělitelné 4.\n* 8-bajtový typ ('double', 64-bit ukazatel) musí začínat na adrese dělitelné 8.\n\n### Padding (Vycpávka)\nAby kompilátor zajistil tato pravidla, vkládá do struktury prázdné nevyužité bajty, kterým se říká **Padding**.\n\nUvažujme tento C kód:\n```c\nstruct MyData {\n    char a;  // 1 bajt\n    int b;   // 4 bajty\n    char c;  // 1 bajt\n};\n```\nNaivní úvaha říká, že velikost je $1 + 4 + 1 = 6$ bajtů.\nVe skutečnosti se uloží takto:\n1. 'a' se uloží na offset 0.\n2. Kompilátor chce uložit 'int b'. Může ho dát na offset 1? Nemůže, adresa 1 není dělitelná 4. Musí přidat **3 bajty paddingu**. 'b' začíná na offsetu 4.\n3. 'c' se uloží na offset 8.\n4. Nakonec kompilátor zarovná velikost celé struktury na násobek největšího zarovnání (což jsou 4). Adresa končí na offsetu 8 (délka 9 bajtů), takže kompilátor přidá ještě **3 bajty paddingu** na konec. Celková velikost je **12 bajtů**!\n\n*Hack pro praxi:* Proto zkušení programátoři (a autoři jádra OS) ve strukturách vždy řadí proměnné **od těch největších po ty nejmenší**, aby padding minimalizovali."
+    },
+    {
+      "id": "019fc6a0-9d51-700e-bdb1-a24dd0a5eb0f",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Pointery",
+        "Alignment"
+      ],
+      "title": "Praxe: Pointerová aritmetika a zarovnání v paměti",
+      "content": "**Zkouškový nácvik (Teoretický výpočet):**\nNavazujeme na předchozí teorii o zarovnání (Alignment). V jazycích C a C++ často dochází k tzv. pointerové aritmetice, což je i klíč k pochopení toho, jak OS spravuje struktury v paměti.\n\nUvažujme následující strukturu uzlu spojového seznamu pro 64bitový operační systém:\n\n```c\nstruct Node {\n    int id;          // 4 bajty\n    struct Node* next; // ukazatel (pointer)\n};\n```\n\n1. Jakou velikost v bajtech má ukazatel 'next' na 64bitovém systému?\n2. Představte si, že máte instanci této struktury začínající přesně na adrese '0x1000'. Na jaké přesné paměťové adrese začíná datová položka 'next'?\n3. Jaká je celková velikost struktury 'Node' v paměti (odpovídejte operátorem 'sizeof(struct Node)')?",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem):**\n\n1. **Velikost ukazatele:** Na 64bitovém OS (Linux, Windows x64) potřebujeme k adresování paměti 64 bitů, což je **8 bajtů**.\n2. **Adresa položky 'next' (Chyták!):**\n   * Struktura začíná na '0x1000'.\n   * Zde se uloží 'int id' (velikost 4 bajty), takže 'id' leží na adresách '0x1000' až '0x1003'.\n   * Logicky by měl 'next' začít na '0x1004'. ALE! Typ 'Node*' má velikost 8 bajtů, a proto na 64bit CPU **musí být zarovnán na adresu dělitelnou 8**.\n   * Adresa '0x1004' není dělitelná 8. Kompilátor vloží **4 bajty paddingu** (vaty) na adresy '0x1004' až '0x1007'.\n   * Položka 'next' tedy začíná až na adrese **0x1008**.\n3. **Celková velikost:** 4 ('id') + 4 (padding) + 8 ('next') = **16 bajtů**.\n\n*Strategie pro komisi:* Tímto jasně dokazujete, že chápete, že deklarovaný datový typ v kódu a jeho reálné uložení na křemíku jsou dvě odlišné věci závislé na architektuře (32 vs 64 bitů)."
+    },
+    {
+      "id": "019fc6a0-9d51-700e-bdb1-a7d95d92368a",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Instrukční sada",
+        "RISC"
+      ],
+      "title": "Teorie: Instrukční sada (RISC vs CISC)",
+      "content": "Druhý blok naší osnovy otevírá **Instrukční sada (Instruction Set Architecture - ISA)**. Procesor vašemu zdrojovému kódu v C# nerozumí. Chápe jen strojové instrukce. Historicky se procesory rozdělily do dvou rodin:\n\n### CISC (Complex Instruction Set Computer)\n* **Příklad:** x86 (Intel, AMD).\n* **Vlastnosti:** Instrukce mají proměnlivou délku (např. 1 až 15 bajtů). Mnoho instrukcí je složitých a dokáže pracovat přímo s pamětí. \n* Můžeme mít instrukci: *Vezmi hodnotu z adresy A, sečti ji s hodnotou na adrese B a ulož na adresu C.* \n\n### RISC (Reduced Instruction Set Computer)\n* **Příklad:** ARM (Apple Silicon, telefony), MIPS. **Ve zkouškových zadáních se používá VŽDY RISC assembler.**\n* **Vlastnosti:** Instrukce mají fixní délku (typicky 4 bajty). Procesor má velké množství obecných registrů (např. R0 až R31).\n* **Klíčový koncept (Load/Store Architecture):** V RISC architektuře NIKDY nemůže aritmetická instrukce sahat do paměti! Aritmeticko-logická jednotka (ALU) smí počítat jen nad daty, která už jsou v registrech.\n\n### Zkouškové RISC instrukce k zapamatování:\n* **'LW RD, offset(RS)' (Load Word):** Načti data z paměti (z adresy RS + offset) do cílového registru RD.\n* **'SW RS1, offset(RS2)' (Store Word):** Ulož data z registru RS1 do paměti na adresu (RS2 + offset).\n* **'ADD RD, RS1, RS2':** Sečti registr RS1 a RS2, výsledek ulož do RD. (Podobně 'SUB', 'AND', 'OR').\n* **'LI RD, imm' (Load Immediate):** Ulož do registru RD konkrétní číslo (konstantu) vepsanou přímo v kódu."
+    },
+    {
+      "id": "019fc6a0-9d51-700e-bdb1-a82d474d6db4",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Assembler",
+        "Překlad",
+        "RISC"
+      ],
+      "title": "Praxe: Přiřazení a aritmetika v Assembleru",
+      "content": "**Zkouškový nácvik (Překlad kódu z vyššího jazyka):**\nBod sylabu jasně vyžaduje: *'Implementovat běžné programové konstrukce vyšších jazyků pomocí instrukcí procesoru'*.\n\nPředstavte si v C/C# jednoduchý řádek kódu s výpočtem:\n```c\na = (b + c) - d;\n```\n1. Předpokládejme 32bitový RISC procesor.\n2. Máme paměťové ukazatele (adresy), kde leží proměnné 'a', 'b', 'c' a 'd'. Tyto paměťové adresy máme již připravené v registrech 'R1' (pro adresu 'a'), 'R2' ('b'), 'R3' ('c') a 'R4' ('d').\n3. Máme k dispozici pomocné (scratch) registry 'R5' a 'R6' pro dočasné uložení hodnot.\n\nNapište na papír striktní sekvenci RISC instrukcí (Load/Store architektury), která tento matematický zápis provede.",
+      "hiddenContent": "**Vzorové řešení (Assembler na papír):**\n\nJak jsme si řekli v teoretické části, RISC nedokáže přímo sečíst paměť s pamětí. Musíme data nejprve pracně načíst (Load) do CPU, spočítat a pak uložit (Store) zpět.\n\n```text\n// 1. Načtení operandů 'b' a 'c' z paměti do registrů\nLW R5, 0(R2)      // Načti hodnotu z adresy R2 ('b') do R5 (offset je 0)\nLW R6, 0(R3)      // Načti hodnotu z adresy R3 ('c') do R6\n\n// 2. Sečtení (b + c)\nADD R5, R5, R6    // R5 = R5 + R6. Hodnota v R5 je teď (b+c).\n\n// 3. Načtení operandu 'd'\nLW R6, 0(R4)      // Načti hodnotu z adresy R4 ('d') do R6 (přepsali jsme staré 'c')\n\n// 4. Odečtení (b + c) - d\nSUB R5, R5, R6    // R5 = R5 - R6. Výsledek rovnice je hotov v R5.\n\n// 5. Uložení výsledku do paměti do proměnné 'a'\nSW R5, 0(R1)      // Vezmi hodnotu v R5 a ulož ji do RAM na adresu z R1\n```\n\n**Okomentování pro komisi:** \nUkázali jsme, že plně chápeme architekturu Load/Store. Kompilátor z jediného řádku v C# vytvořil 5 strojových instrukcí. Rychlost tohoto kódu extrémně závisí na tom, zda hodnoty v RAM uvízly v pomalé hlavní paměti, nebo zda na ně procesor měl štěstí a ležely nahrané v jeho L1/L2 Cache paměti."
+    },
+    {
+      "id": "019fc756-7047-736f-b509-e86c707462c1",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Assembler",
+        "Řízení toku"
+      ],
+      "title": "Teorie: Řízení toku programu a Program Counter",
+      "content": "Aby mohl procesor vykonávat cykly a podmínky (základní kameny algoritmů), nesmí kód číst jen otrocky řádek po řádku. K tomu slouží skokové instrukce a jeden z nejdůležitějších hardwarových registrů vůbec.\n\n### Registr PC (Program Counter)\nTento registr (na x86 známý jako IP - Instruction Pointer) v sobě vždy udržuje **paměťovou adresu přesně té instrukce, která se má vykonat jako další v pořadí**. Během toho, co procesor vykonává aktuální instrukci, obvod automaticky zvýší hodnotu v PC o velikost instrukce (v RISCu typicky o 4 bajty), aby ukazoval na další řádek.\n\n### Skokové instrukce (Jumps / Branches)\nJediný způsob, jak v assembleru naprogramovat 'if' nebo 'while', je donutit procesor **přepsat hodnotu v registru PC** jinou paměťovou adresou.\n\n1. **Nepodmíněný skok ('JMP label'):** \nProcesor okamžitě vezme adresu ukrytou pod návěštím 'label' a nahraje ji do PC. Výpočet plynule pokračuje od nového místa.\n2. **Podmíněný skok ('BEZ' a 'BNEZ'):**\nZkratky znamenají *Branch if Equal to Zero* (Skoč, pokud je nula) a *Branch if Not Equal to Zero* (Skoč, pokud není nula). Tyto instrukce nejprve zkontrolují hodnotu v zadaném registru. Pouze pokud je splněna podmínka, přepíší PC. V opačném případě procesor skok ignoruje a pokračuje dalším řádkem pod ním.\n\n*Terminologie:* Návěští ('label:') není instrukce! Je to jen textová pomůcka pro programátora. Sestavující program (Assembler) všechna návěští před spuštěním nahradí za reálné číselné offsety adres."
+    },
+    {
+      "id": "019fc756-7047-736f-b509-ef17ca5d0363",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Assembler",
+        "Překlad",
+        "Cyklus"
+      ],
+      "title": "Praxe: Překlad podmínky 'while' do Assembleru",
+      "content": "**Zkouškový nácvik (Překlad kódu z vyššího jazyka):**\nBod sylabu jasně vyžaduje: *'Zapsat běžnou konstrukci vyššího jazyka (přiřazení, podmínka, cyklus) pomocí instrukcí procesoru'*.\n\nPředstavte si v C/C# jednoduchý 'while' cyklus odpočítávající k nule:\n```c\nwhile (i != 0) {\n    i = i - 1;\n}\n```\n1. Máme k dispozici RISC instrukční sadu (z předchozích poznámek).\n2. Proměnná 'i' je již nahrána v registru 'R1'.\n3. Máte k dispozici instrukci pro odčítání konstanty 'SUB R1, R1, 1' (případně 'ADDI R1, R1, -1').\n\nNapište na papír striktní sekvenci instrukcí a návěští, která reprezentuje přeložený cyklus z Céčka.",
+      "hiddenContent": "**Vzorové řešení (Assembler na papír):**\n\nPři překladu 'while' cyklu potřebujeme vytvořit blok kódu, na jehož začátku stojí kontrola podmínky. Pokud podmínka neplatí, musíme celý blok přeskočit (vyskočit ven z cyklu). Pokud platí, tělo se vykoná a na jeho konci je nepodmíněný skok zpět na začátek kontroly.\n\n```text\n// Startovní návěští cyklu (označuje místo pro opětovné vyhodnocení)\nloop_start:\n    \n    // 1. KONTROLA PODMÍNKY (Znegovaná!)\n    // Kód v C říká 'while(i != 0)'. \n    // My procesoru nařídíme: 'Skoč pryč (na konec), pokud jsi nula!'\n    BEZ R1, loop_end\n\n    // 2. TĚLO CYKLU\n    // Sem se program dostane pouze, pokud R1 nebylo nula.\n    SUB R1, R1, 1       // i = i - 1\n\n    // 3. NÁVRAT NA ZAČÁTEK\n    // Skoč zpět na vyhodnocení podmínky pro další iteraci\n    JMP loop_start\n\n// Návěští konce cyklu (sem míříme, pokud podmínka selže)\nloop_end:\n    // ... program plynule pokračuje dalšími instrukcemi pod cyklem\n```\n\n**Okomentování pro komisi:** \nKlíčem k bezchybnému překladu 'while' cyklu je uvědomit si, že podmíněný skok v assembleru se píše v **inverzní logice** vůči vyššímu jazyku. V Cčku říkáme 'Když to platí, proveď blok'. V assembleru říkáme 'Když platí OPAK (je to nula), skoč za blok a ignoruj ho'."
+    },
+    {
+      "id": "019fc756-7047-736f-b509-f2a16a4fd3fe",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Stack",
+        "Volání funkcí"
+      ],
+      "title": "Teorie: Paměťový zásobník (Stack) a Volání funkcí",
+      "content": "Když váš program (např. metoda 'Main') zavolá funkci 'Calculate()', musí se stát několik magických věcí: do funkce se musí předat parametry, funkce si musí alokovat místo pro své lokální proměnné, a jakmile skončí, procesor musí přesně vědět, na jaký řádek v metodě 'Main' se má vrátit.\n\nK řešení tohoto problému poskytuje hardwarová architektura **Zásobník (Call-Stack)** a speciální CPU registry.\n\n### 1. Stack Pointer (SP) a Base Pointer (BP)\n* Zásobník je vyhrazený kus paměti RAM. Roste typicky \"shora dolů\" (od vyšších adres k nižším).\n* **SP (Stack Pointer):** Registr procesoru, který vždy ukazuje na úplný vrchol (nejnovější hodnotu) zásobníku. Alokace lokálních proměnných není nic jiného, než odečtení několika bajtů z registru SP.\n* **BP (Base/Frame Pointer):** Slouží jako statická kotva pro aktuální funkci. Zatímco SP \"lítá\" nahoru a dolů podle toho, jak si funkce zrovna ukládá mezivýpočty, BP se po vstupu do funkce zafixuje. Všechny lokální proměnné a parametry se pak adresují jako pevný offset od BP (např. 'LW R1, -4(BP)').\n\n### 2. Stack Frame (Aktivační záznam) a Volání funkce\nPokaždé, když je zavolána funkce, vznikne na zásobníku nový blok dat (tzv. **Stack Frame**):\n1. Volající metoda (Main) \"tlačí\" (instrukce 'PUSH') na zásobník parametry (argumenty funkce).\n2. Speciální instrukce 'CALL' uloží na zásobník **Návratovou adresu** (aktuální hodnotu z registru Program Counter) a skočí do kódu funkce.\n3. Volaná funkce okamžitě uloží starý 'BP' volající funkce na zásobník (aby ho nezničila) a svůj vlastní 'BP' namíří tam, kde je zrovna vrchol 'SP'.\n4. Otevře si prostor pro lokální proměnné (sníží hodnotu SP). \n\n*Matfyzácké pojítko:* Jakmile funkce dojede do příkazu 'return', procesor rozloží Stack Frame, do PC načte uloženou Návratovou adresu, a zásobníkový prostor propadne OS. To vysvětluje, proč je do hluboké nekonečné rekurze zásobník tak náchylný ('StackOverflowException')."
+    },
+    {
+      "id": "019fc756-8f1b-7619-b794-a0ec0cefe5d5",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Zásobník",
+        "Volání funkcí"
+      ],
+      "title": "Praxe: Frame funkce (Nákres Stack Frame na papír)",
+      "content": "**Zkouškový nácvik (Kreslení do písemky):**\nBod sylabu jasně uvádí 'přístup k datům v paměti' a 'volání funkce'. Představte si, že metoda 'Main' zavolá v jazyce C funkci 'int Sum(int a, int b)'.\n\nVaším úkolem je nakreslit nebo textově popsat obsah paměťového zásobníku (Stacku) v momentě, kdy se procesor nachází uvnitř funkce 'Sum'.\n\n1. V jakém pořadí se do paměti uloží parametry 'a', 'b', starý 'BP' (Base Pointer) a Návratová adresa?\n2. Jak přesně funkce 'Sum' k parametrům na zásobníku přistupuje (jaký zhruba použije assembler)?",
+      "hiddenContent": "**Vzorové řešení (Popis pro komisi):**\n\nZásobník (Stack) roste typicky směrem dolů (k nižším adresám). Obsah tzv. Aktivačního záznamu (Stack Frame) bude od vyšších adres k nižším vypadat takto:\n\n1. **Parametr 'b'** (Uložen volajícím)\n2. **Parametr 'a'** (Uložen volajícím, často se ukládá zprava doleva)\n3. **Návratová adresa** (Uloží ji automaticky instrukce CALL, ukazuje zpět do 'Main')\n4. **Starý Base Pointer (BP)** (Uložen uvnitř 'Sum', abychom se uměli vrátit do frame funkce Main)\n5. **Lokální proměnné funkce Sum** (Od této adresy dolů)\n\n**Přístup pomocí Assembleru:**\nJakmile jsme uvnitř funkce, registr 'BP' (Base Pointer) ukazuje přesně na místo, kde je uložen 'Starý BP'.\nParametry jsou tedy bezpečně uložené v paměti kousek 'nad' ním (na vyšších adresách). \nK parametrům přistoupíme přes kladný offset od 'BP':\n* Načtení 'a': 'LW R1, 8(BP)' (přeskočíme starý BP a Návratovou adresu)\n* Načtení 'b': 'LW R2, 12(BP)'\n\nToto je absolutní základ toho, jak C kompilátor pod kapotou předává parametry a proč zacyklená rekurze vyčerpá paměť RAM (StackOverflow)."
+    },
+    {
+      "id": "019fc756-8f1b-7619-b794-a7d653b70530",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Hexdump",
+        "Strojový kód"
+      ],
+      "title": "Teorie: Reprezentace instrukcí v paměti (Strojový kód)",
+      "content": "Když kompilátor přeloží kód do Assembleru (jako např. 'ADD R1, R2, 1'), procesor tomuto textu samozřejmě nerozumí. I tento kód se musí uložit do paměti RAM jako čistá data – posloupnost jedniček a nul.\n\n### Von Neumannův princip\nZákladem von Neumannovy architektury je fakt, že **data a instrukce sdílejí stejnou paměť**. Z pohledu paměťového čipu není absolutně žádný rozdíl mezi řetězcem 'Ahoj', číslem '123' a instrukcí 'JMP'. Všechno jsou to jen bajty. Až podle toho, na co ukazuje registr **PC (Program Counter)**, se procesor rozhodne dané bajty dekódovat jako instrukci.\n\n### Skladba instrukce (Machine Code)\nV RISC architektuře má každá instrukce obvykle fixní délku (např. 16 nebo 32 bitů). Tyto bity jsou striktně rozděleny na pole:\n* **Opcode (Operační kód):** Prvních několik bitů definuje samotnou instrukci (např. '00101' může znamenat 'ADD').\n* **Registry (RS, RD):** Další bity identifikují fyzická čísla registrů, se kterými má ALU pracovat.\n* **Immediate (Konstanta / Offset):** Zbytek bitů se používá pro pevně dané číslo (např. adresa skoku nebo konstanta k přičtení).\n\nKdyž u zkoušky vidíte Hexdump (výpis hexadecimálních hodnot), může jít o paměť obsahující data, ale úplně stejně by mohl vypadat výsek paměti s uloženým zkompilovaným programem v sekci '.text'."
+    },
+    {
+      "id": "019fc756-8f1b-7619-b794-aa16bb9bbd1c",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Assembler",
+        "Zkouška 2026",
+        "Spojový seznam"
+      ],
+      "title": "Praxe: [Zkouška Léto 2026] Zpětný překlad Assembleru",
+      "content": "**Zkouškový nácvik (Zadání 22. 6. 2026):**\nBod sylabu jasně žádá *'Zapsat běžnou konstrukci vyššího jazyka, která odpovídá zadané sekvenci instrukcí'*. V této úloze ale provádíme zápis přímo do chybějící smyčky.\n\nMáme v paměti jednosměrný spojový seznam. Struktura uzlu má položky: 'number' (offset 0), 'count' (offset 2) a 'next' pointer (offset 4). Adresa nula (0) značí konec seznamu.\n\nZadání vám předvyplnilo začátek a konec kódu:\n```text\nLI R1, 0x900a     // R1 = pointer na 'head'\nLW R2, 0(R1)      // R2 = aktuální uzel (dereference head)\nLI R3, 0          // R3 = 0 (zde budeme sčítat)\n\nloop_start:\n// ... ZDE DOPLŇTE INSTRUKCE ...\n\nend:\n// V registru R3 je soucet polozek 'count'\n```\nNapište na papír pět chybějících instrukcí uvnitř smyčky (využijte RISC sadu 'LW', 'ADD', 'BEZ', 'JMP'), které správně projdou celý seznam a sečtou hodnoty 'count'.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\nZadání je vlastně C kód: 'while (node != 0) { sum += node->count; node = node->next; }'. Zde je přesný zápis chybějících instrukcí:\n\n```text\nloop_start:\n    // 1. Zkontrolujeme, zda nejsme na konci (zda adresa v R2 není 0)\n    // Pokud je nula (Branch if Equal to Zero), skočíme rovnou na návěští 'end'\n    BEZ R2, end\n\n    // 2. Načteme hodnotu 'count'. Víme, že 'count' začíná na offsetu 2.\n    // Použijeme pomocný registr R4.\n    LW R4, 2(R2)\n\n    // 3. Přičteme 'count' k celkovému součtu v R3\n    ADD R3, R3, R4\n\n    // 4. Přesuneme se na další uzel. 'next' pointer leží na offsetu 4.\n    // Načteme ho z paměti a přepíšeme jím rovnou náš registr R2.\n    LW R2, 4(R2)\n\n    // 5. Skočíme zpět na začátek cyklu zkontrolovat nový uzel\n    JMP loop_start\n```\n\n**Zásadní věc pro komisi (Chyták s BEZ):**\nTest na 'NULL' ('BEZ R2, end') se musí provést VŽDY hned jako první na začátku smyčky, ještě než se pokusíme něco přečíst přes 'LW'. Kdybychom ho dali až na konec, nebo ho vynechali a seznam byl náhodou prázdný už na začátku, procesor by se v kroku 2 pokusil přečíst data z adresy 0x0002. To v systémech s paměťovou ochranou okamžitě vede na fatální 'Segmentation Fault' a pád OS procesu!"
+    },
+    {
+      "id": "019fc756-a89d-77ea-abe0-afd93fbbe60c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "OS",
+        "Ochrana paměti"
+      ],
+      "title": "Teorie: Privilegovaný vs. neprivilegovaný režim procesoru",
+      "content": "Otevíráme Blok 3, který propojuje hardware procesoru s operačním systémem. Aby mohl OS fungovat jako správce a hlídač zdrojů, musí mu procesor poskytovat **hardwarovou podporu pro ochranu**.\n\n### Režimy procesoru (Protection Rings)\nModerní procesory udržují ve svém speciálním stavovém registru (např. PSW - Program Status Word) tzv. ochranný bit. Ten určuje aktuální režim běhu:\n\n1. **Privilegovaný režim (Kernel mode / Ring 0):** V tomto režimu běží pouze jádro operačního systému (Kernel). Procesor zde má povoleno vykonat úplně jakoukoliv instrukci ze své sady.\n2. **Neprivilegovaný režim (User mode / Ring 3):** Zde běží všechny běžné procesy (váš C# kód, prohlížeč). Je to \"pískoviště\" (sandbox). Některé kritické instrukce jsou zde hardwarově zakázány.\n\n### Zakázané operace v User mode\nPokud se uživatelský proces pokusí o jakoukoliv z následujících akcí, hardware CPU ho okamžitě zablokuje, vyvolá výjimku a předá řízení zpět OS (který proces typicky okamžitě zabije - např. 'Segmentation Fault'):\n* Instrukce komunikující s hardwarem (např. 'IN', 'OUT' - přímý přístup k portům disku).\n* Manipulace s paměťovým řadičem (MMU) a stránkovacími tabulkami (přepis registru 'CR3', který určuje, jakou paměť proces vidí).\n* Vypnutí nebo maskování hardwarových přerušení (instrukce 'CLI')."
+    },
+    {
+      "id": "019fc756-a89d-77ea-abe0-b3c06383ca98",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Syscall",
+        "Přerušení"
+      ],
+      "title": "Praxe: Systémové volání (Syscall) krok za krokem",
+      "content": "**Zkouškový nácvik (Teoretický proces na papír):**\nPokud uživatelský proces běží v neprivilegovaném režimu a hardware mu zakazuje sáhnout na disk, jak je možné, že váš program může napsat 'File.ReadAllText()' a disk mu soubor přečte?\n\nK procesu komunikace mezi User mode aplikací a Kernel mode jádrem OS se využívá tzv. **Systémové volání (System Call / Syscall)**.\n\nNapište nebo nakreslete komisi na papír přesnou sekvenci (trasování), co se děje na úrovni registrů a instrukcí procesoru, když uživatelský program zavolá takové systémové volání.",
+      "hiddenContent": "**Vzorové řešení (Trasa pro komisi):**\n\n1. **Příprava (User mode):** Uživatelský program (nebo standardní C knihovna 'libc' pod kapotou vašeho C# kódu) připraví parametry požadavku. Uloží je do běžných CPU registrů. Do speciálního registru (např. 'EAX'/'RAX') zapíše **číslo systémového volání** (např. číslo 0 pro 'sys_read').\n2. **Vyvolání pasti (Trap):** Program spustí speciální instrukci procesoru (např. 'SYSCALL' nebo softwarové přerušení 'INT 0x80'). \n3. **Hardwarový přepínač (Přechod do Kernel mode):** Instrukce 'SYSCALL' je kritická bariéra. Procesor hardwarově \n   * a) uloží aktuální 'Program Counter' a stavové registry,\n   * b) **změní ochranný bit na Ring 0 (Privilegovaný režim)**,\n   * c) naslepo přeskočí na přesně fixní paměťovou adresu (Interrupt Vector Table), kterou OS nastavil při bootování a kam uživatel nemůže zapisovat.\n4. **Zpracování v OS (Kernel mode):** Jádro se probudí. Přečte registr 'RAX', zjistí, že chceme číst soubor. Pomocí svého přístupu k hardwaru provede operaci a výsledek (nebo kód chyby) zapíše zpět do registru.\n5. **Návrat (Přechod do User mode):** Jádro zavolá speciální instrukci (např. 'SYSRET' nebo 'IRET'). Procesor hardwarově \n   * a) přepne ochranný bit zpět na neprivilegovaný Ring 3,\n   * b) obnoví 'Program Counter' uživatele. Uživatelský proces pokračuje tam, kde skončil."
+    },
+    {
+      "id": "019fc756-a89d-77ea-abe0-b7e732f6398b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "I/O",
+        "MMIO"
+      ],
+      "title": "Teorie: Řadiče zařízení a Memory-Mapped I/O",
+      "content": "Aby OS mohl komunikovat s periferními zařízeními (disk, síťová karta, GPU), nekomunikuje přímo s jejich motory nebo senzory. Každé zařízení má na základní desce svůj malý čip – **Řadič (Controller)**. \n\nŘadič má své vlastní malé řídící registry (typicky Control, Status, Data IN, Data OUT). Procesor má dva hlavní způsoby, jak do těchto registrů na desce zapisovat:\n\n### 1. Port-Mapped I/O (PMIO)\nHistorický přístup. Procesor má pro komunikaci s řadiči úplně oddělený adresní prostor od hlavní RAM. K zápisu do nich slouží speciální izolované assemblerovské instrukce 'IN' a 'OUT' (které smí volat jen Ring 0 Kernel).\n\n### 2. Memory-Mapped I/O (MMIO) - Extrémně důležité u zkoušky\nModerní přístup. Jde o obrovský trik na procesor. Hardware na základní desce (čipset) 'ukradne' kus klasického paměťového prostoru a nasměruje ho rovnou na řadič zařízení. \n\nPokud se procesor pokusí o zápis standardní instrukcí 'STORE' na fyzickou adresu např. '0xFFFF0000', tato data nikdy nedorazí do skutečných paměťových čipů RAM. Sběrnice je zachytí a odkloní je rovnou do řídícího registru řadiče disku. Výhoda je, že OS může používat stejné běžné instrukce pro čtení paměti jako pro ovládání hardware.\n\n### Chyták: Klíčové slovo 'volatile'\nKdyž v jazyce C/C++ napíšete driver pro Memory-Mapped zařízení, **musíte ukazatel označit slovem 'volatile'**. Proč?\nProtože hardware řadiče žije vlastním životem! Hodnota v registru 'Status' se může změnit sama od sebe, když disk dočte data. Kdybyste 'volatile' nenapsali, chytrý kompilátor Céčka by si řekl: *\"V mém kódu tuto proměnnou nikdo nemění, tak si ji načtu do procesorového registru a ušetřím si cesty do RAM.\"* Váš driver by pak navždy zamrznul s falešnou starou hodnotou. 'volatile' kompilátoru říká: *\"Tato adresa je svatá, žádná optimalizace! Každé čtení musí proběhnout fyzicky po sběrnici!\"*"
+    },
+    {
+      "id": "019fc756-cada-75ac-ae0a-decf3e9b651f",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "I/O Ovladače",
+        "Zkouška 2024",
+        "MMIO"
+      ],
+      "title": "Praxe: [Zkouška Jaro 2024] Ovladač řadiče disku (PIO)",
+      "content": "**Zkouškový nácvik (Zadání 9. 2. 2024):**\nMáte za úkol naprogramovat v jazyce C/C++ dvě funkce ovladače disku. Disk je řízen pěti **paměťově mapovanými registry**, každý má 32 bitů (4 bajty) a leží těsně za sebou:\n1. **Status (Offset 0):** Pouze pro čtení. Bit 0 je 'ERR' (1=chyba), Bit 1 je 'BUSY' (1=disk zrovna pracuje).\n2. **Size (Offset 4):** Pouze pro čtení. Kapacita disku v blocích.\n3. **Command (Offset 8):** Zápis spustí příkaz (1 = čtení).\n4. **LBA (Offset 12):** Logická adresa bloku pro čtení.\n5. **DMA (Offset 16):** Fyzická adresa RAM, kam má řadič data po přečtení uložit.\n\nZařízení *nepodporuje přerušení*, používá se obsluha s aktivním čekáním. \n\n**Úkoly na papír:**\n1. Navrhněte strukturu 'disk_t', která uchová stav ovladače.\n2. Implementujte 'bool disk_init(disk_t *disk, uint32_t register_address)'.\n3. Implementujte 'bool disk_read_block_waiting(disk_t *disk, size_t lba, uint32_t data_phys_addr)'. Funkce musí odblokovat až po dokončení čtení a **musí ošetřit současný přístup z více procesů!**",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\nKomise zde testuje, zda chápete mapování paměti pomocí 'volatile', bitové maskování pro čtení stavu a nutnost zámků (Mutex) v jádře OS.\n\n```c\n// 1. Mapování hardwarových registrů (klíčové je slovo volatile!)\ntypedef volatile struct {\n    uint32_t status;  // Offset 0\n    uint32_t size;    // Offset 4\n    uint32_t command; // Offset 8\n    uint32_t lba;     // Offset 12\n    uint32_t dma;     // Offset 16\n} disk_regs_t;\n\n// Datová struktura našeho ovladače\ntypedef struct {\n    size_t max_lba;\n    disk_regs_t *ctl; // Ukazatel na HW registry\n    mutex_t mutex;    // Pro ochranu před vícenásobným přístupem\n} disk_t;\n\n// 2. Inicializace ovladače\nbool disk_init(disk_t *disk, uint32_t register_address) {\n    // Přetypujeme surovou adresu na ukazatel na naši strukturu\n    disk->ctl = (disk_regs_t *) register_address;\n    disk->max_lba = disk->ctl->size;\n    mutex_init(&disk->mutex);\n    return true;\n}\n\n// 3. Čtení bloku s aktivním čekáním\nbool disk_read_block_waiting(disk_t *disk, size_t lba, uint32_t data_phys_addr) {\n    if (lba >= disk->max_lba) return false;\n\n    mutex_lock(&disk->mutex); // Ochrana před jinými vlákny/procesy\n\n    // Zápis parametrů do registrů hardware\n    disk->ctl->lba = lba;\n    disk->ctl->dma = data_phys_addr;\n    \n    // Zápisem do Command se spustí fyzická práce disku\n    disk->ctl->command = 1; \n\n    // AKTIVNÍ ČEKÁNÍ: Čteme bit 1 (maska 2, neboli binárně 10)\n    // Dokud je výsledek nenulový, disk pracuje (BUSY = 1)\n    while ((disk->ctl->status & 2) != 0) { \n        // Neděláme nic, jen točíme CPU naprázdno\n    }\n\n    // Kontrola chyby: Čteme bit 0 (maska 1)\n    bool ok = ((disk->ctl->status & 1) == 0);\n\n    mutex_unlock(&disk->mutex);\n    return ok;\n}\n```"
+    },
+    {
+      "id": "019fc756-cadb-707e-a453-d89d5ddd2833",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "I/O",
+        "Polling"
+      ],
+      "title": "Teorie: Aktivní čekání (Polling) a PIO",
+      "content": "V předchozí kódovací úloze jsme použili konstrukci `while ((status & 2) != 0) { }`. Tento přístup se nazývá **Aktivní čekání (Polling)** nebo také Programmed I/O (PIO). Znamená to, že procesor je tím, kdo aktivně a neustále zjišťuje stav periferního zařízení.\n\n### Výhody a Kdy se používá\nZdálo by se, že aktivní čekání je vždy špatně, ale v některých specifických případech OS jádra je to žádoucí:\n1. **Extrémní rychlost:** Pokud víme, že hardware odpoví za pár nanosekund (např. vnitřní časovače na základní desce), je mnohem rychlejší počkat v prázdném cyklu, než platit obrovskou režii za kontextové přepnutí (Context Switch) do jiného vlákna a zpět.\n2. **Uvnitř Spinlocku:** Pokud je jádro OS v kritické sekci chráněné Spinlockem (kde jsou hardwarová přerušení vypnuta), nezbývá procesoru nic jiného, než na výsledek aktivně počkat.\n\n### Destruktivní nevýhody pro běžné I/O\nPokud disk čte blok dat fyzicky z plotny, trvá to z pohledu procesoru celou věčnost (milisekundy). Během této doby provede 'while' cyklus statisíce otoček.\n* **100% zátěž CPU:** Jádro procesoru (Core) běží na plný výkon, pálí elektrickou energii a generuje teplo, i když neprovádí žádný užitečný výpočet.\n* **Ztráta propustnosti:** Během tohoto točení by OS mohl na daném jádře bez problému naplánovat běh úplně jiného vlákna (např. uživatelské aplikace). Kvůli Pollingu je jádro zcela paralyzováno pro jakoukoliv jinou práci."
+    },
+    {
+      "id": "019fc756-cadb-707e-a453-dedc9724581e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Výpočet",
+        "OS",
+        "Propustnost"
+      ],
+      "title": "Praxe: Analýza propustnosti a zátěže při aktivním čekání",
+      "content": "**Zkouškový nácvik (Teoretický výpočet):**\nBod sylabu žádá popsat *'roli řadiče zařízení při programem řízené obsluze'*. Pojďme komisi ukázat propastný rozdíl mezi Pollingem a lepším řešením pomocí exaktního výpočtu.\n\n1. Představte si procesor běžící na frekvenci **3 GHz** (3 miliardy cyklů za sekundu).\n2. Program přes PIO (aktivní čekání) požádá pevný disk o přečtení bloku dat. Vyhledání a přečtení bloku na fyzickém disku trvá **5 milisekund (5 ms)**.\n3. Jeden 'while' cyklus pro přečtení 'Status' registru ze sběrnice stojí procesor zhruba **30 taktů** (cyklů).\n\n**Úkol:** Spočtěte a popište na papír, kolikrát se cyklus 'while' otočí zbytečně naprázdno, než disk konečně nastaví bit BUSY na nulu. Zhodnoťte to z pohledu operačního systému.",
+      "hiddenContent": "**Vzorové řešení (Matematický důkaz pro komisi):**\n\n1. Převedeme jednotky času, abychom zjistili, kolik cyklů zvládne CPU za 5 milisekund:\n   * CPU frekvence = $3 \\times 10^9$ cyklů za sekundu.\n   * Čas čekání = $5$ ms = $0.005$ sekundy.\n   * Celkem cyklů CPU za dobu čekání = $3 \\times 10^9 \\times 0.005 = 15 \\times 10^6$ **(15 milionů cyklů!)**.\n\n2. Zjištění počtu otoček 'while' cyklu:\n   * Jeden cyklus sebere 30 taktů.\n   * Počet zbytečných dotazů na řadič = $\\frac{15\\ 000\\ 000}{30} = 500\\ 000$ **dotazů**.\n\n**Závěr pro komisi:**\nProcesor se půl milionkrát naprázdno zeptal paměťové sběrnice, zda už má disk hotovo. Těchto 15 milionů zahozených taktů procesoru (což je tzv. CPU Waste) by jinak OS mohl využít k naplánování a odpracování obrovského množství kódu z jiných procesů.\n\nTento matematický důkaz je absolutním argumentem pro to, proč moderní operační systémy a hardware využívají pro pomalá I/O zařízení odlišný koncept: **Hardwarová přerušení (Interrupts / IRQ)**, kterým se budeme věnovat v další lekci."
+    },
+    {
+      "id": "019fc756-e220-71aa-a131-245be2752f6d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Přerušení",
+        "IRQ"
+      ],
+      "title": "Teorie: Hardwarová přerušení (Interrupts) a IRQ",
+      "content": "Jak jsme si dokázali, aktivní čekání pálí CPU cykly. Moderní počítače proto pro I/O operace používají mechanismus, kde **zařízení samo upozorní procesor, že má hotovo**. Tomuto mechanismu se říká Hardwarové přerušení (Interrupt).\n\n### Architektura přerušení\n1. **IRQ (Interrupt Request):** Každé zařízení (klávesnice, disk, časovač) má k dispozici specifickou hardwarovou linku na základní desce, kterou posílá elektrický signál.\n2. **PIC / APIC (Programmable Interrupt Controller):** Samostatný čip na desce, který sbírá signály ze všech zařízení, určuje jejich prioritu a posílá je do hlavního procesoru (CPU) jako jediné přerušení spolu s unikátním číslem (Vektorem přerušení).\n3. **IVT (Interrupt Vector Table):** Tabulka v paměti RAM (vytvořená OS hned při bootování). Obsahuje ukazatele (paměťové adresy) na konkrétní funkce v jádře OS, které se mají spustit pro dané číslo přerušení (tzv. Interrupt Handlery nebo ISR - Interrupt Service Routines).\n\n*Výhoda proti Pollingu:* Když program požádá o čtení z disku, OS pošle příkaz řadiči disku. Místo 'while' cyklu ale OS **vlákno uspí (přepne do stavu Blocked)** a na uvolněném jádře CPU okamžitě spustí jiný program. Až za 5 ms disk data najde, \"kopne\" procesor přes IRQ. Procesor přeruší aktuální práci, OS data od disku převezme a původní uspané vlákno vzbudí (přepne na Ready). Žádný CPU čas nebyl zahozen!"
+    },
+    {
+      "id": "019fc756-e220-71aa-a131-2a523d365461",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "ISR",
+        "Zkouška"
+      ],
+      "title": "Praxe: Reakce hardwaru a OS na přerušení krok za krokem",
+      "content": "**Zkouškový nácvik (Teoretický proces na papír):**\nBod sylabu to vyžaduje doslova: *'Na úrovni vykonávání instrukcí popsat reakci procesoru (hardware) a OS (software) na žádost o přerušení.'*\n\nPředstavte si, že procesor právě počítá instrukci 'ADD R1, R2, R3' v uživatelském režimu (Ring 3), když na pin CPU dorazí hardwarové přerušení od disku.\n\nNapište na papír chronologický scénář, ve kterém jasně oddělíte, co dělá sám křemík (Hardware) a co dělá kód jádra (Software/OS). Co je to instrukce 'IRET'?",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n**FÁZE 1: Reakce HARDWARU (Procesor běží automaticky)**\n1. Procesor NIKDY nepřeruší instrukci v půlce. Nejprve **dokončí instrukci 'ADD'**.\n2. Přepne se z neprivilegovaného režimu (Ring 3) do **Kernel módu (Ring 0)**.\n3. Uloží na jaderný zásobník svůj aktuální stav: speciálně **Program Counter (PC)** a **Status Registr (EFLAGS)**.\n4. Z řadiče přerušení získá vektor (číslo, např. 14 pro disk).\n5. Podívá se do IVT (Interrupt Vector Table), přečte adresu pro vektor 14 a tuto adresu nahraje do PC. Tím dojde ke skoku do kódu operačního systému.\n\n**FÁZE 2: Reakce SOFTWARU (Operační systém - ISR rutina)**\n6. Záchrana kontextu: OS musí okamžitě uložit všechny ostatní CPU registry (R1, R2 atd.) na zásobník (např. instrukce 'PUSHALL'), aby nepřepsal rozpočítaná data přerušeného programu.\n7. Vyřízení požadavku: OS přečte mapované registry disku, stáhne data do RAM a řekne řadiči 'Díky, potvrzuji' (ACK - Acknowledge).\n8. Obnova kontextu: OS obnoví původní hodnoty CPU registrů ze zásobníku (instrukce 'POPALL').\n\n**FÁZE 3: Návrat (Zpět na Hardware)**\n9. OS jako úplně poslední krok zavolá speciální assembler instrukci **'IRET' (Interrupt Return)**.\n10. Hardware procesoru se probudí, vezme ze zásobníku původní PC a Status registr, **přepne se zpět do Ring 3** a program pokračuje další instrukcí hned za 'ADD', aniž by vůbec tušil, že byl na 5 mikrosekund paralyzován."
+    },
+    {
+      "id": "019fc756-e220-71aa-a131-2f5ca52c6621",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Výjimky",
+        "Výpadky"
+      ],
+      "title": "Teorie: Výjimky (Exceptions) vs. Přerušení (Interrupts)",
+      "content": "Oba tyto mechanismy využívají k řešení stejnou tabulku vektorů (IVT), ukládají kontext a skáčou do jádra OS. Z pohledu architektury je v nich ale naprosto **fatální logický rozdíl**, na který se komise s oblibou ptá.\n\n### 1. Hardwarové přerušení (Interrupt)\n* **Asynchronní:** Vzniká externě, vlivem HW zařízení (disk dotočil plotnu, stiskli jste klávesu, tikly hodiny). \n* **Nezávislé:** Přerušení nemá ABSOLUTNĚ ŽÁDNOU souvislost s aktuálně vykonávanou instrukcí na CPU. Klávesu můžete stisknout, ať procesor zrovna sčítá 'ADD' nebo skáče 'JMP'.\n* Vždy se řeší **až po dokončení** probíhající instrukce.\n\n### 2. Výjimka / Past (Exception / Trap)\n* **Synchronní:** Vzniká interně, přímo uvnitř jádra procesoru jako PŘÍMÝ DŮSLEDEK toho, co se procesor právě teď snaží vykonat.\n* Výjimka způsobí přechod do jádra **během provádění** instrukce (instrukce selže).\n* *Kategorie výjimek:*\n  * **Fault (Chyba):** Instrukce nelze dokončit (např. Dělení nulou, Výpadek stránky paměti - Page Fault). OS se může pokusit problém vyřešit (nahrát stránku z disku do RAM) a po návratu nechat procesor instrukci zkusit **vykonat znovu**.\n  * **Abort (Kritické selhání):** Hardwarová porucha parity RAM, neřešitelná, OS padá do Blue Screen of Death.\n  * **Trap (Past):** Záměrně a programátorem vyvolaná výjimka (např. instrukce 'SYSCALL' nebo 'INT 0x80'). Používá se pro systémová volání (probíraná v bloku výše) a nebo pro breakpointy při debugování v IDE."
+    },
+    {
+      "id": "019fc757-0d39-71cd-9808-4e818556e6c6",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Výjimky",
+        "Segfault"
+      ],
+      "title": "Praxe: Reakce na výjimku procesoru (Segfault a Signály)",
+      "content": "**Zkouškový nácvik (Teoretický proces na papír):**\nUzavřeme blok hardwarových přerušení a výjimek. Představte si klasický, chybný C kód, který spustíte v uživatelském režimu (Ring 3):\n\n```c\nint *p = NULL;\n*p = 42;\n```\n\n1. K jakému typu hardwarové události (Interrupt vs. Exception) zde dojde a proč?\n2. Napište na papír přesnou chronologii toho, jak na tento kód zareaguje procesor a jak následně zareaguje operační systém. Pojmenujte POSIX signál, který OS procesu pošle.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n**1. Typ události:**\nDojde k synchronní vnitřní výjimce, konkrétně typu **Fault (Chyba přístupu ke stránce - Page Fault)**. Generuje se přímo z procesoru jako důsledek chybné instrukce 'STORE'.\n\n**2. Chronologie událostí:**\n* **Hardware CPU:** Procesor se pokusí zapsat hodnotu 42 na virtuální adresu 0x0. Dotáže se jednotky MMU (Memory Management Unit) na fyzický překlad.\n* **Zásah MMU:** MMU zjistí, že virtuální stránka s adresou 0 vůbec není namapovaná, nebo má zakázaná přístupová práva (Read-Only). MMU zablokuje paměťovou sběrnici.\n* **Záchrana a skok (Hardware):** Procesor instrukci nedokončí. Přepne se do privilegovaného režimu (Ring 0), uloží stav registrů a vyvolá výjimku. Pomocí tabulky IVT skočí do 'Page Fault Handleru' jádra OS.\n* **Reakce OS (Software):** Jádro operačního systému se probudí a zanalyzuje registry. Zjistí, že proces sáhl do nenamapované a chráněné oblasti (např. do rezervovaného prostoru pro detekci NULL pointerů).\n* **Zabití procesu:** OS tuto situaci nemůže zachránit (nemá jaká data z disku nahrát). Jádro proto vygeneruje fatální signál **SIGSEGV (Segmentation Fault - Porušení ochrany paměti)** a doručí ho procesu. Jelikož proces nemá nastavený vlastní hander na SIGSEGV, výchozí chování signálu proces okamžitě ukončí, udělá výpis paměti (Core Dump) a OS uvolní všechny jeho systémové prostředky."
+    },
+    {
+      "id": "019fc757-0d39-71cd-9808-5036e651b843",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Procesy",
+        "Vlákna"
+      ],
+      "title": "Teorie: Proces vs. Vlákno a Hierarchie paměti",
+      "content": "Otevíráme Blok 4: Plánování a multitasking. U státnic je naprosto kritické znát exaktní rozdíl mezi Procesem a Vláknem na úrovni toho, co se fyzicky sdílí v paměti.\n\n### 1. Proces (Kontejner na zdroje)\nOperační systém tvoří zkompilovanému programu dokonalou iluzi, že je v počítači sám. Tato iluze a izolované prostředí se nazývá **Proces**. Je to těžkotonážní struktura.\nProces má:\n* Vlastní izolovaný virtuální adresový prostor (Paměť 0x0000 až 0xFFFF...).\n* Globální tabulku namapovaných souborů (File Descriptors), síťových spojení a zámků.\n* Nejméně jedno (hlavní) vlákno, které vykonává kód.\n\n### 2. Vlákno (Jednotka vykonávání - Execution Unit)\nVlákno (Thread) \"bydlí\" vždy uvnitř nějakého procesu. Je to odlehčená struktura, kterou plánovač OS reálně posílá na procesorová jádra k vykonání.\n\n### Co přesně mají vlákna společné (Sdílený stav)?\nVšechna vlákna uvnitř STEJNÉHO procesu sdílejí onen kontejner:\n* **Data Segment:** Globální a statické proměnné.\n* **Halda (Heap):** Všechny dynamicky alokované objekty (přes 'malloc' nebo 'new').\n* **Kódový segment (Text):** Samotné instrukce programu.\n* **Otevřené soubory a OS handles.**\n\n### Co má každé vlákno PŘÍSNĚ SVÉ (Privátní stav)?\n* **Paměťový zásobník (Stack):** Lokální proměnné funkcí a předané parametry. Z toho plyne, že každé vlákno může zrovna vykonávat úplně jinou funkci.\n* **Registry CPU:** Včetně klíčového Program Counteru (PC). Když OS vlákno uspí, musí si zapamatovat přesný stav registrů procesoru speciálně pro toto vlákno."
+    },
+    {
+      "id": "019fc757-0d39-71cd-9808-555fb7c5e62e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Sdílený stav",
+        "C/C++",
+        "Race Condition"
+      ],
+      "title": "Praxe: Identifikace sdíleného stavu v C/C++ kódu",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nBod sylabu žádá schopnost identifikovat, kdy nastávají časově závislé chyby (Race conditions). Ty vznikají pouze na datech, která jsou sdílená. Představte si, že máte aplikaci, ve které běží **tři paralelní vlákna**, přičemž všechna tři neustále volají funkci 'thread_func'.\n\n```c\nint global_counter = 0;\n\nvoid thread_func(int thread_id) {\n    static int call_count = 0;\n    int local_var = 5;\n    int *heap_ptr = malloc(sizeof(int));\n    *heap_ptr = 42;\n}\n```\n\n**Úkol:** Projděte všech pět prvků z kódu ('global_counter', parametr 'thread_id', 'call_count', 'local_var', pointer 'heap_ptr' a data ležící na '*heap_ptr'). Ke každému napište, ve které části paměti leží (Halda, Zásobník, Datový segment) a **zda je proměnná PRIVÁTNÍ pro dané vlákno, nebo SDÍLENÁ mezi všemi třemi vlákny**.",
+      "hiddenContent": "**Vzorové řešení (Paměťový rozbor pro komisi):**\n\n1. **'global_counter'**\n   * Lokace: Datový segment (Global scope).\n   * Přístup: **SDÍLENÉ**. Všechna 3 vlákna vidí ten samý kus paměti. Bez zámku zde reálně hrozí Race Condition.\n2. **'thread_id' (parametr funkce)**\n   * Lokace: Zásobník (Stack) vlákna.\n   * Přístup: **PRIVÁTNÍ**. Každé vlákno má svůj vlastní izolovaný zásobník, takže má i svou vlastní kopii parametru 'thread_id'. Tady chyba nevznikne.\n3. **'call_count' (s modifikátorem static!)**\n   * Lokace: Datový segment.\n   * Přístup: **SDÍLENÉ**. I když je proměnná zavřená uvnitř funkce, klíčové slovo 'static' zajistí, že existuje fyzicky v paměti jen jednou. Všechna vlákna modifikují ten samý čítač! Toto je velmi častý zkouškový chyták.\n4. **'local_var'**\n   * Lokace: Zásobník (Stack) vlákna.\n   * Přístup: **PRIVÁTNÍ**. Stejně jako parametry, leží v lokálním Stack Frame konkrétního vlákna.\n5. **'heap_ptr' (samotný ukazatel)**\n   * Lokace: Zásobník (Stack) vlákna.\n   * Přístup: **PRIVÁTNÍ**. Samotná hodnota adresy (to 64bitové číslo) je uložena v lokálním zásobníku vlákna.\n6. **Data ležící na '*heap_ptr' (výsledek mallocu)**\n   * Lokace: Halda (Heap).\n   * Přístup: **SDÍLENÉ**. Funkce 'malloc' alokuje globálně sdílenou paměť OS procesu. Kdyby jedno vlákno předalo adresu ze svého 'heap_ptr' druhému vláknu, mohou obě naráz modifikovat stejná data na Haldě a opět hrozí Race Condition."
+    },
+    {
+      "id": "019fc757-3312-761a-8b92-be4d9ce13b08",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "PCB",
+        "TCB"
+      ],
+      "title": "Teorie: Kontext procesu a TCB (Thread Control Block)",
+      "content": "Aby operační systém mohl vlákno kdykoliv uspat a za 10 milisekund ho opět bezpečně vzbudit, musí si někam uložit jeho naprosto přesný aktuální stav. Odborně se tomuto stavu říká **Kontext**.\n\n### Datové struktury OS\nJádro operačního systému si udržuje ve své paměti (v Kernel Space) dvě klíčové tabulky (obvykle reprezentované jako obousměrné spojové seznamy):\n\n1. **PCB (Process Control Block):** Udržuje globální informace o celém procesu.\n   * **PID:** Process ID.\n   * **Paměťové struktury:** Ukazatel na hlavní stránkovací tabulku (Page Directory). Toto je naprosto kritické – OS musí vědět, jakou paměť proces vidí.\n   * **Otevřené soubory:** Tabulka file deskriptorů (otevřené soubory, sockety).\n\n2. **TCB (Thread Control Block):** Vzhledem k tomu, že proces má více vláken, každé vlákno má v OS svou vlastní malou strukturu TCB.\n   * **TID:** Thread ID.\n   * **Stav vlákna:** (Ready, Running, Blocked).\n   * **Kontext procesoru (Uložené registry):** Tady OS ukládá to nejdůležitější – přesnou kopii CPU registrů (např. R1 až R31), **Program Counter (PC)**, který si pamatuje aktuální řádek kódu, a **Stack Pointer (SP)**, který ukazuje na vrchol vláknového zásobníku.\n\n*Ukázka v C pseudo-kódu jádra:*\n```c\nstruct TCB {\n    int thread_id;\n    int state;           // 0=Ready, 1=Running, 2=Blocked\n    void *stack_pointer; // Kde skončil zásobník tohoto vlákna\n    uint32_t cpu_registers[32]; // Kopie ALU registrů\n    struct PCB *process; // Ke kterému procesu patříme\n};\n```"
+    },
+    {
+      "id": "019fc757-3312-761a-8b92-c21d4190776f",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Context Switch",
+        "Přepnutí kontextu"
+      ],
+      "title": "Praxe: Hardwarové přepnutí kontextu (Context Switch)",
+      "content": "**Zkouškový nácvik (Teoretický proces na papír):**\nBod sylabu jasně uvádí: *'přepínání kontextu'*. Představte si, že máte na jednojádrovém procesoru spuštěná dvě různá výpočetní vlákna: Vlákno A a Vlákno B.\n\nVlákno A zrovna běží na procesoru. Popište krok za krokem, co přesně musí jádro operačního systému a procesor fyzicky udělat, aby Vlákno A bezpečně nahradil Vláknem B (tzv. Context Switch). \n\n*Otázka k obhajobě:* Znamená Context Switch pro aplikaci výkonnostní ztrátu (Overhead)?",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n1. **Spouštěč (Přerušení):** Hardwarový časovač tikne a pošle IRQ procesoru. CPU přeruší Vlákno A a hardwarově skočí do rutiny jádra OS (přepne na Ring 0 a uloží základní registry).\n2. **Uložení stavu Vlákna A:** OS (Scheduler) zjistí, že Vlákno A vyčerpalo svůj čas. OS vezme všechny aktuální hodnoty CPU registrů a tvrdě je uloží do paměti struktury **TCB_A**. Následně si do 'TCB_A.stack_pointer' uloží přesnou adresu, kde zrovna končí zásobník Vlákna A.\n3. **Volba plánovače:** Jádro OS projde seznam vláken ve stavu 'Ready' a vybere **Vlákno B** k běhu.\n4. **Změna paměti (Pokud jde o jiný proces):** Pokud Vlákno B patří do ÚPLNĚ JINÉHO procesu, musí OS přepsat hardwarový registr MMU (např. 'CR3' na x86), čímž procesu B podstrčí jeho vlastní adresový prostor a stránkovací tabulky.\n5. **Obnovení stavu Vlákna B:** OS vezme strukturu **TCB_B**. Z ní vyčte 'stack_pointer' a obnoví ho do fyzického registru SP. Následně načte všechny staré hodnoty CPU registrů z 'TCB_B' zpět do skutečného procesoru.\n6. **Návrat (IRET):** OS zavolá instrukci návratu z přerušení. Z uloženého zásobníku Vlákna B se obnoví jeho 'Program Counter'. Procesor přejde do Ring 3 a Vlákno B běží přesně od místa, kde bylo kdysi dávno uspáno.\n\n**Odpověď k obhajobě (Režie / Overhead):**\nAno, je to obrovská ztráta. Samotné uložení a načtení desítek registrů trvá tisíce taktů. Pokud dochází k přepnutí mezi celými procesy (krok 4), navíc se kompletně zneplatní procesorová cache (TLB) a první instrukce nového procesu budou nesmírně pomalé. Zkušení vývojáři proto omezují tvorbu tisíců vláken a používají moderní 'async/await' pro eliminaci Context Switchů."
+    },
+    {
+      "id": "019fc757-3312-761a-8b92-c5320e302aaf",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Multitasking",
+        "Plánování"
+      ],
+      "title": "Teorie: Multitasking a Plánování (Preemptivní vs. Kooperativní)",
+      "content": "Když spustíte nekonečný cyklus 'while(true) { }' na svém moderním počítači, program sice vytíží jedno jádro na 100 %, ale celosystémové UI nezamrzne (stále můžete hýbat myší a otevřít Správce úloh). Děje se tak díky plánování (Scheduling). Jaké máme druhy?\n\n### 1. Kooperativní Multitasking (Historie / Windows 3.1)\n* Vlákno dostane procesor a **OS mu ho nemůže násilně sebrat**.\n* Vlákno samo (dobrovolně) musí zavolat systémové volání 'yield()' nebo začít čekat na I/O (disk, síť), aby předalo štafetu (procesor) dalšímu programu.\n* *Nevýhoda:* Pokud programátor napíše omylem 'while(true)', OS se už NIKDY nedostane ke slovu a celý počítač totálně zamrzne. Musíte ho natvrdo restartovat zásahem do zdroje.\n\n### 2. Preemptivní Multitasking (Moderní standard)\n* OS už procesům nevěří. Systém se opírá o speciální hardwarovou součástku: **Časovač (Timer)**.\n* Timer je nastaven tak, aby např. každou 1 milisekundu vyslal hardwarové přerušení (IRQ 0).\n* Když timer tikne, CPU přeruší uživatelské vlákno, i kdyby zrovna sčítalo dvě proměnné, a natvrdo skočí do jádra OS (Plánovače).\n* Jádro se podívá na hodinky. Pokud vlákno vyčerpalo své **časové kvantum (Time Slice)**, OS ho nemilosrdně uspí, provede Context Switch a pustí na procesor jiné vlákno. \n* Díky preemptivnímu přístupu 'while(true)' sice sežere celé své přidělené kvantum, ale OS ho po jedné milisekundě vždy na chvíli přeruší a dá šanci myši nebo klávesnici.\n\n*Matfyzácká souvislost:* Proč tedy vůbec vznikají Race Conditions, o kterých jsme psali u 'LimitedStack'? Právě kvůli preemptivnímu multitaskingu! OS vám může vytrhnout procesor přímo uprostřed vašeho příkazu 'currentDepth++'. V kooperativním systému by Race Conditions neexistovaly, protože dokud byste nezavolali 'yield()', do vaší paměti by vám žádné jiné vlákno nevlezlo."
+    },
+    {
+      "id": "019fc757-4ca9-70e8-89dc-42f017276abe",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Preempce",
+        "Plánovač"
+      ],
+      "title": "Praxe: Trasování preempce a časové kvantum",
+      "content": "**Zkouškový nácvik (Kreslení časové osy na papír):**\nBod sylabu zmiňuje 'preemptivní multitasking' a 'plánování běhu'. Otestujme si, zda rozumíte tomu, jak OS přiděluje procesor. Představte si systém s jedním jádrem (1 CPU). Máme dvě vlákna, Vlákno A a Vlákno B. Obě provádějí nekonečný cyklus (počítají hash).\n\nHardwarový časovač (Timer) je nastaven tak, že každých **10 milisekund (ms)** vygeneruje přerušení (IRQ 0). Režie na přepnutí kontextu (Context Switch) zabere jádru OS přesně **1 ms**.\n\n**Úkol:** Načrtněte na papír časovou osu od času $t = 0$ ms do $t = 25$ ms. Vlákno A začíná jako první. Přesně napište, co se děje v časech $t=10$, $t=11$, $t=21$ a $t=22$. Jaký je užitečný výpočetní čas (propustnost systému)?",
+      "hiddenContent": "**Vzorové řešení (Časová osa pro komisi):**\n\n* **t = 0 ms:** OS pustí Vlákno A na procesor. Začíná běžet.\n* **t = 10 ms:** Časovač pošle IRQ 0. Procesor přeruší Vlákno A a skočí do jádra OS. Plánovač zjistí, že Vlákno A vyčerpalo své časové kvantum (10 ms).\n* **t = 10 až 11 ms:** OS provádí Context Switch. Ukládá registry Vlákna A, vybírá Vlákno B a nahrává jeho registry. **Tuto 1 ms nedělá procesor žádnou užitečnou práci pro uživatele!**\n* **t = 11 ms:** OS volá IRET. Na procesoru začíná běžet Vlákno B.\n* **t = 21 ms:** Časovač opět tikne (uplynulo 10 ms běhu Vlákna B). CPU skáče do OS. Plánovač vidí, že kvantum Vlákna B vypršelo.\n* **t = 21 až 22 ms:** OS opět provádí Context Switch, tentokrát nahrává zpět Vlákno A.\n* **t = 22 ms:** Vlákno A pokračuje v běhu.\n\n**Závěr pro komisi:**\nZa 22 ms celkového času se 20 ms věnovalo užitečnému výpočtu a 2 ms spálil operační systém režií na přepínání. Efektivita (propustnost) procesoru pro uživatelský kód je v tomto scénáři $\\frac{20}{22} \\approx 90.9\\%$. Kdybychom zkrátili kvantum na 1 ms, efektivita klesne na 50 % (systém by thrashoval)."
+    },
+    {
+      "id": "019fc757-4ca9-70e8-89dc-4538a5add842",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Vlákna",
+        "Životní cyklus"
+      ],
+      "title": "Teorie: Stavový model vlákna (Životní cyklus)",
+      "content": "Když vytvoříte v C/C++ vlákno (např. přes 'pthread_create'), nestane se okamžitě běžícím kódem na procesoru. OS udržuje každé vlákno v jednom z pěti striktních stavů. Komise často vyžaduje nakreslení nebo popis tohoto stavového automatu.\n\n```mermaid\nstateDiagram-v2\n    New --> Ready: Vytvořeno / Zařazení do fronty\n    Ready --> Running: Dispatch (Přidělení CPU plánovačem)\n    Running --> Ready: Preempce (Vypršení časového kvanta)\n    Running --> Blocked: Systémové volání (Čekání na I/O nebo Zámek)\n    Blocked --> Ready: I/O dokončeno / Zámek uvolněn\n    Running --> Terminated: Funkce skončila (Exit)\n```\n\n### Analýza klíčových stavů:\n1. **Ready (Připraveno):** Vlákno chce běžet, má všechna data, ale fyzická CPU jádra jsou aktuálně plná. Vlákno nečinně sedí v obrovské 'Ready queue' v paměti OS a čeká, až na něj přijde řada.\n2. **Running (Běžící):** Vlákno je to vyvolené. Je fyzicky nahráno do registrů CPU a instrukce po instrukci se vykonává.\n3. **Blocked / Waiting (Blokováno):** Naprosto kritický stav pro výkon. Vlákno zjistilo, že nemůže dál (např. čeká, až disk načte soubor, čeká na síťový paket, nebo narazilo na zamčený Mutex). Samo dobrovolně řekne OS: *'Uspi mě. Dej CPU někomu z Ready fronty.'* Jakmile hardware disku pošle přerušení (data dorazila), OS vlákno přesune zpět do stavu **Ready** (nikoliv rovnou do Running!)."
+    },
+    {
+      "id": "019fc757-4ca9-70e8-89dc-4a0fdef67d50",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Stavy vlákna",
+        "I/O"
+      ],
+      "title": "Praxe: Přechody stavů vlákna při I/O operacích",
+      "content": "**Zkouškový nácvik (Trasování kódu na papír):**\nPředstavte si následující kód, který se vykonává v jednom vlákně v systémech rodiny UNIX/Linux:\n\n```c\nvoid thread_job() {\n    int a = 5 + 5;                 // Řádek 1\n    sleep(1);                      // Řádek 2: Uspání na 1 vteřinu\n    read(file_fd, buffer, 1024);   // Řádek 3: Čtení ze souboru na disku\n    int b = a * 2;                 // Řádek 4\n}\n```\n\n**Úkol:** Sepište chronologicky kompletní cestu tohoto vlákna stavovým automatem od okamžiku těsně před spuštěním Řádku 1, až po dokončení Řádku 4. Zaměřte se speciálně na to, co se děje na řádcích 2 a 3, a přes jaké stavy se vlákno musí vrátit, aby mohlo pokračovat.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n1. **Stav READY:** Vlákno bylo vytvořeno, čeká ve frontě plánovače na přidělení CPU.\n2. **Přechod READY $\\rightarrow$ RUNNING:** Plánovač vybral naše vlákno. CPU vykoná *Řádek 1* ('int a = 5 + 5;').\n3. **Přechod RUNNING $\\rightarrow$ BLOCKED:** Na *Řádku 2* zavoláme OS ('sleep'). Vlákno dobrovolně žádá o blokaci. Jádro OS ho vyjme z CPU, nastaví mu budík na 1 vteřinu a dá CPU jinému vláknu.\n4. **Přechod BLOCKED $\\rightarrow$ READY:** Uplynula 1 vteřina. Časovač pošle přerušení. OS vlákno 'probudí'. Pozor: vlákno nejde rovnou na CPU! Je pouze zařazeno na konec 'Ready' fronty.\n5. **Přechod READY $\\rightarrow$ RUNNING:** Jakmile se CPU uvolní, vlákno se vrací na procesor.\n6. **Přechod RUNNING $\\rightarrow$ BLOCKED:** Na *Řádku 3* ('read') požadujeme data z pomalého disku. OS odešle příkaz diskovému řadiči a naše vlákno opět okamžitě uspí (Block), aby neplýtvalo procesorem (žádné aktivní čekání!).\n7. **Přechod BLOCKED $\\rightarrow$ READY:** Disk najde data, překopíruje je do RAM přes DMA a pošle IRQ přerušení. OS data převezme a přesune naše vlákno zpět do stavu Ready.\n8. **Přechod READY $\\rightarrow$ RUNNING:** Vlákno se dostane na CPU a konečně provede *Řádek 4* ('int b = a * 2;').\n9. **Přechod RUNNING $\\rightarrow$ TERMINATED:** Funkce končí, vlákno zaniká, OS uvolní jeho paměťový zásobník (Stack).\n\nTento rozbor komisi dokazuje, že naprosto přesně chápete, jak OS šetří čas procesoru pomocí asynchronního I/O a stavu Blocked."
+    },
+    {
+      "id": "019fc757-6703-702d-80bf-b4b1cd86d0f4",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Virtuální paměť",
+        "MMU"
+      ],
+      "title": "Teorie: Rozdíl mezi Virtuální a Fyzickou adresou",
+      "content": "Otevíráme Blok 5, který je na MFF zkouškovou klasikou (početní úlohy na stránkování). Než začneme počítat, musíme pochopit největší iluzi, kterou operační systém a hardware vytvářejí pro váš program.\n\n### Fyzická adresa (Hardwarová realita)\nFyzická paměť (moduly RAM, které zacvaknete do základní desky) je jedno souvislé pole tranzistorů od adresy '0x00000000' až po kapacitu vaší paměti (např. 16 GB). V této paměti je obrovský nepořádek. Vedle sebe tu leží kousky jádra OS, data prohlížeče, mezipaměť disku i kousky vašeho programu.\n\n### Virtuální adresa (Softwarová iluze)\nKdybychom programům dovolili používat fyzické adresy, navzájem by si přepisovaly data. Každý proces (vaše C/C# aplikace) proto žije v dokonalé iluzi **Virtuálního adresového prostoru**. \nKaždý proces si myslí, že je v paměti sám a že začíná od adresy nula. Když v jazyce C vypíšete ukazatel:\n```c\nint *p = malloc(4);\nprintf('Adresa je: %p', p);\n// Vypíše např: 0x7ffd98a1b2c\n```\nToto obrovské číslo NENÍ místo na paměťovém čipu. Je to pouze vymyšlené virtuální číslo.\n\n### Překladová jednotka MMU\nAby to fungovalo, je v procesoru speciální hardwarová součástka zvaná **MMU (Memory Management Unit)**. Jakmile váš zkompilovaný kód zavolá instrukci 'LW R1, 0x7ffd98a1b2c', procesor tuto adresu pošle do MMU. MMU se bleskově podívá do mapovací tabulky v paměti (Page Table), zjistí, že této virtuální adrese odpovídá reálná fyzická adresa např. '0x0045F000', a na paměťovou sběrnici (k reálným čipům RAM) pošle už pouze tuto fyzickou adresu."
+    },
+    {
+      "id": "019fc757-6704-7330-958b-e12c4754c1d5",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Fyzické adresy",
+        "DMA"
+      ],
+      "title": "Praxe: Identifikace adresního kontextu (Kdy použít fyzickou adresu)",
+      "content": "**Zkouškový nácvik (Teoretická argumentace na papír):**\nBod sylabu jasně říká: *'Vysvětlit rozdíl mezi virtuální a fyzickou adresou a identifikovat, zda se v zadaném kontextu používá virtuální nebo fyzická.'*\n\nPředstavte si tři různé scénáře v počítači:\n1. Běžný uživatelský C++ program, který čte hodnotu přes ukazatel 'int value = *ptr;'.\n2. Funkce v Jádře OS (Kernel mode), která kontroluje stav struktury TCB nějakého uspaného vlákna v paměti.\n3. Ovladač síťové karty (v Jádře OS), který zapisuje paměťovou adresu bufferu do HW registru síťové karty (řadiče), aby řadič pomocí technologie **DMA (Direct Memory Access)** sám stáhl příchozí paket z RAM.\n\n**Úkol:** Určete a na papíře zdůvodněte, zda se ve scénáři 1, 2 a 3 používá Fyzická, nebo Virtuální adresa.",
+      "hiddenContent": "**Vzorové řešení (Argumentace pro komisi):**\n\n1. **Uživatelský C++ program:** \n   * Používá POUZE **Virtuální adresy**. Procesor běží s aktivovanou MMU a uživatelský režim (Ring 3) nemá vůbec žádnou šanci fyzickou adresu zjistit. Cokoliv je v C/C++ ukazateli, je virtuální.\n\n2. **Kód Jádra OS (Kernel mode):**\n   * Používá **Virtuální adresy**. Toto je velmi častý omyl studentů! Jádro OS běží sice v Ring 0, ale jednotka MMU je stále zapnutá. Paměť jádra je typicky namapována do horní poloviny virtuálního adresového prostoru každého procesu. Ukazatele uvnitř jádra na struktury (jako TCB) jsou stále virtuální a procházejí přes MMU.\n\n3. **Nastavení DMA (Direct Memory Access) hardwaru:**\n   * Zde se MUSÍ použít **Fyzická adresa**. \n   * *Proč:* Řadič síťové karty nebo disku sedí na sběrnici 'před' procesorem. Jednotka MMU je součástí procesoru. Pokud řadiči pošleme virtuální adresu ('0x7ff...'), on ji pošle rovnou do čipů RAM, ale tam taková adresa buď neexistuje, nebo patří cizím datům. OS ovladač proto musí vzít svou virtuální adresu bufferu, softwarově ji prohnat svými vlastními stránkovacími tabulkami (zjistit fyzický překlad) a do registru řadiče přes Memory-Mapped I/O zapsat syrovou fyzickou adresu (např. '0x0045F000').\n   *(Přesně toto se objevilo v zadání u zkoušky 2024 - řadič disku a jeho LBA/DMA registry).* "
+    },
+    {
+      "id": "019fc757-6704-7330-958b-e5af16cd78d3",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Ochrana paměti",
+        "Adresový prostor"
+      ],
+      "title": "Teorie: Ochrana paměti a oddělení adresových prostorů",
+      "content": "Když už víme, že procesy operují s virtuálními adresami a procesor je za běhu překládá na fyzické, jak přesně toto pomáhá operačnímu systému chránit paměť?\n\n### 1. Zabezpečení cizího procesu (Chybějící mapování)\nPokud zlomyslný proces A (např. virus) zkusí přečíst virtuální adresu '0x12345678', která logicky v jeho programu patří cizímu programu B, procesor to nedovolí. Proč? \n* Každý proces má totiž **svou vlastní Mapovací (stránkovací) tabulku**. Když OS přepíná z procesu B na proces A (Context Switch), nahraje do hardwarového registru (např. 'CR3' na x86) adresu tabulky procesu A.\n* Když virus zavolá čtení adresy '0x12345678', procesor se podívá do aktuální tabulky procesu A. V tabulce pro tuto adresu **neexistuje vůbec žádný platný záznam (překlad na fyzickou RAM)**. \n* MMU ihned vyvolá výjimku (Page Fault), OS proces A uspí/zabije. Fyzicky neexistuje způsob, jak z adresního prostoru A vyjádřit adresu paměti programu B.\n\n### 2. Ochrana paměti jádra OS (Přístupové bity)\nPaměť operačního systému (Kernel) je z výkonnostních důvodů namapována v *horní polovině* virtuálního adresového prostoru každého běžícího procesu (aby se při každém systémovém volání nemusel přepisovat registr 'CR3'). Proč tam tedy proces nemůže sahat?\n* Záznamy v tabulce stránek (PTE) obsahují kromě samotného fyzického překladu i **Stavové a Ochranné bity**.\n* Jedním z nich je bit **U/S (User / Supervisor)**.\n* Stránky obsahující kód jádra OS mají tento bit nastavený na 'Supervisor'. Když se procesor pokusí z Ring 3 (User mode) na takovou virtuální adresu přistoupit, MMU vidí oprávnění, přístup tvrdě zablokuje a OS opět pošle aplikaci fatální Signál SIGSEGV (Segmentation Fault)."
+    },
+    {
+      "id": "019fc757-7fc6-75fa-93d9-081fa5a0dad1",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Ochrana paměti",
+        "Buffer Overflow"
+      ],
+      "title": "Praxe: Ochrana před Buffer Overflow (NX bit a práva)",
+      "content": "**Zkouškový nácvik (Teoretický proces na papír):**\nPředstavte si, že máte v jazyce C klasickou zranitelnost typu Buffer Overflow. Zlomyslný uživatel (útočník) pošle vaší funkci příliš dlouhý vstup, kterým v paměti 'přeteče' pole a přepíše Návratovou adresu na zásobníku (Stacku). Tuto adresu namíří přímo do svého vlastního vstupního řetězce, kde schoval zákeřné instrukce v assembleru (tzv. shellcode).\n\nFunkce končí, provede instrukci 'RET' (Návrat z funkce). Procesor načte podvrženou adresu, Program Counter (PC) skočí do paměti zásobníku a pokusí se útočníkův kód vykonat.\n\n1. Jak moderní hardware a operační systém tento útok zastaví, aniž by ho musely 'antivirově' analyzovat?\n2. Jaké konkrétní ochranné bity se nacházejí v záznamech stránkovací tabulky (PTE) pro paměť zásobníku a pro paměť samotného programu (Kódu)?",
+      "hiddenContent": "**Vzorové řešení (Argumentace pro komisi):**\n\n1. **Zastavení útoku na úrovni hardwaru (MMU):**\nProcesor nezačne otrocky vykonávat instrukce z podvržené adresy. V okamžiku, kdy Program Counter skočí na virtuální adresu ležící v oblasti Zásobníku a pokusí se provést fázi 'Instruction Fetch' (Načtení instrukce), jednotka MMU zkontroluje práva dané stránky v Page Table (PTE). Zjistí, že stránka nemá oprávnění k vykonávání kódu. MMU vyvolá výjimku, zabrání vykonání jediné instrukce a OS proces zastřelí (SIGSEGV).\n\n2. **Klíčové bity ve stránkovací tabulce (PTE):**\nZáznam pro každou stránku v OS má speciální bity definující přístupová práva. Z hlediska bezpečnosti (tzv. W^X ochrana - Write XOR Execute) platí:\n* **Stránky zásobníku (Stack) a haldy (Heap):** Mají nastaven bit **R/W (Read/Write)**, aby do nich program mohl zapisovat data, ale je u nich tvrdě nastaven **NX bit (No-eXecute / Disable Execute)**. Kód z nich nelze spustit.\n* **Stránky programu (Text / Code segment):** Obsahují zkompilovaný assembler programu. Mají nastaven bit pro čtení (Read) a spouštění (Execute), ale NEMAJÍ nastaven bit pro zápis (Write). Kód programu je v paměti **Read-Only**. (Zabraňuje to samo-modifikujícímu se kódu a virům přepisujícím instrukce za běhu)."
+    },
+    {
+      "id": "019fc757-7fc6-75fa-93d9-0c1eb38cf7d8",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Stránkování",
+        "VPN"
+      ],
+      "title": "Teorie: Komponenty stránkování (VPN, PFN a Offset)",
+      "content": "Aby OS dokázal překládat virtuální adresy na fyzické, nemůže si v paměti držet mapování pro každý jeden bajt zvlášť (tabulka by byla tisíckrát větší než sama RAM). Operační systém proto virtuální i fyzickou paměť rozseká na fixně velké bloky.\n\n### Stránky a Rámce\n* **Stránka (Page):** Blok paměti ve *Virtuálním adresovém prostoru*. Standardní velikost je **4 KB** ($4096$ bajtů).\n* **Rámec (Frame):** Blok paměti stejné velikosti (4 KB) ve *Fyzické paměti RAM*.\nÚkolem operačního systému je mapovat Stránky na Rámce. Kdykoliv program přistupuje k paměti, pracujeme vždy s jednou konkrétní adresou (např. 32bitovým číslem).\n\n### Rozpad Adresy (Bod sylabu)\nHardwarově je celá virtuální i fyzická adresa logicky rozpůlena na dvě části:\n\n1. **Číslo stránky (VPN - Virtual Page Number) / Číslo rámce (PFN - Page Frame Number):**\n   * Horní bity adresy. Slouží jako index (číslo bloku). MMU překládá pouze VPN na PFN. Zbytek nechává na pokoji.\n2. **Offset (Posun v rámci stránky):**\n   * Spodní bity adresy. Určují, kolikátý bajt od začátku 4KB stránky zrovna čteme (0 až 4095).\n   * **Kritický fakt pro zkoušku:** Počet bitů offsetu je naprosto závislý na velikosti stránky. Protože $4 \\text{ KB} = 4096 = 2^{12}$, Offset bude VŽDY zabírat přesně **12 nejnižších bitů** (což jsou přesně 3 hexadecimální znaky).\n   * Offset se při překladu **NIKDY NEMĚNÍ**. Pokud čtete 50. bajt virtuální stránky, fyzicky se přečte 50. bajt ve fyzickém rámci."
+    },
+    {
+      "id": "019fc757-7fc6-75fa-93d9-128ae14468f8",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Výpočet",
+        "Stránkování",
+        "Offset"
+      ],
+      "title": "Praxe: Nácvik rozpadu binárních adres na papíře",
+      "content": "**Zkouškový nácvik (Matematický rozklad na papíře):**\nBod sylabu jasně velí: *'Na zadaném příkladu identifikovat a vysvětlit význam komponent virtuální adresy.'*\n\nPředstavte si 32bitový procesor. OS používá standardní velikost paměťové stránky **4 KB**.\nProces přistoupí (čte proměnnou) na virtuální adrese: **0x1A2F50C4**.\n\n1. Kolik bitů z této 32bitové adresy tvoří VPN (Virtual Page Number) a kolik bitů tvoří Offset?\n2. Rozdělte na papíře zadanou hexadecimální adresu na tyto dvě složky a zapište je samostatně jako hexadecimální čísla.\n3. Pokud byste tuto operaci měli provést v softwaru (v jazyce C), napište na papír bitové maskování (Shift a AND), které z adresy izoluje 'vpn' a 'offset'.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n**1. Počty bitů:**\n* Velikost stránky je 4 KB = $4096$ bajtů = $2^{12}$.\n* Offset tedy potřebuje **12 bitů** pro pokrytí hodnot 0-4095.\n* Zbytek adresy tvoří VPN: $32 - 12 = $ **20 bitů** pro VPN.\n\n**2. Rozpad zadané adresy (Fígl s Hexadecimální soustavou):**\nU zkoušky se nesmíte děsit dlouhých binárních čísel. Jeden hexadecimální znak (např. 'F') reprezentuje přesně 4 bity (např. '1111'). Pokud je Offset 12 bitů, znamená to, že Offset jsou prostě a jednoduše **poslední 3 hexadecimální znaky** (3 * 4 = 12).\n* Adresa: '0x1A2F50C4'\n* **Offset:** Poslední 3 znaky $\\rightarrow$ **0x0C4** (tzn. jsme na 196. bajtu od začátku stránky).\n* **VPN:** Zbylé znaky vlevo $\\rightarrow$ **0x1A2F5** (tzn. proces sahá do své 107253. stránky).\n\n**3. C kód pro rozpad (Bitové operace):**\n```c\nuint32_t addr = 0x1A2F50C4;\n\n// Pro zisk VPN posuneme adresu o 12 bitů doprava (zlikvidujeme offset)\nuint32_t vpn = addr >> 12;\n\n// Pro zisk Offsetu zlikvidujeme horních 20 bitů pomocí masky (12 jedniček = 0xFFF)\nuint32_t offset = addr & 0xFFF;\n```\n\n*Strategie pro komisi:* Tímto jasně deklarujete, že chápete fundamentální spojitost mezi mocninami dvojky (stránkováním) a bitovými maskami procesoru."
+    },
+    {
+      "id": "019fc757-9b14-755b-95d4-8885f7fa453b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Stránkování",
+        "PTE"
+      ],
+      "title": "Teorie: Stránkovací tabulka (Page Table) a PTE",
+      "content": "Když už procesor umí rozdělit adresu na Číslo stránky (VPN) a Offset, potřebuje hardwarově provést samotný překlad na Číslo fyzického rámce (PFN). K tomu slouží **Stránkovací tabulka (Page Table)**.\n\n### Kde tabulka leží a jak ji MMU najde?\nStránkovací tabulka není žádný kouzelný obvod v procesoru. Je to úplně obyčejné pole (Array) dat uložené ve fyzické operační paměti (RAM), které tam vytvořil operační systém při startu procesu.\n* Procesor má uvnitř speciální hardwarový registr (na x86 se nazývá **CR3**), do kterého OS zapíše fyzickou paměťovou adresu, kde tato tabulka začíná.\n* Když MMU dostane virtuální adresu, vezme její VPN (což je vlastně index do pole), přičte ho k adrese z CR3 a načte si z RAM příslušný záznam.\n\n### Co obsahuje PTE (Page Table Entry)?\nJeden záznam v tabulce (PTE) má typicky 32 nebo 64 bitů a obsahuje:\n1. **PFN (Page Frame Number):** Fyzické číslo rámce v RAM, kde data skutečně leží.\n2. **Valid / Present bit:** '1' znamená, že stránka je fyzicky v RAM. '0' znamená, že tam není (je buď nenaalokovaná, nebo odložená na disku). Je to spouštěč výpadku stránky (Page Fault).\n3. **R/W bit:** Read/Write. '0' znamená, že stránka je pouze pro čtení (např. kód programu).\n4. **U/S bit:** User/Supervisor. '0' znamená, že stránka patří jádru OS a kód z Ring 3 na ni nesmí sáhnout.\n5. **Dirty bit:** '1' znamená, že program do této stránky už něco zapsal (změnil ji) a OS ji musí před zahozením uložit na disk."
+    },
+    {
+      "id": "019fc757-9b14-755b-95d4-8efe7ffb29ed",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Výpočet",
+        "Stránkování",
+        "Překlad adres"
+      ],
+      "title": "Praxe: Výpočet překladu virtuální adresy na fyzickou",
+      "content": "**Zkouškový nácvik (Výpočet na papíře):**\nToto je archetypální zkoušková úloha. Bod sylabu žádá: *'Pro konkrétní adresy a obsah jednoúrovňové stránkovací tabulky řešit úlohy překladu adres.'*\n\nMějme 32bitový systém, velikost stránky je **4 KB**. Níže je výpis části jednoúrovňové stránkovací tabulky (PTE) aktuálního procesu (číslované od indexu 0):\n\n| Index (VPN) | Valid Bit | PFN (Hex) |\n|---|---|---|\n| 0 | 1 | 0x0A |\n| 1 | 0 | - |\n| 2 | 1 | 0x15 |\n| 3 | 1 | 0x02 |\n\n**Úkol:**\nProces se pokusí přečíst instrukci z virtuální adresy **0x000020B4**. Zjistěte, zda paměťový přístup uspěje, a pokud ano, vypočítejte přesnou **fyzickou adresu** (v hexadecimálním formátu), na kterou MMU pošle požadavek po sběrnici.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n**1. Rozpad adresy (Extrakce VPN a Offsetu):**\n* Velikost stránky 4 KB znamená, že Offset tvoří spodních 12 bitů (poslední 3 hexadecimální znaky adresy).\n* Virtuální adresa: '0x000020B4'\n* **Offset** = '0x0B4'\n* **VPN (Index do tabulky)** = '0x00002' (tzn. desítkově 2).\n\n**2. Nalezení fyzického rámce (PFN):**\n* Podíváme se do zadané stránkovací tabulky na řádek s indexem 2.\n* Zkontrolujeme Valid Bit: Je '1'. Stránka je přítomna v RAM, přístup uspěje.\n* Přečteme PFN: '0x15'. To znamená, že fyzicky data leží v paměťovém rámci číslo 0x15.\n\n**3. Složení výsledné fyzické adresy:**\n* Fyzická adresa vznikne pouhým spojením PFN a Offsetu (Offset se nesmí nijak měnit ani sčítat, prostě se jen nalepí za PFN!).\n* PFN = '0x15' (což je vlastně fyzická bázová adresa 0x15000).\n* Offset = '0x0B4'.\n* **Výsledná Fyzická Adresa = 0x000150B4**.\n\n*Okomentování pro komisi:* Ukázali jsme, že plně ovládáme algoritmus MMU. Pokud by se proces pokusil sáhnout na adresu '0x00001FF0' (kde VPN = 1), MMU by nalezlo Valid Bit roven '0' a namísto překladu by okamžitě vyvolalo hardwarovou výjimku Page Fault."
+    },
+    {
+      "id": "019fc757-9b14-755b-95d4-909fc0889e51",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Page Fault",
+        "Swap"
+      ],
+      "title": "Teorie: Výpadek stránky (Page Fault) a Swapování",
+      "content": "Předchozí kódovací ukázka odhalila slabinu. Co se stane, když se program pokusí přistoupit na platnou paměť (např. do obřího pole, které si správně alokoval přes 'malloc'), ale v PTE tabulce je Valid bit roven nule? Fyzická paměť RAM není nekonečná. Když OS dojde paměť, odloží obsah nepoužívaných stránek na pomalý pevný disk (tzv. **Swap space / Pagefile**) a v jejich PTE nastaví Valid bit na '0'.\n\n### Mechanismus Výpadku stránky (Page Fault)\nTento proces je dokonalou ukázkou spolupráce hardwaru a OS jádra:\n\n1. **Hardware (MMU past):** MMU zjistí 'Valid=0'. Zablokuje instrukci, přepne procesor do Ring 0 a vyvolá synchronní výjimku #PF (Page Fault exception). Do speciálního registru (CR2) uloží virtuální adresu, která problém způsobila.\n2. **Software (OS Kernel):** Spustí se rutina jádra. OS si přečte adresu z registru a podívá se do svých vnitřních záznamů (VMA - Virtual Memory Areas), zda proces do této adresy vůbec smí přistupovat.\n3. **Detekce chyby vs. Swapping:**\n   * *Možnost A (Chyba):* Adresa je mimo povolený rozsah (např. NULL pointer). OS proces zabije (Signál SIGSEGV).\n   * *Možnost B (Swapping):* Adresa je legální, ale data spí na disku.\n4. **Záchranná operace OS (Swap In):**\n   * OS najde v RAM nějaký volný rámec (případně jiný obsah vyhodí na disk).\n   * OS nařídí řadiči disku, aby do tohoto volného rámce nahrál spící data ze Swapu. Zablokuje proces a po dobu čekání na disk pustí na CPU jiné vlákno.\n5. **Návrat (Restart instrukce):** Jakmile jsou data v RAM, OS v tabulce PTE přepíše 'Valid' na '1', doplní nové PFN a zavolá 'IRET'. Procesor se probudí v Ring 3 a zkusí původní chybovou instrukci ('LW') provést ZNOVU. Tentokrát už MMU najde 'Valid=1' a program plynule pokračuje, aniž by cokoliv poznal (jen se to opozdilo o pár milisekund)."
+    },
+    {
+      "id": "019fc757-b958-7105-8c53-9c5726da4ff6",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Page Fault",
+        "Swap"
+      ],
+      "title": "Praxe: Vyřešení Page Faultu v jádře (Krokování rutiny)",
+      "content": "**Zkouškový nácvik (Algoritmický postup na papír):**\nPředchozí lekce ukázala, jak Page Fault vzniká. Nyní ho musíte jako operační systém vyřešit. \n\nPředstavte si, že vlákno provádí instrukci čtení z pole na adrese '0x08048000'. Tato paměť je platně alokována (mallocem), ale OS ji včera v noci přesunul do Swapu (na pevný disk) a v PTE jí shodil Valid bit na '0'. MMU vyvolalo výjimku a procesor právě skočil do ISR rutiny jádra OS.\n\n**Úkol:** Napište na papír přesný, chronologický seznam kroků, které Jádro OS (Page Fault Handler) udělá, aby vlákno zachránilo a instrukce se mohla úspěšně dokončit. Upozorněte na to, co se děje s procesorem, zatímco pomalý disk načítá data.",
+      "hiddenContent": "**Vzorové řešení (Krokování pro komisi):**\n\n1. **Identifikace problému:** Jádro zkontroluje registry procesoru (např. CR2). Zjistí, na které chybějící adrese výpadek nastal. Z vnitřní tabulky virtuálních mapování (VMA) zjistí, že adresa je platná a data leží na konkrétním bloku ve Swapu.\n2. **Příprava paměti:** Jádro si najde v RAM jeden prázdný fyzický rámec (Frame). (Pokud žádný není, musí nejdřív obsah nějaké jiné stránky vyhodit na disk).\n3. **Asynchronní I/O a Blokace vlákna:** Jádro nařídí diskovému řadiči: *'Přečti data z tohoto sektoru do nového paměťového rámce'*. Protože to bude trvat 5 milisekund, jádro změní stav aktuálního vlákna z 'Running' na **'Blocked'**, spustí plánovač a na uvolněné jádro CPU pustí **jiný připravený program**.\n4. **Disk dokončil práci:** Po 5 ms disk pošle hardwarové přerušení (IRQ). OS se probudí, vezme data z DMA bufferu. \n5. **Aktualizace PTE:** OS upraví záznam ve stránkovací tabulce (PTE) původního vlákna. Zapíše do něj nové PFN (číslo fyzického rámce) a **přepne Valid bit na '1'**.\n6. **Probuzení vlákna:** OS změní stav původního uspaného vlákna na 'Ready'.\n7. **Znovuspuštění instrukce (Kritický bod!):** Jakmile plánovač opět pustí naše vlákno na procesor (OS zavolá 'IRET'), procesor nezačne další instrukcí! Výjimka Fault způsobí, že se **zopakuje ta samá instrukce čtení pole**, na které program před 5 ms havaroval. Tentokrát už se MMU podívá do tabulky, vidí Valid=1, přečte fyzickou paměť a program o celém zásahu jádra nemá tušení."
+    },
+    {
+      "id": "019fc757-b958-7105-8c53-a24718847b44",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Soubory",
+        "Úložiště"
+      ],
+      "title": "Teorie: Souborový systém a abstrakce i-node",
+      "content": "Přecházíme do Bloku 6 (Soubory a úložiště). Z pohledu hardwaru řadiče není pevný disk nic jiného než obrovské (terabajtové) pole bajtů rozdělené na fyzické bloky (typicky velikosti 4 KB, což mimochodem přesně odpovídá velikosti paměťové stránky!). Disk nemá tušení, co je to '.txt' nebo složka 'Windows'. Soubor je čistě softwarová abstrakce operačního systému.\n\n### Soubor jako abstrakce\nOperační systém izoluje uživatele od toho, na kterém fyzickém bloku disku (LBA) leží jaká data. Poskytuje logické jméno (např. 'dokument.txt') a lineární proud dat (stream).\n\n### Index Node (i-node)\nAby OS věděl, z jakých bloků se soubor skládá, udržuje pro každý soubor malou datovou strukturu zvanou **i-node**. Ta obvykle obsahuje:\n1. **Metadata:** Velikost souboru, vlastník (UID), oprávnění (Read/Write/Execute), čas vytvoření.\n2. **Ukazatele na datové bloky:** Seznam fyzických adres bloků na disku, kde jsou uložena skutečná data.\n\n### Co je to Adresář (Složka)?\nZ pohledu OS a souborového systému unixového typu **je adresář vlastně jenom úplně normální soubor**. Jeho vnitřním obsahem (daty) ale není text nebo obrázek, nýbrž jednoduchá tabulka (seznam). Tato tabulka obsahuje logická jména souborů ('dokument.txt') a k nim přiřazená čísla příslušných i-nodů."
+    },
+    {
+      "id": "019fc757-b958-7105-8c53-a5d7ee3c9fb0",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "File Descriptors",
+        "POSIX"
+      ],
+      "title": "Praxe: POSIX rozhraní pro práci se soubory (File descriptors)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nBod sylabu požaduje vysvětlit 'abstrakce a rozhraní pro práci se soubory'. Představte si, že jste v surovém jazyce C. Nesmíte ale použít pohodlné obálky z 'stdio.h' jako 'FILE*' nebo 'fopen()'. Musíte použít přímo nativní **systémová volání OS (POSIX rozhraní)**.\n\n1. Co přesně z pohledu jádra OS znamená celočíselná proměnná 'int fd' (tzv. File Descriptor)?\n2. Napište na papír ukázku kódu, která pomocí systémových volání 'open()', 'read()' a 'close()' načte do připraveného pole v RAM prvních 100 bajtů ze souboru 'data.bin'.",
+      "hiddenContent": "**Vzorové řešení (Pro komisi):**\n\n**1. Co je to File Descriptor (fd):**\nKdyž zavoláte otevření souboru, OS si v jádře (v TCB/PCB struktuře vašeho procesu) vytvoří záznam s ukazatelem na i-node disku a udržuje si v něm mimo jiné pozici (offset), kde právě čtete. Uživatelskému programu (do Ring 3) OS nepošle přímý ukazatel do jádra, ale pošle pouze malé celé číslo (např. '3') – tzv. **File Descriptor**. Je to vlastně obyčejný index do privátní pole otevřených souborů daného procesu.\n*(Poznámka: FDs 0, 1 a 2 jsou typicky rezervované pro Standard Input, Output a Error).* \n\n**2. Nativní kód na papír (Syscalls):**\n```c\n#include <fcntl.h>  // Obsahuje flagy pro open\n#include <unistd.h> // Obsahuje POSIX syscalls\n\nvoid read_data() {\n    char buffer[100];\n    \n    // 1. open() je přímé systémové volání. Vrací File Descriptor.\n    int fd = open('data.bin', O_RDONLY);\n    if (fd < 0) return; // Chyba otevírání (např. soubor neexistuje)\n\n    // 2. read() si OS najde podle 'fd'. \n    // OS načte 100 bytů do naší RAM (může uspat proces, než to disk najde).\n    ssize_t bytes_read = read(fd, buffer, sizeof(buffer));\n\n    // 3. Uvolnění zdrojů OS\n    close(fd);\n}\n```\n\n*Proč to chtějí vidět:* Tento kód demonstruje absolutně surovou komunikaci s jádrem, ze které vycházejí všechny vyšší abstrakce (např. 'FileStream' v C#)."
+    },
+    {
+      "id": "019fc757-dbe6-70e6-bad4-5848ab82c285",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Mmap",
+        "Paměť"
+      ],
+      "title": "Teorie: Analogie souborů s adresovým prostorem (mmap)",
+      "content": "Až doteď jsme pro čtení souboru (Blok 6) používali klasické systémové volání 'read()'. Z pohledu výkonu má ale tento přístup problém: data se přečtou z disku do vyrovnávací paměti jádra OS (Kernel Buffer) a pak se musí procesorem MĚKCE ZKOPÍROVAT do uživatelského bufferu v RAM. Kopírování žere paměť i CPU čas.\n\n### Moderní přístup: Memory-Mapped Files (mmap)\nOperační systém nabízí neuvěřitelně elegantní mechanismus, který dokonale spojuje správu virtuální paměti (stránkování) se soubory. Cílem je mapovat obsah souboru na disku přímo do virtuálního adresového prostoru procesu.\n\n1. Program zavolá syscall 'mmap()'. OS nevytvoří žádné kopie dat. Pouze v Page Table (PTE) procesu vytvoří nové virtuální stránky a nastaví jim **Valid bit = 0**, přičemž si poznamená, že tyto stránky odpovídají konkrétním blokům daného souboru na disku.\n2. V programu dostanete obyčejný C-pointer (např. 'char* file_data').\n3. Jakmile program přistoupí na tento ukazatel ('char c = file_data[0];'), MMU narazí na Valid=0 a vyvolá hardwarový **Page Fault**.\n4. OS Page Fault Handler se probudí, nahraje chybějící blok přímo z disku do fyzické RAM, nastaví Valid=1 a program pokračuje.\n\n*Matfyzácké shrnutí:* Soubor se chová úplně stejně, jako by to byla obří pole v RAM. OS řeší načítání a odkládání částí souboru z/na disk úplně automaticky za pomoci hardwarového stránkovacího mechanismu procesoru."
+    },
+    {
+      "id": "019fc757-dbe6-70e6-bad4-5e13dafdb102",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Mmap",
+        "C/C++"
+      ],
+      "title": "Praxe: Kódování mmap() vs. klasické čtení (C/POSIX)",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nPředstavte si, že máte analyzovat obrovský (10 GB) logovací soubor na disku, i když máte pouze 4 GB RAM.\n\n1. Napište POSIX C kód, který namapuje otevřený soubor s deskriptorem 'fd' přímo do paměti a projde první tisíc bajtů. Nemusíte znát přesné parametry 'mmap' nazpaměť, ale musíte ukázat princip ukazatele.\n2. Zhodnoťte komisi dvě hlavní výhody tohoto přístupu oproti volání 'read()' ve 'while' cyklu s malým bufferem.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```c\n#include <sys/mman.h>\n#include <fcntl.h>\n\nvoid process_huge_file() {\n    int fd = open('huge_log.txt', O_RDONLY);\n    size_t length = 10000000000; // 10 GB\n    \n    // 1. Syscall mmap: (adresa, délka, ochrana, flagy, fd, offset)\n    // Vrací čistý C pointer, na kterém jakoby 'leží' celý soubor.\n    char *file_data = mmap(NULL, length, PROT_READ, MAP_PRIVATE, fd, 0);\n\n    // Zpracování souboru pouhým čtením z pole v RAM!\n    for (int i = 0; i < 1000; i++) {\n        if (file_data[i] == 'X') {\n            // něco udělej\n        }\n    }\n\n    munmap(file_data, length);\n    close(fd);\n}\n```\n\n**Odpovědi k obhajobě:**\n1. **Zero-Copy (nulové kopírování):** Vyhnuli jsme se kopírování paměti mezi Kernel Space a User Space. Data se nahrají z disku (často pomocí DMA hardwaru) přímo do fyzického rámce (Frame) a přes Page Table se na ně nasměruje náš ukazatel.\n2. **Práce s pamětí větší než RAM:** OS do fyzické paměti natáhne vždy jen ty stránky (4 KB bloky) souboru, na které ukazatel zrovna ukazuje. Staré bloky OS automaticky zahazuje. Náš program v C vůbec nemusí řešit cykly, posuny bufferu a udržování aktuální pozice, pracuje prostě s nekonečně dlouhým polem."
+    },
+    {
+      "id": "019fc757-dbe6-70e6-bad4-61488935855d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura",
+        "Race Condition",
+        "Plánovač"
+      ],
+      "title": "Teorie: Časově závislé chyby z pohledu OS instrukcí",
+      "content": "Plynule navazujeme na Blok 7 (Souběžnost a zámky). Z předmětu Programování už znáte koncept *Race Condition* (např. u přetečení zásobníku LimitedStack z roku 2023). V okruhu Architektura počítačů a OS to ale musíte umět popsat na **surové hardwarové úrovni registrů a časovače**.\n\n### Mýtus atomicity\nŽádná operace nad pamětí ve vyšším jazyce (jako 'i++' nebo 'stack[depth] = v') není pro procesor jeden krok. RISC CPU nesmí sčítat data přímo v paměti (Load/Store pravidlo). C příkaz 'counter++' je kompilátorem rozložen na tři assemblerové instrukce:\n1. 'LW R1, 0(R2)' (Načti z RAM do registru R1)\n2. 'ADD R1, R1, 1' (Sečti uvnitř ALU)\n3. 'SW R1, 0(R2)' (Ulož z registru R1 do RAM)\n\n### Úder Plánovače (Preempce)\nHardwarový časovač (Timer) je zcela nemilosrdný. Tiká nezávisle na tom, co procesor dělá. Přerušení (IRQ 0) pro přepnutí vlákna (Context Switch) může přijít PŘESNĚ mezi krokem 2 a krokem 3.\n\n1. **Vlákno A** načte hodnotu 5 do svého registru R1, přičte jedničku. V R1 má hodnotu 6.\n2. *TIK!* OS jádro je probuzeno přerušením, zjistí vypršení kvanta. OS natvrdo vytrhne Vláknu A procesor. Hodnotu 6 z registru R1 mu uloží do TCB paměti (uspí ho).\n3. **Vlákno B** nastoupí na procesor. Ze stejné paměti v RAM načte původní hodnotu 5 do svého R1, přičte 1, uloží 6 do RAM a usne.\n4. OS obnoví **Vlákno A**. Do fyzického procesoru nalije z jeho TCB hodnotu 6 do registru R1. Vlákno A rovnou zkusí provést poslední uložený krok (instrukci 3) a napíše do RAM svou šestku.\n\nDvě vlákna inkrementovala číslo 5, ale v RAM skončila 6 místo 7. Došlo k tiché ztrátě dat, která zabíjí jaderné elektrárny i bankovní systémy."
+    },
+    {
+      "id": "019fc757-fc80-74ef-a260-64847317a5bd",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Race Condition",
+        "Zkouška 2023"
+      ],
+      "title": "Praxe: [Zkouška Podzim 2023] Analýza chyb v 'LimitedStack'",
+      "content": "**Zkouškový nácvik (Ostré zadání z 14. 9. 2023):**\nPředpokládejme multiprocesorový systém a program, který si spustí několik vláken. Všechna sdílejí jednu instanci třídy 'LimitedStack' a volají metodu 'pushValue'.\n\n```csharp\nclass LimitedStack {\n    int maxDepth;\n    int currentDepth;\n    int[] stack;\n\n    bool pushValue(int v) {\n        if (currentDepth >= maxDepth)\n            return false;\n        stack[currentDepth] = v;\n        currentDepth++;\n        return true;\n    }\n}\n```\n\n**Úkoly pro komisi:**\n1. Identifikujte přesný rozsah řádek, které tvoří *kritickou sekci*.\n2. Je možné, aby nějakým způsobem nastala situace, kdy přeteče zásobník (program se pokusí zapsat mimo alokované pole 'stack')? Detailně zdůvodněte a popište trasování vláken.\n3. Jak tento problém bezpečně odstranit?",
+      "hiddenContent": "**Vzorové řešení (Pro komisi):**\n\n**1. Kritická sekce:** \nTvoří ji všechny řádky pracující se sdíleným stavem, tedy kompletní tělo metody od kontroly 'if' až po inkrementaci (řádky v ukázce: celý blok if a zápis).\n\n**2. Trasování přetečení (Time-of-check to time-of-use zranitelnost):**\nAno, přetečení je naprosto reálné.\n* Mějme zásobník plný těsně pod okraj ('maxDepth = 10', 'currentDepth = 9').\n* **Vlákno A** zavolá 'pushValue()'. Provede test 'if (9 >= 10)'. Výsledek je 'false', vlákno pokračuje na další řádek.\n* *PREEMPCE:* Hardwarový časovač vyvolá přerušení. Plánovač OS uspí Vlákno A a na procesor pošle Vlákno B.\n* **Vlákno B** zavolá 'pushValue()'. Provede test 'if (9 >= 10)'. Výsledek 'false'. Zapíše data 'stack[9] = v', inkrementuje 'currentDepth' na 10 a úspěšně skončí.\n* *PREEMPCE:* Plánovač probudí Vlákno A.\n* **Vlákno A** už neprovádí test 'if' (tím už prošlo)! Plynule pokračuje na další instrukci: 'stack[currentDepth] = v'. Protože 'currentDepth' je nyní 10, provede se zápis 'stack[10] = v'.\n* Vzniká kritická havárie: přetečení paměti (IndexOutOfRangeException).\n\n**3. Oprava:**\nCelou kritickou sekci (od 'if' až po 'currentDepth++') musíme obalit do zámku (např. v C# blokem 'lock(_syncObj)', v C zavoláním 'pthread_mutex_lock')."
+    },
+    {
+      "id": "019fc757-fc80-74ef-a260-6862b698f1b5",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Zámky",
+        "TSL"
+      ],
+      "title": "Teorie: Hardwarová podpora zámků (Instrukce Test-And-Set)",
+      "content": "Abychom mohli opravit třídu z předchozí úlohy, potřebujeme kód uzamknout. Jak ale postavit zámek? Pokud bychom použili obyčejnou booleovskou proměnnou 'locked', narazíme na úplně stejný problém s Race Condition!\n\n*Příklad chybného softwarového zámku:*\n```c\nwhile (locked == 1) { /* čekej */ }\nlocked = 1;\n// kritická sekce\n```\nPokud OS uspí vlákno přesně mezi cyklem 'while' a přiřazením 'locked = 1', dvě vlákna projdou zámkem současně. Zámek selhal.\n\n### Hardwarová záchrana: Instrukce TSL\nTvůrci procesorů věděli, že software si s tímto neporadí. Proto do instrukční sady (ISA) přidali speciální **atomické instrukce**. Nejznámější je **Test-And-Set (TSL)** nebo modernější **Compare-And-Swap (CAS)**.\n\nTato instrukce dokáže PŘEČÍST hodnotu z RAM a ZAPSAT do RAM novou hodnotu **v jediném nedělitelném taktu procesoru**.\n\nJak TSL funguje pod kapotou (křemíková logika zapsaná v C):\n```c\n// TOTO DĚLÁ PROCESOR HARDWAROVĚ ATOMICKY!\nint TestAndSet(int *target) {\n    int old_value = *target; // Přečte původní stav\n    *target = 1;             // Okamžitě zamkne\n    return old_value;        // Vrátí ten původní stav\n}\n```\n**Proč to funguje?** Když procesor narazí na instrukci TSL, fyzicky vyšle signál a **uzamkne paměťovou sběrnici (Memory Bus)**. Dokud TSL nedoběhne, žádné jiné jádro procesoru (ani DMA řadič disku) nesmí z RAM číst ani do ní psát. Jde o absolutní hardwarové vzájemné vyloučení."
+    },
+    {
+      "id": "019fc757-fc80-74ef-a260-6fc93a5bbe63",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Spinlock",
+        "Aktivní čekání"
+      ],
+      "title": "Praxe: Implementace Spinlocku a Aktivní čekání",
+      "content": "**Zkouškový nácvik (Návrh zámku na papír):**\nMáte k dispozici hardwarově atomickou funkci 'int TestAndSet(int *target)', kterou jsme si definovali v předchozí teorii. Vrací starou hodnotu a cílovou proměnnou rovnou nastaví na 1.\n\n1. Napište na papír v jazyce C implementaci funkcí 'void lock(int *mutex)' a 'void unlock(int *mutex)'.\n2. Jak se tomuto typu zámku odborně říká?\n3. Okomentujte, jak se tento zámek chová k procesoru (z hlediska zátěže) a určete, ve kterém ze dvou světů se typicky smí používat: v uživatelských aplikacích (Ring 3), nebo hluboko v Jádře OS (Ring 0)?",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```c\n// Globální sdílená proměnná (0 = odemčeno, 1 = zamčeno)\nint my_lock = 0;\n\nvoid lock(int *mutex) {\n    // Dokud nám TSL vrací 1 (někdo jiný drží zámek),\n    // točíme se v prázdném cyklu a ptáme se znovu a znovu.\n    // Až nám TSL vrátí 0, víme, že jsme byli první, \n    // a TSL už za nás rovnou zapsalo 1 (zamklo).\n    while (TestAndSet(mutex) == 1) {\n        // Aktivní čekání (Busy waiting) - neděláme nic\n    }\n}\n\nvoid unlock(int *mutex) {\n    // Odemčení je prostý zápis 0 (zápis je atomický sám o sobě)\n    *mutex = 0;\n}\n```\n\n**Odpovědi k obhajobě pro komisi:**\n2. Tomuto zámku se říká **Spinlock (Zámek s aktivním čekáním)**.\n3. **Analýza zátěže a použití:** Spinlock je neuvěřitelně drastický k procesoru. Zatímco vlákno čeká na odemčení, cyklus 'while' vytěžuje jádro CPU na 100 %. \n   * **V Uživatelském režimu (User space):** Jeho použití je téměř vždy CHYBA. Pokud OS uspí vlákno, které zámek drží, ostatní vlákna se budou zbytečně točit po celé své časové kvantum a spálí obrovské množství energie. Používají se zde tzv. Mutexy (viz další lekce).\n   * **V Jádře OS (Kernel space):** Zde je Spinlock doma! Používá se na víceprocesorových systémech pro zamknutí extrémně krátkých kritických sekcí jádra (např. úprava fronty plánovače). V jádře OS se před Spinlockem obvykle zakážou lokální hardwarová přerušení (interrupts), takže vlákno s jistotou nikdo neuspí a zámek bude uvolněn za pár nanosekund."
+    },
+    {
+      "id": "019fc758-182a-76be-9d5c-50f330882961",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Mutex",
+        "Pasivní čekání"
+      ],
+      "title": "Teorie: Mutex a Pasivní čekání (OS Zámky)",
+      "content": "Jak jsme zjistili u Spinlocku, aktivní čekání (Polling) spaluje cykly procesoru. To je pro běžné uživatelské aplikace nepřípustné. Z toho důvodu jádro operačního systému (OS) nabízí softwarovou abstrakci zámku s tzv. **pasivním čekáním**.\n\n### Co je to Mutex (Mutual Exclusion)?\nMutex je synchronizační primitivum, které je (na rozdíl od prostého Test-And-Set) hluboce integrováno přímo do struktury operačního systému. Ke každému Mutexu si OS v paměti udržuje **Frontu čekajících vláken**.\n\n### Jak funguje Pasivní čekání (Blocking)?\n1. **Uzamčení (Lock):** Vlákno zavolá systémové volání pro uzamčení Mutexu. OS přesune procesor do Ring 0. Zjistí-li, že je Mutex volný, zamkne ho a přiřadí ho danému vláknu.\n2. **Uspání vlákna:** Pokud je Mutex už zamčený někým jiným, OS vlákno okamžitě **vyřadí z CPU** a přesune jeho stav do **'Blocked' (Čekající)**. Vlákno zapíše do fronty u tohoto konkrétního Mutexu.\n3. **Efektivita CPU:** Během doby, kdy vlákno spí, spotřebovává **0 % času procesoru**. Plánovač CPU přiděluje jiným, připraveným procesům.\n4. **Odemčení a Probuzení:** Původní vlastník zavolá 'Unlock'. OS zámek uvolní a podívá se do fronty. Vezme první spící vlákno a probudí ho (přepne do stavu **'Ready'**). O probuzeném vláknu si OS poznamená, že je novým vlastníkem zámku."
+    },
+    {
+      "id": "019fc758-182a-76be-9d5c-54d7bd5c3d8f",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Srovnávací analýza",
+        "OS",
+        "Zámky"
+      ],
+      "title": "Praxe: Kdy použít Spinlock vs Mutex (Rozbor režií)",
+      "content": "**Zkouškový nácvik (Teoretická argumentace na papíře):**\nBod sylabu doslova žádá: *'Aktivní a pasivní čekání'*.\n\nPředstavte si dva rozdílné programátorské scénáře na 4-jádrovém procesoru:\n* **Scénář A:** Potřebujete bezpečně inkrementovat jednu globální statistickou proměnnou a updatnout pointer. Kritická sekce obsahuje přesně 5 assemblerových instrukcí.\n* **Scénář B:** Vlákno potřebuje zamknout datovou strukturu, na které bude provádět kompresi dat pomocí ZIP algoritmu, což zabere celých 20 milisekund.\n\n**Úkol:** Zhodnoťte pro komisi, jaký typ zámku (Spinlock vs. OS Mutex) je pro každý ze scénářů vhodnější a tvrdě to odůvodněte pomocí tzv. 'Context Switch Overheads' (režie na přepnutí kontextu).",
+      "hiddenContent": "**Vzorové řešení (Argumentace pro komisi):**\n\n**1. Scénář A (Extrémně krátká sekce - 5 instrukcí):**\nZde je **Spinlock** jasným vítězem. \n*Proč:* Zavolat OS Mutex znamená provést Systémové volání, což obnáší uložení kontextu, přechod do Ring 0 a případné uspání vlákna (Context Switch). Jeden Context Switch stojí procesor zhruba 10 000 až 50 000 taktů. Točit Spinlock naprázdno po dobu, než se na vedlejším jádře dokončí 5 instrukcí (cca 10 taktů), je o několik řádů levnější než vlákno uspávat.\n\n**2. Scénář B (Dlouhá sekce - 20 ms):**\nZde se MUSÍ použít **OS Mutex**.\n*Proč:* Během 20 milisekund by aktivní Spinlock udělal desítky milionů cyklů 'while' na prázdno. To by vedlo ke 100% zátěži jádra CPU a znemožnilo běh jakýchkoliv dalších aplikací na tomto jádře. Mutex vlákno okamžitě uspí, uvolní procesor pro ostatní úkoly a probudí ho až za 20 ms.\n\n*(Matfyzácký bonus: Zmínit Futex)* \nPokud chcete opravdu zazářit, zmíníte linuxový 'Futex' (Fast Userspace Mutex) a Windows 'CriticalSection'. Tyto moderní zámky používají hybridní dvoufázový přístup: Pokud je zamčeno, vlákno nejprve naprázdno zkusí asi 100x otočit Spinlock v uživatelském prostoru. Teprve když zámek ani po této krátké době nedostane, zlomí se a zavolá těžké systémové volání pro pasivní uspání. Dostáváme tak nejlepší z obou světů."
+    },
+    {
+      "id": "019fc758-182a-76be-9d5c-59e8665a5f58",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Semafory",
+        "Synchronizace"
+      ],
+      "title": "Teorie: OS Semafory (Binární a Počítací) a ztráta Vlastníka",
+      "content": "Posouváme se k Bloku 8. Historicky nejstarší (vynalezené E. W. Dijkstrou) a zároveň nejuniverzálnější synchronizační primitivum pro operační systémy je **Semafor**.\n\n### Rozhraní Semaforu\nSemafor není nic jiného než **celočíselné počítadlo**, nad kterým OS poskytuje dvě nedělitelné (atomické) operace:\n* **Wait() / P() / Down:** Pokusí se snížit hodnotu čítače o 1. Pokud je čítač nula, vlákno se uspí (přepne do Blocked) a zařadí se do fronty uvnitř OS.\n* **Post() / V() / Up / Release:** Zvýší hodnotu čítače o 1. Pokud ve frontě spí nějaké vlákno čekající na tento semafor, OS ho probudí.\n\n### Typy Semaforů\n1. **Počítací semafor (Counting Semaphore):** Hodnota může být od 0 do $N$. Typické použití: Omezení přístupu k omezené množině zdrojů (např. v databázovém poolu povolíme max. 5 vláken najednou).\n2. **Binární semafor (Binary Semaphore):** Nabývá pouze hodnot 0 a 1.\n\n### Absolutně kritický rozdíl proti Mutexu (Zkouškový chyták!)\nNa první pohled se zdá, že Binární semafor je to samé co Mutex. U zkoušek 2024 a 2026 ale obrovské množství studentů padá na faktu, že to tak NENÍ.\n\n* **Mutex MÁ vlastníka.** Kdo Mutex zamkne, **pouze ten** ho smí odemknout. OS si pamatuje Thread ID vlastníka a zamezí krádeži zámku.\n* **Semafor NEMÁ vlastníka.** Vlákno A může zavolat 'Wait()' a zablokovat se. Úplně cizí Vlákno B může přijít zvenčí a zavolat 'Post()' (čímž Vlákno A osvobodí a vzbudí). Semaforům je úplně jedno, které vlákno manipuluje s počítadlem. Toho se brutálně využívá u tzv. **Signalizace mezi vlákny**, kde jedno vlákno říká druhému \"už jsem něco spočítal, teď můžeš pokračovat ty\"."
+    },
+    {
+      "id": "019fc758-9bc5-720f-a740-1316b5a3cb4b",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Semafory",
+        "Zkouška 2026"
+      ],
+      "title": "Praxe: [Zkouška Jaro 2026] Bounded Buffer (Producent-Konzument) přes Semafory",
+      "content": "**Zkouškový nácvik (Zadání 2. 2. 2026):**\nMáte za úkol realizovat jednosměrný proud bajtů (FIFO-buffer o kapacitě $N$ bajtů) mezi dvěma procesy. Jsou dány funkce 'buffer_push(byte ch)' a 'buffer_pop()', které jsou sice hardwarově atomické, ale neřeší synchronizaci (spadnou, pokud je zavoláte nad plným/prázdným bufferem).\n\n**Úkol na papír:**\nNapište implementaci blokujících funkcí 'void send(byte ch)' (volá Producent) a 'byte receive()' (volá Konzument). \n\n*Pravidla pro písemku:*\n* K řešení smíte použít výhradně OS Semafory (třída Semaphore).\n* Je absolutně zakázáno použít jakékoliv globální proměnné (čítače) nebo aktivní čekání (while-polling).\n* Na začátku specifikujte, jak přesně semafory inicializujete (počáteční stavy), víte-li, že buffer je na počátku prázdný a má kapacitu $N$.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\nAbyste se vyhnuli aktivnímu čekání a zároveň nepotřebovali žádné sdílené proměnné pro počítání prvků, musíte použít dva klasické počítací semafory. První hlídá 'volná místa' a druhý 'obsazená místa'.\n\n```csharp\n// 1. Inicializace semaforů\n// Semafory pracují přes hranice procesů. Přebírají (počáteční_hodnota, maximální_hodnota).\n\n// Na začátku je buffer prázdný, máme tedy N volných míst.\nSemaphore capacity_semaphore = new Semaphore(N, N);\n\n// Na začátku není v bufferu žádná platná hodnota ke čtení.\nSemaphore content_semaphore = new Semaphore(0, N);\n\n// 2. Implementace funkce Producenta\nvoid send(byte ch) {\n    // Zkusíme zabrat 1 volné místo. Pokud je semafor 0 (plno), OS vlákno pasivně uspí.\n    capacity_semaphore.WaitOne();\n    \n    // Zápis do bufferu (zadání garantuje, že operace je atomická)\n    buffer_push(ch);\n    \n    // Vložili jsme prvek. Odemkneme (zvýšíme) semafor obsazených míst.\n    // Pokud nějaký Konzument spal na prázdném bufferu, OS ho tímto vzbudí.\n    content_semaphore.Release();\n}\n\n// 3. Implementace funkce Konzumenta\nbyte receive() {\n    // Zkusíme zabrat 1 platný prvek ke čtení. Pokud je 0 (prázdno), OS nás uspí.\n    content_semaphore.WaitOne();\n    \n    // Přečteme data z bufferu\n    byte ch = buffer_pop();\n    \n    // Uvolnili jsme prvek. Zvýšíme semafor volných míst.\n    // Pokud nějaký Producent spal na plném bufferu, OS ho tímto vzbudí.\n    capacity_semaphore.Release();\n    \n    return ch;\n}\n```\n\n*Strategie pro komisi:* Toto řešení je takzvaný 'lock-free' design z pohledu mutexů. Protože zadání říká, že samotný 'buffer_push' je uvnitř atomický, nepotřebujeme kolem něj klasický 'lock'. Semafory zde elegantně a s nulovou zátěží CPU zajišťují jak blokování, tak předávání zpráv (signaling) mezi dvěma nezávislými procesy."
+    },
+    {
+      "id": "019fc758-9bc5-720f-a740-15818b5fc645",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Invarianty",
+        "Semafory"
+      ],
+      "title": "Teorie: Invarianty stavu vláken a sdílených zdrojů",
+      "content": "Když navrhujeme složitý paralelní systém bez striktních zamykacích bloků (jen s pomocí semaforů pro signalizaci), je nesmírně obtížné dokázat, že v něm nemůže dojít k chybě. Odborně se takový důkaz staví na tzv. **Invariantech**.\n\n### Co je to Invariant?\nInvariant je formální logická nebo matematická podmínka popisující stav systému, která **musí být absolutně vždy pravdivá** v jakémkoliv okamžiku, kdy je systém v klidu (tedy mimo probíhající kritické sekce). Funguje to jako zákon zachování energie ve fyzice.\n\n### Formální zápis pro Bounded Buffer\nMějme FIFO frontu o kapacitě $N$. Označme si aktuální počet fyzických prvků uvnitř fronty jako proměnnou $E$ ('elements_in_buffer'). \nZ logiky věci musí platit: $0 \\le E \\le N$.\n\nNyní si zavedeme dva semafory z předchozí úlohy:\n1. Semafor $C$ ('capacity_semaphore') hlídající počet **volných míst**.\n2. Semafor $K$ ('content_semaphore') hlídající počet **obsazených míst**.\n\nJaké matematické zákony musí pro tento systém navždy platit?\n* **Základní zákon kapacity:** Součet hodnot obou semaforů se v klidovém stavu musí vždy rovnat celkové kapacitě bufferu. Tedy: $C + K = N$.\n* **Invariant č. 1 (Volné místo):** Hodnota semaforu kapacity musí vždy přesně odpovídat tomu, co se reálně vejde do bufferu. Tedy: $C = N - E$.\n* **Invariant č. 2 (Obsazené místo):** Hodnota semaforu obsahu musí vždy přesně odpovídat tomu, kolik je reálně prvků v bufferu. Tedy: $K = E$.\n\nPokud se nám v písemce podaří dokázat, že náš kód sice invariant dočasně naruší (když zrovna pracuje), ale na konci funkce ho po sobě zase vždy uklidí do matematické rovnováhy, obhájili jsme před komisí nezničitelnost našeho návrhu."
+    },
+    {
+      "id": "019fc758-9bc5-720f-a740-197e7db444b9",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Invarianty",
+        "Zkouška 2026"
+      ],
+      "title": "Praxe: [Zkouška Jaro 2026] Zápis a obrana invariantů",
+      "content": "**Zkouškový nácvik (Teoretický důkaz na papír):**\nToto je druhá polovina zkouškové úlohy z 2. 2. 2026. Jakmile jste napsali kód Producenta a Konzumenta (viz předchozí lekce), museli jste formálně zdůvodnit jeho správnost.\n\n**Zadání bodu 2 a 3 v testu:**\n2. Definujte invariant(y) platné pro stavy semaforů ve vztahu k počtu platných elementů v bufferu a jeho kapacitě $N$. Tyto invarianty musí být platné po celou dobu mezi voláními funkcí 'send' a 'receive'.\n3. Vysvětlete na papíře, jak se platnost invariantů mění (porušuje) Uvnitř samotných funkcí 'send' a 'receive' (mezi jednotlivými příkazy). Pro zjednodušení předpokládejte, že funkce zrovna nejsou volány současně.",
+      "hiddenContent": "**Vzorové řešení (Odpověď do písemky):**\n\n**Odpověď na bod 2 (Definice invariantů):**\nOznačme 'E' jako reálný počet prvků v bufferu ('elements_in_buffer'). \nMezi voláními funkcí musí pro oba naše semafory platit tyto dva pevné invarianty:\n* **Invariant 1:** 'capacity_semaphore == N - E'\n* **Invariant 2:** 'content_semaphore == E'\n\n**Odpověď na bod 3 (Analýza porušení uvnitř kódu):**\nK narušení invariantů (tzv. vychýlení neboli skew) dochází proto, že aktualizace hodnoty semaforu a fyzický zápis/čtení do paměti bufferu nelze provést v jediné hardwarové instrukci. \n\n*Analýza uvnitř funkce 'send(byte ch)':*\n1. Počáteční stav: Oba invarianty plně platí.\n2. Zavoláme 'capacity_semaphore.WaitOne()': Tím se sníží hodnota volného místa o 1. V tento moment se vychýlil (porušil) **Invariant 1**, protože v bufferu je ještě stále původní počet prvků $E$, ale semafor už ukazuje o 1 méně. Invariant 2 platí.\n3. Zavoláme 'buffer_push(ch)': Prvek je vložen. $E$ se reálně zvýší o 1. V tento moment se opomíjený **Invariant 1** zázračně opraví (obě strany rovnice klesly o 1). Nicméně se nám tímto krokem porušil **Invariant 2**! Prvků je více, ale 'content_semaphore' to ještě neví.\n4. Zavoláme 'content_semaphore.Release()': Hodnota se zvýší o 1. Oba invarianty jsou opět plně v rovnováze.\n\n*Analýza uvnitř funkce 'receive()':*\n1. Počáteční stav: Oba invarianty platí.\n2. 'content_semaphore.WaitOne()': Hodnota klesne o 1. **Porušen Invariant 2** (prvků je zatím stále stejně, ale semafor tvrdí opak).\n3. 'buffer_pop()': Element $E$ klesne o 1. **Invariant 2** opraven. Tím se ale porušil **Invariant 1** (v bufferu ubylo místo, ale semafor kapacity to ještě neví).\n4. 'capacity_semaphore.Release()': Semafor se zvýší. Oba invarianty jsou opět v matematické rovnováze.\n\n*Závěr pro komisi:* Tímto formálním rozkladem dokazujeme, že venkovní pozorovatel nikdy neuvidí systém v nekonzistentním stavu, a že v kritických momentech uvnitř metody nemůže žádná proměnná ani podtéct pod nulu, ani přetéct kapacitu $N$."
+    },
+    {
+      "id": "019fc759-942a-76dd-8439-3a914c3d2ef4",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Semafory",
+        "Zkouška 2026",
+        "Komplexní úloha"
+      ],
+      "title": "Praxe: [Zkouška Jaro 2026] Kompletní úloha na Semafory a Invarianty",
+      "content": "**Ostré zadání zkoušky (2. 2. 2026):**\nImplementujte dvojici funkcí 'void send(byte ch)' a 'byte receive()'. Účelem je realizace jednosměrného proudu bajtů mezi dvěma procesy pomocí FIFO-bufferu s kapacitou $N$ bajtů.\n\nMáte k dispozici atomické funkce 'buffer_push(byte ch)' a 'buffer_pop()', které ale neposkytují synchronizaci (spadnou, je-li buffer plný nebo prázdný).\nImplementace nesmí využívat aktivní čekání (polling) ani žádné globální stavové proměnné kromě semaforů.\n\n**Úkoly pro komisi (Písemka):**\n1. Napište implementaci funkcí 'send' a 'receive' pouze pomocí semaforů. Specifikujte počáteční stavy semaforů (buffer je na počátku prázdný).\n2. Definujte invariant(y) platné pro stav(y) semaforů ve vztahu k počtu platných elementů v bufferu. Tyto invarianty musí platit po celou dobu *mezi* voláními funkcí.\n3. Vysvětlete, jak se platnost invariantů mění (porušuje a opravuje) *uvnitř* funkcí 'send' a 'receive' mezi jednotlivými příkazy.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem podle klíče komise):**\n\n**1. Implementace a počáteční stavy:**\nBudeme potřebovat dva semafory. Jeden hlídá volné místo, druhý dostupná data.\n```csharp\n// Počáteční stavy:\n// capacity_semaphore inicializován na N (všechna místa jsou volná)\n// content_semaphore inicializován na 0 (není co číst)\n\nvoid send(byte ch) {\n    capacity_semaphore.WaitOne(); // nebo .down()\n    buffer_push(ch);\n    content_semaphore.Release();  // nebo .up()\n}\n\nbyte receive() {\n    content_semaphore.WaitOne();\n    byte ch = buffer_pop();\n    capacity_semaphore.Release();\n    return ch;\n}\n```\n\n**2. Definice Invariantů:**\nOznačme si počet reálných prvků fyzicky v bufferu jako 'elements_in_buffer'.\nMusí striktně platit dva zákony zachování:\n* **Invariant 1:** 'capacity_semaphore == N - elements_in_buffer'\n* **Invariant 2:** 'content_semaphore == elements_in_buffer'\n\n**3. Vývoj invariantů uvnitř funkcí (Vysvětlení pro komisi):**\nBěhem exekuce funkcí dochází k dočasnému narušení (tzv. skew) invariantů, protože úprava semaforu a manipulace s daty v bufferu nejsou jedna nedělitelná hardwarová instrukce.\n\n*Průběh uvnitř metody 'send':*\n* Začátek: Inv 1 platí, Inv 2 platí.\n* Po zavolání 'capacity_semaphore.WaitOne()': **Invariant 1 je dočasně porušen (skewed by +1)**. Proč? Semafor kapacity se snížil o 1, ale 'elements_in_buffer' ještě nestouplo, takže levá strana rovnice je menší než pravá. Invariant 2 stále platí.\n* Po zavolání 'buffer_push(ch)': Nyní se 'elements_in_buffer' fyzicky zvýšilo o 1. Tím se **Invariant 1 opravil a platí**, ale zároveň se **porušil Invariant 2 (skewed by -1)**, protože prvků je více, ale 'content_semaphore' se ještě nezvýšil.\n* Po zavolání 'content_semaphore.Release()': Semafor obsahu se zvýší o 1. **Oba invarianty opět plně platí.**\n\n*Průběh uvnitř metody 'receive' je přesně zrcadlový:*\n* Po 'WaitOne()': Invariant 2 porušen (skewed by +1), protože semafor klesl, ale prvek ještě nebyl odebrán.\n* Po 'buffer_pop()': Invariant 2 je opraven, ale Invariant 1 porušen (skewed by -1), protože ubyl prvek, ale semafor volného místa ještě nestoupl.\n* Po 'Release()': Oba invarianty jsou opět v matematické rovnováze."
+    },
+    {
+      "id": "019fc758-eb81-707e-8aca-667e583836bd",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Deadlock",
+        "Synchronizace"
+      ],
+      "title": "Teorie: Uváznutí (Deadlock) a Coffmanovy podmínky",
+      "content": "Při sdílení prostředků pomocí zámků (Mutexů či Semaforů) chráníme data před zničením (Race condition), ale zavádíme nové, fatální riziko: **Uváznutí (Deadlock)**. Jde o stav, kdy skupina procesů nebo vláken trvale čeká na událost (uvolnění zdroje), kterou může vyvolat pouze jiný proces z této samé uvízlé skupiny.\n\n### Coffmanovy podmínky\nAby mohl Deadlock v OS vůbec fyzicky nastat, musí být v systému současně splněny **čtyři nutné podmínky** (tzv. Coffmanovy podmínky):\n\n1. **Vzájemné vyloučení (Mutual Exclusion):** Existuje alespoň jeden prostředek, který v daný okamžik může používat výhradně jen jedno vlákno (např. Mutex, tiskárna).\n2. **Drž a čekej (Hold and Wait):** Vlákno již drží alespoň jeden prostředek a zároveň je blokováno čekáním na další prostředek, který aktuálně drží někdo jiný.\n3. **Neodnímatelnost (No Preemption):** Operační systém nemůže vláknu prostředek (zámek) násilně sebrat. Zámek musí uvolnit samo vlákno dobrovolně.\n4. **Cyklické čekání (Circular Wait):** Existuje uzavřený kruh vláken (T1, T2, ... Tn) takový, že T1 čeká na zdroj držený T2, T2 čeká na zdroj držený T3... a Tn čeká na zdroj držený T1.\n\n*Strategie pro zkoušku:* K prevenci deadlocku se OS a programátoři snaží rozbít alespoň jednu z těchto podmínek. Nejčastěji se rozbíjí **Cyklické čekání**, a to zavedením striktního očíslovaného pořadí (hierarchie), ve kterém si vlákna smějí zámky zamykat (vždy zamykat zámky v abecedním pořadí)."
+    },
+    {
+      "id": "019fc758-eb81-707e-8aca-6ae64d201efa",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Deadlock",
+        "Zkouška 2024"
+      ],
+      "title": "Praxe: [Zkouška Léto 2024] Trasování Deadlocku v kódu",
+      "content": "**Zkouškový nácvik (Trasování a oprava kódu na papír):**\nMáte za úkol synchronizovat dvě vlákna. Vlákno T1 běží v metodě 'f1()' a vypisuje 'One', 'Three', 'Five'. Vlákno T2 běží ve 'f2()' a vypisuje 'Two', 'Four'.\nStudent napsal chybný kód s jedním binárním semaforem (inicializovaným na 0):\n\n```c\n// Vlákno T1 (f1)\nPrint('One');\nsem.Release();\nsem.WaitOne();\nPrint('Three');\n\n// Vlákno T2 (f2)\nsem.WaitOne();\nPrint('Two');\nsem.Release();\nsem.WaitOne();\n```\n\n**Úkol na papír:** \n1. Vypište krok za krokem, jak zasáhne plánovač OS (preempce), aby program skončil deadlockem hned po vypsání 'OneTwo'. Určete aktuální hodnoty semaforu v každém kroku.\n2. Vysvětlete, proč selhal pokus s jedním semaforem a navrhněte konceptuální řešení.",
+      "hiddenContent": "**Vzorové řešení (Odpověď pro komisi):**\n\n**1. Trasování vedoucí k Deadlocku:**\n* **T1 běží:** Vypíše 'One'. Zavolá 'sem.Release()'. Hodnota semaforu se zvýší z 0 na **1**.\n* *PREEMPCE:* Plánovač OS uspí T1 a pustí na procesor T2.\n* **T2 běží:** Zavolá 'sem.WaitOne()'. Protože hodnota je 1, T2 nezablokuje, projde a sníží semafor na **0**.\n* **T2 běží:** Vypíše 'Two'. Zavolá 'sem.Release()'. Hodnota semaforu se zvýší na **1**.\n* *KRITICKÝ MOMENT:* Plánovač OS vlákno T2 nepřeruší! T2 běží dál a okamžitě zavolá své druhé 'sem.WaitOne()'. Protože je semafor 1, T2 si ho vezme pro sebe (semafor = **0**) a zablokuje se na čekání na 'Three'.\n* *PREEMPCE:* OS uspí zablokované T2 a vzbudí T1.\n* **T1 běží:** Zavolá 'sem.WaitOne()'. Protože je semafor na hodnotě 0, OS vlákno T1 okamžitě **uspí (Blocked)**.\n* **Výsledek:** Obě vlákna visí uspaná v OS na 'WaitOne'. Kód zamrzl.\n\n**2. Proč to selhalo a oprava:**\nJeden semafor nestačí k tzv. **Ping-Pong signalizaci**, protože semafor NEMA vlastnictví. Vlákno T2 ukradlo signál, který byl určen pro T1. \nŘešením je použít **dva semafory** ('semA' pro odjištění T1 a 'semB' pro odjištění T2), čímž vytvoříme vzájemně se podmiňující hard-lock sekvenci."
+    },
+    {
+      "id": "019fc758-eb81-707e-8aca-6e44cbe6875c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Sdílení paměti",
+        "IPC"
+      ],
+      "title": "Teorie: Sdílení paměti mezi procesy (Shared Memory IPC)",
+      "content": "Na závěr si probereme bod sylabu, který se ještě ve zkouškách objevil jen okrajově, ale naprosto geniálně spojuje téma *Virtuálních adres* a *Sdílení prostředků*: **Jak spolu sdílí paměť dva RŮZNÉ procesy?**\n\nZ předchozích bloků víme, že vlákna uvnitř jednoho procesu sdílí Haldu automaticky (protože sdílejí registr CR3 a stejnou stránkovací tabulku). Procesy mají adresové prostory striktně izolované. Pokud Process A přistoupí na virtuální adresu '0x1000', MMU ji přeloží na jiný kus RAM než virtuální adresu '0x1000' v Procesu B.\n\n### Mechanismy meziprocesové komunikace (IPC)\nPokud chceme poslat 1 GB dat z Procesu A do Procesu B, roury (Pipes) nebo sockety jsou extrémně pomalé (kopírují data z RAM do Kernelu a zpět do RAM). Operační systémy proto zavádějí **Shared Memory (Sdílenou paměť)**.\n\n### Jak to funguje pod kapotou OS (Triky s Page Table)\n1. Proces A požádá OS o sdílenou paměť (v POSIXu syscall 'shmget' nebo 'mmap' s flagem 'MAP_SHARED').\n2. Jádro OS najde v hardwarové paměti RAM jeden volný **fyzický rámec (PFN)**, například na adrese '0x00A50000'.\n3. Do stránkovací tabulky (PTE) Procesu A zapíše OS záznam, že např. Virtuální Stránka (VPN) '0x01' ukazuje na Fyzický Rámec '0x00A5'.\n4. Do stránkovací tabulky (PTE) Procesu B zapíše OS záznam, že např. Virtuální Stránka (VPN) '0x09' ukazuje na TEN SAMÝ Fyzický Rámec '0x00A5'.\n\n**Matfyzácký důsledek (Chyták!):**\nOba programy mohou přistupovat ke stejným fyzickým datům. Proces A ale zapisuje na ukazatel '0x01000' a Proces B čte data z ukazatele '0x09000'. Virtuální adresy v céčkovém kódu jsou v obou programech **zcela odlišné**, ale na úrovni křemíku po průchodu MMU vedou tranzistory do přesně stejného paměťového čipu. \n*(Samozřejmě na tato data musíme aplikovat Semafory probírané v předchozích lekcích, jinak okamžitě vznikne Race Condition).* "
+    },
+    {
+      "id": "019fc759-3391-7649-b15c-810e847e283f",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "OS",
+        "Synchronizace",
+        "Readers-Writers"
+      ],
+      "title": "Teorie: Problém Readers a Writers (Readers-Writers Problem)",
+      "content": "Až doteď jsme pro ochranu kritické sekce používali klasický Mutex, který do paměti pustil vždy striktně jen jedno vlákno. Co když ale máme v paměti velkou sdílenou databázi (nebo strukturu), kterou 95 % vláken chce pouze číst (Readers) a jen 5 % vláken do ní chce zapisovat (Writers)?\n\nKdybychom použili obyčejný Mutex, Readeři by se zbytečně blokovali navzájem. Čtení přece paměť nemodifikuje, takže nehrozí Race Condition! K řešení tohoto asymetrického problému definoval operační systém koncept **Read-Write Lock (RW Zámek)**.\n\n### Pravidla problému Readers a Writers\n1. **Více Readerů (Shared access):** Do kritické sekce smí vstoupit libovolný počet Readerů současně. Vzájemně si nevadí.\n2. **Jeden Writer (Exclusive access):** Pokud chce do kritické sekce vstoupit Writer, musí tam být absolutně sám. Nesmí tam být ani jiný Writer, ani žádný Reader.\n3. **Bariéra:** Pokud je v sekci Writer, všichni nově příchozí Readeři musí čekat.\n\n### Zkouškový chyták: Problém Hladovění (Starvation)\nKomise se často ptá, jaké riziko tento vzor přináší. Pokud je zámek navržen s tzv. *preferencí Readerů* (což je nejjednodušší implementace), může dojít k **Hladovění Writera**. \n*Příklad:* Writer přijde a čeká, protože uvnitř je Reader A. Než Reader A odejde, přijde Reader B a rovnou vstoupí (protože Readeři mohou souběžně). Pak přijde C, D... Readeři si takto mohou podávat dveře donekonečna a chudák Writer se nikdy nedostane na procesor."
+    },
+    {
+      "id": "019fc759-3391-7649-b15c-87aca9067074",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Zámky",
+        "Kód"
+      ],
+      "title": "Praxe: Návrh Read-Write zámku na papír",
+      "content": "**Zkouškový nácvik (Kód na papír):**\nBod sylabu požaduje znalost 'vzájemného vyloučení a synchronizačních primitiv'. Navrhněte na papír v jazyce C implementaci základního zámku s preferencí Readerů.\n\nMáte k dispozici obyčejný OS Mutex ('lock/unlock') a OS Semafor ('wait/post').\n\n1. Definujte datové struktury (jaké proměnné a zámky budete potřebovat).\n2. Napište funkce 'read_lock()' a 'read_unlock()'.\n3. Napište funkce 'write_lock()' a 'write_unlock()'.\n\n*Nápověda:* Potřebujete jeden celočíselný čítač pro evidenci Readerů, jeden Mutex pro ochranu tohoto čítače, a jeden Semafor (nebo Mutex) jako hlavní bariéru pro Writery.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\n```c\n// 1. Sdílené struktury zámku\nint read_count = 0;              // Počet Readerů aktuálně v kritické sekci\nmutex_t rc_mutex;                // Chrání přístup k proměnné read_count\nsemaphore_t write_sem = 1;       // Binární semafor (0=zamčeno, 1=volno), blokuje Writery\n\n// 2. Logika READERA\nvoid read_lock() {\n    lock(&rc_mutex);             // Zamkneme čítač\n    read_count++;                // Ohlásíme se\n    if (read_count == 1) {\n        // Jsem PRVNÍ Reader! Musím zamknout dveře pro Writery.\n        wait(&write_sem); \n    }\n    unlock(&rc_mutex);           // Odemkneme čítač, ostatní Readeři mohou dál\n}\n\nvoid read_unlock() {\n    lock(&rc_mutex);\n    read_count--;                // Odcházím\n    if (read_count == 0) {\n        // Jsem POSLEDNÍ Reader! Zhasínám a odemykám dveře Writerům.\n        post(&write_sem);\n    }\n    unlock(&rc_mutex);\n}\n\n// 3. Logika WRITERA\nvoid write_lock() {\n    // Writer prostě čeká, až bude write_sem = 1.\n    // Pokud jsou uvnitř Readeři (nebo jiný Writer), write_sem je 0 a Writer se uspí.\n    wait(&write_sem);\n}\n\nvoid write_unlock() {\n    post(&write_sem);            // Writer odchází, pouští dalšího\n}\n```\n\n**Okomentování pro komisi:** \nTento klasický kus OS kódu elegantně ukazuje sílu kombinace primitiv. Mutex se zde používá k vytvoření ultrakrátké kritické sekce jen pro modifikaci 'read_count'. Semafor pak slouží jako obří brána ('turniket') do samotné databáze."
+    },
+    {
+      "id": "019fc759-3391-7649-b15c-8a6f89fca2f4",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Bonus",
+        "OS",
+        "Mode Switch"
+      ],
+      "title": "Teorie: Zkouškový chyták (Mode Switch vs. Context Switch)",
+      "content": "Abychom kompletně vytěžili sylabus OS (konkrétně pojmy 'přepínání kontextu' a 'privilegovaný režim'), musíme umět vyvrátit jeden z nejčastějších omylů u státnic, na kterém komise ráda griluje znejistělé studenty.\n\n### Chyták: Co se stane při Systémovém volání (Syscall)?\nPředstavte si, že vaše C# vlákno zavolá 'File.Read()'. Víme, že procesor musí přejít z User Mode (Ring 3) do Kernel Mode (Ring 0). \n\n**Otázka komise:** *Dojde při tomto volání k přepnutí kontextu (Context Switch)?*\n**Správná odpověď:** **NE!** Pokud má OS data připravená v RAM a nemusí čekat na disk, dojde POUZE k tzv. **Mode Switch (Přepnutí režimu)**.\n\n### Jaký je v tom fyzický rozdíl?\n1. **Mode Switch (Přepnutí režimu - Levná operace):**\n   * Procesor jen změní ochranný bit na Ring 0 a prohodí User Stack za Kernel Stack daného vlákna.\n   * **Stále běží stejné vlákno v rámci stejného procesu!** \n   * Nemění se tabulky virtuální paměti (registr CR3 zůstává nedotčen). \n   * Režie je v řádu stovek taktů procesoru.\n\n2. **Context Switch (Přepnutí kontextu - Extrémně drahá operace):**\n   * K tomu dojde AŽ tehdy, pokud jádro OS zjistí, že data ještě nejsou na disku přečtena, a rozhodne se vlákno uspat (přejít z Running do Blocked).\n   * V ten moment se do CPU nahrávají registry ÚPLNĚ JINÉHO VLÁKNA.\n   * Pokud navíc nové vlákno patří jinému procesu, OS přepisuje registr MMU (CR3). Tím se drasticky promaže tzv. TLB cache (mezipaměť překladu adres), což zbrzdí celý procesor na tisíce taktů dopředu.\n\n*Závěrečné ponaučení:* Každý Context Switch vyžaduje Mode Switch (protože plánovač běží v jádře), ale ne každý Mode Switch znamená Context Switch! Tímto detailním porozuměním fungování CPU máte architekturu počítačů v malíčku."
+    },
+    {
+      "id": "019fc75b-3068-7258-95a3-4c5ef51c6535",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Architektura",
+        "Hexdump",
+        "Zkouška 2026"
+      ],
+      "title": "Praxe: [Zkouška Léto 2026] Průchod seznamem v Hexdumpu (Část A)",
+      "content": "**Plné zadání zkoušky (22. 6. 2026):**\nMáte 16bitový Big-Endian procesor. V paměti je uložen spojový seznam struktur pro počítání frekvencí čísel. Virtuální paměť používá 16bitové adresy.\n\nStruktura uzlu zabírá 6 bajtů a vypadá takto:\n```c\nstruct freq {\n    uint16_t number; // offset +0\n    uint16_t count;  // offset +2\n    freq_t *next;    // offset +4 (adresa 0 znamená konec)\n};\n```\nProměnná 'head' (ukazatel na první uzel) je uložena v paměti přesně na adrese **0x900a**.\n\nZde je surový výpis paměti (Hexdump):\n```text\n8ff0: 45 2f 90 11 8f 0f 90 42 01 23 45 90 42 42 90 90\n9000: 89 e2 26 90 05 ff 00 de ad 00 90 10 90 14 00 00\n9010: 00 01 00 05 90 42 ca fe ca fe 42 90 30 be ef 35\n9020: 45 01 90 54 42 53 01 87 aa bb 01 23 45 67 90 24\n9030: 12 02 08 90 17 44 ab cd 90 48 20 17 00 5f 00 00\n9040: 77 88 01 23 00 f0 90 3a 5e d3 41 90 48 90 4c 00\n9050: 39 4a 85 90 24 48 89 00 90 10 90 00 42 23 ca fe\n```\n\n**Úkol na papír:** \nProveďte kompletní trasování paměti. Vypište adresy všech uzlů seznamu a pro každý uzel určete hodnotu jeho položky 'count' (v desítkové nebo šestnáctkové soustavě). Ukažte logiku trasování offsetů.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\nZásadní informace ze zadání je **Big-Endian**. To znamená, že 16bitové číslo tvořené bajty 'AB' a 'CD' ležícími za sebou, čteme prostě jako '0xABCD'.\n\n**1. Nalezení 'head' (Adresa 0x900a):**\n* Jdeme na řádek '9000:'. Hledáme offset 'a' (desítkově 10). Tedy 11. a 12. bajt na řádku.\n* Na offsetech 'a' a 'b' vidíme bajty: '90 10'. \n* Hodnota 'head' je tedy **0x9010**. Zde začíná náš první uzel.\n\n**2. Uzel 1 (Adresa 0x9010):**\n* Jdeme na řádek '9010:', offset 0.\n* 'number' (+0): '00 01' (1)\n* 'count' (+2): '00 05' (Desítkově 5)\n* 'next' (+4): '90 42' $\\rightarrow$ Další uzel leží na **0x9042**.\n\n**3. Uzel 2 (Adresa 0x9042):**\n* Jdeme na řádek '9040:'. Hledáme offset 2. (Tedy třetí a čtvrtý bajt na řádku).\n* 'number' (+0 z offsetu 2, tj. pozice 2,3): '01 23'\n* 'count' (+2 z offsetu 2, tj. pozice 4,5): '00 f0' (Desítkově 240)\n* 'next' (+4 z offsetu 2, tj. pozice 6,7): '90 3a' $\\rightarrow$ Další uzel leží na **0x903a**.\n\n**4. Uzel 3 (Adresa 0x903a):**\n* Jdeme na řádek '9030:'. Hledáme offset 'a' (desítkově 10).\n* 'number' (pozice a,b): '00 5f'\n* 'count' (pozice c,d): '00 00' (Desítkově 0)\n* 'next' (pozice e,f): '00 00' $\\rightarrow$ Hodnota NULL. **Konec seznamu!**\n\n*Shrnutí pro zkoušku:* Seznam obsahuje 3 prvky. Jejich adresy jsou 0x9010, 0x9042 a 0x903a. Součet všech položek 'count' je $5 + 240 + 0 = 245$."
+    },
+    {
+      "id": "019fc75b-3068-7258-95a3-534aa8282b8c",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Assembler",
+        "RISC",
+        "Zkouška 2026"
+      ],
+      "title": "Praxe: [Zkouška Léto 2026] Průchod seznamem v RISC Assembleru (Část B)",
+      "content": "**Návaznost na předchozí část (Zadání 22. 6. 2026):**\nMáte k dispozici jednoduchou sadu RISC instrukcí (LI, LW, ADD, OR, SW, BEZ, BNEZ, JMP). \n\nZadání vám předpřipravilo úvodní kód, který do registru R2 nahraje první uzel ze spojového seznamu struktur 'freq_t'. Vaším úkolem je dopsat tělo cyklu tak, aby program prošel celý seznam a v registru **R3** spočítal sumu všech položek **'count'**.\n\n```text\nLI R1, 0x900a     // R1 := 0x900a (adresa pointeru head)\nLW R2, 0(R1)      // R2 := memory[R1+0] (nahrání head do R2)\nLI R3, 0          // R3 := 0 (inicializace součtu)\n\nloop_start:\n// <--- SEM DOPLŇTE VHODNÉ INSTRUKCE --->\n\nend:\n// v registru R3 je soucet polozek count\n```\n\n**Úkol na papír:** Dopište tělo cyklu pod návěští 'loop_start'. Využijte znalosti struktury 'freq_t' z předchozí úlohy (number je na offsetu 0, count na offsetu 2, next na offsetu 4). Okomentujte svůj kód tak, aby komise viděla paralelu s jazykem C.",
+      "hiddenContent": "**Vzorové řešení (Kód na papír):**\n\nEkvivalentní C kód, který chceme přeložit, zní:\n'while (node != 0) { sum += node->count; node = node->next; }'\n\nZde je přesný překlad do zadaného assembleru:\n\n```text\nloop_start:\n    // 1. Ochrana před NULL a ukončení cyklu (if node == 0 break)\n    // Instrukce BEZ (Branch if Equal to Zero) skočí na 'end', pokud R2 je 0\n    BEZ R2, end\n\n    // 2. Přečtení položky 'count' do pomocného registru R4\n    // 'count' leží na offsetu +2 od báze uzlu v R2\n    LW R4, 2(R2)\n\n    // 3. Přičtení do celkového součtu\n    // R3 = R3 + R4\n    ADD R3, R3, R4\n\n    // 4. Posun na další uzel (node = node->next)\n    // 'next' leží na offsetu +4 od báze uzlu v R2.\n    // Výsledek rovnou zapíšeme zpět do R2.\n    LW R2, 4(R2)\n\n    // 5. Nepodmíněný skok zpět na začátek cyklu\n    JMP loop_start\n```\n\n**Analýza chytáků pro komisi:**\n* **Pořadí instrukcí je kritické:** Instrukce 'BEZ R2, end' (kontrola na NULL pointer) MUSÍ být na absolutním začátku cyklu, ještě před prvním 'LW'. Pokud by student dal 'BEZ' až nakonec nebo ho opomenul a seznam byl náhodou už od počátku prázdný (head == 0), procesor by provedl 'LW R4, 2(0)', což způsobí okamžitý Segmentation Fault a pád OS procesu.\n* **Architektura RISC:** Nešlo rovnou napsat něco jako 'ADD R3, R3, 2(R2)'. RISC architektura striktně dodržuje filozofii Load/Store. Data z RAM se MUSÍ nejprve nahrát do registru (přes 'LW'), a teprve poté se smí předat instrukci 'ADD'."
+    },
+    {
+      "id": "019fc75e-c287-714b-8751-90b31d888aa8",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "OS",
+        "Semafory",
+        "Zkouška 2024",
+        "Deadlock"
+      ],
+      "title": "Praxe: [Zkouška Léto 2024] Deadlock a Semafory v C# (OneTwoThreeFourFive)",
+      "content": "**Plné zadání zkoušky (25. 6. 2024):**\nKnihovna System.Threading jazyka C# obsahuje třídu Semaphore s metodami 'WaitOne()' a 'Release()'. Objekt vytvořený pomocí 'new Semaphore(0, 1)' odpovídá binárnímu semaforu inicializovanému nulou. Pokud více než jedno vlákno čeká na tentýž semafor, pořadí spouštění není specifikováno.\n\nProgram má produkovat výstup 'OneTwoThreeFourFive', přitom liché části výstupu mají být vypisovány funkcí 'f1' a sudé části funkcí 'f2'. Funkce běží v různých vláknech.\n\n```csharp\nprivate static Semaphore sem;\n\nprivate static void f1() {\n    Console.Write('One');   // 7\n    sem.Release();          // 8\n    sem.WaitOne();          // 9\n    Console.Write('Three'); // 10\n    sem.Release();          // 11\n    sem.WaitOne();          // 12\n    Console.Write('Five');  // 13\n}\n\nprivate static void f2() {\n    sem.WaitOne();          // 18\n    Console.Write('Two');   // 19\n    sem.Release();          // 20\n    sem.WaitOne();          // 21\n    Console.Write('Four');  // 22\n    sem.Release();          // 23\n}\n```\n(Metoda Main vytvoří semafor, spustí 'f1' a 'f2' ve dvou vláknech a čeká na jejich dokončení pomocí 'Join()' na řádcích 33 a 34).\n\nSynchronizace téměř funguje, ale obsahuje časově závislé chyby (race conditions).\n\n**Úkoly pro komisi:**\n1. Popište scénář, který vede k jinému výstupu než 'OneTwoThreeFourFive', nebo končí uváznutím (deadlock). Scénář zapište jako posloupnost čísel řádek.\n2. Existovaly by v tomto kódu chyby i v případě, že by knihovna C# garantovala FIFO pořadí spouštění vláken čekajících ve 'WaitOne'?\n3. Napište řešení, které neobsahuje chyby a spolehlivě vypisuje požadovaný výstup. Použijte přitom DVA semafory a nesmíte použít žádné jiné proměnné sdílené mezi vlákny.",
+      "hiddenContent": "**Vzorové řešení (Krok za krokem pro komisi):**\n\n**1. Scénáře vedoucí k chybě nebo Deadlocku:**\nSemafor nemá vlastníka, takže vlákno 'f1' může vyfouknout (ukrást) odjištění, které bylo původně určeno pro 'f2'.\n*Příklad deadlocku (z oficiálního řešení):*\n* 'f1' dostane CPU, provede řádek 7 ('One'), 8 (Semafor stoupne na 1) a rovnou 9 (Semafor klesne na 0).\n* 'f1' pokračuje dál bez přerušení! Provede 10 ('Three'), 11 (Semafor=1), 12 (Semafor=0) a 13 ('Five'). Vlákno 'f1' končí.\n* Nyní se teprve dostane na CPU vlákno 'f2'. Provede řádek 18 ('WaitOne'). Protože semafor je 0 a nikdo už ho nezvýší, 'f2' se natrvalo zablokuje.\n* Výsledek: Vypíše se 'OneThreeFive' a program skončí uváznutím 'f2' na řádku 18 (a Main vlákno visí na 't2.Join()').\n*Zápis posloupnosti:* 7-8-9-10-11-12-13-deadlock(18+34)\n*(Platné jsou i další propletené scénáře ze zadání, např. 7-8-9-10-11-18-19-20-12-13-deadlock(21+34) s výstupem 'OneThreeTwoFive').*\n\n**2. Garantované FIFO pořadí:**\n*Odpověď:* ANO, chyby by existovaly i nadále. FIFO fronta v semaforu řeší pouze situaci, kdy na semaforu čeká *více vláken současně* (kdo dřív přišel, ten dřív bere). V našem chybovém scénáři se ale vlákna mohou díky preempci OS střídat tak, že 'f1' se stihne rovnou znovu zamknout (na řádku 9 nebo 12), ještě než vlákno 'f2' vůbec dostane CPU a zavolá 'WaitOne'. Tedy ve frontě semaforu nikdy nečekají dvě vlákna naráz, takže FIFO logika nijak nepomůže.\n\n**3. Oprava pomocí dvou semaforů (Ping-Pong signalizace):**\nAbychom zaručili striktní střídání, musíme zavést dva semafory. Jeden odjišťuje sudé kroky, druhý liché.\n\n```csharp\n// Inicializace:\n// semA odjišťuje vlákno f2, semB odjišťuje vlákno f1\nstatic Semaphore semA = new Semaphore(0, 1);\nstatic Semaphore semB = new Semaphore(0, 1);\n\nprivate static void f1() {\n    Console.Write('One');\n    semA.Release();       // Vzbudí f2\n    semB.WaitOne();       // Čeká na f2\n    Console.Write('Three');\n    semA.Release();       // Vzbudí f2\n    semB.WaitOne();       // Čeká na f2\n    Console.Write('Five');\n}\n\nprivate static void f2() {\n    semA.WaitOne();       // Čeká na f1\n    Console.Write('Two');\n    semB.Release();       // Vzbudí f1\n    semA.WaitOne();       // Čeká na f1\n    Console.Write('Four');\n    semB.Release();       // Vzbudí f1\n}\n```\n*Vysvětlení pro komisi:* Tímto vzniká dokonalá provázanost (tzv. hard-lock). I kdyby plánovač OS dal procesor vláknu 'f1' stokrát za sebou, na řádku 'semB.WaitOne()' se vlákno vždy spolehlivě zablokuje a musí počkat, dokud mu 'f2' nepošle signál přes 'semB.Release()'."
+    }
+  ]
+}

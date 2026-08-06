@@ -1,0 +1,1001 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/memizy/oqse-specification@main/schemas/oqse-v0.1.json",
+  "version": "0.1",
+  "meta": {
+    "id": "019fcc08-2aa1-737a-91bd-e256fc1d709d",
+    "language": "cs",
+    "title": "Databáze (MFF UK) - Státnice",
+    "description": "Komplexní příprava na písemné bakalářské státnice z okruhu Databáze. Pokrývá 18 reálných zkouškových úloh, relační teorii, SQL, transakce a moderní NoSQL/Big Data koncepty.",
+    "subject": "Databáze",
+    "createdAt": "2026-08-04T09:07:00Z",
+    "updatedAt": "2026-08-04T09:07:00Z",
+    "requirements": {
+      "features": [
+        "markdown",
+        "math",
+        "html",
+        "mermaid"
+      ]
+    },
+    "customData": {}
+  },
+  "items": [
+    {
+      "id": "019fcc08-2aa2-768e-a400-f0d16839b36c",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Analýza",
+        "Strategie",
+        "Část 1"
+      ],
+      "title": "Analýza testů a okruhy: Databáze (Část 1: Úlohy 1-11)",
+      "content": "## Analýza testů podle termínů (Reálná zadání - 1. část)\n\nZ hloubkové analýzy dodaných státnicových zadání vyplývá přesně 18 výskytů databázových úloh. Komise testuje primárně formální matematické a logické porozumění (transakce, normální formy) zkombinované s inženýrskou praxí (psaní složitého SQL bez IDE na papír).\n\n### Léto 2023\n**Úloha 1: 3NF a ER diagram (Konceptuální návrh)**\n* **Zadání:** Zadané relace PROJECT a EMPLOYEE. Úkolem bylo ověřit 3. normální formu (3NF) a nakreslit ER diagram.\n* **Chytáky:** Studenti se často nachytají na tranzitivní závislosti (např. Position $\\rightarrow$ Salary), což porušuje 3NF a vyžaduje dekompozici relace na dvě samostatné tabulky.\n\n**Úloha 2: Evaluace SQL (Jazyk SQL)**\n* **Zadání:** Vyhodnotit přesný výstup 5 zadaných SQL dotazů nad tabulkami (JOINy, IN, NOT IN, agregace).\n* **Chytáky:** Absolutní zákeřnost operátoru 'NOT IN' ve spojení s 'NULL' hodnotami. Pokud poddotaz uvnitř 'NOT IN' vrátí byť jedinou 'NULL' hodnotu, výsledek celé podmínky je 'UNKNOWN' a databáze nevrátí vůbec žádný řádek.\n\n**Úloha 3: Konfliktová uspořádatelnost (Transakce)**\n* **Zadání:** Zadaný rozvrh se čteními a zápisy ($W_3(A), R_2(A)...$). Cílem bylo nakreslit precedenční graf a určit zotavitelnost.\n* **Chytáky:** Na papír musíte striktně nakreslit orientovaný graf. Jakmile obsahuje cyklus (např. $T_1 \\rightarrow T_2$ a $T_2 \\rightarrow T_1$), na tvrdo napište, že rozvrh NENÍ konfliktově uspořádatelný.\n\n### Podzim 2023\n**Úloha 4: Striktní 2PL a Deadlocky (Transakce)**\n* **Zadání:** Do rozvrhu bylo nutné doplnit exkluzivní ($L_X$) a sdílené ($L_S$) zámky pro Striktní 2PL a najít uváznutí.\n* **Chytáky:** Striktní dvoufázový protokol (Strict 2PL) vyžaduje uvolnění exkluzivních zámků až při 'COMMIT' nebo 'ABORT'. Pokud na papír neuvedete, že se dvě transakce křížově zablokují (deadlock), protože čekají na zámek té druhé, komise strhává body.\n\n### Jaro 2024\n**Úloha 5: Dekompozice a 3NF (Konceptuální návrh)**\n* **Zadání:** Převod UML na relační model pro agendu Diplomových prací (vztahy řešitel a vedoucí). Odstranění tranzitivních závislostí.\n* **Chytáky:** Pokud existuje funkční závislost ID_Práce $\\rightarrow$ Obor $\\rightarrow$ Fakulta, schéma NENÍ ve 3NF. Musíte rozdělit na dvě tabulky. Zároveň se hlídá pravidlo, že v cizích klíčích nesmí být povolena hodnota 'NULL'.\n\n**Úloha 6: Složité DQL a návrh tabulek (Jazyk SQL)**\n* **Zadání:** V databázi SIS-Junior chyběly vazební tabulky pro předměty. Úkolem bylo je dopsat a vytvořit dotaz s průměrem ('AVG') napříč spojeními.\n* **Chytáky:** Vztah student-předmět je klasický M:N a vyžaduje dedikovanou vazební tabulku s kompozitním primárním klíčem. U dotazu komise hlídá, že všechny neagregované sloupce ze 'SELECT' musí být bezpodmínečně vypsány v 'GROUP BY'.\n\n### Léto 2024\n**Úloha 7: Odstranění redundance (Konceptuální návrh)**\n* **Zadání:** Modelování Nemocnice. Pacienti, Lékaři a Diagnózy s cílem navrhnout logický model a odstranit redundanci osobních údajů.\n* **Chytáky:** Pokud zadání zmiňuje, že pacient může být zároveň lékařem a nesmí mít údaje 2x, musí se použít IS-A hierarchie (dědičnost). Vytvoří se supertyp 'Osoba', kam se přesunou atributy (Jméno, Adresa), a podtypy budou obsahovat jen specifika.\n\n**Úloha 8: Čtení nepotvrzených dat (Transakce)**\n* **Zadání:** Hledání cyklů v grafu nemocničních transakcí $T_1, T_2, T_3$. Důkaz nezotavitelnosti.\n* **Chytáky:** Problém 'Dirty Read'. Rozvrh je nezotavitelný, pokud transakce $T_2$ čte nepotvrzená data zapsaná transakcí $T_1$ a potvrdí se ('COMMIT') dříve, než transakce $T_1$. Z logiky věci by se v případě selhání $T_1$ neměla $T_2$ kam zotavit.\n\n### Podzim 2024\n**Úloha 9: DDL, DML a NOT EXISTS (Jazyk SQL)**\n* **Zadání:** Vytvořit tabulky z domény Hudební scény, vložit data ('INSERT') a vypsat zpěváky bez kapely přes 'NOT EXISTS'.\n* **Chytáky:** Dbejte na správné pořadí definice tabulek a 'FOREIGN KEY' integritu. Příkaz 'DROP TABLE' na konci písemky musí jít v opačném pořadí (od potomků k rodičům), jinak selže na porušení 'constraint checks'.\n\n**Úloha 10: Multi-model DB vs. Polystore (Moderní DB)**\n* **Zadání:** Srovnat multi-model a polystore přístup. Navrhnout relační tabulku s vnořeným JSON dokumentem v PostgreSQL.\n* **Chytáky:** Polystore používá zcela oddělené databáze (např. relační + grafovou) spojené aplikačním prostředníkem (mediatorem). Multi-model naopak ukládá data nativně do jednoho enginu. Při psaní PostgreSQL dotazu musíte využít speciální operátor '->>' pro extrakci textu z JSONu.\n\n### Jaro 2025\n**Úloha 11: DDL s referenční integritou a Agregace (Jazyk SQL)**\n* **Zadání:** Tabulky pro ChatBota (Konverzace, Zprávy). Dotaz na vypsání konverzací s více než 100 zprávami.\n* **Chytáky:** Explicitně se testuje znalost klauzule 'HAVING'. Podmínka 'COUNT(id) > 100' NESMÍ být nikdy uvedena ve 'WHERE' (protože 'WHERE' filtruje řádky před seskupením), ale striktně až za 'GROUP BY' pomocí 'HAVING'."
+    },
+    {
+      "id": "019fcc08-2aa2-768e-a400-f5a13afffac6",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Analýza",
+        "Strategie",
+        "Část 2"
+      ],
+      "title": "Analýza testů a okruhy: Databáze (Část 2: Úlohy 12-18 a okruhy)",
+      "content": "## Analýza testů podle termínů (Reálná zadání - 2. část)\n\nPokračování rozboru státnicových úloh z databází. Zde se navíc začínají intenzivněji objevovat moderní databázové systémy a formální teorie normálních forem.\n\n### Léto 2025\n**Úloha 12: Návrh podle DCAT do 3NF (Konceptuální návrh)**\n* **Zadání:** Reprezentace datových katalogů. Zajištění 3. normální formy a vytvoření 'CREATE TABLE' skriptů.\n* **Chytáky:** Vícehodnotový atribut (jako 'seznam klíčových slov u datasetu') porušuje už 1. normální formu. Musíte vytvořit zcela samostatnou tabulku 'Keyword' s cizím klíčem na dataset, na toto komise u státnic přísně dohlíží.\n\n### Podzim 2025\n**Úloha 13: Konfliktová ekvivalence S1 a S2 (Transakce)**\n* **Zadání:** Porovnat dva rozvrhy $S_1$ a $S_2$ a prokázat, že dovedou databázi do naprosto shodného stavu (konfliktová ekvivalence).\n* **Chytáky:** Dva rozvrhy jsou konfliktově ekvivalentní tehdy a jen tehdy, pokud pro každou dvojici konfliktních operací (stejný prvek, aspoň jeden zápis, různé transakce) platí, že proběhnou ve stejném relativním pořadí v obou zkoumaných rozvrzích.\n\n**Úloha 14: Grafové databáze a Cypher (Moderní DB)**\n* **Zadání:** Databáze Knih a Autorů. Reprezentace v grafové DB Neo4j vs. relační model a napsání dotazu 'Spoluautoři, kteří nejsou přátelé'.\n* **Chytáky:** V Cypheru se očekává zápis formou ASCII-art pattern matchingu: 'MATCH (dan:Autor)-[:NAPSAL]->(k:Kniha)<-[:NAPSAL]-(spoluautor:Autor)'. Argumentem pro Neo4j je to, že hledání vztahů a rekurze (přátelé mých přátel) je v SQL extrémně drahé na tabulkové 'JOIN' operace.\n\n### Jaro/Léto 2026\n**Úloha 15: Úrovně abstrakce návrhu (Konceptuální návrh)**\n* **Zadání:** Definovat rozdíl mezi konceptuální, logickou a fyzickou úrovní návrhu databází. Následně nakreslit ER diagram pro Vládní usnesení.\n* **Chytáky:** Klasická teorie. Konceptuální = CO evidujeme (ER diagramy, byznys doména), Logická = JAK to reprezentujeme ve zvoleném modelu (Relační schéma, klíče, tabulky), Fyzická = JAK se to reálně uloží na disk (B-stromy, indexování, optimalizace výkonu).\n\n**Úloha 16: BCNF a kardinality (Konceptuální návrh)**\n* **Zadání:** UML pro entitu Hudebníků a Nástrojů. Určit přesné kardinality a převést návrh do Boyce-Coddovy normální formy (BCNF).\n* **Chytáky:** Pro BCNF platí absolutní poučka, kterou musíte citovat: 'Pro každou netriviální funkční závislost $X \\rightarrow Y$ musí být determinant $X$ superklíč'. V cizích klíčích se v rámci řešení na papír vyvarujte povolení 'NULL' hodnot.\n\n**Úloha 17: Neznámá operace v grafu (Transakce)**\n* **Zadání:** Časová osa rozvrhu obsahovala neznámou operaci '???' v čase 2. Cílem bylo určit, jaká operace (např. $W(Project)$) učiní rozvrh konfliktově neuspořádatelným.\n* **Chytáky:** Jedná se o reverzní inženýrství precedenčního grafu. Musíte si nakreslit existující hrany a cíleně hledat takovou operaci čtení/zápisu, která uzavře smyčku (např. hrana $T_2 \\rightarrow T_1$, když už existuje hrana $T_1 \\rightarrow T_2$).\n\n**Úloha 18: Big Data a MapReduce (Moderní DB)**\n* **Zadání:** Princip fungování algoritmu MapReduce pro Big Data. Vytvořit pseudokód pro tvorbu invertovaného indexu (kdy klíč je slovo a hodnota jsou identifikátory dokumentů).\n* **Chytáky:** Zásadní je do řešení zakomponovat lokální agregaci. Na papíře popište fuknci 'Combine'. Ta funguje jako mikro-reducer přímo na uzlu Mappera, sčítá výskyty na lokální úrovni a rapidně tím snižuje objem dat posílaných po síti (šetří network bandwidth) před finálním krokem.\n\n---\n\n## Další kritická témata ze sylabu (V testech se zatím neobjevilo)\n\nZatímco SQL dotazy, návrhy ER a Transakce tvoří absolutní jádro zkoušky, sylabus pokrývá i moderní škálované přístupy, na které padají teoretické otázky:\n\n### 1. CAP Teorém a BASE principy\n* **Zkouškový potenciál:** Extrémně vysoký pro doplňující otázky k sekci NoSQL a distribuovaných systémů.\n* **Co znát:** Znění CAP teorému (Konzistence, Dostupnost / Availability, Tolerance výpadku sítě / Partition tolerance). Musíte umět argumentovat, že systém může v přítomnosti síťového rozdělení garantovat pouze jedno ze zbylých dvou. Dále popsat přechod od přísného ACID standardu k volnějším BASE principům (Basically Available, Soft state, Eventual consistency).\n\n### 2. Klasifikace a architektura NoSQL databází\n* **Zkouškový potenciál:** Vysoký. Z rodiny moderních DB se testovaly zatím jen grafové (Neo4j) a JSON (Multi-model).\n* **Co znát:** Umět na papíře rozdělit NoSQL do čtyř rodin: Klíč-Hodnota (rychlá cache, např. Redis), Dokumentové (agregáty, self-describing BSON data, např. MongoDB), Sloupcové (zápisově náročné Time-series či Big Data analytiky, např. Cassandra) a Grafové (topologie sítě). Schopnost obhájit, v jakém případě SQL selhává a na jaký use-case nasadit danou NoSQL rodinu.\n\n### 3. Vnitřní uspořádání dat a V-stromy (B a B+ stromy)\n* **Zkouškový potenciál:** Střední. Fyzická úroveň návrhu (indexování).\n* **Co znát:** Jak funguje štěpení uzlu v B-stromu (často se zkouší krok za krokem při vkládání prvků do plného uzlu na papír). Zásadní rozdíl oproti B+ stromu: B+ strom uchovává data (nebo ukazatele na primární záznamy) výhradně ve svých listech. Tyto listy jsou následně lineárně zřetězené (spojový seznam), což umožňuje databázi vyhodnocovat 'RANGE' dotazy (např. 'BETWEEN', '>', '<') extrémně rychle sekvenčním čtením na disku, místo opakovaného procházení stromu od kořene."
+    },
+    {
+      "id": "019fcc13-fa3b-74c7-8363-aa2d77a47452",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Architektura DBMS",
+        "Úrovně abstrakce",
+        "ANSI-SPARC"
+      ],
+      "title": "Teorie: Úrovně abstrakce dat (ANSI-SPARC architektura)",
+      "content": "Při návrhu databázových systémů se striktně odděluje pohled uživatele od toho, jak jsou data reálně uložena na pevném disku. Tento princip se nazývá **tříúrovňová architektura (ANSI-SPARC)** a zkoušková komise vyžaduje precizní odlišení těchto 3 vrstev:\n\n### 1. Konceptuální úroveň (Sémantická)\n* **Co popisuje:** 'CO' chceme v systému evidovat (byznys logiku, pravidla, vztahy entit).\n* **Nezávislost:** Je naprosto nezávislá na použité technologii (SQL, NoSQL). Nepíší se zde žádné cizí klíče ani tabulky!\n* **Typický výstup:** ER diagram (např. Chenova notace) nebo UML Class diagram.\n* **Kdo ji vytváří:** Datový analytik, doménový expert (spolupracuje se zákazníkem).\n\n### 2. Logická úroveň (Databázová)\n* **Co popisuje:** 'JAK' budou data strukturována ve zvoleném typu databáze (typicky relační model).\n* **Vlastnosti:** Na této úrovni už vznikají tabulky, primární klíče, cizí klíče a řeší se normální formy (např. 3NF).\n* **Typický výstup:** Relační schéma, DDL skripty (příkazy 'CREATE TABLE').\n* **Kdo ji vytváří:** Databázový návrhář, backend vývojář.\n\n### 3. Fyzická úroveň (Úložiště)\n* **Co popisuje:** 'KDE A JAK PŘESNĚ' jsou data zapsána na úložném médiu (disku).\n* **Vlastnosti:** Řeší se zde alokace bloků, struktury souborů (heap, sekvenční) a především optimalizace přístupu (indexování, B-stromy, B+ stromy).\n* **Typický výstup:** Konkrétní indexy, rozdělení particií na discích.\n* **Kdo ji vytváří:** Databázový administrátor (DBA), specialista na optimalizaci výkonu.\n\n### Datová nezávislost\nDíky této architektuře získáváme dvě klíčové výhody, které na zkoušce zmiňte:\n* **Fyzická datová nezávislost:** Můžeme změnit fyzické uložení (přidat index, přesunout data na SSD), aniž bychom museli měnit logické relační schéma a aplikační kód.\n* **Logická datová nezávislost:** Můžeme přidat novou tabulku nebo sloupec do logického schématu, aniž bychom rozbili existující aplikační pohledy uživatelů."
+    },
+    {
+      "id": "019fcc13-fa3c-73b0-8f8a-8882db360224",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Úrovně abstrakce",
+        "Jaro 2026"
+      ],
+      "title": "Praxe: Aplikace úrovní na agendu ministerstev (Zkoušková úloha Jaro 2026 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nVysvětlete rozdíl mezi konceptuální, logickou a fyzickou úrovní při návrhu dat. Uveďte pro každou úroveň, co je jejím typickým výstupem a kdo ji typicky používá. Své vysvětlení následně demonstrujte na byznys doméně 'Vládní usnesení a Ministerstva'.",
+      "hiddenContent": "**Vzorové řešení a logický postup pro zkoušku:**\n\nKomise zde vyžaduje jasné 'odškrtnutí' všech 3 vrstev, jejich výstupů a aktérů (jak jsme si definovali v teorii). Druhou, klíčovou částí je aplikace těchto vrstev na konkrétní doménu zadání.\n\n**1. Konceptuální úroveň (Byznys pohled)**\n* *Výstup:* ER/UML model.\n* *Aktér:* Analytik / Doménový expert.\n* *Aplikace na příklad:* Nakreslili bychom entitu 'Ministerstvo' a entitu 'Usnesení'. Mezi nimi by existoval vztah M:N s názvem 'Připravuje'. Nepíšeme datové typy ani umělá ID. Řešíme jen sémantiku: 'Na přípravě jednoho usnesení se podílí více ministerstev.'\n\n**2. Logická úroveň (Relační pohled)**\n* *Výstup:* Relační tabulky, 'CREATE TABLE' SQL kód.\n* *Aktér:* Databázový návrhář.\n* *Aplikace na příklad:* Relační databáze neumí nativně ukládat vztah M:N. Proto na logické úrovni musíme zavést novou (vazební) tabulku, abychom převedli M:N na dva vztahy 1:N. Výstupem budou 3 tabulky:\n  - 'Ministerstvo (id_min PK, nazev)'\n  - 'Usneseni (id_usn PK, nazev)'\n  - 'Pripravuje_Usneseni (id_min FK, id_usn FK, role)' s kompozitním primárním klíčem.\n\n**3. Fyzická úroveň (Optimalizační pohled)**\n* *Výstup:* Fyzické úložiště, databázové indexy.\n* *Aktér:* Databázový administrátor (DBA).\n* *Aplikace na příklad:* DBA zjistí, že se často spouští dotaz: 'Které usnesení připravovalo Ministerstvo financí?'. Proto na fyzické úrovni vytvoří sekundární B+ stromový index nad sloupcem 'id_min' ve vazební tabulce. Tím zamezí pomalému prohledávání celé tabulky (Full Table Scan)."
+    },
+    {
+      "id": "019fcc13-fa3c-73b0-8f8a-8dafc6f4b309",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Konceptuální návrh",
+        "ER diagram",
+        "Atributy",
+        "Kardinality"
+      ],
+      "title": "Teorie: Konceptuální modelování (ER a UML)",
+      "content": "Cílem konceptuálního modelování (Entity-Relationship diagramy, příp. UML) je formálně zachytit realitu do grafického modelu. Pro zkouškové příklady na papír je klíčové chápat rozdíl mezi typy atributů a typy kardinalit, protože nepochopení sémantiky rovnou zničí navazující logický model.\n\n### Základní prvky ER modelu\n\n**1. Entity (Obdélník v ER)**\n* Představují objekty reálného světa (např. 'Zaměstnanec', 'Kniha'). *Zlaté pravidlo pro zkoušku:* Entita NENÍ tabulka. Entita je logický koncept.\n\n**2. Atributy (Ovál v ER)**\nReprezentují vlastnosti entit. U státnic dejte obří pozor na tyto typy:\n* **Jednoduchý (Atomický):** Nelze jej dále dělit (např. 'Věk').\n* **Kompozitní:** Skládá se z více částí (např. 'Adresa' obsahuje 'Ulice', 'Město'). V ER diagramu z hlavního oválu 'Adresa' rostou další pod-ovály.\n* **Vícehodnotový (Dvojitý ovál):** Může nabývat více hodnot pro jednu entitu (např. 'Klíčová slova' u datasetu). *Chyták:* Toto VŽDY porušuje 1. normální formu a v logickém modelu to budete muset extrahovat do zcela nové relační tabulky!\n* **Odvozený (Přerušovaný ovál):** Dá se spočítat z jiných atributů (např. 'Věk' odvozený z 'Data narození'). V relační databázi se pak takový atribut fyzicky neukládá.\n* **Klíčový atribut (Podtržený):** Unikátně identifikuje instanci (např. 'Rodné číslo').\n\n**3. Vztahy / Vazby (Kosočtverec v ER)**\nReprezentují interakci mezi entitami (např. 'Pracuje_Na').\n\n### Kardinality vztahů\nKatedra softwarového inženýrství vyžaduje formální pochopení limitů (minimum..maximum):\n* **1:1 (One-to-One):** Každý manažer řídí právě 1 oddělení. Každé oddělení je řízeno 1 manažerem.\n* **1:N (One-to-Many):** Každý zákazník může mít $N$ (více) objednávek. Každá objednávka patří právě 1 zákazníkovi.\n* **M:N (Many-to-Many):** Student si může zapsat $M$ předmětů. Předmět může mít zapsáno $N$ studentů. *Chyták:* V konceptuálním ER diagramu zkrátka nakreslíte čáru zleva do kosočtverce a zprava do kosočtverce. NIKDY do konceptuálního modelu nekreslete 'vazební tabulky' - to je až implementační detail logické úrovně!\n\n**Atributy vztahu:** Pokud má student zapsaný předmět a my chceme evidovat 'Známku', tento atribut nepatří ani Studentovi (protože by měl jen jednu známku za celé studium), ani Předmětu (všichni studenti by měli z tohoto předmětu stejnou známku). Atribut 'Známka' patří logicky přímo do kosočtverce vztahu 'Zapsán'."
+    },
+    {
+      "id": "019fcc17-fba5-7727-ab6e-2670e3ea7f2a",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Konceptuální návrh",
+        "ER diagram",
+        "UML",
+        "Notace"
+      ],
+      "title": "Teorie: Rozdíl mezi ER a UML notací (Jak správně kreslit u státnic)",
+      "content": "Při návrhu konceptuálního modelu na písemné zkoušce dává komise na výběr: můžete použít klasický **ER diagram (Chenova notace)** nebo objektový **UML diagram tříd**. \n\nZlaté pravidlo, za jehož porušení se okamžitě strhávají body: **Nikdy tyto dvě notace na papíře nemíchejte!** Zvolte si jednu a striktně dodržujte její grafická pravidla.\n\n### 1. ER diagram (Chenova notace)\nJe čistě datově orientovaný. Ideální pro ty, kteří chtějí jasně oddělit entity od jejich vlastností.\n* **Entita:** Kreslí se jako *obdélník* (např. Student).\n* **Vztah (Vazba):** Kreslí se jako *kosočtverec* na čáře mezi entitami (např. Zapsán). Uvnitř je sloveso.\n* **Atributy:** Kreslí se jako *ovály* připojené čarou k entitě nebo kosočtverci. Klíčový atribut musí být podtržený.\n* **Kardinality:** Zapisují se k čarám jako $(min, max)$, například $(0, N)$ nebo zkráceně $1:N$, $M:N$.\n* *Jak zapsat atribut vztahu:* Pokud má vztah 'Zapsán' atribut 'Známka', nakreslíte ovál 'Známka' a čarou ho připojíte přímo ke kosočtverci 'Zapsán'.\n\n### 2. UML Diagram tříd (Class Diagram)\nJe objektově orientovaný. Kompaktnější pro zápis na papír, protože netrpí 'explozí oválů'.\n* **Třída (Entita):** Kreslí se jako *obdélník rozdělený na sekce*. Nahoře je název, pod ním seznam atributů (volitelně i s datovými typy, např. `+ id: int`). Klíčové atributy se typicky označují stereotypem `<<PK>>` nebo podtržením.\n* **Asociace (Vztah):** Obyčejná *čára* spojující dva obdélníky. Název vztahu (sloveso) se píše nad čáru.\n* **Multiplicita (Kardinalita):** Píše se na konce asociační čáry. Zápis je ve formátu `0..1`, `1..*` (jedna až mnoho) nebo `*` (nula až mnoho).\n* *Jak zapsat atribut vztahu:* Zde nelze připojit atribut na obyčejnou čáru. Pokud má vztah M:N nějaký atribut (Známka), musíte použít tzv. **Asociační třídu**. Na papír nakreslíte čáru mezi Studentem a Předmětem, a z prostředka této čáry povedete *přerušovanou čáru* do nového obdélníku (třídy) s názvem 'Zapsán', ve kterém bude atribut 'Známka'.\n\n### Shrnutí pro komisi:\nZatímco ER diagram byl vymyšlen specificky pro relační modelování dat a zachycuje čistou byznys sémantiku bez ohledu na datové typy, UML vzniklo pro softwarové inženýrství. V UML třídách můžete specifikovat viditelnost (`+`, `-`) a metody, ačkoliv ty se u státnic z databází vynechávají (databázová tabulka nemá metody).\n\n**Ukázka jednoduchého UML zápisu (M:N vztah s asociační třídou):**\n```mermaid\nclassDiagram\n  class Student {\n    <<PK>> +id: int\n    +jmeno: string\n  }\n  class Predmet {\n    <<PK>> +kod: string\n    +nazev: string\n  }\n  class Zapis {\n    <<Asociační třída>>\n    +znamka: int\n    +datum: date\n  }\n  \n  %% M:N vztah\n  Student \"0..*\" -- \"0..*\" Predmet : si zapisuje\n  \n  %% Připojení asociační třídy (v Mermaidu reprezentováno vazbou, na papíře přerušovanou čarou z hlavní vazby)\n  Zapis ..|> Student : atributy vztahu\n```\n\n*Strategie pro písemku:* Vřele doporučuji zvolit pro státnice UML. Je mnohem rychlejší na kreslení (vypisujete atributy pod sebe do rámečku místo obkreslování 15 oválů, což vám ušetří cenné minuty)."
+    },
+    {
+      "id": "019fcc1a-f1d1-71c7-9d94-af5961f58f9d",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Konceptuální návrh",
+        "UML",
+        "Extra úloha"
+      ],
+      "title": "Praxe: Kreslení ER/UML diagramu pro zadanou doménu (Extra úloha)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nNavrhněte konceptuální datový model (pomocí UML) pro následující zadání zjednodušeného e-shopu:\n'E-shop eviduje Zákazníky (mají unikátní email, jméno a doručovací adresu). Zákazník může vytvořit libovolný počet Objednávek, každá objednávka patří právě jednomu zákazníkovi a má své číslo a datum vytvoření. Objednávka se skládá z konkrétních Produktů (produkt má SKU kód, název a cenu). U každého produktu v dané objednávce si musíme pamatovat, kolik kusů (množství) si zákazník objednal. Produkt se může nacházet v mnoha objednávkách, nebo také v žádné.'\n\nVaším úkolem je na papír identifikovat entity, klíče, vztahy (včetně kardinalit) a správně umístit atribut 'množství'.",
+      "hiddenContent": "**Vzorové řešení a logický postup pro komisi:**\n\nNejčastější chyba studentů u státnic je nesprávné pochopení vztahu M:N a špatné umístění atributu, který patří samotnému vztahu. Pokud 'množství' dáme do Produktu, znamenalo by to, že produkt má všude stejné množství. Pokud do Objednávky, objednávka by měla jedno množství pro všechny produkty. Z logiky věci patří 'množství' do vztahu mezi nimi.\n\n**Analýza entit a kardinalit:**\n1. **Zákazník:** Klíč je 'email'.\n2. **Objednávka:** Klíč je 'číslo_objednávky'. Vztah se Zákazníkem je 1:N (Zákazník má 0..N objednávek, Objednávka má právě 1 Zákazníka).\n3. **Produkt:** Klíč je 'SKU'. Vztah s Objednávkou je M:N (Objednávka má 1..N produktů, Produkt je v 0..N objednávkách).\n4. **Atribut vztahu:** 'Množství' patří do asociační třídy (nebo na spojnici v ER) mezi Objednávku a Produkt.\n\n**UML zápis na papír:**\n\n```mermaid\nclassDiagram\n  class Zakaznik {\n    <<PK>> +email: string\n    +jmeno: string\n    +adresa: string\n  }\n  \n  class Objednavka {\n    <<PK>> +cislo_objednavky: int\n    +datum: date\n  }\n  \n  class Produkt {\n    <<PK>> +SKU: string\n    +nazev: string\n    +cena: decimal\n  }\n  \n  class PolozkaObjednavky {\n    <<Asociacni_trida>>\n    +mnozstvi: int\n  }\n  \n  %% Vztah 1:N\n  Zakaznik -- Objednavka : 1 az N\n  \n  %% Vztah M:N s asociační třídou\n  Objednavka -- Produkt : M az N\n  PolozkaObjednavky ..|> Objednavka : specifikuje\n```\n*Poznámka ke zkoušce:* Zkušební komisi musíte explicitně vysvětlit (třeba i textově pod obrázkem), proč 'PolozkaObjednavky' není standardní entita, ale asociační třída řešící M:N vazbu."
+    },
+    {
+      "id": "019fcc1a-f1d1-71c7-9d94-b3110719c910",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Slabá entita",
+        "IS-A hierarchie",
+        "Konceptuální návrh"
+      ],
+      "title": "Teorie: Pokročilé konceptuální prvky (Slabé entity a IS-A hierarchie)",
+      "content": "Běžné entity a vztahy na složitější byznys logiku nestačí. Katedra softwarového inženýrství ráda do zadání schovává logické oříšky, které musíte na papíře vyřešit pomocí slabých entit nebo dědičnosti.\n\n### 1. Slabá entita (Weak Entity)\nSlabá entita je taková entita, která **nemá svůj vlastní unikátní primární klíč**. Její existence (a identifikace) je existenčně závislá na jiné, tzv. 'silné' entitě (Owner entity).\n* **Příklad:** Entita 'Místnost' v budově. Místnost číslo '101' existuje v mnoha budovách. Sama o sobě není unikátní. Unikátní je až v kontextu silné entity 'Budova' (např. Budova A, Místnost 101).\n* **Zápis v ER (Chen):** Slabá entita se kreslí jako *dvojitý obdélník*. Vztah k silné entitě (tzv. identifikační vztah) se kreslí jako *dvojitý kosočtverec*. Částečný klíč (tzv. diskriminátor, např. číslo místnosti) se podtrhává *přerušovanou čarou*.\n* **Převod do logického (relačního) modelu:** Primární klíč slabé entity se poskládá jako kompozitní klíč: (Primární klíč silné entity + Diskriminátor slabé entity). Tj. `(ID_Budovy, Cislo_Mistnosti)`.\n\n### 2. Hierarchie IS-A (Dědičnost / Subtyping)\nPoužívá se, když mají různé entity sdílené (společné) atributy, ale zároveň si drží svá specifika. Zabraňuje to masivní redundanci dat (např. abychom neukládali Jméno, Přijmení, Adresu zvlášť pro Studenta a zvlášť pro Učitele, když oba jsou Osoba).\n* **Supertyp (Rodič):** Obecná entita (např. 'Osoba'), která obsahuje sdílené atributy.\n* **Subtyp (Potomek):** Specifická entita (např. 'Student'), která 'dědí' atributy rodiče a přidává vlastní (např. 'Ročník'). Vztah se čte jako 'Student IS-A Osoba'.\n\n**Vlastnosti dědičnosti (Na toto se komise ptá ústně):**\n1. **Disjoint vs. Overlapping (Disjunktnost):** Může instance patřit do více subtypů najednou? *Disjoint (d)* znamená, že Osoba je BUĎ Student NEBO Učitel, ale nikdy ne obojí. *Overlapping (o)* znamená, že Osoba může být Student i Učitel současně.\n2. **Total vs. Partial (Úplnost):** Musí každá instance supertypu patřit do nějakého subtypu? *Total* (označené dvojitou čarou) znamená, že každá Osoba v databázi MUSÍ být buď Student nebo Učitel. *Partial* znamená, že může existovat Osoba, která není ani jedním (např. uklízečka bez role v IS).\n\n*Strategie pro písemku:* Jakmile v zadání vidíte větu 'Zákazník může být zároveň zaměstnanec a nesmíme mít jeho údaje uložené dvakrát', okamžitě na papír kreslete IS-A hierarchii s Overlapping vlastností!"
+    },
+    {
+      "id": "019fcc1a-f1d2-77be-9f98-1e14c8abd3d3",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2024",
+        "IS-A hierarchie",
+        "Redundance"
+      ],
+      "title": "Praxe: Návrh IS-A hierarchie pro nemocnici (Zkoušková úloha Léto 2024 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nV informačním systému nemocnice byl navržen hrubý logický relační datový model (podtržením jsou vyznačeny klíče):\n- Diagnoza(Kód, Nazev)\n- Lekar(RC, Jmeno, Prijmeni, Adresa, RokyPraxe)\n- Pacient(RC, Jmeno, Prijmeni, Adresa)\n- LeciSe(Pacient_RC, Diagnoza_Kod)\n\nVaším úkolem je upravit a rozšířit tento návrh tak, aby splňoval následující podmínky (narýsujte výsledný konceptuální nebo relační model):\n1. Každý pacient má právě jednoho praktického lékaře, ale může mít libovolný počet dalších ošetřujících lékařů.\n2. Každý pacient se mohl léčit na libovolný počet diagnóz.\n3. **Kritická podmínka:** Pacient, který je zároveň lékařem (např. doktor, co si zlomí nohu a je ošetřován v téže nemocnici), NESMÍ MÍT osobní údaje (Jméno, Přijmení, Adresa) evidovány redundantně (dvakrát).",
+      "hiddenContent": "**Vzorové autorské řešení a postup obhajoby:**\n\nTato úloha je ukázkovým testem na aplikaci **IS-A hierarchie (dědičnosti)** v databázích. Pokud pacient, který je zároveň lékařem, nesmí mít redundantní data, nesmíme mít tabulku 'Pacient' a tabulku 'Lékař' s duplicitními sloupci Jméno a Adresa.\n\n**Řešení krok za krokem:**\n\n1. **Vytvoření Supertypu (Osoba):**\nSloučíme všechny společné atributy do nadřazené entity 'Osoba'. Klíčem bude Rodné číslo (RC).\n*Osoba(RC PK, Jmeno, Prijmeni, Adresa)*\n\n2. **Vytvoření Subtypů:**\nPacient a Lékař budou podtypy (subtypy) Osoby. V relačním modelu to znamená, že budou mít jako primární klíč RC, který je zároveň cizím klíčem (FK) odkazujícím na Osobu. Tím pádem Lékař i Pacient sdílí jeden řádek s osobními údaji v tabulce Osoba!\n*Lekar(RC PK/FK, RokyPraxe)*\n*Pacient(RC PK/FK, PraktickyLekar_RC FK)*\n\n3. **Vyřešení vztahů:**\n- Pacient a Diagnóza (libovolný počet diagnóz) $\\rightarrow$ Vazební tabulka M:N.\n- Pacient a Praktický lékař (právě jeden) $\\rightarrow$ Cizí klíč v tabulce Pacient.\n- Pacient a Další ošetřující lékaři (libovolný počet) $\\rightarrow$ Zcela nová vazební tabulka M:N.\n\n**Zápis finálního logického (relačního) modelu na papír:**\n\n- **Osoba** (RC [PK], Jmeno, Prijmeni, Adresa)\n- **Lekar** (RC [PK, FK $\\rightarrow$ Osoba.RC], RokyPraxe)\n- **Pacient** (RC [PK, FK $\\rightarrow$ Osoba.RC], Prakticky_Lekar_RC [FK $\\rightarrow$ Lekar.RC])\n- **Diagnoza** (Kod [PK], Nazev)\n- **LeciSe_Diagnoza** (Pacient_RC [PK, FK $\\rightarrow$ Pacient.RC], Diagnoza_Kod [PK, FK $\\rightarrow$ Diagnoza.Kod])\n- **Osetruje** (Pacient_RC [PK, FK $\\rightarrow$ Pacient.RC], Lekar_RC [PK, FK $\\rightarrow$ Lekar.RC])\n\n*Komentář pro komisi:* Redundance je odstraněna tím, že 'Osoba' slouží jako zastřešující tabulka. Pokud přijde pan Novák (lékař) jako pacient, vytvoří se mu pouze záznam v tabulce 'Pacient', který pomocí RC ukáže na již existující data v tabulce 'Osoba'."
+    },
+    {
+      "id": "019fcc1b-9660-7438-a3db-b3ee6ace4b7f",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Mapování",
+        "Relační model",
+        "Logický návrh"
+      ],
+      "title": "Teorie: Mapování konceptuálního modelu na logický (relační) model",
+      "content": "Po vytvoření ER nebo UML diagramu (konceptuální úroveň) následuje převod do logického relačního schématu (tabulky, primární klíče PK, cizí klíče FK). Katedra vyžaduje naprosto bezchybnou znalost následujících mapovacích pravidel. Pokud je u státnic porušíte, návrh je považován za chybný.\n\n### Zlatá pravidla mapování na papír\n\n**1. Silná (běžná) entita**\n* Vytvoříme novou tabulku. Všechny jednoduché atributy se stanou sloupci.\n* Klíčový atribut se stane primárním klíčem (`PK`).\n\n**2. Vztah 1:N (Jeden k mnoha)**\n* **Nigdy nevytváříme vazební tabulku!**\n* Pravidlo: Cizí klíč (`FK`) se vkládá VŽDY na stranu 'N' (potomek) a odkazuje na primární klíč tabulky na straně '1' (rodič).\n* *Příklad:* Oddělení (1) a Zaměstnanec (N). Tabulka Zaměstnanec dostane nový sloupec `ID_Oddeleni (FK)`.\n\n**3. Vztah M:N (Mnoho k mnoha)**\n* Relační model neumí M:N nativně uchovat. **Vždy vytváříme novou vazební tabulku.**\n* Tabulka bude obsahovat dva cizí klíče odkazující na obě spojené entity.\n* Primárním klíčem této nové tabulky je **kompozitní klíč** složený z obou těchto cizích klíčů: `PK(FK1, FK2)`.\n* Jakékoliv atributy samotného vztahu se stanou datovými sloupci v této vazební tabulce.\n\n**4. Vztah 1:1 (Jedna k jedné)**\n* Cizí klíč můžeme umístit do libovolné z obou tabulek. Z hlediska optimalizace (a vyhnutí se `NULL` hodnotám) jej dáváme do té tabulky, která má tzv. **totální participaci** (tzn. záznam v ní nemůže existovat bez vazby na druhou entitu).\n* Cizí klíč u 1:1 vztahu musí mít navíc omezení `UNIQUE`, aby se zamezilo navázání více záznamů na stejný cíl.\n\n**5. Vícehodnotový atribut (Dvojitý ovál)**\n* *Typický státnicový chyták!* Vícehodnotový atribut se **nikdy** nestává sloupcem (porušilo by to 1. normální formu).\n* Vytvoří se pro něj zcela nová tabulka. Její kompozitní primární klíč tvoří původní hodnota + cizí klíč nadřazené entity. Např. dataset má více klíčových slov $\\rightarrow$ tabulka `Dataset_Keyword(Dataset_ID FK, Keyword, PK(Dataset_ID, Keyword))`.\n\n**6. Slabá entita**\n* Vytvoří se nová tabulka. Její primární klíč je složen z cizího klíče silné entity a vlastního parciálního klíče (diskriminátoru). Např. `Mistnost(Budova_ID FK, Cislo_Mistnosti, PK(Budova_ID, Cislo_Mistnosti))`."
+    },
+    {
+      "id": "019fcc1b-9660-7438-a3db-b67e135f8ace",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Jaro 2024",
+        "NULL",
+        "Mapování"
+      ],
+      "title": "Praxe: Převod ER do relací a zákaz NULL (Zkoušková úloha Jaro 2024 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nV rámci návrhu databáze diplomových prací byly na konceptuální úrovni identifikovány dvě třídy: 'Osoba' (Cislo, Jmeno, Typ) a 'Diplomová práce' (Nazev, Obor, Fakulta). Dále byly identifikovány tyto vztahy:\n1. Diplomová práce má nejvýše jednoho řešitele. Řešitel může mít přidělenu nejvýše jednu práci.\n2. Diplomová práce má právě jednoho vedoucího. Vedoucí může vést libovolný počet prací.\n\nPřeveďte tento konceptuální model na logický relační model. Nezapomeňte vyznačit všechny klíče a referenční integritu (cizí klíče).\n\n**Kritická podmínka:** Převod proveďte striktně tak, aby v žádném cizím klíči nemusela být nikdy vložena `NULL` hodnota!",
+      "hiddenContent": "**Vzorové autorské řešení a analýza chytáku:**\n\nToto je jedna z nejzákeřnějších úloh na mapování, protože testuje hluboké pochopení problému `NULL` hodnot v databázích.\n\n**Krok 1: Analýza vztahu Vedoucí - Práce (1:N)**\n* 'Práce má PRÁVĚ JEDNOHO vedoucího' (min 1, max 1).\n* 'Vedoucí vede LIBOVOLNÝ POČET prací' (min 0, max N).\n* *Mapování:* Vztah 1:N mapujeme přidáním cizího klíče na stranu 'N' (k Práci). Protože práce MUSÍ mít právě jednoho vedoucího (minimum je 1), cizí klíč `Vedouci_ID` v tabulce Práce bude `NOT NULL`. Podmínka ze zadání je tímto splněna, zde `NULL` nehrozí.\n\n**Krok 2: Analýza vztahu Řešitel - Práce (1:1 s volitelnou participací)**\n* 'Práce má NEJVÝŠE jednoho řešitele' (min 0, max 1). Může to být volné téma bez studenta.\n* 'Řešitel má NEJVÝŠE jednu práci' (min 0, max 1). Student ještě nemusí mít vybrané téma.\n* *Mapování (ZÁKOP):* Standardně se u vztahu 1:1 dává cizí klíč do jedné z tabulek. \n  * Pokud dáme `Resitel_ID` do Práce, tak u volných témat bude `NULL`.\n  * Pokud dáme `Prace_ID` k Osobě, tak u studentů bez tématu (a u všech vedoucích!) bude `NULL`.\n* *Řešení:* Jak se vyhnout `NULL` u vztahů, kde jsou obě strany volitelné (0..1)? **Vytvoříme samostatnou vazební tabulku**, i když jde o vztah 1:1!\n\n**Zápis finálního relačního schématu na papír:**\n\n- **Osoba** (Osoba_ID [PK], Cislo, Jmeno, Typ)\n- **Diplomova_Prace** (Prace_ID [PK], Nazev, Obor, Fakulta, Vedouci_ID [FK $\\rightarrow$ Osoba.Osoba_ID, NOT NULL])\n- **Resi_Praci** (Osoba_ID [FK $\\rightarrow$ Osoba.Osoba_ID], Prace_ID [FK $\\rightarrow$ Diplomova_Prace.Prace_ID])\n  * Primární klíč vazební tabulky: PK(Osoba_ID, Prace_ID)\n  * Abychom zachovali kardinalitu 1:1, musíme přidat omezení unikátnosti na oba sloupce zvlášť: `UNIQUE(Osoba_ID)` a `UNIQUE(Prace_ID)` v této vazební tabulce.\n\n*Komentář pro komisi:* Tímto návrhem jsme zcela eliminovali možnost výskytu `NULL` hodnot v cizích klíčích, neboť volitelné přiřazení řešitele k práci se řeší pouhou existencí, resp. neexistencí řádku v tabulce 'Resi_Praci'."
+    },
+    {
+      "id": "019fcc1b-9660-7438-a3db-bbaf5b24c779",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Anomálie",
+        "Normalizace",
+        "Redundance"
+      ],
+      "title": "Teorie: Anomálie v relačních databázích (Proč normalizujeme)",
+      "content": "Při ústní obhajobě písemky nebo v teoretických zadáních se komise ptá, *proč* vlastně podstupujeme složitý proces normalizace (převod do 3NF/BCNF). Hlavním argumentem je **odstranění redundance** (duplicity dat), která primárně způsobuje tzv. **Anomálie**.\n\nNa papír si připravte demonstraci na jediné obří denormalizované tabulce, tzv. Univerzální relaci. \nPředstavme si tabulku: `STUDENT_PREDMET(Student_ID, Jmeno, Obor, Fakulta, Dekan, Zapsany_Predmet)`.\n\nPokud takovouto tabulku nenormalizujeme, budeme čelit třem fatálním problémům:\n\n### 1. Update Anomaly (Anomálie modifikace)\n* **Co to je:** Nastává, když aktualizace jednoho logického faktu vyžaduje úpravu na mnoha řádcích tabulky. Hrozí ztráta konzistence dat.\n* **Vysvětlení na příkladu:** Pokud se na MFF změní děkan, musíme v tabulce přepsat sloupec 'Dekan' u *všech* studentů MFF (tisíce řádků). Pokud by databáze uprostřed updatu spadla, část studentů bude mít starého děkana a část nového. Databáze se stane vnitřně nekonzistentní.\n\n### 2. Insert Anomaly (Anomálie vkládání)\n* **Co to je:** Nastává, když systém neumožňuje vložit fakt o jedné entitě, dokud neexistuje propojení s jinou entitou (kvůli požadavku na neprázdný primární klíč).\n* **Vysvětlení na příkladu:** Představme si, že UK založí novou fakultu s novým děkanem. V naší denormalizované tabulce je primárním klíčem kompozice `(Student_ID, Zapsany_Predmet)`. Protože na novou fakultu ještě nenastoupil žádný student, nemáme žádné `Student_ID`. Kvůli pravidlu integrity entit (PK nesmí být `NULL`) databáze *odmítne* uložit informaci o existenci nové fakulty a jejího děkana!\n\n### 3. Delete Anomaly (Anomálie mazání)\n* **Co to je:** Nastává, když smazání informací o jedné entitě způsobí nechtěnou (nenávratnou) ztrátu informací o zcela nesouvisející entitě.\n* **Vysvětlení na příkladu:** Předpokládejme, že obor 'Egyptologie' studoval historicky jen jeden jediný student. Pokud tento student dostuduje a my jeho záznam z naší obří tabulky smažeme, *nenávratně ztratíme* z databáze informaci o tom, na jaké fakultě se Egyptologie vyučuje a kdo je její děkan, protože tato data existovala pouze v onom jediném smazaném řádku.\n\n**Řešení (Pointa pro komisi):** \nProces normalizace rozbije tuto univerzální relaci na více menších (např. tabulka Fakulta, tabulka Student, vazební tabulka Zápisů), propojených cizími klíči. Děkan fakulty se pak v celé databázi vyskytuje na přesně jednom místě (jeden řádek v tabulce Fakulta) a aktualizace jeho jména je $O(1)$ bezpečná operace."
+    },
+    {
+      "id": "019fcc2b-246f-7529-98ef-cbe41f1f4156",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Relační model",
+        "Funkční závislosti",
+        "Klíče"
+      ],
+      "title": "Teorie: Funkční závislosti, Klíče a Armstrongovy axiomy",
+      "content": "Předtím než začneme tabulky dekomponovat do normálních forem, vyžaduje komise formální definici toho, co je to klíč a funkční závislost. U státnic se nelze odvolávat na 'pocity', vše stojí na exaktní matematice.\n\n### 1. Funkční závislost (FD)\nŘíkáme, že atribut $Y$ je funkčně závislý na atributu $X$ (značíme $X \\rightarrow Y$), pokud platí: **Kdykoliv se shodují dva řádky v hodnotě $X$, MUSÍ se shodovat i v hodnotě $Y$.**\n* Atribut $X$ se nazývá **determinant**.\n* *Příklad:* $Rodne\\_Cislo \\rightarrow Datum\\_Narozeni$. (Pokud mají dva lidé stejné RČ, musí mít stejné datum narození).\n\n### 2. Armstrongovy axiomy\nSada odvozovacích pravidel, pomocí kterých můžeme z existujících funkčních závislostí vygenerovat všechny ostatní (tzv. uzávěr $F^+$). Pro zkoušku si pamatujte tři základní:\n1. **Reflexivita:** Pokud $Y \\subseteq X$, pak $X \\rightarrow Y$. (Triviální závislost, např. $Jmeno, Prijmeni \\rightarrow Jmeno$).\n2. **Augmentace (Rozšíření):** Pokud $X \\rightarrow Y$, pak $XZ \\rightarrow YZ$ pro libovolnou množinu atributů $Z$.\n3. **Tranzitivita:** Pokud $X \\rightarrow Y$ a $Y \\rightarrow Z$, pak $X \\rightarrow Z$. (Toto pravidlo je klíčové pro 3. normální formu!).\n\n### 3. Klasifikace klíčů (Státnicová past)\nStudenti často míchají pojmy primární klíč a superklíč. Zde je přesná hierarchie:\n* **Superklíč (Superkey):** Libovolná množina atributů, která funkčně určuje VŠECHNY ostatní atributy v relaci. (Např. $\\{Rodne\\_Cislo, Jmeno, Barva\\_Oci\\}$ je superklíč, i když obsahuje zbytečnosti).\n* **Kandidátský klíč (Candidate Key):** MINIMÁLNÍ superklíč. Tedy superklíč, ze kterého už **nelze odebrat žádný atribut**, aniž by ztratil vlastnost superklíče. Relace může mít *více* kandidátských klíčů (např. RČ, nebo Email).\n* **Primární klíč (Primary Key):** Jeden vybraný kandidátský klíč, který databázový návrhář zvolí pro fyzickou identifikaci záznamů.\n* **Prvoatribut (Prime attribute):** Extrémně důležitý pojem pro BCNF! Je to libovolný atribut, který je **součástí ALESPOŇ JEDNOHO kandidátského klíče**."
+    },
+    {
+      "id": "019fcc2b-246f-7529-98ef-cc44589d49e6",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Uzávěr atributů",
+        "Kandidátské klíče"
+      ],
+      "title": "Praxe: Výpočet uzávěru a nalezení klíčů (Extra formální úloha)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nMějme relační schéma $R(A, B, C, D, E)$ a množinu funkčních závislostí $F = \\{A \\rightarrow BC, CD \\rightarrow E, B \\rightarrow D, E \\rightarrow A\\}$.\n\n1. Vypočítejte uzávěr atributu $A$, tedy $A^+$.\n2. Najděte VŠECHNY kandidátské klíče relace $R$.\n3. Vyjmenujte všechny prvoatributy (prime attributes) této relace.",
+      "hiddenContent": "**Vzorové autorské řešení a postup obhajoby:**\n\nToto je typická úloha, kde komise testuje, zda chápete algoritmus pro hledání klíčů a neskončíte po nalezení prvního z nich.\n\n**Ad 1. Uzávěr atributu $A^+$:**\nUzávěr atributu znamená 'co všechno dokážu z tohoto atributu odvodit aplikací závislostí'.\n* Krok 0: $A^+ = \\{A\\}$ (Reflexivita)\n* Krok 1: Aplikuji $A \\rightarrow BC$. Nyní $A^+ = \\{A, B, C\\}$.\n* Krok 2: Mám $B$, takže aplikuji $B \\rightarrow D$. Nyní $A^+ = \\{A, B, C, D\\}$.\n* Krok 3: Mám $C$ i $D$, takže aplikuji $CD \\rightarrow E$. Nyní $A^+ = \\{A, B, C, D, E\\}$.\n* Výsledek: **$A^+ = \\{A, B, C, D, E\\}$**.\n* *Závěr:* Protože jsme z $A$ odvodili všechny atributy relace $R$, je $A$ kandidátským klíčem!\n\n**Ad 2. Hledání VŠECH kandidátských klíčů:**\nMusíme otestovat další atributy, na které ukazuje nějaká závislost (což by mohla být cesta zpět).\n* Otestujeme $E$: Z $E \\rightarrow A$ víme, že z $E$ získáme $A$. A protože z $A$ získáme vše, i $E$ je klíč! $E^+ = \\{E, A, B, C, D\\}$. Tedy **$E$ je kandidátský klíč**.\n* Otestujeme $B$ a $C$: Samotné $B$ odvodí jen $\\{B, D\\}$. Samotné $C$ odvodí jen $\\{C\\}$.\n* Co takhle $BC$? Z $B$ máme $D$, takže máme $\\{B, C, D\\}$. Z $CD$ máme $E$. Z $E$ máme $A$. Tedy **$BC$ je kandidátský klíč** (a je minimální, protože samotné $B$ ani $C$ nestačí).\n* Co takhle $CD$? Z $CD$ máme $E$. Z $E$ máme $A$. Z $A$ máme $BC$. Tedy **$CD$ je kandidátský klíč**.\n* *Odpověď pro komisi:* Relace $R$ má celkem 4 kandidátské klíče: **$A, E, BC, CD$**.\n\n**Ad 3. Prvoatributy:**\nPrvoatribut je takový atribut, který leží v ALESPOŇ JEDNOM kandidátském klíči. Z naší množiny klíčů $\\{A, E, BC, CD\\}$ vidíme, že byly použity atributy $A, B, C, D, E$.\n* *Odpověď:* **Všechny atributy $A, B, C, D, E$ jsou prvoatributy.** (Z logiky věci v této relaci neexistuje žádný ne-prvoatribut, což je u zkoušky dobré zmínit!)."
+    },
+    {
+      "id": "019fcc2b-246f-7529-98ef-d102b2635616",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Normální formy",
+        "1NF",
+        "2NF"
+      ],
+      "title": "Teorie: První a Druhá normální forma (1NF, 2NF)",
+      "content": "Normalizace je proces postupné eliminace datových anomálií aplikací sady striktních pravidel. Zkušební komise chce na papíře vidět exaktní definice a demonstraci toho, KDY daná forma selhává.\n\n### 1. normální forma (1NF)\n* **Definice:** Relace je v 1NF právě tehdy, když je doména každého atributu **atomická** (nečlenitelná) a relace neobsahuje žádné opakující se skupiny (pole, seznamy).\n* **Kdy porušujeme 1NF:** Pokud máme v tabulce `Kniha` sloupec `Autori` a vložíme do něj hodnotu `'Čapek, Němcová, Erben'`. Databáze nevidí tři autory, ale jeden textový řetězec.\n* **Jak opravit do 1NF:** Musíme vytvořit novou tabulku (např. `Kniha_Autor`) a hodnoty rozebrat na samostatné řádky s kompozitním klíčem.\n\n### 2. normální forma (2NF)\n* **Předpoklad:** Abychom mohli vůbec řešit 2NF, musí relace být již v 1NF.\n* **Definice:** Relace je ve 2NF právě tehdy, když každý ne-prvoatribut (atribut, který není součástí žádného kandidátského klíče) je **PLNĚ funkčně závislý** na KAŽDÉM kandidátském klíči.\n* **Co to znamená lidsky:** Zjednodušeně řečeno, nesmí existovat *částečná závislost*. Částečná závislost nastává výhradně tehdy, když má tabulka **kompozitní (složený) primární klíč**, a nějaký obyčejný sloupec závisí pouze na *polovině* tohoto klíče.\n\n**Příklad porušení 2NF pro zkoušku:**\n* Mějme tabulku `Vysledek_Zkousky(Student_ID, Predmet_ID, Znamka, Nazev_Predmetu)`.\n* Primární (kompozitní) klíč je `(Student_ID, Predmet_ID)`.\n* Sloupec `Znamka` závisí plně na celém klíči (potřebujeme vědět KDO a Z ČEHO to dostal).\n* **CHYBA:** Sloupec `Nazev_Predmetu` závisí POUZE na `Predmet_ID`. Nezajímá ho `Student_ID`.\n* Formálně: Existuje závislost $Predmet\\_ID \\rightarrow Nazev\\_Predmetu$, kde $Predmet\\_ID \\subset Kli\\check{c}$.\n\n**Jak navrhnout opravu (Dekompozice):**\nProblémový atribut (`Nazev_Predmetu`) se musí z tabulky odstranit a vytvoří se pro něj zcela nová tabulka `Predmet(Predmet_ID PK, Nazev_Predmetu)`. V původní tabulce zůstane jen `(Student_ID, Predmet_ID, Znamka)`."
+    },
+    {
+      "id": "019fcc2b-653b-731d-acbf-c4eaf4ca2c24",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2025",
+        "1NF",
+        "Dekompozice"
+      ],
+      "title": "Praxe: Normalizace DCAT katalogů z 1NF (Zkoušková úloha Léto 2025 - Část 1)",
+      "content": "**Zkoušková úloha na papír (Aplikace 1NF):**\n\nNavrhujete logické relační schéma pro datové katalogy na základě slovníku DCAT. Zadání říká, že evidujeme entitu 'Datová sada (dcat:Dataset)', u které si musíme pamatovat tyto vlastnosti:\n- IRI (unikátní identifikátor),\n- název (v jednom jazyce),\n- klíčová slova (může jich být k jedné datové sadě více).\n\nJak přesně namapujete tuto entitu na relační tabulky, aby výsledné schéma netrpělo anomáliemi a neporušovalo už 1. normální formu (1NF)? Napište návrh tabulek (včetně PK a FK).",
+      "hiddenContent": "**Vzorové řešení a logický postup pro komisi:**\n\nKomise zde testuje, jak si poradíte s pojmem 'vícehodnotový atribut' (zde klíčová slova). \n\n**Analýza chyby (Porušení 1NF):**\nPokud bychom navrhli jedinou tabulku `Dataset(IRI PK, Nazev, Klicova_Slova)`, do sloupce `Klicova_Slova` bychom museli vkládat seznamy (např. 'ekologie, doprava, finance'). To **striktně porušuje 1. normální formu (1NF)**, protože doména tohoto atributu by nebyla atomická (nerozdělitelná).\n\n**Oprava (Dekompozice):**\nPro každý vícehodnotový atribut musíme vytvořit ZCELA NOVOU tabulku. Původní entita si ponechá jen atomické atributy.\n\n**Zápis na papír:**\n1. **Dataset**(IRI [PK], Nazev)\n2. **Dataset_Keyword**(Dataset_IRI [FK $\\rightarrow$ Dataset.IRI], Keyword)\n   - *Primární klíč:* Tato nová tabulka musí mít kompozitní primární klíč tvořený oběma sloupci, tedy **PK(Dataset_IRI, Keyword)**.\n\n*Komentář pro komisi:* Tímto rozbitím jsme zajistili 1NF (každá buňka obsahuje jen jednu textovou hodnotu). Navíc jsme nenarušili 2NF, protože v tabulce `Dataset` nemáme složený klíč a v tabulce `Dataset_Keyword` nemáme žádné další sloupce, které by mohly trpět částečnou závislostí."
+    },
+    {
+      "id": "019fcc2b-653b-731d-acbf-c853ff480844",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Normální formy",
+        "3NF",
+        "Tranzitivní závislost"
+      ],
+      "title": "Teorie: Třetí normální forma (3NF) a tranzitivní závislosti",
+      "content": "Při ústních i písemných zkouškách je 3. normální forma (3NF) absolutním minimem, které musí váš návrh databáze splňovat. Zatímco 2NF řešila závislosti na částech kompozitního klíče, 3NF řeší skryté závislosti mezi 'obyčejnými' sloupci.\n\n### 3. normální forma (3NF)\n* **Předpoklad:** Relace musí být již v 2NF.\n* **Lidská definice:** Žádný ne-prvoatribut (obyčejný sloupec) nesmí být tranzitivně závislý na primárním klíči. Tedy: 'Obyčejné sloupce musí záviset na klíči, na celém klíči a na NICEM JINÉM NEŽ na klíči.'\n* **Matematická definice pro zkoušku:** Pro každou netriviální funkční závislost $X \\rightarrow Y$ platí alespoň jedna z těchto podmínek:\n  1. $X$ je superklíč (determinant je unikátní identifikátor),\n  2. **NEBO** $Y$ je prvoatribut (prime attribute - tzn. je součástí nějakého kandidátského klíče).\n\n### Co je to Tranzitivní závislost?\nNastává, když v tabulce máme závislost tvaru $A \\rightarrow B$ a zároveň $B \\rightarrow C$ (kde $A$ je primární klíč). Z toho plynoucí závislost $A \\rightarrow C$ je tranzitivní.\n\n* **Příklad problému:** Tabulka `Kniha(ISBN PK, Nazev_Knihy, Nakladatelstvi_ID, Nakladatelstvi_Adresa)`.\n* **Analýza závislostí:** \n  - $ISBN \\rightarrow Nakladatelstvi\\_ID$ (Správně, kniha má nakladatelství).\n  - $Nakladatelstvi\\_ID \\rightarrow Nakladatelstvi\\_Adresa$ (PROBLÉM! Obyčejný sloupec určuje jiný obyčejný sloupec).\n* **Následek (Anomálie):** Pokud knihu smažeme, ztratíme adresu nakladatelství. Pokud vydáme 100 knih od stejného nakladatelství, adresu napíšeme 100x redundantně.\n\n* **Jak opravit do 3NF:** Oddělit to, co způsobuje tranzitivní závislost, do nové tabulky! \n  - `Kniha(ISBN PK, Nazev, Nakladatelstvi_ID FK)`\n  - `Nakladatelstvi(ID PK, Adresa)`."
+    },
+    {
+      "id": "019fcc2b-653b-731d-acbf-cd300e5103f4",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2023",
+        "3NF",
+        "Dekompozice"
+      ],
+      "title": "Praxe: Dekompozice tabulek do 3NF (Zkoušková úloha Léto 2023 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte tabulky PROJECT a EMPLOYEE se schématy:\n- `PROJECT(ID, Name, Budget)`\n- `EMPLOYEE(ID, Name, Position, Salary, PID)`\n\nkde `PID` je cizí klíč takový, že $PID \\subseteq PROJECT.ID$.\n\n**Otázka pro vás:** Je uvedené schéma ve 3NF, pokud víte, že firemní politika vyžaduje funkční závislost `EMPLOYEE.Position` $\\rightarrow$ `EMPLOYEE.Salary`? \nPokud ano, zdůvodněte. Pokud ne, upravte schéma, aby bylo ve 3NF.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nToto je klasická úloha na detekci a odstranění tranzitivní závislosti (porušení 3NF).\n\n**1. Analýza schématu (Důkaz porušení 3NF):**\n* V tabulce `EMPLOYEE` je primárním klíčem (superklíčem) zřejmě atribut `ID` (identifikátor zaměstnance).\n* Ze zadání máme garantovanou netriviální funkční závislost: `Position` $\\rightarrow$ `Salary`.\n* Aplikujeme formální definici 3NF. Pro závislost $Position \\rightarrow Salary$ se ptáme:\n  - Je `Position` superklíč? **NENÍ** (více zaměstnanců může mít stejnou pozici).\n  - Je `Salary` prvoatribut? **NENÍ** (plat není součástí žádného kandidátského klíče pro identifikaci zaměstnance).\n* *Závěr pro komisi:* Schéma **NENÍ** ve 3. normální formě, protože obsahuje tranzitivní závislost ($ID \\rightarrow Position$ a $Position \\rightarrow Salary$, tedy plat závisí na primárním klíči nepřímo přes pozici).\n\n**2. Náprava a úprava schématu (Dekompozice):**\nPro dosažení 3NF musíme atributy tvořící problémovou funkční závislost ($Position$ a $Salary$) vyčlenit do samostatné tabulky (nazvěme ji např. `ROLE`). Atribut `Position` v ní bude primárním klíčem. V tabulce `EMPLOYEE` ponecháme `Position` jako cizí klíč.\n\n**Opravený návrh na papír:**\n- `PROJECT` (ID [PK], Name, Budget)\n- `ROLE` (Position [PK], Salary)\n- `EMPLOYEE` (ID [PK], Name, Position [FK $\\rightarrow$ ROLE.Position], PID [FK $\\rightarrow$ PROJECT.ID])\n\n*Komentář k obhajobě:* Tímto jsme redundanci odstranili. Pokud se firmě rozhodne zvýšit plat všem 'Programátorům', udělá se to pouze na jednom jediném řádku v tabulce `ROLE`."
+    },
+    {
+      "id": "019fcc2b-9320-73bb-a6b4-43f841dab4c2",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Normální formy",
+        "BCNF",
+        "Dekompozice"
+      ],
+      "title": "Teorie: Boyce-Coddova normální forma (BCNF)",
+      "content": "Boyce-Coddova normální forma (BCNF) je přísnější verzí 3. normální formy (3NF). Zkoušková komise ji miluje, protože testuje, zda chápete drobnou, ale fatální matematickou kličku v definici 3NF.\n\n### Proč nestačí 3NF?\nPřipomeňme si, že ve 3NF je funkční závislost $X \\rightarrow Y$ povolena, pokud je $X$ superklíč, NEBO pokud je $Y$ prvoatribut (součást nějakého kandidátského klíče). Tato druhá výjimka (tzv. záchrana prvoatributu) ale může u relací s **více překrývajícími se kandidátskými klíči** způsobit redundanci!\n\n### Definice BCNF (Tuto větu musíte u zkoušky znát nazpaměť)\n* **Pravidlo:** Relace je v BCNF právě tehdy, když pro KAŽDOU netriviální funkční závislost $X \\rightarrow Y$ platí, že determinant **$X$ je superklíč**.\n* BCNF tedy nemilosrdně maže výjimku pro prvoatributy. Nezajímá ji, co je $Y$. Pokud $X$ není superklíč, návrh je špatně.\n\n### Klasický příklad selhání 3NF (Který BCNF chytí)\nPředstavme si tabulku `Konzultace(Student, Predmet, Cvicici)`.\n* **Pravidla domény:** Student má pro jeden předmět právě jednoho cvičícího ($Student, Predmet \\rightarrow Cvicici$). Každý cvičící ale učí jen jeden jediný předmět ($Cvicici \\rightarrow Predmet$).\n* **Kandidátské klíče:** $\\{Student, Predmet\\}$ a $\\{Student, Cvicici\\}$.\n* **Prvoatributy:** Student, Predmet, Cvicici (všechny sloupce!).\n* **Je to ve 3NF?** ANO. Problematická závislost je $Cvicici \\rightarrow Predmet$. Cvičící sice není superklíč, ale Predmet je prvoatribut, takže 3NF tuto závislost toleruje.\n* **Je to v BCNF?** NE! U závislosti $Cvicici \\rightarrow Predmet$ není determinant ($Cvicici$) superklíčem (cvičící učí více studentů). BCNF nezná výjimky.\n\n### Jak dekomponovat do BCNF\nPokud najdeme závislost $X \\rightarrow Y$, která porušuje BCNF, relaci rozštěpíme na dvě:\n1. Tabulka obsahující $X$ a $Y$ (kde $X$ bude primární klíč).\n2. Původní tabulka, ze které odstraníme $Y$, ale $X$ v ní ponecháme (obvykle jako cizí klíč).\n*Oprava příkladu:* `Vyučuje(Cvicici PK, Predmet)` a `Konzultuje(Student, Cvicici FK)`."
+    },
+    {
+      "id": "019fcc2b-9320-73bb-a6b4-47dbc61222c9",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2024",
+        "BCNF",
+        "Kardinality"
+      ],
+      "title": "Praxe: BCNF a určení kardinalit z UML (Zkoušková úloha Podzim 2024)",
+      "content": "**Zkoušková úloha na papír:**\n\nV rámci návrhu datového modelu aplikace byly identifikovány datové třídy Hudebník (ID, jméno, příjmení, rok narození) a Nástroj (ID, název, typ).\n1. Hudebník má nejvýše jeden oblíbený nástroj. Jeden nástroj může být oblíbený libovolným počtem hudebníků.\n2. Hudebník může umět hrát na libovolný počet nástrojů a naopak. Je potřeba vědět, od kterého roku hudebník na daný nástroj hraje.\n\nPřeveďte tento model na logický relační model. Nezapomeňte vyznačit všechny klíče a referenční integritu. \n**Otázka komise:** Je logický relační model vzniklý převodem vhodný z hlediska dosažené normální formy? Pokud ne, jak by měl být upraven, aby byl v BCNF, a proč?",
+      "hiddenContent": "**Vzorové autorské řešení a postup obhajoby:**\n\nKomise zde testuje, zda student nezačne zmateně dekomponovat tabulky, které už v BCNF dávno jsou.\n\n**1. Převod na relační model (Mapování):**\n* Vztah 'Oblíbený nástroj': Jedná se o vztah 1:N z pohledu Nástroje na Hudebníka (Hudebník má max 1, Nástroj má N). Cizí klíč se tedy vkládá na stranu 'N', do tabulky Hudebník.\n* Vztah 'Umí hrát': Jedná se o vztah M:N. Musíme vytvořit novou vazební tabulku s kompozitním klíčem, do které umístíme atribut vztahu 'OdRoku'.\n\n**Zápis relačního schématu na papír:**\n- **Hudebnik** (Hudebnik_ID [PK], Jmeno, Prijmeni, RokNarozeni, Oblibeny_Nastroj_ID [FK $\\rightarrow$ Nastroj.Nastroj_ID])\n- **Nastroj** (Nastroj_ID [PK], Nazev, Typ)\n- **Umi_Hrat** (Hudebnik_ID [PK, FK $\\rightarrow$ Hudebnik.Hudebnik_ID], Nastroj_ID [PK, FK $\\rightarrow$ Nastroj.Nastroj_ID], OdRoku)\n\n**2. Odpověď na BCNF:**\nAbychom posoudili BCNF, musíme identifikovat všechny netriviální funkční závislosti v našich tabulkách.\n* V tabulce `Hudebnik` závisí všechna data na `Hudebnik_ID`.\n* V tabulce `Nastroj` závisí všechna data na `Nastroj_ID`.\n* V tabulce `Umi_Hrat` závisí `OdRoku` na kompozitním klíči `(Hudebnik_ID, Nastroj_ID)`.\n\n*Formulace pro komisi:* 'Schéma **JE V BCNF** a nevyžaduje žádné úpravy. Jediné existující netriviální funkční závislosti v relacích jsou ty, kde determinantem je celý primární klíč tabulky. Tím je splněna podmínka BCNF, že každý determinant musí být superklíčem.'"
+    },
+    {
+      "id": "019fcc2b-9320-73bb-a6b4-4b77a5fbc411",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Fyzická úroveň",
+        "Indexace",
+        "Ukládání dat"
+      ],
+      "title": "Teorie: Fyzická úroveň dat a vnitřní uspořádání",
+      "content": "Abychom pochopili, proč indexy masivně zrychlují databázi, musíme komisi na zkoušce ukázat, že rozumíme blokové architektuře pevných disků. Toto spadá do fyzické úrovně návrhu databáze.\n\n### Bloky (Stránky) paměti\nDatabáze nečte z disku jednotlivé bajty ani řádky. Pevný disk je rozdělen na **bloky** (typicky velikosti 4 KB nebo 8 KB). Při požadavku na jeden řádek se z disku do RAM načte celý blok, který může obsahovat desítky řádků. Cílem databázové optimalizace je **minimalizovat počet načtení bloků z disku (I/O operací)**.\n\n### Základní organizace souborů s daty\n1. **Hromada (Heap):** Záznamy se vkládají na konec souboru přesně v tom pořadí, jak přicházejí. Neexistuje žádné uspořádání. \n   * *Problém:* Pro nalezení konkrétního záznamu (nebo při `SELECT * WHERE id = 5`) se musí provést tzv. Full Table Scan. Databáze musí načíst postupně VŠECHNY bloky, což je časová složitost $O(N)$ bloků.\n2. **Sekvenční soubor:** Záznamy jsou fyzicky na disku setříděny podle nějakého klíče (např. ID). \n   * *Výhoda:* Lze použít binární vyhledávání. Složitost klesá na $O(\\log N)$ načtených bloků.\n\n### Indexy (Jak se vyhnout skenování)\nIndex je zmenšená vyhledávací tabulka (ukládaná typicky jako strom), která obsahuje pouze hledaný klíč a **fyzický ukazatel (pointer)** na konkrétní blok na disku, kde záznam reálně leží.\n\n* **Primární (clustered) index:** Určuje **fyzické pořadí** dat na disku. Protože data mohou být fyzicky setříděna jen jedním způsobem, každá tabulka může mít maximálně 1 primární index. Typicky se tvoří nad primárním klíčem.\n* **Sekundární (unclustered) index:** Fyzické pořadí dat na disku je jiné než pořadí v indexu. Lze jich vytvořit více (např. nad sloupcem `Prijmeni`). V indexu jsou jména seřazena abecedně, ale pointery ukazují do fyzických bloků náhodně.\n\n*Terminologie pro zkoušku:* \n- **Hustý index (Dense):** Obsahuje záznam pro každý jeden hledaný klíč v databázi.\n- **Řídký index (Sparse):** Obsahuje záznam jen pro první klíč v každém diskovém bloku. (Lze použít POUZE u primárního indexu, protože využívá toho, že data na disku jsou fyzicky setříděná)."
+    },
+    {
+      "id": "019fcc2b-dc68-75c0-89ab-7adfe6cd31c6",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Fyzická úroveň",
+        "Kapacita indexu"
+      ],
+      "title": "Praxe: Výpočet kapacity indexu (Zkoušková úloha)",
+      "content": "**Zkoušková úloha na papír:**\n\nDo netříděného sekvenčního souboru s délkou bloku 4096 B je uloženo 8192 záznamů. \n\n1. Kolik pater bude mít hierarchický index nad sloupcem reprezentujícím klíč jednotlivých záznamů, pokud se do jednoho bloku indexu vejde přesně 64 položek (ukazatelů)? Jedná se o přímý nebo nepřímý index? Své odpovědi zdůvodněte.\n2. Jak se odpověď na první otázku změní v případě, že primární soubor bude setříděn podle hodnot daného klíče?",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nToto je klasická inženýrská úloha z fyzické vrstvy návrhu. Komise testuje, zda chápete rozdíl mezi hustým (dense) a řídkým (sparse) indexem.\n\n**Odpověď 1 (Netříděný soubor):**\n* Protože je primární soubor dat *netříděný*, musíme použít **hustý index**. To znamená, že index musí obsahovat položku (ukazatel) pro úplně KAŽDÝ záznam v databázi, abychom ho dokázali najít.\n* Potřebujeme tedy v indexu uskladnit 8192 položek.\n* **1. úroveň (listy indexu):** 8192 položek / 64 položek v bloku = 128 bloků.\n* **2. úroveň (vnitřní uzly):** Na adresování 128 bloků 1. úrovně potřebujeme 128 položek. 128 / 64 = 2 bloky.\n* **3. úroveň (kořen):** Na adresování 2 bloků 2. úrovně potřebujeme 2 položky. Ty se bezpečně vejdou do 1 bloku (kořene).\n* *Závěr:* Index bude mít **3 patra**. Jedná se o přímý index, protože ukazatele z listů indexu směřují přímo na bloky/záznamy v primárním souboru.\n\n**Odpověď 2 (Tříděný soubor):**\n* Pokud je primární soubor *setříděný*, stačí nám vybudovat **řídký index**. Nemusíme indexovat každý záznam, stačí zaindexovat vždy jen první záznam z každého datového bloku!\n* Kolik máme datových bloků? Ze zadání bohužel neznáme velikost záznamu, ale reálná zkoušková zadání (viz OCR analýza) typicky udávají např. délku záznamu 500 B. Do bloku (4096 B) by se tak vešlo 8 záznamů. Počet datových bloků by byl 8192 / 8 = 1024 bloků.\n* V řídkém indexu pak adresujeme jen 1024 položek.\n* 1. úroveň: 1024 / 64 = 16 bloků.\n* 2. úroveň (kořen): 16 položek se vejde do 1 bloku.\n* *Závěr pro tříděný soubor:* Index by se zmenšil a měl by pouze **2 patra**."
+    },
+    {
+      "id": "019fcc2b-dc68-75c0-89ab-7cbc6f2acce0",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Fyzická úroveň",
+        "B-strom",
+        "B+ strom"
+      ],
+      "title": "Teorie: Hierarchické indexy B-stromy a B+ stromy",
+      "content": "Ačkoli se klasické binární vyhledávací stromy (BST) učí v algoritmizaci, pro databáze na disku jsou absolutně nevhodné. Pokud by byl strom vysoký (např. 20 pater), každé skočení na potomka znamená načtení nového bloku z disku (I/O operaci), což je extrémně pomalé. Proto databáze používají široké **B-stromy**.\n\n### B-strom (Neredundantní)\nJe to dokonale vyvážený (všechny listy jsou ve stejné hloubce) multi-cestný strom (uzel má mnohem více než 2 potomky). Řád stromu $m$ určuje, že uzel může mít až $m$ potomků a obsahuje $m-1$ klíčů.\n* **Charakteristika pro zkoušku:** V klasickém B-stromu je hledaný záznam (nebo pointer na něj) uložen **přímo v tom uzlu**, kde se nachází klíč (ať už je to kořen, vnitřní uzel, nebo list).\n* **Nevýhoda:** Protože vnitřní uzly musí nést i datové ukazatele, vejde se do nich méně klíčů (mají menší tzv. *fan-out* / stupeň větvení). Zvětšuje to výšku stromu.\n\n### B+ strom (Redundantní - Relační standard)\nToto je absolutní vládce SQL databází. \n1. **Data POUZE v listech:** Samotná data (nebo ukazatele do paměti) se nacházejí VÝHRADNĚ v listových uzlech. \n2. **Vnitřní uzly jako dopravní značky:** Vnitřní uzly obsahují *pouze klíče* a ukazatele na potomky. Slouží jen k navigaci. Některé klíče se proto ve stromu vyskytují dvakrát (v listu jako data, ve vnitřním uzlu jako značka) - proto 'redundantní'.\n3. **Zřetězené listy:** Listy jsou mezi sebou navzájem propojeny jako obousměrný spojový seznam.\n\n### Zásadní výhoda B+ stromu pro databáze (Otázka u státnic)\nProč Postgres nebo MySQL používají dominantně B+ stromy?\nOdpověď: **Extrémní optimalizace pro rozsahové dotazy (Range queries).**\nPokud napíšete SQL dotaz `SELECT * FROM Uzivatele WHERE vek BETWEEN 20 AND 30`, databáze pomocí stromu najde v čase $O(\\log N)$ první list s hodnotou 20. Protože jsou listy spojeny spojákem, databáze už neprochází strom nahoru a dolů, ale **sekvenčně čte sousední listy z disku**, dokud nenarazí na hodnotu 31. Složitost dotazu je tak jen $O(\\log N + K)$, kde $K$ je počet vyhovujících řádků."
+    },
+    {
+      "id": "019fcc2b-dc68-75c0-89ab-824af7716aee",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "B-strom",
+        "Štěpení uzlu"
+      ],
+      "title": "Praxe: Simulace operací v B-stromu (Zkoušková úloha)",
+      "content": "**Zkoušková úloha na papír:**\n\nPopište vkládání hodnot do neredundantního B-stromu. Znázorněte na papíře, jak bude vypadat neredundantní B-strom (řádu $m=3$) po postupném vložení celočíselných prvků: 9, 3, 7, 6, 5 v tomto přesném pořadí.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nKlíčové je uvědomit si sémantiku B-stromu s řádem $m=3$.\n* Max počet potomků uzlu = $3$.\n* Max počet klíčů v uzlu = $m-1 = 2$.\n* *Pravidlo štěpení (Split):* Pokud má uzel po vložení 3 prvky (přeteče), rozdělí se tak, že **prostřední (medián)** prvek postoupí o patro výše (do rodiče) a zbylé dva prvky vytvoří dva nové uzly.\n\n**Krok za krokem kreslení (do písemky zaznamenávejte mezistavy):**\n\n1. **Vložení 9:** Uzel není plný. Vzniká kořen.\n   `[ 9 ]`\n\n2. **Vložení 3:** Záznamy v uzlu se udržují seřazené.\n   `[ 3, 9 ]`\n\n3. **Vložení 7 (ŠTĚPENÍ 1):**\n   - Uzel by měl `[ 3, 7, 9 ]`, což je víc než 2 klíče (přetečení).\n   - Prostřední prvek **7** postupuje nahoru a stává se novým kořenem.\n   - Levé dítě: `[ 3 ]`. Pravé dítě: `[ 9 ]`.\n   - *Stav stromu:*\n     Root: `[ 7 ]`\n     L-child: `[ 3 ]` | R-child: `[ 9 ]`\n\n4. **Vložení 6:**\n   - Porovnáváme s kořenem (7). 6 < 7, jdeme do levého potomka.\n   - Levý potomek je `[ 3 ]`. Má místo, vložíme 6.\n   - *Stav stromu:*\n     Root: `[ 7 ]`\n     L-child: `[ 3, 6 ]` | R-child: `[ 9 ]`\n\n5. **Vložení 5 (ŠTĚPENÍ 2):**\n   - 5 < 7, jdeme doleva k `[ 3, 6 ]`.\n   - Uzel by měl `[ 3, 5, 6 ]`. Přetečení!\n   - Prostřední prvek **5** postupuje nahoru do rodiče (kořene).\n   - Kořen má nyní místo, stane se z něj `[ 5, 7 ]`.\n   - Rozštěpený levý potomek se rozdělí na dvě děti pro kořen: `[ 3 ]` (vlevo od 5) a `[ 6 ]` (mezi 5 a 7).\n   - *Finální stav stromu pro komisi:*\n     Root: `[ 5, 7 ]`\n     Children (zleva doprava): `[ 3 ]`, `[ 6 ]`, `[ 9 ]`\n\n*Poznámka ke zkoušce:* Protože šlo o NEREDUNDANTNÍ strom (klasický B-strom), prvek, který postoupil do rodiče (5, 7), nezůstává zkopírovaný v listech. V B+ stromu by v listech musel zůstat."
+    },
+    {
+      "id": "019fcc2b-fb43-75cf-874e-815b51d61e8a",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Relační algebra",
+        "SQL",
+        "Evaluace"
+      ],
+      "title": "Teorie: Relační algebra jako podvozek SQL",
+      "content": "SQL je deklarativní jazyk (říkáte 'CO' chcete, ne 'JAK' se to má najít). Databázový stroj ale pod kapotou překládá váš SQL kód do procedurálního stromu operací založených na **Relační algebře**. Komise občas zkouší, zda chápete mapování těchto operátorů, protože to vysvětluje pořadí vyhodnocování SQL dotazu.\n\n### Základní operátory relační algebry\n1. **Selekce (Restrikce) $\\sigma$:** Vybírá z tabulky pouze ty **řádky**, které splňují danou logickou podmínku. \n   * *Ekvivalent v SQL:* Klauzule `WHERE` nebo `HAVING`.\n   * *Zápis:* $\\sigma_{Vek > 20}(Student)$\n2. **Projekce $\\pi$:** Vybírá z tabulky pouze určité **sloupce** a automaticky odstraňuje vzniklé duplicity (protože výsledek musí být matematická množina).\n   * *Ekvivalent v SQL:* Klauzule `SELECT DISTINCT`.\n   * *Zápis:* $\\pi_{Jmeno, Prijmeni}(Student)$\n3. **Kartézský součin $\\times$:** Spojí každý řádek první tabulky s každým řádkem druhé tabulky (exploze dat).\n   * *Ekvivalent v SQL:* Zápis `FROM A, B` nebo `CROSS JOIN`.\n4. **Přirozené spojení $\\bowtie$:** Odstraní z kartézského součinu ty řádky, které si neodpovídají ve sloupcích se stejným názvem.\n   * *Ekvivalent v SQL:* `NATURAL JOIN` nebo klasický `INNER JOIN ... ON ...`.\n\n### Zásadní poučka pro zkoušku: Pořadí vyhodnocování SQL\nDíky relační algebře chápeme, proč databáze vyhodnocuje SQL dotaz v tomto striktním pořadí (a proč nemůžete použít alias ze `SELECT`u uvnitř `WHERE`):\n1. `FROM` a `JOIN` (Vytvoří se výchozí obří tabulka - součin $\\times$).\n2. `WHERE` (Provede se selekce $\\sigma$ - vyškrtají se řádky).\n3. `GROUP BY` (Záznamy se seskupí do balíčků).\n4. `HAVING` (Provede se selekce $\\sigma$ nad agregovanými balíčky).\n5. `SELECT` (Provede se projekce $\\pi$ - vyškrtají se nechtěné sloupce, zde teprve vznikají aliasy!).\n6. `ORDER BY` (Nakonec se výsledná množina seřadí pro klienta)."
+    },
+    {
+      "id": "019fcc2b-fb43-75cf-874e-867718ea5757",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "DDL",
+        "Integritní omezení",
+        "SQL",
+        "Cizí klíč"
+      ],
+      "title": "Teorie: Jazyk SQL (DDL) a Integritní omezení",
+      "content": "Při psaní příkazů jazyka pro definici dat (DDL) na čistý papír nemáte k dispozici našeptávač. Komise přísně kontroluje syntaxi tvoření tabulek a zejména definici integritních omezení (Constraints), které brání vložení nesmyslných dat.\n\n### Tvorba tabulky a Primární klíče\nPrimární klíč (`PK`) zajišťuje jedinečnost a neprázdnost řádku. Lze jej definovat dvěma způsoby (komise doporučuje ten druhý, protože funguje i na kompozitní klíče).\n\n```sql\n-- Způsob 1: Inline (pouze pro jednoduché klíče)\nCREATE TABLE Osoba (\n    id INT PRIMARY KEY,\n    jmeno VARCHAR(50) NOT NULL\n);\n\n-- Způsob 2: Table-level constraint (Nutnost pro kompozitní klíče!)\nCREATE TABLE Zapis (\n    student_id INT,\n    predmet_id INT,\n    PRIMARY KEY (student_id, predmet_id)\n);\n```\n\n### Referenční integrita (Cizí klíče)\nCizí klíč (`FK`) garantuje, že hodnota ve sloupci musí buď existovat v odkazované tabulce (její PK), nebo musí být `NULL`.\n\n```sql\nCREATE TABLE Objednavka (\n    id INT PRIMARY KEY,\n    zakaznik_id INT,\n    -- Definice cizího klíče s kaskádovou akcí\n    FOREIGN KEY (zakaznik_id) REFERENCES Zakaznik(id) ON DELETE CASCADE\n);\n```\n\n### Referenční akce (Co se stane, když se smaže rodič?)\nToto je častá podotázka. Pokud se pokusíme smazat `Zakaznika`, který už má v databázi nějaké `Objednavky`, databáze musí vědět, jak reagovat:\n* **RESTRICT (nebo NO ACTION):** Výchozí chování. Databáze vyhodí chybu a smazání zákazníka ZAKÁŽE.\n* **CASCADE:** 'Kaskádové mazání'. Smaže zákazníka a databáze automaticky najde a smaže i všechny jeho objednávky (využívá se pro entity existenčně závislé, např. slabé entity a kompozice).\n* **SET NULL:** Smaže zákazníka a u jeho objednávek nastaví `zakaznik_id` na `NULL` (pokud to sloupec dovoluje). Objednávka v systému zůstane 'sirotkem'.\n\n### Další užitečná omezení pro zkoušku\n* `UNIQUE`: Hodnota musí být unikátní, ale na rozdíl od PK dovoluje vložit `NULL`.\n* `CHECK (podminka)`: Např. `CHECK (vek >= 18)`. Omezuje vkládanou doménu hodnot."
+    },
+    {
+      "id": "019fcc2b-fb43-75cf-874e-8b4834a2d547",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2025",
+        "DDL",
+        "Kaskádové mazání"
+      ],
+      "title": "Praxe: SQL DDL skript pro DCAT katalogy (Zkoušková úloha Léto 2025 - Část 2)",
+      "content": "**Zkoušková úloha na papír:**\n\nNa základě předchozí otázky (kde jste navrhli dekompozici z 1NF) napište na papír kompletní SQL (DDL) příkazy, které vytvoří tabulky pro zadanou reprezentaci datových katalogů. Předpokládejte existenci tabulek:\n- Datový katalog (`Catalog`)\n- Datová sada (`Dataset`)\n- Distribuce (`Distribution`)\n- Klíčová slova (`Keyword`)\n\nZadání specifikuje: Datová sada náleží do právě jednoho katalogu. Distribuce náleží do právě jedné datové sady. Datová sada může mít více klíčových slov.\n\nNapište SQL kód, definujte správné datové typy a zajistěte vhodná integritní omezení (především uvažte, co by se mělo stát s klíčovými slovy a distribucemi, pokud je datová sada smazána).",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nZde se testuje znalost syntaxe `CREATE TABLE`, psaní `FOREIGN KEY` a logická úvaha nad kaskádovým mazáním `ON DELETE CASCADE`. Distrubuce a klíčová slova nemají bez datové sady logický smysl existovat, proto musí sdílet její osud (existenční závislost).\n\n**Zápis SQL skriptu (Nutno psát v tomto pořadí kvůli závislostem!):**\n\n```sql\n-- 1. Nezávislá tabulka (Katalog)\nCREATE TABLE Catalog (\n    iri VARCHAR(255) PRIMARY KEY,\n    title VARCHAR(255) NOT NULL\n);\n\n-- 2. Datová sada odkazuje na Katalog\nCREATE TABLE Dataset (\n    iri VARCHAR(255) PRIMARY KEY,\n    title VARCHAR(255) NOT NULL,\n    catalog_iri VARCHAR(255) NOT NULL,\n    FOREIGN KEY (catalog_iri) REFERENCES Catalog(iri) ON DELETE RESTRICT\n);\n\n-- 3. Distribuce je existenčně závislá na Datasetu\nCREATE TABLE Distribution (\n    iri VARCHAR(255) PRIMARY KEY,\n    download_url VARCHAR(1000) NOT NULL,\n    format VARCHAR(50),\n    modified DATE,\n    dataset_iri VARCHAR(255) NOT NULL,\n    -- Kaskádové mazání! Pokud zanikne dataset, smažou se i jeho distribuce.\n    FOREIGN KEY (dataset_iri) REFERENCES Dataset(iri) ON DELETE CASCADE\n);\n\n-- 4. Extrahovaný vícehodnotový atribut (Klíčová slova)\nCREATE TABLE Keyword (\n    dataset_iri VARCHAR(255),\n    keyword VARCHAR(100),\n    -- Kompozitní primární klíč!\n    PRIMARY KEY (dataset_iri, keyword),\n    FOREIGN KEY (dataset_iri) REFERENCES Dataset(iri) ON DELETE CASCADE\n);\n```\n\n*Bod k dobru pro komisi:* Všimněte si, že u cizího klíče odkazujícího na Katalog (`catalog_iri`) jsem použil `ON DELETE RESTRICT` (nebo nevypsal nic, což je totéž). Nedává smysl, aby smazání jednoho katalogu tiše kaskádově smazalo tisíce datových sad (tzv. zbraň hromadného ničení v databázi). Vždy mazejte kaskádově jen v případě silné existenční závislosti kompozice (Dataset $\\rightarrow$ Keyword)."
+    },
+    {
+      "id": "019fcc2d-0842-758b-85a6-81cc9644cee2",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "DML",
+        "INSERT",
+        "UPDATE",
+        "DELETE"
+      ],
+      "title": "Teorie: Jazyk SQL (DML) operace",
+      "content": "Příkazy pro manipulaci s daty (DML - Data Manipulation Language) slouží k úpravě samotného obsahu tabulek. Na státnicích se testuje schopnost zapsat tyto příkazy syntakticky správně na papír, aniž byste porušili integritní omezení (zejména cizí klíče).\n\n### 1. INSERT (Vkládání dat)\nExistují dva základní způsoby zápisu. Pro zkoušku doporučuji VŽDY používat ten první, kde explicitně vyjmenujete sloupce. Je to bezpečnější a dává to komisi najevo, že víte, co děláte.\n\n```sql\n-- Bezpečný zápis (vyjmenované sloupce)\nINSERT INTO Uzivatel (id, jmeno, vek) VALUES (1, 'Karel', 25);\n\n-- Vložení více řádků najednou (Multi-insert)\nINSERT INTO Uzivatel (id, jmeno) VALUES (2, 'Eva'), (3, 'Petr');\n\n-- Vložení dat z výsledku jiného dotazu (INSERT INTO ... SELECT)\nINSERT INTO Archiv_Uzivatel (id, jmeno)\nSELECT id, jmeno FROM Uzivatel WHERE vek > 65;\n```\n\n### 2. UPDATE (Aktualizace dat)\nMění existující záznamy. *Státnicové pravidlo:* UPDATE téměř vždy musí obsahovat klauzuli `WHERE`. Pokud ji vynecháte, databáze přepíše daný sloupec u VŠECH řádků v tabulce!\n\n```sql\nUPDATE Uzivatel\nSET vek = 26, jmeno = 'Karel Novák'\nWHERE id = 1;\n```\n\n### 3. DELETE (Mazání dat)\nOdstraňuje celé řádky z tabulky. I zde platí varování ohledně chybějící klauzule `WHERE`.\n\n```sql\nDELETE FROM Uzivatel WHERE id = 1;\n```\n\n### Rozdíl mezi DELETE a TRUNCATE (Častá ústní otázka)\nPokud chcete smazat VŠECHNY řádky v tabulce, můžete použít `DELETE FROM Tabulka;` nebo `TRUNCATE TABLE Tabulka;`. \n* **DELETE:** Je to standardní DML operace. Zaznamenává se řádek po řádku do transakčního logu, spouští databázové triggery a dá se vzít zpět (`ROLLBACK`). Trvá to dlouho.\n* **TRUNCATE:** Technicky jde o DDL operaci (Drop & Recreate). Databáze uvolní samotné datové bloky na disku. Je to extrémně rychlé, nespouští to triggery `ON DELETE` a v mnoha systémech to nelze 'od-commitovat'."
+    },
+    {
+      "id": "019fcc2d-0842-758b-85a6-8529a831fe3d",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2024",
+        "DML",
+        "DROP TABLE"
+      ],
+      "title": "Praxe: DML operace a destrukční pořadí DROP TABLE (Zkoušková úloha Podzim 2024 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte doménu hudební scény, pro kterou jste vytvořili následující 3 tabulky:\n- `kapela (id_k INT PRIMARY KEY, nazev VARCHAR, zalozena INT)`\n- `zpevak (id_z INT PRIMARY KEY, jmeno VARCHAR, clen INT FOREIGN KEY REFERENCES kapela(id_k))`\n- `skladba (id_s INT PRIMARY KEY, titul VARCHAR, interpret INT FOREIGN KEY REFERENCES zpevak(id_z))`\n\n**Úkol 1:** Napište SQL příkazy, které do tabulek vloží jednoho zpěváka, který je členem nějaké kapely a interpretuje nějakou skladbu.\n**Úkol 2:** Napište SQL příkazy, které tyto tři vytvořené tabulky nevratně smažou ze schématu.",
+      "hiddenContent": "**Vzorové autorské řešení a analýza chytáků:**\n\nÚloha testuje zásadní princip relačních databází: **Fázi vkládání a mazání řídí referenční integrita (cizí klíče).** Nemůžete vložit zpěváka, který odkazuje na kapelu, dokud ta kapela v databázi neexistuje. A nemůžete smazat kapelu, pokud se na ni odkazuje existující zpěvák.\n\n**Řešení Úkolu 1 (Vkládání dat):**\nPořadí musí jít přísně od 'rodiče' k 'potomkovi'. Tedy od tabulky bez cizích klíčů, k těm závislým.\n\n```sql\n-- 1. Nejdříve kapela (nemá žádný cizí klíč)\nINSERT INTO kapela (id_k, nazev, zalozena) \nVALUES (1, 'Queen', 1970);\n\n-- 2. Pak zpěvák (odkazuje na kapelu ID 1)\nINSERT INTO zpevak (id_z, jmeno, clen) \nVALUES (101, 'Freddie Mercury', 1);\n\n-- 3. Nakonec skladba (odkazuje na zpěváka ID 101)\nINSERT INTO skladba (id_s, titul, interpret) \nVALUES (201, 'Bohemian Rhapsody', 101);\n```\n\n**Řešení Úkolu 2 (Mazání tabulek):**\nPříkaz `DROP TABLE` odstraňuje celou strukturu tabulky. Pořadí mazání musí být **přesně opačné** než při vkládání. Tedy od potomka k rodiči. Pokud byste zkusili smazat `kapelu` jako první, databáze vyhodí 'Constraint Violation Error', protože by existoval zpěvák odkazující na neexistující tabulku.\n\n```sql\n-- Mazání od nejvíce závislé tabulky po nezávislou\nDROP TABLE skladba;\nDROP TABLE zpevak;\nDROP TABLE kapela;\n```\n\n*Bod k dobru:* Komisi můžete ústně nebo v poznámce oslnit tím, že pokud bychom chtěli tabulky smazat v libovolném pořadí, museli bychom přidat kaskádový modifikátor: `DROP TABLE kapela CASCADE CONSTRAINTS;` (syntaxe se liší dle DBMS, např. PostgreSQL používá `CASCADE`)."
+    },
+    {
+      "id": "019fcc2d-0842-758b-85a6-8a5107c170fc",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "DQL",
+        "SQL",
+        "JOIN",
+        "Kartézský součin"
+      ],
+      "title": "Teorie: DQL a Vnitřní spojení (JOIN)",
+      "content": "Příkaz `SELECT` (spadající pod DQL - Data Query Language) slouží k dotazování. Protože databázi pomocí normalizace (3NF) schválně rozbíjíme na mnoho malých tabulek, potřebujeme spolehlivý mechanismus, jak data při čtení opět 'slepit' dohromady. K tomu slouží operace spojení.\n\n### 1. CROSS JOIN (Kartézský součin)\nJe to nejprimitivnější forma spojení. Vezme KAŽDÝ řádek z tabulky A a spojí ho s KAŽDÝM řádkem z tabulky B. Pokud má tabulka A 1000 řádků a tabulka B 1000 řádků, výsledkem je monstrózní tabulka s 1 000 000 řádky.\n* *Syntaxe:* `SELECT * FROM A CROSS JOIN B;` \n* *Zastaralá (čárková) syntaxe:* `SELECT * FROM A, B;` (Vyhněte se jí u zkoušky!)\n\n### 2. INNER JOIN (Vnitřní spojení)\nVnitřní spojení dělá logicky to samé jako Kartézský součin, ale na výstupu zachová **pouze ty řádky, které splňují specifickou omezující podmínku** (typicky shodu primárního a cizího klíče). Řádky, které k sobě nenajdou partnera v druhé tabulce, se ve výsledku VŮBEC neobjeví.\n\n```sql\n-- Moderní (a komisí vyžadovaná) ANSI JOIN syntaxe\nSELECT Z.jmeno, K.nazev_kapely\nFROM Zpevak Z\nINNER JOIN Kapela K ON Z.kapela_id = K.id;\n\n-- Lze zkrátit jen na slovíčko JOIN\n-- Pokud se cizí a primární klíč jmenují naprosto stejně, \n-- lze použít zkratku USING:\n-- INNER JOIN Kapela K USING (kapela_id)\n```\n\n### Proč komise nesnáší 'čárkovou' notaci (Implicit Join)?\nHistoricky se JOINy psaly tak, že se do `FROM` napsaly tabulky oddělené čárkou (vygeneroval se kartézský součin) a do `WHERE` se dala spojovací podmínka.\n\n```sql\n-- ŠPATNÁ PRAXE (Nedělejte to u zkoušky):\nSELECT Z.jmeno, K.nazev_kapely\nFROM Zpevak Z, Kapela K\nWHERE Z.kapela_id = K.id AND Z.vek > 30;\n```\n\n*Co je na tom špatně?* \nMíchá se zde logika **propojování tabulek** (strukturální logika) s logikou **filtrování dat** (aplikační logika `vek > 30`). S moderním operátorem `JOIN ... ON ...` je struktura dotazu striktně oddělená. Navíc, pokud ve staré syntaxi zapomenete na podmínku ve `WHERE`, omylem vyrobíte kartézský součin a stáhnete celou databázi. Moderní `JOIN` bez klauzule `ON` skončí rovnou chybou syntaxe (syntaktickou ochranou)."
+    },
+    {
+      "id": "019fcc2f-1fa9-76de-83b4-e5d028c6f63d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "OUTER JOIN",
+        "SELF JOIN"
+      ],
+      "title": "Teorie: Vnější spojení (OUTER JOIN) a Self Join",
+      "content": "Zatímco `INNER JOIN` nekompromisně zahodí všechny řádky, které nenajdou protějšek v druhé tabulce, vnější spojení (OUTER JOIN) umožňuje zachovat i tato 'nespárovaná' data. Komise testuje, zda chápete, čím databáze nahradí chybějící hodnoty.\n\n### 1. LEFT OUTER JOIN (Levé vnější spojení)\nVezme VŠECHNY řádky z 'levé' tabulky (ta, která je zapsána před slovem JOIN). Pokud najde protějšek v pravé tabulce, spojí je. Pokud protějšek nenajde, řádek z levé tabulky ve výsledku ZŮSTANE a všechny sloupce z pravé tabulky se vyplní hodnotou `NULL`.\n\n```sql\n-- Vypíše VŠECHNY zákazníky. Pokud zákazník nemá objednávku, \n-- sloupec cislo_objednavky bude obsahovat NULL.\nSELECT Z.jmeno, O.cislo_objednavky\nFROM Zakaznik Z\nLEFT JOIN Objednavka O ON Z.id = O.zakaznik_id;\n```\n\n### 2. RIGHT OUTER JOIN a FULL OUTER JOIN\n* **RIGHT JOIN:** Zrcadlový obraz levého. Zachová všechny řádky z pravé tabulky.\n* **FULL OUTER JOIN:** Zachová úplně všechny řádky z obou tabulek. Pokud se nespárují, chybějící strany se vyplní `NULL` hodnotami.\n\n### 3. SELF JOIN (Spojení tabulky samé se sebou)\nToto není speciální klíčové slovo, ale logická technika. Používá se, když má tabulka hierarchický cizí klíč (odkazuje sama na sebe). K provedení dotazu na papíře MUSÍTE použít dva různé textové aliasy pro stejnou tabulku.\n\n```sql\n-- Tabulka Zamestanec(id, jmeno, manager_id)\n-- manager_id je cizí klíč odkazující zpět na sloupec id ve stejné tabulce.\nSELECT Z.jmeno AS Pracovnik, M.jmeno AS Jeho_Sef\nFROM Zamestnanec Z\nLEFT JOIN Zamestnanec M ON Z.manager_id = M.id;\n```\n*Tip pro státnice:* Proč jsem použil `LEFT JOIN` a ne `INNER JOIN`? Protože ředitel firmy (nejvyšší manažer) má `manager_id` prázdné (`NULL`). Kdybych použil `INNER JOIN`, ředitel by z výsledného výpisu úplně zmizel!"
+    },
+    {
+      "id": "019fcc2f-1fa9-76de-83b4-e9e4d8079580",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Vazební tabulka",
+        "Vícečetný JOIN"
+      ],
+      "title": "Praxe: Čtení vazebních tabulek bez redundance (Extra úloha)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nMějme vysokoškolskou databázi, která obsahuje tři tabulky reprezentující M:N vztah zápisu předmětů:\n- `Student(student_id PK, jmeno, rocnik)`\n- `Predmet(predmet_id PK, nazev_predmetu, kredity)`\n- `Zapis(student_id FK, predmet_id FK, rok_zapisu)` - kde (student_id, predmet_id) je PK.\n\nNapište jediný SQL dotaz, který vypíše přehlednou tabulku se dvěma sloupci: `Jméno studenta` a `Název zapsaného předmětu`. Omezte výpis pouze na zápisy uskutečněné v roce 2024.\nUkažte správné řetězení spojovacích operací.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nTato úloha prověřuje schopnost plynule zřetězit více tabulek (multi-join). Častou chybou je snaha spojit tabulku `Student` přímo s tabulkou `Predmet`, což nelze, protože mezi nimi neexistuje přímý cizí klíč. Spojení musí proběhnout přes vazební (spojovací) tabulku `Zapis`.\n\n**Postup psaní na papír:**\n1. Začneme tabulkou `Student` (přidáme alias `S`).\n2. Navážeme na tabulku `Zapis` (alias `Z`) přes `student_id`.\n3. Z tabulky `Zapis` navážeme na tabulku `Predmet` (alias `P`) přes `predmet_id`.\n4. Nakonec aplikujeme logický filtr na `rok_zapisu` do klauzule `WHERE`.\n\n```sql\nSELECT \n    S.jmeno AS 'Jméno studenta', \n    P.nazev_predmetu AS 'Název zapsaného předmětu'\nFROM Student S\n-- První spojení překlene cestu Student -> Zapis\nINNER JOIN Zapis Z ON S.student_id = Z.student_id\n-- Druhé spojení překlene cestu Zapis -> Predmet\nINNER JOIN Predmet P ON Z.predmet_id = P.predmet_id\nWHERE Z.rok_zapisu = 2024;\n```\n\n*Komentář pro komisi:* Logika řetězení JOINů je sekvenční. Výsledkem prvního `INNER JOIN` je dočasná (virtuální) tabulka obsahující kombinaci sloupců Studenta a Zápisu. Druhý `INNER JOIN` k této dočasné relaci připojí odpovídající řádky z tabulky Předmět."
+    },
+    {
+      "id": "019fcc2f-1fa9-76de-83b4-ef2f5e7176cf",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "NULL",
+        "Tříhodnotová logika"
+      ],
+      "title": "Teorie: Záludná tříhodnotová logika a chování NULL",
+      "content": "Pojem `NULL` v relačních databázích NEZNAMENÁ 'nula' ani 'prázdný textový řetězec'. Znamená 'Neznámá hodnota' (Unknown) nebo 'Chybějící informace' (Missing). Protože nemůžeme tvrdit cokoli o něčem, co neznáme, zavádí SQL **Tříhodnotovou logiku (TRUE, FALSE, UNKNOWN)**. Komise na tomto konceptu staví nejobtížnější dotazy.\n\n### Pravidlo 1: Srovnávání s NULL\nJakákoliv matematická operace nebo srovnání (rovnost) s `NULL` vrací vždy `UNKNOWN`.\n* `5 = NULL` $\\rightarrow$ `UNKNOWN`\n* `NULL = NULL` $\\rightarrow$ `UNKNOWN` (Nemůžeme říct, že dvě neznámé hodnoty jsou si rovny!)\n* *Ochrana:* V SQL musíte pro testování hodnoty NULL striktně použít operátor `IS NULL` nebo `IS NOT NULL`.\n\n### Pravidlo 2: Klauzule WHERE\nKlauzule `WHERE` propustí na výstup POUZE ty řádky, pro které se logická podmínka vyhodnotí jako absolutní `TRUE`. \n* Pokud je výsledek podmínky `FALSE`, řádek se vyhodí.\n* Pokud je výsledek podmínky `UNKNOWN`, **řádek se vyhodí také**!\n\n### Pravidlo 3: Pravdivostní tabulky s UNKNOWN\nJak databáze vyhodnocuje komplexní logické výrazy s operátory `AND`, `OR`, `NOT`?\n\n**Operátor AND (Konjunkce):** Chová se jako hledání nejhoršího možného případu.\n* `TRUE AND UNKNOWN` $\\rightarrow$ `UNKNOWN` (Závisí to na té neznámé)\n* `FALSE AND UNKNOWN` $\\rightarrow$ `FALSE` (Ať je neznámá cokoliv, celkově už to nikdy TRUE nebude)\n\n**Operátor OR (Disjunkce):** Chová se jako hledání nejlepšího možného případu.\n* `TRUE OR UNKNOWN` $\\rightarrow$ `TRUE` (Už máme jedno TRUE, takže na neznámé hodnotě nezáleží)\n* `FALSE OR UNKNOWN` $\\rightarrow$ `UNKNOWN` (Závisí to na té neznámé)\n\n**Operátor NOT (Negace):**\n* `NOT UNKNOWN` $\\rightarrow$ `UNKNOWN` (Negace něčeho, co neznáme, je stále něco, co neznáme).\n\n*Příklad na závěr:* Co udělá dotaz `SELECT * FROM Tabulka WHERE vek = NULL;`? \nNevyhodí žádnou chybu syntaxe, ale **vrátí prázdnou množinu řádků**, ať už jsou v tabulce jakákoliv data. Pro každý řádek se podmínka vyhodnotí jako `UNKNOWN` a `WHERE` ho nepropustí."
+    },
+    {
+      "id": "019fcc2f-387e-7785-9a9b-c015d64eb499",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "Poddotazy",
+        "IN",
+        "EXISTS",
+        "Korelace"
+      ],
+      "title": "Teorie: Vnořené poddotazy (IN, EXISTS) a korelace",
+      "content": "V SQL můžeme vkládat jeden dotaz dovnitř jiného (nejčastěji do klauzule `WHERE`). Zkušební komise bedlivě testuje, zda chápete zásadní rozdíl mezi korelovaným a nekorelovaným poddotazem a mezi operátory `IN` a `EXISTS`.\n\n### 1. Nekorelovaný poddotaz\n* **Jak funguje:** Vnitřní dotaz je naprosto nezávislý na vnějším. Lze ho zkopírovat, spustit samostatně a bude fungovat.\n* **Exekuce:** Databáze ho spustí **pouze jednou**. Výsledek si uloží do paměti a vnější dotaz ho pak použije.\n* *Příklad:* `SELECT * FROM Zamestnanec WHERE plat > (SELECT AVG(plat) FROM Zamestnanec);`\n\n### 2. Korelovaný poddotaz\n* **Jak funguje:** Vnitřní dotaz se odkazuje na hodnotu (sloupec) z vnějšího dotazu (pomocí aliasu tabulky). Nelze ho spustit samostatně.\n* **Exekuce:** Databáze ho musí spustit **znovu pro KAŽDÝ jednotlivý řádek** vnějšího dotazu (jako vnořený for-cyklus). To může být výkonnostní katastrofa ($O(N^2)$), proto se tyto dotazy optimalizují.\n\n### Operátor IN vs. EXISTS\n\n**Operátor IN:** \n* Používá se pro porovnání hodnoty se **seznamem (množinou) hodnot**, které vrátil poddotaz (typicky nekorelovaný).\n* *Příklad:* `WHERE oddeleni_id IN (SELECT id FROM Oddeleni WHERE mesto = 'Praha')`\n* *Nebezpečí:* `IN` (a zejména `NOT IN`) je extrémně náchylný na selhání v přítomnosti `NULL` hodnot!\n\n**Operátor EXISTS:**\n* Očekává vždy **korelovaný poddotaz**. Nereší, *jaké* hodnoty vnitřní dotaz vrátil, ale ptá se pouze na to, zda vrátil **ALESPOŇ JEDEN řádek** (vrací logické TRUE/FALSE).\n* *Příklad:* `WHERE EXISTS (SELECT 1 FROM Objednavka O WHERE O.zakaznik_id = Z.id)`\n* *Výhoda:* Jakmile databáze najde první shodný řádek uvnitř poddotazu, okamžitě zastaví další hledání (tzv. short-circuit evaluation). Také je absolutně imunní vůči `NULL` hodnotám!"
+    },
+    {
+      "id": "019fcc2f-387e-7785-9a9b-c5ebd7ea6886",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2023",
+        "SQL",
+        "NOT IN",
+        "NULL"
+      ],
+      "title": "Praxe: Zrádná evaluace dotazů s operátory IN/NOT IN (Zkoušková úloha Léto 2023)",
+      "content": "**Zkoušková úloha na papír (Čtení kódu):**\n\nMáme dány tabulky:\n- `PROJECT(ID, Name, Budget)` obsahující data: `[1, 'SIS', 500000], [2, 'FIS', 400000], [3, 'CARS', 400000]`\n- `EMPLOYEE(ID, Name, Position, PID)` obsahující data: `[1, 'Alex', 'Consultant', 1], [2, 'Peter', 'Programmer', 3], [3, 'John', 'Programmer', 2], [4, 'Paul', 'Designer', 2]`\n\nAnalyzujte a zapište, jaký přesný výsledek (data) vrátí následující SQL dotaz:\n`SELECT Name FROM PROJECT WHERE ID NOT IN (SELECT PID FROM EMPLOYEE);`\n\n*Extra matfyzácká podotázka (Chyták pro ústní):* Co by dotaz vrátil, kdyby do tabulky EMPLOYEE přibyl zaměstnanec `[5, 'Xaver', 'Boss', NULL]` (tedy zaměstnanec bez přiřazeného projektu)?",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nKomise zde testuje vaši schopnost manuálně interpretovat SQL a navazuje na teorii tříhodnotové logiky.\n\n**Ad 1. Normální evaluace:**\n* Krok 1: Vyhodnocení poddotazu. `SELECT PID FROM EMPLOYEE` vrátí množinu `(1, 3, 2, 2)`. Odstraněním duplicit dostaneme množinu `{1, 2, 3}`.\n* Krok 2: Aplikace `NOT IN`. Vnější dotaz bere projekty jeden po druhém a ptá se:\n  - Je ID 1 `NOT IN {1, 2, 3}`? FALSE.\n  - Je ID 2 `NOT IN {1, 2, 3}`? FALSE.\n  - Je ID 3 `NOT IN {1, 2, 3}`? FALSE.\n* **Výsledek k zapsání na papír:** Dotaz vrátí **prázdnou množinu (žádné řádky)**.\n\n**Ad 2. Zrádný chyták s NULL hodnotou (Toto musíte vědět!):**\nPokud existuje zaměstnanec s `PID = NULL`, poddotaz vrátí množinu `{1, 2, 3, NULL}`. Co se stane teď?\nPředstavme si, že máme v tabulce projekt navíc `[4, 'NEW_PROJ', 1000]`. Ten v tabulce zaměstnanců chybí.\n* Ptáme se: Je 4 `NOT IN {1, 2, 3, NULL}`?\n* Relační algebrou to znamená: `4 != 1 AND 4 != 2 AND 4 != 3 AND 4 != NULL`\n* Evaluace: `TRUE AND TRUE AND TRUE AND UNKNOWN` $\\rightarrow$ **UNKNOWN**.\n* Protože výsledek klauzule `WHERE` není striktní `TRUE` (je `UNKNOWN`), řádek s projektem 4 je zahozen!\n* **Závěr pro komisi:** Pokud poddotaz operátoru `NOT IN` vrátí byť jedinou hodnotu `NULL`, celý vnější dotaz absolutně **nikdy nevrátí žádný řádek** (vrátí vždy prázdnou množinu). Pro zjišťování absence záznamů s možností `NULL` se proto v praxi i u zkoušky musí vždy používat `NOT EXISTS`!"
+    },
+    {
+      "id": "019fcc2f-387e-7785-9a9b-c8f8cffb1c8d",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2024",
+        "SQL",
+        "NOT EXISTS"
+      ],
+      "title": "Praxe: Filtrování prázdných množin přes NOT EXISTS (Zkoušková úloha Podzim 2024)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte doménu hudební scény. Máte definované tabulky:\n- `kapela (id_k INT PRIMARY KEY, nazev VARCHAR, zalozena INT)`\n- `zpevak (id_z INT PRIMARY KEY, jmeno VARCHAR, clen INT FOREIGN KEY REFERENCES kapela(id_k))`\n- `skladba (id_s INT PRIMARY KEY, titul VARCHAR, interpret INT FOREIGN KEY REFERENCES zpevak(id_z))`\n\nNapište v SQL dotaz, který vypíše jména všech zpěváků, kteří nejsou členy **žádné** kapely.\n\n*Upozornění na chyták:* Oficiální vzorové řešení MFF k této úloze zní: `SELECT jmeno FROM zpevak z WHERE NOT EXISTS (SELECT * FROM skladba WHERE interpret = z.id_z);` – Všimněte si ale, že tento kód neodpovídá zadání (hledá zpěváky bez skladby, nikoliv bez kapely). Vaším úkolem je na papír napsat SPRÁVNÝ kód a zároveň ukázat formát pomocí `NOT EXISTS`.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\n*Pobavení pro komisi:* V oficiálním autorském řešení se zkoušející přepsal. Pokud se vás zadání ptá na kapelu, nesmíte joinovat skladbu!\n\n**Řešení 1: Čisté řešení (Bez poddotazu)**\nProtože vztah Zpěvák $\\rightarrow$ Kapela je 1:N realizovaný přímo sloupcem `clen` uvnitř tabulky `zpevak`, dotaz je naprosto banální a nevyžaduje žádné spojení. Stačí testovat neexistenci cizího klíče přes `IS NULL`.\n```sql\nSELECT jmeno \nFROM zpevak \nWHERE clen IS NULL;\n```\n\n**Řešení 2: Demonstrace vzoru NOT EXISTS (To, co komise chtěla vidět)**\nPokud by vztah Kapela-Zpěvák byl M:N (přes vazební tabulku), řešení přes `IS NULL` by nefungovalo. Tehdy byste museli ukázat sílu korelovaného poddotazu s `NOT EXISTS`. Zde je ukázka, jak by se zapsal (ačkoliv pro dané schéma je to overkill):\n\n```sql\nSELECT z.jmeno \nFROM zpevak z\nWHERE NOT EXISTS (\n    -- Poddotaz je korelovaný (odkazuje na z.clen a k.id_k)\n    SELECT 1 \n    FROM kapela k \n    WHERE k.id_k = z.clen\n);\n```\n\n*Rozbor kódu pro obhajobu:*\n1. Vnější dotaz `SELECT jmeno FROM zpevak z` si vezme prvního zpěváka.\n2. Vnitřní dotaz se spustí a pokusí se najít řádek v tabulce `kapela`, jehož ID se shoduje s cizím klíčem tohoto zpěváka (`z.clen`).\n3. Místo psaní `SELECT *` nebo `SELECT id_k` se do korelovaných poddotazů konvenčně píše `SELECT 1`, protože `EXISTS` hodnoty ignoruje, zajímá ho pouze pouhá logická přítomnost nalezeného řádku.\n4. `NOT EXISTS` následně invertuje výsledek. Pokud se nenašel ani 1 řádek v kapele (výsledek byl FALSE), invertuje se na TRUE a zpěvák projde filtrem na výstup."
+    },
+    {
+      "id": "019fcc2f-566a-7439-a32f-0d47eed6ae3b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "Agregace",
+        "GROUP BY"
+      ],
+      "title": "Teorie: Seskupování dat (GROUP BY) a Agregace",
+      "content": "Agregační funkce v SQL slouží k provedení výpočtů nad množinou řádků za účelem vrácení jediné sumarizované hodnoty. Abychom neurčovali průměr z celé tabulky, ale například průměrný plat pro každé jednotlivé oddělení zvlášť, používáme klauzuli `GROUP BY`.\n\n### Základní agregační funkce\n* `MIN(sloupec)`, `MAX(sloupec)`: Vrací extrémy. Funguje na čísla, texty (abeceda) i data.\n* `SUM(sloupec)`, `AVG(sloupec)`: Součet a aritmetický průměr. Funguje pouze na čísla.\n* `COUNT(*)` vs. `COUNT(sloupec)`: **Extrémně oblíbený chyták!** \n  - `COUNT(*)` počítá všechny **fyzické řádky** v tabulce/skupině.\n  - `COUNT(sloupec)` počítá pouze ty řádky, kde hodnota ve sloupci **NENÍ NULL**!\n\n### Seskupování pomocí GROUP BY\nKlauzule `GROUP BY` rozdělí výslednou tabulku (která vznikla po `JOIN` a `WHERE`) do logických skupin podle hodnot ve specifikovaném sloupci. Agregační funkce se pak aplikuje na každou skupinu zvlášť.\n\n**Zlaté (a neporušitelné) pravidlo pro zkoušku:**\nPokud váš `SELECT` obsahuje jakýkoliv normální sloupec a zároveň nějakou agregační funkci, pak **každý normální sloupec ze SELECTu MUSÍ být vypsán uvnitř klauzule GROUP BY**!\n\n*Příklad špatného dotazu (Skončí chybou DBMS):*\n```sql\n-- CHYBA: Zkoušíme vypsat jméno člověka, ale seskupujeme jen podle oddělení!\n-- Databáze neví, KTERÉHO člověka z oddělení má vypsat.\nSELECT oddeleni_id, jmeno, AVG(plat)\nFROM Zamestnanec\nGROUP BY oddeleni_id;\n```\n\n*Příklad správného dotazu:*\n```sql\n-- SPRÁVNĚ: Jméno musí do GROUP BY, nebo musí z dotazu zmizet.\nSELECT oddeleni_id, AVG(plat)\nFROM Zamestnanec\nGROUP BY oddeleni_id;\n```\n\n*Poznámka:* Některé historické verze MySQL tento 'zlatý' zákaz ignorovaly a vracely náhodného zaměstnance z daného oddělení (tzv. ANY_VALUE). Na státnicích z databázové teorie je to ale tvrdá chyba, držte se ANSI SQL standardu."
+    },
+    {
+      "id": "019fcc2f-566a-7439-a32f-11831dfd03dc",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "HAVING",
+        "WHERE"
+      ],
+      "title": "Teorie: Filtrování seskupení (HAVING vs. WHERE)",
+      "content": "Jeden z nejčastějších důvodů pro ztrátu bodů u psaní SQL na papír je zaměnění klauzulí `WHERE` a `HAVING`. Obě slouží k filtrování, ale aplikují se v naprosto rozdílných fázích vyhodnocování dotazu (což vychází z relační algebry).\n\n### Klauzule WHERE (Filtr řádků před seskupením)\n* **Kdy se spouští:** Okamžitě po spojení tabulek (`FROM`, `JOIN`), ale ještě PŘEDTÍM, než se začne cokoliv počítat nebo seskupovat.\n* **Co dělá:** Zahazuje konkrétní nevyhovující záznamy.\n* **Pravidlo:** Uvnitř `WHERE` **NESMÍ BÝT NIKDY** použita agregační funkce! Výraz jako `WHERE AVG(plat) > 50000` je syntaktický nesmysl, protože průměr v tuto chvíli ještě neexistuje.\n\n### Klauzule HAVING (Filtr skupin po seskupení)\n* **Kdy se spouští:** Až poté, co proběhlo seskupení v `GROUP BY` a spočítaly se všechny agregační funkce.\n* **Co dělá:** Zahazuje celé výsledné skupiny (agregované balíčky).\n* **Pravidlo:** Uvnitř `HAVING` se obvykle testují výsledky agregací (např. `HAVING COUNT(id) > 10`). \n\n### Ukázka kombinace na papír pro komisi\nChceme vypsat oddělení, kde průměrný plat programátorů přesahuje 100 000 Kč.\n\n```sql\nSELECT oddeleni_id, AVG(plat) AS prumerny_plat\nFROM Zamestnanec\nWHERE pozice = 'Programator' -- 1. Nejdřív vyfiltrujeme jen programátory\nGROUP BY oddeleni_id         -- 2. Pak je seskupíme podle oddělení\nHAVING AVG(plat) > 100000;   -- 3. Nakonec zahodíme oddělení s nízkým průměrem\n```\n\n*Bod k dobru:* Lze v klauzuli `HAVING` použít obyčejný (neagregovaný) sloupec? Z hlediska standardu ano, ale pouze ten, který je uveden v `GROUP BY` (protože ostatní už neexistují). Je to ale považováno za **špatnou praxi**, protože filtrace podle obyčejného sloupce patří logicky (a kvůli výkonnostní optimalizaci indexy) výhradně do `WHERE`."
+    },
+    {
+      "id": "019fcc2f-566a-7439-a32f-14a3c7b9270c",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Jaro 2025",
+        "SQL",
+        "HAVING"
+      ],
+      "title": "Praxe: Agregace ChatBota a chyták s HAVING (Zkoušková úloha Jaro 2025)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte doménu, kde uživatelé konverzují s ChatBotem. Máte navrhnout databázi a dotaz. Vaším dílčím úkolem je:\n\n1. Pomocí jazyka SQL napište skript, který vytvoří tabulku `Uzivatel` a tabulku `Zprava`. Zpráva musí patřit konkrétnímu uživateli a také konkrétní 'konverzaci'. Zajistěte referenční integritu.\n2. Specifikujte SQL dotaz, který vrátí **počty zpráv u těch konverzací, které jsou 'dlouhé'**. Dlouhou konverzaci definujeme jako konverzaci, která obsahuje *více než 100 zpráv*.",
+      "hiddenContent": "**Vzorové autorské řešení a analýza chytáků:**\n\nTato úloha zkouší, jestli dokážete navrhnout jednoduché schéma za pochodu a hned nad ním napsat dotaz, který nespadne do pasti s `WHERE COUNT(...) > 100`.\n\n**Úkol 1: Tvorba tabulek (DDL)**\n* Všimněte si, že zadání nezmiňuje samostatnou tabulku pro 'Konverzaci', ale požaduje, aby k ní zpráva patřila. Musíme tedy vytvořit alespoň identifikační sloupec.\n\n```sql\nCREATE TABLE Uzivatel (\n    id_u INT PRIMARY KEY,\n    jmeno VARCHAR(100)\n);\n\nCREATE TABLE Zprava (\n    id_z INT PRIMARY KEY,\n    id_u INT NOT NULL,\n    id_konverzace INT NOT NULL,\n    text VARCHAR(5000),\n    FOREIGN KEY (id_u) REFERENCES Uzivatel(id_u)\n    -- Pokud by existovala tabulka Konverzace, byl by tu FK i na ni.\n);\n```\n\n**Úkol 2: Agregační dotaz (DQL)**\n* Musíme seskupit zprávy podle `id_konverzace`.\n* Musíme spočítat zprávy pomocí `COUNT(*)`.\n* Musíme vyfiltrovat ty, kterých je přes 100. **To MUSÍ přijít do klauzule HAVING!**\n\n```sql\nSELECT \n    id_konverzace, \n    COUNT(*) AS pocet_zprav\nFROM Zprava\nGROUP BY id_konverzace\nHAVING COUNT(*) > 100;\n```\n\n*Poznámka pro komisi:* Proč jsme nepoužili `HAVING pocet_zprav > 100`? V mnoha dialektech (např. MySQL, Postgres) to sice funguje, ale striktní ANSI SQL nedovoluje používat aliasy ze `SELECT`u uvnitř klauzule `HAVING` (protože `SELECT` se evaluuje logicky až po `HAVING`). U státnic proto na jistotu VŽDY vypište do HAVING celou agregační funkci: `HAVING COUNT(*) > 100`."
+    },
+    {
+      "id": "019fcc2f-a0ea-73ca-acb8-fa2b1dd10251",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Jaro 2024",
+        "SQL",
+        "JOIN",
+        "GROUP BY"
+      ],
+      "title": "Praxe: Analytický trojitý JOIN a průměrování (Zkoušková úloha Jaro 2024 - Část 2)",
+      "content": "**Zkoušková úloha na papír:**\n\nV informačním systému školy SIS-Junior pro evidenci žáků máte k dispozici následující tabulky (podtržené jsou PK):\n- `STUDENT(id, first_name, last_name, born)`\n- `CLASS(id, label, academic_year, school_year)`\n- `SUBJECT(id, name)`\n- `REPORT_GRADE(student_id, class_id, subject_id, semester, grade)`\n\nNapište SQL dotaz typu `SELECT`, který vypíše **průměrné známky pro každou unikátní kombinaci předmětu (vypište ID i název), ročníku studentů (school_year) a školního roku (academic_year)**. Známky obou pololetí se průměrují dohromady.\n\n*Otázka pro vás:* Jaké tabulky propojíte a jak zkonstruujete klauzuli `GROUP BY`?",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nToto je klasická 'velká' SQL úloha prověřující, jak dobře dokážete zřetězit více tabulek, provést agregaci a nespadnout do pasti neúplného `GROUP BY`.\n\n**1. Analýza potřebných dat:**\n- Z tabulky `REPORT_GRADE` potřebujeme průměrovat sloupec `grade` a vzít `subject_id`.\n- Z tabulky `SUBJECT` potřebujeme přečíst `name` (název předmětu).\n- Z tabulky `CLASS` potřebujeme přečíst `academic_year` a `school_year`.\n- Tabulku `STUDENT` vůbec nepotřebujeme, protože data o konkrétním studentovi nevypisujeme!\n\n**2. Zápis SQL na papír:**\n```sql\nSELECT \n    RG.subject_id, \n    S.name, \n    C.academic_year, \n    C.school_year,\n    AVG(RG.grade) AS prumerna_znamka\nFROM REPORT_GRADE RG\nINNER JOIN CLASS C ON RG.class_id = C.id\nINNER JOIN SUBJECT S ON RG.subject_id = S.id\nGROUP BY \n    RG.subject_id, \n    S.name, \n    C.academic_year, \n    C.school_year;\n```\n\n**3. Argumentace pro komisi (Chyták GROUP BY):**\nNejvětší chybou u státnic je napsat `GROUP BY RG.subject_id` a zapomenout na ostatní sloupce. I když logicky název předmětu závisí na ID předmětu a je tedy 'skrytě' unikátní pro danou skupinu, striktní SQL standard to neví a neuznává to. **Zlaté pravidlo:** Vše, co leží v `SELECT` a není obaleno agregační funkcí (zde `AVG`), musí být otrocky zkopírováno do `GROUP BY`."
+    },
+    {
+      "id": "019fcc2f-a0ea-73ca-acb8-ff7c4f39ef63",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "Množinové operace",
+        "UNION",
+        "INTERSECT",
+        "EXCEPT"
+      ],
+      "title": "Teorie: Množinové operace v SQL (Vertikální spojování)",
+      "content": "Zatímco operátor `JOIN` spojuje tabulky 'horizontálně' (přidává nové sloupce), množinové operátory spojují dotazy 'vertikálně' (přidávají nové řádky pod sebe). Na písemce musíte znát tři základní množinové operátory a jejich striktní pravidla.\n\n### Pravidla pro množinové spojení (Kompatibilita)\nAbychom mohli dva výsledky dotazů spojit množinově, musí splňovat dvě podmínky:\n1. **Stejný počet sloupců:** Výsledky musí mít přesně stejný počet sloupců.\n2. **Kompatibilní datové typy:** Sloupce na stejných pozicích musí mít datové typy, které lze na sebe namapovat (např. nelze sjednocovat `INT` s `VARCHAR`).\n\n### 1. Sjednocení (UNION a UNION ALL)\nSpojí výsledek prvního dotazu s výsledkem druhého.\n* `UNION` automaticky vyhledá a **odstraní veškeré duplicitní řádky** (což vyžaduje interní seřazení a je výpočetně náročné).\n* `UNION ALL` duplicity neodstraňuje (jen je natvrdo připojí pod sebe). Je to mnohem rychlejší! U zkoušky ho použijte vždy, když víte, že se data vzájemně nepřekrývají.\n\n### 2. Průnik (INTERSECT)\nVrátí pouze ty řádky, které se nacházejí **současně v obou** množinách (vrácených prvním i druhým dotazem). Jako průnik dvou kružnic ve Vennově diagramu.\n\n### 3. Rozdíl (EXCEPT / MINUS)\nVrátí pouze ty řádky, které **jsou v první** množině, ale **NENACHÁZEJÍ se ve druhé** množině. (Oracle databáze používá slovo `MINUS`, ANSI standard a většina ostatních `EXCEPT`).\n\n*Příklad na papír (Sjednocení tabulky bývalých a současných zaměstnanců):*\n```sql\nSELECT jmeno, email FROM Zamestnanec\nUNION\nSELECT jmeno, email FROM Byvaly_Zamestnanec;\n```"
+    },
+    {
+      "id": "019fcc2f-a0ea-73ca-acb9-00dd60923051",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "SQL",
+        "INTERSECT",
+        "Logická past"
+      ],
+      "title": "Praxe: Hledání pacienta se vzácnou kombinací (Extra úloha na INTERSECT)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nMáte k dispozici jedinou vazební tabulku z nemocnice:\n`LeciSe(Pacient_RC, Diagnoza_Kod)`.\n\nNapište SQL dotaz, který vypíše rodná čísla (RC) takových pacientů, kteří v nemocnici trpí (nebo trpěli) diagnózou se zkratkou 'Z1' (Zlomenina) a ZÁROVEŇ diagnózou se zkratkou 'O2' (Otřes mozku).\n\n**Varování:** Téměř polovina studentů napíše u zkoušky dotaz s podmínkou `WHERE Diagnoza_Kod = 'Z1' AND Diagnoza_Kod = 'O2'`. Proč je tento dotaz fatálně chybný a jaké jsou správné způsoby řešení?",
+      "hiddenContent": "**Vzorové autorské řešení a analýza logické pasti:**\n\nToto je ultimátní test na pochopení logiky vyhodnocování SQL.\n\n**1. Proč je selský rozum s AND špatně?**\nPokud napíšete `SELECT Pacient_RC FROM LeciSe WHERE Diagnoza_Kod = 'Z1' AND Diagnoza_Kod = 'O2'`, dotaz **nevrátí nikdy nic**. Klauzule `WHERE` se totiž vyhodnocuje vždy pouze nad jedním konkrétním řádkem. Žádný jeden řádek nemůže mít ve sloupci `Diagnoza_Kod` zároveň hodnotu 'Z1' a 'O2'. Logicky to nedává smysl.\n\n**2. Správné řešení A (Použití INTERSECT):**\nNejčistší matematické řešení. Vytvoříme množinu pacientů se zlomeninou a uděláme průnik s množinou pacientů s otřesem mozku.\n```sql\nSELECT Pacient_RC FROM LeciSe WHERE Diagnoza_Kod = 'Z1'\nINTERSECT\nSELECT Pacient_RC FROM LeciSe WHERE Diagnoza_Kod = 'O2';\n```\n\n**3. Správné řešení B (Použití vnitřního spojení / SELF JOIN):**\nSpojíme tabulku samu se sebou přes pacienta. V jedné instanci hledáme Z1, ve druhé O2.\n```sql\nSELECT L1.Pacient_RC \nFROM LeciSe L1\nINNER JOIN LeciSe L2 ON L1.Pacient_RC = L2.Pacient_RC\nWHERE L1.Diagnoza_Kod = 'Z1' AND L2.Diagnoza_Kod = 'O2';\n```\n\n**4. Správné řešení C (Použití poddotazu IN):**\nVybereme pacienty se zlomeninou, jejichž RC zároveň patří do koše pacientů s otřesem mozku.\n```sql\nSELECT Pacient_RC \nFROM LeciSe \nWHERE Diagnoza_Kod = 'Z1' \nAND Pacient_RC IN (\n    SELECT Pacient_RC FROM LeciSe WHERE Diagnoza_Kod = 'O2'\n);\n```\n*Komentář pro komisi:* Všechna 3 řešení jsou algoritmicky správně. Pro písemku nejvíce doporučuji řešení A (INTERSECT) nebo řešení C (IN), protože jsou pro člověka nejlépe čitelná a eliminuje se riziko chyby s aliasy u Self-Joinu."
+    },
+    {
+      "id": "019fcc2f-d46a-7191-855e-dca357102715",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Transakce",
+        "ACID",
+        "Spolehlivost"
+      ],
+      "title": "Teorie: Pojem Transakce a pilíře ACID",
+      "content": "Blokujeme zpracovávání po jednotlivých SQL dotazech a přecházíme na úroveň transakcí. **Transakce** je logická (nedělitelná) jednotka práce, která obvykle obsahuje několik operací čtení a zápisu (např. převod peněz mezi účty). Abychom mohli transakčnímu systému věřit, musí splňovat 4 základní vlastnosti, pro které se vžila zkratka **ACID**.\n\n### Znalost pro zkoušku (Definice pilířů ACID)\n\n**1. Atomicity (Atomicita / Nedělitelnost)**\n* *Princip:* 'Všechno, nebo nic'. Transakce se provede buď celá, nebo se vůbec neprovede.\n* *Význam:* Pokud během série SQL dotazů dojde k chybě (výpadek sítě, havárie serveru, dělení nulou), databáze musí provést tzv. `ROLLBACK` (návrat zpět) a zahodit i ty částečné změny, které už transakce stihla udělat.\n\n**2. Consistency (Konzistence)**\n* *Princip:* Transakce převádí databázi z jednoho validního (konzistentního) stavu do druhého.\n* *Význam:* Během běhu transakce mohou být dočasně porušena integritní omezení, ale na jejím konci (při `COMMIT`) musí být všechna omezení (cizí klíče, unique, check) splněna. Pokud nejsou, transakce je zrušena.\n\n**3. Isolation (Izolace)**\n* *Princip:* Souběžně běžící transakce se nesmí navzájem ovlivňovat.\n* *Význam:* Přestože databáze zpracovává tisíce transakcí ve stejnou milisekundu, pro každou z nich to musí vypadat tak, jako by běžela v systému úplně sama (jako by se spouštěly sériově jedna po druhé). Zabraňuje to anomáliím.\n\n**4. Durability (Trvanlivost)**\n* *Princip:* Jakmile je transakce úspěšně potvrzena (`COMMIT`), její změny jsou trvalé a přežijí i výpadek napájení nebo pád systému.\n* *Význam:* Dosahuje se toho zápisem na nevolatilní paměť (disk) předtím, než databáze pošle uživateli hlášku 'OK'. K tomu se používá tzv. WAL (Write-Ahead Log), kam se transakce sekvenčně zapisují dříve, než se reálně přepíší datové bloky."
+    },
+    {
+      "id": "019fcc2f-d46a-7191-855e-e3da5cf9081b",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Transakce",
+        "ACID",
+        "Bankovní převod"
+      ],
+      "title": "Praxe: Modelování bankovního převodu a porušení ACID (Extra zkouškový příklad)",
+      "content": "**Praktická zkušební úloha na papír (Otázka na logiku):**\n\nMějme databázi banky s tabulkou `Ucet(id, zustatek)`. Chceme provést převod 1000 Kč z účtu A na účet B.\n\n1. Rozepište tento proces jako sekvenci jednoduchých operací čtení ($R$) a zápisu ($W$).\n2. Na tomto klasickém příkladu vysvětlete zkušební komisi, jak přesně by se projevilo porušení jednotlivých vlastností Atomicity, Consistency a Isolation, pokud bychom nepoužili transakční ochranu.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro obhajobu:**\n\n**1. Sekvence operací (Logická jednotka práce):**\nAby databáze převedla peníze, musí provést minimálně tyto 4 nízkoúrovňové operace:\n1. $R(A)$: Načti aktuální zůstatek účtu A do paměti.\n2. $W(A)$: Zapiš nový zůstatek účtu A (snížený o 1000 Kč).\n3. $R(B)$: Načti aktuální zůstatek účtu B do paměti.\n4. $W(B)$: Zapiš nový zůstatek účtu B (zvýšený o 1000 Kč).\n\n**2. Následky porušení ACID (Komentář pro komisi):**\n\n*   **Porušení Atomicity (Havárie uprostřed):** Pokud databáze spadne po kroku 2 (peníze byly strženy z A) a před krokem 4 (peníze ještě nebyly připsány na B), a systém by neměl atomicítu (neuměl by udělat automatický rollback při restartu), banka by 1000 Kč nenávratně smazala (zničila peníze v oběhu).\n\n*   **Porušení Consistency (Nekonzistentní stav):** Pokud by účet A měl na začátku zůstatek 500 Kč a banka by nepovolovala jít do minusu, po kroku 2 by byl zůstatek A -500 Kč. Pokud by systém negarantoval konzistenci (ignoroval by pravidlo `CHECK zustatek >= 0`), transakce by prošla a vytvořila by dluh.\n\n*   **Porušení Isolation (Čtení mezistavu):** Představme si, že po kroku 2 (kdy A už peníze nemá, ale B je ještě nemá) přijde účetní a spustí dotaz (T2): `SUM(zustatek)`. Protože T2 není izolovaná, uvidí mezistav transakce T1 a ve výkazu banky bude chybět 1000 Kč. Izolace zajistí, že T2 počká na konec T1, nebo uvidí data před začátkem T1."
+    },
+    {
+      "id": "019fcc2f-d46a-7191-855e-e798687a8373",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Souběh",
+        "Anomálie",
+        "Izolace"
+      ],
+      "title": "Teorie: Anomálie souběhu (Proč transakce izolujeme)",
+      "content": "Když se nad stejnou databází spustí více transakcí paralelně, začnou se jejich operace (čtení a zápis) prokládat. Pokud bychom toto prokládání neregulovali, vzniknou tzv. **Anomálie souběhu**. Komise z databází vyžaduje znalost přesné definice těchto čtyř klasických problémů, na kterých pak stojí teorie zamykání.\n\n### 1. Ztracený zápis (Lost Update)\nNejfatálnější anomálie.\n* **Princip:** Dvě transakce (T1 a T2) si současně přečtou stejný záznam, obě ho v paměti upraví a zapíší zpět. Zápis té transakce, která potvrdila (`COMMIT`) později, nenávratně přepíše (zničí) práci té první.\n* **Příklad:** T1 a T2 přidávají 100 Kč k účtu, kde je 1000 Kč. Obě přečtou 1000. T1 zapíše 1100. Následně T2 zapíše svých 1100. Výsledek je 1100, ačkoliv měl být 1200.\n\n### 2. Špinavé čtení (Dirty Read)\nOdpovědné za *nezotavitelné rozvrhy* (častá úloha zkoušky!).\n* **Princip:** Transakce T1 upraví záznam (ale ještě nedala `COMMIT`). Transakce T2 si tuto (zatím neplatnou) hodnotu přečte a pracuje s ní. Následně transakce T1 selže a provede `ROLLBACK`.\n* **Důsledek:** Transakce T2 pracovala a vydala výsledky na základě dat, která v databázi 'nikdy logicky neexistovala'.\n\n### 3. Neopakovatelné čtení (Unrepeatable Read)\n* **Princip:** Transakce T1 si přečte záznam. Než T1 skončí, transakce T2 tento samý záznam **upraví nebo smaže** a potvrdí to (`COMMIT`). Když se T1 pokusí přečíst záznam podruhé (v rámci jedné logické operace), dostane jinou hodnotu než prve.\n\n### 4. Fantom (Phantom Read)\n* **Princip:** Podobné jako neopakovatelné čtení, ale neřeší se úprava stávajících řádků, nýbrž vkládání nových. Transakce T1 si spustí dotaz (např. `SELECT COUNT(*) WHERE vek > 20`), což vrátí 5 lidí. Než T1 skončí, transakce T2 **vloží nový řádek** s věkem 25 a dá `COMMIT`. Pokud T1 zopakuje stejný `SELECT`, vrátí se jí 6 lidí (objevil se 'fantom').\n\n*Nástin pro zkoušku:* SQL standard řeší tyto problémy zavedením tzv. úrovní izolace (Isolation Levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable), které postupně tyto anomálie zakazují (typicky za cenu pomalejšího běhu databáze kvůli delšímu držení zámků)."
+    },
+    {
+      "id": "019fcc2f-f289-75fe-a1e9-da4091a386d7",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Transakce",
+        "Rozvrhy",
+        "Souběh"
+      ],
+      "title": "Teorie: Transakční rozvrhy (Schedules)",
+      "content": "Při zkoumání toho, jak databáze zpracovává souběžné dotazy, si komise kreslí tzv. **Transakční rozvrhy (Schedules)**. Je to abstraktní model, který ukazuje přesné časové uspořádání nízkoúrovňových operací. Čas plyne buď zleva doprava (v jednom textovém řádku), nebo shora dolů (v tabulce).\n\n### Značení operací na papíře\nNa písemce se operace zkracují do následující notace:\n* $R_i(A)$: Transakce $T_i$ provedla operaci čtení (Read) nad datovým prvkem $A$.\n* $W_i(A)$: Transakce $T_i$ provedla operaci zápisu (Write) nad datovým prvkem $A$.\n* $C_i$: Transakce $T_i$ se úspěšně potvrdila (Commit).\n* $A_i$: Transakce $T_i$ byla zrušena (Abort / Rollback).\n\n### 1. Sériový rozvrh (Serial Schedule)\n* **Definice:** Rozvrh, ve kterém se operace různých transakcí **nikdy neprokládají**. Transakce $T_1$ proběhne od začátku do konce (až po `COMMIT`), a teprve poté začne transakce $T_2$.\n* **Vlastnost:** Sériový rozvrh je **vždy absolutně bezpečný** a zanechá databázi v konzistentním stavu. Netrpí žádnými anomáliemi (ztracený zápis atd.), ale je pro reálné systémy nepoužitelný, protože je extrémně pomalý (uživatelé by čekali ve frontě, i když upravují úplně jiná data).\n* *Příklad:* $R_1(A), W_1(A), C_1, R_2(B), W_2(B), C_2$\n\n### 2. Souběžný rozvrh (Concurrent/Interleaved Schedule)\n* **Definice:** Rozvrh, ve kterém databázový stroj přepíná kontext a prokládá operace různých transakcí v čase (kvůli maximalizaci propustnosti CPU a disků).\n* **Vlastnost:** Rychlý, ale nebezpečný. Může vytvořit anomálie. Naším (a databázovým) úkolem je povolit pouze takové souběžné rozvrhy, které jsou logicky ekvivalentní nějakému sériovému rozvrhu. Těm se pak říká 'Uspořádatelné'.\n* *Příklad:* $R_1(A), R_2(B), W_1(A), C_1, W_2(B), C_2$"
+    },
+    {
+      "id": "019fcc2f-f28a-704a-9439-1132d3889f2d",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Transakce",
+        "Konflikt",
+        "Ekvivalence",
+        "Uspořádatelnost"
+      ],
+      "title": "Teorie: Konfliktová ekvivalence a Uspořádatelnost",
+      "content": "Klíčová teorie pro státnice. Abychom dokázali bezpečně prokládat transakce, zavedla databázová teorie pojem 'Konflikt'. Pokud na papír špatně určíte konflikty, celá zkoušková úloha se zhroutí.\n\n### Co je to Konflikt? (Matematická definice)\nDvě operace v rozvrhu jsou v konfliktu **tehdy a jen tehdy**, pokud splňují SOUČASNĚ tyto tři podmínky:\n1. Patří **různým** transakcím (např. $T_1$ a $T_2$).\n2. Přistupují ke **stejnému** datovému prvku (např. obě sahají na $A$).\n3. **Alespoň jedna** z operací je zápis ($W$).\n\n*Z toho plynou 3 typy konfliktů:*\n* **W-R (Zápis-Čtení):** T1 zapíše, T2 přečte (může způsobit Dirty Read).\n* **R-W (Čtení-Zápis):** T1 přečte, T2 zapíše (může způsobit Unrepeatable Read).\n* **W-W (Zápis-Zápis):** T1 zapíše, T2 zapíše (může způsobit Lost Update).\n* *Poznámka pro komisi:* Čtení-Čtení (R-R) **NENÍ** konflikt! Dvě transakce mohou číst stejná data paralelně bez nebezpečí.\n\n### Konfliktová ekvivalence (Conflict Equivalence)\nDva rozvrhy $S_1$ a $S_2$ jsou konfliktově ekvivalentní, pokud platí:\n1. Obsahují naprosto stejné transakce a stejné operace.\n2. **Zlaté pravidlo:** Relativní časové pořadí **KAŽDÉ dvojice konfliktních operací** je v obou rozvrzích shodné.\n*(Lidsky: Pokud v $S_1$ zapsala $T_1$ do proměnné $A$ DŘÍVE, než to samé $A$ přečetla $T_2$, musí to samé platit i v $S_2$. Pokud se pořadí u jakéhokoliv konfliktu otočí, rozvrhy logicky dělají něco jiného a nejsou ekvivalentní).*\n\n### Konfliktová uspořádatelnost (Conflict Serializability)\nJak zjistíme, že je náš rychlý, souběžný rozvrh bezpečný? \n* **Definice:** Rozvrh $S$ je konfliktově uspořádatelný, pokud je konfliktově ekvivalentní k **NĚJAKÉMU SÉRIOVÉMU** rozvrhu.\n* Jinými slovy: Lze v něm prohazovat nekonfliktní operace tak dlouho, až se z něj stane čistý sériový rozvrh, aniž bychom narušili pořadí jakéhokoliv konfliktu? Pokud ano, DBMS (databáze) takový rozvrh bezpečně propustí ke zpracování."
+    },
+    {
+      "id": "019fcc2f-f28a-704a-9439-15720cd9f34e",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2025",
+        "Konfliktová ekvivalence"
+      ],
+      "title": "Praxe: Důkaz konfliktové ekvivalence (Zkoušková úloha Podzim 2025 - Část 1)",
+      "content": "**Zkoušková úloha na papír:**\n\nDefinujte konfliktovou ekvivalenci rozvrhů. Jsou dány dva transakční rozvrhy $S_1$ a $S_2$ obsahující transakce $T_1$ a $T_2$:\n- $S_1: R_1(X), W_2(X), W_1(Y), W_2(Y)$\n- $S_2: R_1(X), W_1(Y), W_2(X), W_2(Y)$\n\n1. Rozhodněte a formálně zdůvodněte, zda jsou rozvrhy $S_1$ a $S_2$ konfliktově ekvivalentní.\n2. Rozhodněte, zda je rozvrh $S_1$ konfliktově uspořádatelný (serializable). Své rozhodnutí zdůvodněte.",
+      "hiddenContent": "**Vzorové autorské řešení a postup obhajoby pro komisi:**\n\nKomise testuje, zda umíte exaktně vypsat konfliktní páry a porovnat je, místo hádání.\n\n**Definice (pro úvod odpovědi):** Dva rozvrhy jsou konfliktově ekvivalentní, pokud obsahují stejné operace a v obou rozvrzích je zachováno stejné relativní pořadí pro všechny dvojice konfliktních operací (operace různých transakcí nad stejným prvkem, kde aspoň jedna je zápis).\n\n**Krok 1: Identifikace konfliktů v rozvrhu $S_1$:**\nProcházíme $S_1$ zleva doprava a hledáme páry:\n* Na datovém prvku $X$: Operace $R_1(X)$ je před $W_2(X)$. Je to konflikt R-W. Pořadí je **$T_1 \\rightarrow T_2$**.\n* Na datovém prvku $Y$: Operace $W_1(Y)$ je před $W_2(Y)$. Je to konflikt W-W. Pořadí je **$T_1 \\rightarrow T_2$**.\n* *Seznam konfliktů v $S_1$:* ($R_1(X) < W_2(X)$) a ($W_1(Y) < W_2(Y)$).\n\n**Krok 2: Ověření týchž konfliktů v rozvrhu $S_2$:**\nProcházíme $S_2$ a kontrolujeme naše nalezené páry:\n* Na datovém prvku $X$: Operace $R_1(X)$ se vyskytuje před $W_2(X)$. Pořadí je zachováno ($T_1 \\rightarrow T_2$).\n* Na datovém prvku $Y$: Operace $W_1(Y)$ se vyskytuje před $W_2(Y)$. Pořadí je zachováno ($T_1 \\rightarrow T_2$).\n\n**Závěr 1 pro komisi:** Všechny konfliktní dvojice operací mají v obou rozvrzích naprosto totožné relativní pořadí. Rozvrhy $S_1$ a $S_2$ **JSOU konfliktově ekvivalentní**.\n\n**Krok 3: Je $S_1$ konfliktově uspořádatelný?**\n* Podíváme se zblízka na rozvrh $S_2$: $R_1(X), W_1(Y), W_2(X), W_2(Y)$.\n* Všimněte si, že v $S_2$ se nejprve provedou VŠECHNY operace transakce $T_1$, a až poté VŠECHNY operace transakce $T_2$. \n* Rozvrh $S_2$ je tedy **čistý sériový rozvrh** ($T_1$ následovaná $T_2$).\n* **Závěr 2 pro komisi:** Protože jsme v Kroku 1 a 2 dokázali, že rozvrh $S_1$ je konfliktově ekvivalentní k rozvrhu $S_2$, a zároveň víme, že $S_2$ je sériový rozvrh, vyplývá z definice, že rozvrh $S_1$ **JE konfliktově uspořádatelný** (ekvivalentní sériovému rozvrhu $T_1 \\rightarrow T_2$)."
+    },
+    {
+      "id": "019fcc30-5fe0-75c8-a304-4425b9a7b91c",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Transakce",
+        "Precedenční graf",
+        "Uspořádatelnost"
+      ],
+      "title": "Teorie: Precedenční graf (Serializability Graph)",
+      "content": "K zjištění, zda je složitý souběžný rozvrh bezpečný (konfliktově uspořádatelný), se v databázové teorii používá exaktní nástroj: **Precedenční graf**. Komise u zkoušky vyžaduje, abyste jej na papír namalovali a vyvodili z něj závěr na základě jednoduché matematické věty.\n\n### Algoritmus konstrukce grafu\nNa papír si připravte uzly a hrany podle těchto 3 kroků:\n1. **Uzly:** Pro každou potvrzenou transakci $T_i$ v rozvrhu nakreslete jeden uzel (kolečko).\n2. **Hrany:** Procházejte rozvrh zleva doprava (chronologicky). Kdykoliv najdete **konflikt** mezi operací z $T_i$ a operací z $T_j$ (připomeňme: stejný datový prvek, aspoň jeden zápis, různé transakce), nakreslete orientovanou hranu (šipku) od té transakce, jejíž operace proběhla dříve, k té, jejíž operace proběhla později. Tedy $T_i \\rightarrow T_j$.\n3. **Optimalizace nákresu:** Pokud zjistíte, že hrana $T_1 \\rightarrow T_2$ už v grafu existuje (kvůli konfliktu na proměnné A), a najdete další konflikt na proměnné B, který by vedl k té samé hraně $T_1 \\rightarrow T_2$, druhou šipku už nekreslete. Zajímá nás pouze topologie.\n\n### Věta o uspořádatelnosti (Zlatý grál pro zkoušku)\n* **Znění věty:** Rozvrh $S$ je konfliktově uspořádatelný **tehdy a jen tehdy**, pokud je jeho precedenční graf **acyklický** (neobsahuje žádný orientovaný cyklus).\n* **Co napsat do písemky, pokud graf NEMA cyklus:** 'Precedenční graf je acyklický, rozvrh JE konfliktově uspořádatelný. Ekvivalentní sériový rozvrh lze získat topologickým uspořádáním uzlů (např. $T_1 \\rightarrow T_3 \\rightarrow T_2$).'\n* **Co napsat do písemky, pokud graf MA cyklus:** (např. $T_1 \\rightarrow T_2 \\rightarrow T_1$). 'Precedenční graf obsahuje orientovaný cyklus. To znamená, že $T_1$ logicky předchází $T_2$ a zároveň $T_2$ logicky předchází $T_1$. Takovou situaci nelze serializovat. Rozvrh NENÍ konfliktově uspořádatelný a databáze by jej musela přerušit.'"
+    },
+    {
+      "id": "019fcc30-5fe0-75c8-a304-4a48fb67d9fa",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2023",
+        "Precedenční graf",
+        "Detekce cyklů"
+      ],
+      "title": "Praxe: Detekce cyklů v precedenčním grafu u 3 transakcí (Zkouška Léto 2023 - Část 3)",
+      "content": "**Zkoušková úloha na papír:**\n\nJe dán následující transakční rozvrh $S$ složený z transakcí $T_1, T_2, T_3$. Čas plyne zleva doprava.\n$S: W_3(A), R_2(A), W_1(B), W_2(B), W_1(C), W_3(C)$\n\nNakreslete/vypište hrany precedenčního grafu. Je rozvrh $S$ konfliktově uspořádatelný (conflict-serializable)? Své rozhodnutí formálně vysvětlete. Pokud ano, uveďte konkrétní ekvivalentní sériový rozvrh.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nZde se hraje na absolutní pozornost. Musíme vzít každý prvek (A, B, C) odděleně a vyhledat všechny kolize.\n\n**1. Krok: Hledání konfliktů (Hrany grafu)**\n* **Nad prvkem A:** Máme operace $W_3(A)$ a $R_2(A)$. Protože $W_3$ je před $R_2$ a jde o konflikt (Zápis-Čtení), přidáváme do grafu orientovanou hranu: **$T_3 \\rightarrow T_2$**.\n* **Nad prvkem B:** Máme operace $W_1(B)$ a $W_2(B)$. Jde o konflikt W-W. $W_1$ proběhlo dříve. Přidáváme hranu: **$T_1 \\rightarrow T_2$**.\n* **Nad prvkem C:** Máme operace $W_1(C)$ a $W_3(C)$. Opět konflikt W-W. $W_1$ proběhlo dříve. Přidáváme hranu: **$T_1 \\rightarrow T_3$**.\n\n**2. Krok: Analýza grafu**\nSestavili jsme graf s těmito třemi hranami: \n- $T_3 \\rightarrow T_2$\n- $T_1 \\rightarrow T_2$\n- $T_1 \\rightarrow T_3$\n\nNyní hledáme orientovaný cyklus. Můžeme jít z $T_1$ do $T_3$ a z $T_3$ do $T_2$ (Cesta $T_1 \\rightarrow T_3 \\rightarrow T_2$). Můžeme jít z $T_1$ přímo do $T_2$. \nNikde se ale nevracíme zpět. Všechny šipky směřují k $T_2$, z $T_2$ nevede žádná hrana ven. Graf je zjevně **acyklický**.\n\n**3. Závěr pro komisi na papír:**\n'Precedenční graf obsahuje hrany $T_1 \\rightarrow T_2$, $T_1 \\rightarrow T_3$ a $T_3 \\rightarrow T_2$. V grafu se nenachází žádný orientovaný cyklus. Rozvrh $S$ **JE** konfliktově uspořádatelný. Topologickým setříděním acyklického grafu získáme ekvivalentní sériový rozvrh v pořadí: **$T_1 \\rightarrow T_3 \\rightarrow T_2$**.'"
+    },
+    {
+      "id": "019fcc30-5fe0-75c8-a304-4f7d50e3a7b7",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Jaro 2026",
+        "Reverzní inženýrství",
+        "Precedenční graf"
+      ],
+      "title": "Praxe: Reverzní inženýrství grafu - doplnění '???' (Zkouška Jaro 2026 - Část 3)",
+      "content": "**Zákeřná zkoušková úloha na papír:**\n\nMáme dán rozvrh s transakcemi $T_1$ a $T_2$. Tabulka ukazuje operace v čase 1 až 4:\n* Čas 1: $W_1(A)$ (Operace transakce $T_1$)\n* Čas 2: `???` (Neznámá operace transakce $T_2$)\n* Čas 3: $R_1(B)$ (Operace transakce $T_1$)\n* Čas 4: $W_2(A)$ (Operace transakce $T_2$)\n\nJakou databázovou operaci čtení nebo zápisu musí transakce $T_2$ provést v čase 2 (místo `???`), aby byl tento rozvrh **konfliktově NEuspořádatelný**? Své rozhodnutí dokažte namalováním precedenčního grafu.",
+      "hiddenContent": "**Vzorové autorské řešení a postup dedukce:**\n\nToto je úloha na reverzní inženýrství. Víte, že 'konfliktově neuspořádatelný' znamená 'musí obsahovat orientovaný cyklus'. My ho tam musíme cíleně vytvořit.\n\n**1. Co už v grafu máme jisté?**\nIgnorujeme čas 2 a podíváme se na zbytek rozvrhu. \nVidíme, že v čase 1 provede $T_1$ zápis $W_1(A)$. V čase 4 provede $T_2$ zápis $W_2(A)$. Jedná se o konflikt W-W na proměnné A, kde $T_1$ je dříve než $T_2$.\n*Jistá hrana v grafu:* **$T_1 \\rightarrow T_2$**.\n\n**2. Jak vytvořit cyklus?**\nAby v grafu o dvou uzlech vznikl cyklus, nutně potřebujeme přidat protichůdnou hranu **$T_2 \\rightarrow T_1$**.\nTo znamená, že musíme najít konflikt, kde operace transakce $T_2$ proběhne DŘÍVE než operace transakce $T_1$.\n\n**3. Dedukce hledané operace:**\nNaše neznámá operace se nachází v čase 2 a patří $T_2$. \nCo dělá transakce $T_1$ PO čase 2? V čase 3 dělá $R_1(B)$.\nAbychom vytvořili konflikt (musí platit: stejný prvek, aspoň jeden zápis), musí neznámá operace v $T_2$ přistupovat ke stejnému prvku 'B' a musí to být zápis!\n*Naše dedukce:* Neznámá operace musí být **$W_2(B)$**.\n\n**Závěr pro komisi na papír:**\n'Místo otazníků musí být operace zápisu **$W_2(B)$**. \nDůkaz: \n1) Z konfliktu $W_1(A)$ v čase 1 a $W_2(A)$ v čase 4 vznikne hrana $T_1 \\rightarrow T_2$.\n2) Z konfliktu $W_2(B)$ v čase 2 a $R_1(B)$ v čase 3 vznikne hrana $T_2 \\rightarrow T_1$.\nTyto dvě hrany tvoří orientovaný cyklus ($T_1 \\rightarrow T_2 \\rightarrow T_1$). Graf není acyklický a rozvrh přestává být konfliktově uspořádatelný.'"
+    },
+    {
+      "id": "019fcc37-c5c3-740c-aef3-f6184964aa32",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Transakce",
+        "Zotavitelnost",
+        "Dirty Read"
+      ],
+      "title": "Teorie: Zotavitelnost (Recoverability) rozvrhů a fenomén Dirty Read",
+      "content": "Kromě konfliktové uspořádatelnosti, která řeší, zda se transakce 'nesemlely' logicky špatně, existuje druhá kritická vlastnost: **Zotavitelnost (Recoverability)**. Komise zkoumá, zda váš rozvrh přežije, pokud jedna z transakcí uprostřed běhu spadne a musí provést `ROLLBACK`.\n\n### Fenomén Dirty Read (Špinavé čtení)\nPředstavte si, že transakce $T_1$ změní hodnotu proměnné A. Než ale transakce $T_1$ skončí (dá `COMMIT`), databáze přepne kontext a nechá transakci $T_2$ tuto novou hodnotu A přečíst. Tomu se říká Dirty Read. Transakce $T_2$ je od tohoto okamžiku **existenčně závislá** na úspěchu transakce $T_1$.\n\n### Kdy je rozvrh Nezotavitelný (Kritická chyba)\nCo se stane, když se $T_2$ rychle dokončí a potvrdí své změny (`COMMIT_2`), ale vzápětí transakce $T_1$ spadne a udělá `ROLLBACK_1`?\n* Data, která $T_1$ zapsala, z databáze zmizí (logicky se nikdy nestala).\n* Transakce $T_2$ ale přečetla neexistující data, něco z nich spočítala a výsledek **definitivně potvrdila** do databáze.\n* Podle pilíře 'Durability' (Trvanlivost) z pravidel ACID nesmí databáze NIKDY zrušit již potvrzenou transakci. Nemůžeme tedy udělat rollback $T_2$.\n* Databáze zůstane v nekonzistentním, poškozeném stavu. Rozvrh je **Nezotavitelný**.\n\n### Definice Zotavitelného rozvrhu (Nutno napsat do písemky)\n'Rozvrh je zotavitelný tehdy a jen tehdy, pokud pro každou transakci $T_j$, která čte data zapsaná nepotvrzenou transakcí $T_i$, platí, že **operace $COMMIT_j$ proběhne až POTÉ, co proběhne operace $COMMIT_i$**.'\n\n*Poučka:* Pokud transakce $T_1$ neobsahuje žádné zápisy, nebo z ní $T_2$ nic nečte, jsou na sobě nezávislé a pořadí jejich COMMITů je zcela libovolné."
+    },
+    {
+      "id": "019fcc37-c5c3-740c-aef3-fbfdb606caf0",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2024",
+        "Zotavitelnost"
+      ],
+      "title": "Praxe: Dirty Read a nezotavitelnost rozvrhu (Zkoušková úloha Léto 2024 - Část 2)",
+      "content": "**Zkoušková úloha na papír:**\n\nJe dán následující transakční rozvrh $S$ (operace jdou chronologicky dolů):\n\n| $T_1$ | $T_2$ | $T_3$ |\n| :--- | :--- | :--- |\n| $R(A)$ | | |\n| | $W(B)$ | |\n| | | $W(A)$ |\n| $W(B)$ | | |\n| | $R(A)$ | |\n| | | $W(B)$ |\n| `COMMIT` | | |\n| | `COMMIT` | |\n| | | `COMMIT` |\n\n**Úkol:** Rozhodněte, zda je rozvrh $S$ zotavitelný (recoverable). Své rozhodnutí vysvětlete. Pokud není, bylo by možné zotavitelnosti dosáhnout bez toho, že by se změnilo vzájemné pořadí operací $R$ a $W$? Jak?",
+      "hiddenContent": "**Vzorové autorské řešení a postup dedukce:**\n\nKomise testuje schopnost najít závislost mezi čtením a zápisem (Dirty Read) a porovnat časy potvrzení.\n\n**1. Krok: Hledání špinavého čtení (Dirty Read)**\nMusíme najít situaci, kdy nějaká transakce čte datový prvek, který byl předtím upraven jinou transakcí.\n* Díváme se na prvek A: $T_3$ zapisuje $W_3(A)$. Následně $T_2$ čte $R_2(A)$. Tedy **$T_2$ čte z $T_3$**.\n* Díváme se na prvek B: $T_2$ zapisuje $W_2(B)$, $T_1$ zapisuje $W_1(B)$, $T_3$ zapisuje $W_3(B)$. Zde probíhají pouze zápisy, nikdo B nečte. Není tu závislost na čtení.\n\n**2. Krok: Analýza pořadí COMMITů**\nZjistili jsme, že transakce $T_2$ čte nepotvrzená data od transakce $T_3$. Je na ní závislá.\n* Podle definice zotavitelnosti MUSÍ platit: $COMMIT_2$ se smí provést až **po** $COMMIT_3$.\n* Podíváme se na konec tabulky: $T_2$ dělá `COMMIT` hned jako druhá, zatímco $T_3$ dělá `COMMIT` až jako třetí (poslední)!\n\n**3. Závěr pro komisi na papír:**\n'Rozvrh $S$ **NENÍ zotavitelný**. Důvod: Transakce $T_2$ čte (operací $R(A)$) nepotvrzenou hodnotu zapsanou transakcí $T_3$ (operací $W(A)$). Avšak $T_2$ provádí svůj `COMMIT` dříve než transakce $T_3$. Kdyby $T_3$ po potvrzení $T_2$ selhala, databáze by se ocitla v nezotavitelném stavu.'\n\n**4. Odpověď na doplňující otázku (Jak opravit):**\n'Ano, zotavitelnosti by bylo možné dosáhnout bez změny pořadí databázových operací $R$ a $W$. Stačí **pozdržet operaci COMMIT v transakci $T_2$** tak, aby proběhla až po operaci COMMIT transakce $T_3$.'"
+    },
+    {
+      "id": "019fcc37-c5c3-740c-aef3-fd73bbef091b",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Zotavitelnost",
+        "Kaskádový rollback"
+      ],
+      "title": "Praxe: Návrh opravy nezotavitelného rozvrhu (Extra úloha a Kaskádové zrušení)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nMějme rozvrh: $W_1(A), R_2(A), W_2(B), R_3(B), COMMIT_3, COMMIT_2, ABORT_1$.\n\n1. Identifikujte, zda a proč je rozvrh zotavitelný či nezotavitelný.\n2. Pokud je nezotavitelný, ukažte, jak upravit **výlučně** pořadí ukončovacích operací (COMMIT/ABORT), aby byl rozvrh korektní z hlediska tzv. Kaskádového zrušení (Cascading Rollback).\n3. Vysvětlete, proč moderní databáze obvykle těmto situacím předcházejí pomocí Striktního 2PL (Strict 2PL) protokolu.",
+      "hiddenContent": "**Vzorové autorské řešení a rozšíření teorie pro komisi:**\n\n**1. Analýza zotavitelnosti:**\n* Závislosti (kdo od koho čte): \n  - $T_2$ čte A od $T_1$ ($T_2$ je závislá na $T_1$).\n  - $T_3$ čte B od $T_2$ ($T_3$ je závislá na $T_2$).\n* Máme zde řetězec závislostí: $T_3 \\rightarrow T_2 \\rightarrow T_1$.\n* Kdo první potvrdil? $T_3$ potvrdila nejdřív, pak $T_2$, a nakonec $T_1$ spadla ($ABORT$).\n* *Závěr:* Rozvrh je **naprosto nezotavitelný**. $T_1$ spadla, takže $T_2$ pracovala se 'špinavými daty' a musí být také zrušena. Jenže $T_2$ už potvrdila (COMMIT), a dokonce i $T_3$ (která četla od $T_2$) už potvrdila. Trvanlivost (Durability) byla porušena.\n\n**2. Návrh opravy (Zajištění zotavitelnosti a Kaskádový rollback):**\nAbychom umožnili zotavení, žádná závislá transakce nesmí potvrdit, dokud nepotvrdí ta, od které čte. Pořadí COMMITů by se muselo odložit až na samotný konec. \nPokud však $T_1$ havaruje ($ABORT_1$), systém musí logicky reagovat **kaskádovým zrušením** všech závislých transakcí!\n* *Opravený rozvrh pro papír:* $W_1(A), R_2(A), W_2(B), R_3(B), ABORT_1, ABORT_2, ABORT_3$.\n*(Jelikož $T_1$ spadla, databáze sama vynutila ABORT i u $T_2$ a $T_3$, protože jejich commity byly moudře pozdrženy).* \n\n**3. Argumentace Striktním 2PL pro komisi:**\n'Zotavování s kaskádovým rušením je pro databázi výpočetně příšerně drahé, protože se zruší spousta užitečné práce. Moderní DBMS proto používají **Striktní 2PL protokol**. Ten garantuje tzv. rozvrhy vyhýbající se kaskádovému zrušení (ACA - Avoids Cascading Aborts). Dělá to tak, že transakce $T_1$ drží na prvku A exkluzivní zámek ($L_X$) celou dobu až do svého konce. Transakce $T_2$ si tudíž nemůže prvek A vůbec přečíst, dokud $T_1$ neudělá COMMIT nebo ABORT. Fenomén Dirty Read díky Striktnímu 2PL fyzicky vůbec nemůže nastat.'"
+    },
+    {
+      "id": "019fcc37-f21c-73d8-9334-e7fa71225b09",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "SQL",
+        "Úrovně izolace",
+        "Izolace"
+      ],
+      "title": "Teorie: Úrovně izolace v SQL a propustnost",
+      "content": "Teorie transakčních rozvrhů je matematicky čistá, ale v praxi extrémně omezující. Pokud by databáze nutila absolutní izolaci všech transakcí, uživatelé by na odpověď čekali neúnosně dlouho. Proto SQL standard (ANSI) zavádí **4 úrovně izolace**, které umožňují vyměnit bezpečnost za rychlost (propustnost).\n\nKomise se často ptá, jakou anomálii daná úroveň povoluje. Na papír si pamatujte tuto stupnici (od nejrychlejší/nejméně bezpečné po nejpomalejší/nejbezpečnější):\n\n### 1. READ UNCOMMITTED (Čtení nepotvrzeného)\n* **Co dělá:** Zcela ignoruje zámky pro čtení.\n* **Anomálie:** Umožňuje **Dirty Read** (Špinavé čtení). Transakce čte data, která ještě jiná transakce nepotvrdila.\n* **Využití:** Hrubé analytické agregace nad živými daty, kde nevadí statistická odchylka.\n\n### 2. READ COMMITTED (Čtení potvrzeného)\n* **Co dělá:** Výchozí úroveň u většiny DBMS (PostgreSQL, Oracle). Transakce čte pouze ta data, která už byla potvrzena (COMMIT).\n* **Anomálie:** Zabraňuje Dirty Read. Umožňuje ale **Unrepeatable Read** (Neopakovatelné čtení). Pokud v jedné transakci uděláte `SELECT` dvakrát, mezi těmito dvěma dotazy může jiná transakce data změnit a potvrdit.\n\n### 3. REPEATABLE READ (Opakovatelné čtení)\n* **Co dělá:** Výchozí úroveň v MySQL (InnoDB). Zaručuje, že pokud během transakce přečtete řádek, zůstane pro vás nezměněný až do konce vaší transakce, i kdyby ho někdo jiný upravil.\n* **Anomálie:** Zabraňuje Dirty i Unrepeatable Read. Umožňuje ale **Phantom Read** (Fantomy). Jiná transakce vám sice nemůže změnit přečtené řádky, ale může do tabulky VLOŽIT řádky úplně nové, které se vám při opakování dotazu najednou objeví ve výsledku.\n\n### 4. SERIALIZABLE (Uspořádatelnost)\n* **Co dělá:** Absolutní ochrana. Databáze se chová tak, jako by se transakce prováděly striktně sériově jedna po druhé.\n* **Anomálie:** Zakazuje všechny anomálie (včetně fantomů). Dosahuje toho velmi drsným uzamykáním (často zamyká celé tabulky nebo rozsahy indexů).\n* **Využití:** Kritické finanční operace, měsíční uzávěrky. Výrazně klesá propustnost systému."
+    },
+    {
+      "id": "019fcc37-f21c-73d8-9334-e80b49b94979",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Uzamykání",
+        "Zámky",
+        "Transakce"
+      ],
+      "title": "Teorie: Uzamykání (Locking) jako mechanismus DBMS",
+      "content": "Aby databáze zabránila konfliktům (např. Lost Update), využívá interní mechanismus uzamykání prvků (souborů, bloků, řádků). U státnic z databází je toto naprostý základ pro pochopení protokolů.\n\n### Typy zámků\nPamatujte si dvě základní písmena a jejich logiku:\n1. **Sdílený zámek (Shared Lock) - $L_S(A)$**\n   * Slouží pro operaci **čtení** ($R$).\n   * Jmenuje se 'sdílený', protože pokud transakce $T_1$ drží $L_S$ na prvku A, může si o ten samý zámek $L_S$ na prvku A požádat i transakce $T_2$ a databáze jí ho okamžitě udělí. (Více lidí si může číst stejnou knihu).\n\n2. **Exkluzivní zámek (Exclusive Lock) - $L_X(A)$**\n   * Slouží pro operaci **zápisu** ($W$).\n   * Jmenuje se 'exkluzivní', protože jakmile transakce $T_1$ získá $L_X$ na prvku A, má na něj absolutní monopol. Nikdo jiný nesmí prvek A ani číst, natož zapisovat, dokud $T_1$ zámek neuvolní.\n\n### Matice kompatibility zámků\nZkoušející mohou chtít, abyste logiku zámků nakreslili do matice. Ukazuje, co se stane, když už prvek 'Drží' nějaký zámek, a nová transakce o nějaký zámek 'Žádá':\n* Drží $L_S$, Žádá $L_S$ $\\rightarrow$ **Povoleno** (Čtení a čtení nekonfliktuje).\n* Drží $L_S$, Žádá $L_X$ $\\rightarrow$ **Zamítnuto / Čeká** (Nelze zapisovat, když si někdo čte).\n* Drží $L_X$, Žádá $L_S$ $\\rightarrow$ **Zamítnuto / Čeká** (Nelze číst, když někdo přepisuje data).\n* Drží $L_X$, Žádá $L_X$ $\\rightarrow$ **Zamítnuto / Čeká** (Nelze zapisovat přes rozdělaný zápis).\n\n### Upgrade a Downgrade zámků\n* **Upgrade (Povýšení):** Transakce má $L_S$ a chce ho povýšit na $L_X$, protože se rozhodla, že po přečtení hodnotu i upraví. Lze provést pouze tehdy, pokud je v danou chvíli JEDINÁ, kdo drží onen sdílený zámek.\n* **Downgrade (Ponížení):** Transakce drží $L_X$, uložila data a chce zámek ponížit na $L_S$, aby si mohla data ještě ověřit a zároveň pustila ostatní ke čtení."
+    },
+    {
+      "id": "019fcc37-f21c-73d8-9334-efb759d92917",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "2PL",
+        "Striktní 2PL",
+        "Transakce"
+      ],
+      "title": "Teorie: Dvoufázový protokol (2PL) a Striktní 2PL",
+      "content": "Samotná existence zámků $L_S$ a $L_X$ nás před anomáliemi nezachrání. Pokud by transakce zámky chaoticky zamykala a odemykala během vteřiny, stále by docházelo ke špatnému překrývání operací. Proto zavádíme **Dvoufázový uzamykací protokol (Two-Phase Locking - 2PL)**.\n\n### 1. Základní 2PL (Dvoufázový protokol)\nPravidlo zní: Transakce musí být rozdělena do dvou striktních fází:\n1. **Fáze nabírání (Growing phase):** Transakce smí nové zámky POUZE žádat a získávat. Nesmí uvolnit ani jeden jediný zámek!\n2. **Fáze uvolňování (Shrinking phase):** Jakmile transakce uvolní svůj PRVNÍ zámek, překročila zlomový bod. Od této chvíle smí zámky POUZE uvolňovat. **Nesmi už požádat o žádný nový zámek!**\n\n* **Zlatá věta pro komisi:** 'Z matematického hlediska každý rozvrh, který je vygenerován transakcemi dodržujícími 2PL protokol, je garantovaně **konfliktově uspořádatelný**.'\n* **Slabina:** Klasický 2PL sice garantuje uspořádatelnost, ale **negarantuje zotavitelnost**. Může dojít ke kaskádovému zrušení (pokud uvolní zámek brzy, někdo jiný si data přečte, a první transakce pak spadne).\n\n### 2. Striktní 2PL (Strict 2PL)\nAbychom zabránili kaskádovému rušení a Dirty Read, zpřísňujeme 2PL.\n* **Pravidlo pro zkoušku:** Ve striktním 2PL platí stejná pravidla pro nabírání zámků, ale fáze uvolňování je zablokována. Transakce **musí držet všechny své exkluzivní zámky ($L_X$) až do samého konce** (do chvíle, než provede `COMMIT` nebo `ABORT`). Až poté se všechny hromadně uvolní!\n* **Vlastnost:** Tento protokol je standardem ve všech dnešních SQL databázích. Garantuje jak uspořádatelnost, tak zotavitelnost (vyhýbá se kaskádovému zrušení).\n\n### Zásadní problém všech 2PL (Deadlock)\nI když 2PL zajišťuje bezpečí, má jeden drtivý vedlejší efekt. Dodržování 2PL nutně vede k riziku **uváznutí (Deadlocku)**. Pokud $T_1$ nabere $A$ a potřebuje $B$, zatímco $T_2$ už nabrala $B$ a potřebuje $A$, obě jsou ve fázi nabírání. Žádná z nich zámek nepustí. Vznikne křížové zablokování a databáze musí jednu z nich zastřelit (udělat jí vynucený `ABORT`)."
+    },
+    {
+      "id": "019fcc38-16cb-77bf-a189-8e6f27954fdd",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Striktní 2PL",
+        "Zámky"
+      ],
+      "title": "Praxe: Aplikace Striktního 2PL na rozvrh (Extra úloha)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nMějme dán následující souběžný rozvrh tří transakcí:\n$S: R_1(A), R_2(A), W_1(B), W_2(C), C_1, C_2$\n\n1. Přepište tento rozvrh na papír a doplňte do něj zamykací operace $L_S$ (sdílený zámek) a $L_X$ (exkluzivní zámek) a odemykací operace $U$ (Unlock) tak, aby rozvrh striktně dodržoval pravidla **Striktního dvoufázového protokolu (Strict 2PL)**.\n2. Vyznačte, v jakém okamžiku transakce uvolní své zámky a vysvětlete komisi proč.",
+      "hiddenContent": "**Vzorové autorské řešení a logický postup:**\n\nKomise testuje, zda student chápe rozdíl mezi nabíráním zámků TĚSNĚ před operací a uvolňováním zámků AŽ na úplném konci.\n\n**1. Trasování a doplňování na papír:**\n* $T_1$ chce číst A $\\rightarrow$ musí požádat o sdílený zámek: **$L_S1(A), R_1(A)$**\n* $T_2$ chce číst A $\\rightarrow$ žádá o sdílený zámek. Protože sdílené zámky nekolidují, databáze jí ho okamžitě přidělí: **$L_S2(A), R_2(A)$**\n* $T_1$ chce zapisovat B $\\rightarrow$ musí požádat o exkluzivní zámek: **$L_X1(B), W_1(B)$**\n* $T_2$ chce zapisovat C $\\rightarrow$ musí požádat o exkluzivní zámek: **$L_X2(C), W_2(C)$**\n\nNyní přichází na řadu potvrzování (COMMIT):\n* $T_1$ provede `COMMIT` ($C_1$). Teprve v TENTO OKAMŽIK smí $T_1$ uvolnit všechny své držené zámky (Striktní 2PL nedovoluje dřívější uvolnění!). Následuje tedy: **$U_1(A), U_1(B)$**\n* $T_2$ provede `COMMIT` ($C_2$). Následně uvolní své zámky: **$U_2(A), U_2(C)$**\n\n**2. Výsledný přepsaný rozvrh pro komisi:**\n$L_S1(A), R_1(A), L_S2(A), R_2(A), L_X1(B), W_1(B), L_X2(C), W_2(C), C_1, U_1(A), U_1(B), C_2, U_2(A), U_2(C)$\n\n*Argumentace pro obhajobu:* 'Tento rozvrh plně vyhovuje Striktnímu 2PL, protože fáze nabírání probíhá postupně před každou operací a fáze uvolňování (Shrinking phase) je odložena striktně až za příkaz COMMIT. Tím se fyzicky zamezilo možnosti kaskádového zrušení (Cascading Rollback) a zaručila se uspořádatelnost i zotavitelnost.'"
+    },
+    {
+      "id": "019fcc38-16cb-77bf-a189-9157130d0b65",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Deadlock",
+        "Uváznutí",
+        "Wait-For graf"
+      ],
+      "title": "Teorie: Uváznutí (Deadlock) a Graf čekání",
+      "content": "Aplikace jakéhokoliv dvoufázového uzamykacího protokolu (2PL) vnáší do databáze nové, fatální riziko: **Uváznutí (Deadlock)**. Zatímco Precedenční graf (Serializability graph) jsme kreslili pro odhalení logických konfliktů, pro odhalení fyzického zamrznutí databáze komise požaduje znalost **Grafu čekání (Wait-For Graph)**.\n\n### Co je to Uváznutí (Deadlock)?\nJe to stav databázového systému, kdy se skupina dvou nebo více transakcí navzájem trvale zablokuje. \n* Každá transakce v této skupině momentálně **drží** nějaký zámek.\n* Zároveň každá transakce **čeká** na přidělení dalšího zámku, který aktuálně drží jiná transakce ve stejné skupině.\n* Výsledek: Všechny transakce se uspí a čekají do nekonečna. Nikdy samy od sebe nedosáhnou fáze uvolňování zámků.\n\n### Graf čekání (Wait-For Graph) pro odhalení uváznutí\nJak databáze zjistí, že zamrzla a nečeká jen na pomalý disk? Tvoří si neustále na pozadí Graf čekání.\n\n**Konstrukce na papír:**\n1. **Uzly:** Každá aktuálně spuštěná transakce $T_i$ je uzel.\n2. **Hrany:** Pokud transakce $T_1$ požádá o zámek na prvek $X$, ale tento prvek aktuálně exkluzivně DRŽÍ transakce $T_2$, nakreslíme orientovanou hranu **$T_1 \\rightarrow T_2$** (čteme: '$T_1$ ČEKÁ NA $T_2$').\n\n**Matematická věta (Odpověď pro zkoušku):**\n'V databázovém systému nastane uváznutí (Deadlock) tehdy a jen tehdy, pokud aktuální Graf čekání (Wait-For Graph) obsahuje **orientovaný cyklus**.'\n\n### Řešení deadlocku v DBMS\nPokud databáze cyklus detekuje, nemůže dělat nic jiného, než vybrat jednu transakci z cyklu (tzv. Oběť / Victim - typicky tu nejmladší nebo tu, co provedla nejméně práce) a **zastřelit ji (vynutit ABORT)**. Tím se uvolní její držené zámky, cyklus se rozpadne a ostatní transakce mohou pokračovat."
+    },
+    {
+      "id": "019fcc38-16cb-77bf-a189-95360cce45b2",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2023",
+        "Deadlock",
+        "Striktní 2PL"
+      ],
+      "title": "Praxe: Odhalení deadlocku v rozvrhu (Zkoušková úloha Podzim 2023)",
+      "content": "**Zákeřná zkoušková úloha na papír:**\n\nDo transakčního rozvrhu byly aplikací uměle doplněny operace pro uzamykání $L_X$ (exkluzivní zámek) a $L_S$ (sdílený zámek) s cílem získat rozvrh odpovídající striktnímu dvoufázovému protokolu (Strict 2PL). Čas plyne shora dolů.\n\n| $T_1$ | $T_2$ | $T_3$ |\n| :--- | :--- | :--- |\n| $L_S(A), R(A)$ | | |\n| | $L_X(B), W(B)$ | |\n| | | $L_X(A), W(A)$ |\n| $L_X(B), W(B)$ | | |\n| | $L_S(A), R(A)$ | |\n\nOtázka komise zní: **Bylo cíle (správného dokončení rozvrhu ve striktním 2PL) dosaženo? Své rozhodnutí vysvětlete a analyzujte stav.**",
+      "hiddenContent": "**Vzorové autorské řešení a analýza chytáků (Krokování na papír):**\n\nToto zadání je past. Komise se tváří, jako by to byl platný rozvrh, ale my musíme simulovat, jak se zachová zamykací manager v databázi v reálném čase. Budeme kreslit hrany 'Kdo čeká na koho'.\n\n**Simulace zamykání v čase:**\n1. **Čas 1:** $T_1$ získá sdílený zámek $L_S(A)$. Přečte $A$.\n2. **Čas 2:** $T_2$ získá exkluzivní zámek $L_X(B)$. Zapíše $B$.\n3. **Čas 3:** $T_3$ žádá o $L_X(A)$. Ale prvek $A$ je aktuálně zamčen sdíleným zámkem transakce $T_1$! $L_X$ a $L_S$ kolidují. Výsledek: **$T_3$ je uspána a čeká na $T_1$**. (V Grafu čekání vzniká hrana: $T_3 \\rightarrow T_1$).\n4. **Čas 4:** $T_1$ žádá o $L_X(B)$. Ale prvek $B$ už exkluzivně drží $T_2$! Výsledek: **$T_1$ je uspána a čeká na $T_2$**. (Hrana v grafu: $T_1 \\rightarrow T_2$).\n5. **Čas 5:** $T_2$ žádá o $L_S(A)$. Prvek $A$ je držen sdíleně transakcí $T_1$. Technicky by $L_S$ a $L_S$ nevadilo, JENŽE ve frontě na prvek $A$ už čeká transakce $T_3$ s požadavkem na exkluzivní zápis. Databáze nedovolí 'předběhnout' exkluzivní požadavek dalším čtením (tzv. lock starvation protection). Proto se $T_2$ zařadí do fronty za $T_3$. Výsledek: **$T_2$ je uspána a čeká na $T_3$** (a sekundárně na $T_1$). (Hrana v grafu: $T_2 \\rightarrow T_3$).\n\n**Závěr pro komisi:**\n'Cíle **NEBYLO DOSAŽENO**. Aplikace zámků vytvořila v systému **Uváznutí (Deadlock)**. \nZdůvodnění přes Wait-For Graf: Transakce $T_3$ čeká na zámek od $T_1$. Transakce $T_1$ čeká na zámek od $T_2$. Transakce $T_2$ čeká na prvek ve frontě za $T_3$. Vzniká tak křížový cyklus zablokování ($T_1 \\rightarrow T_2 \\rightarrow T_3 \\rightarrow T_1$). Databáze by musela jednu z transakcí terminovat (ABORT).'"
+    },
+    {
+      "id": "019fd5aa-c117-748d-8354-27ddd9520799",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Deadlock",
+        "Prevence uváznutí",
+        "Wait-Die",
+        "Wound-Wait"
+      ],
+      "title": "Teorie: Prevence uváznutí v DBMS (Wait-Die a Wound-Wait)",
+      "content": "Kromě detekce uváznutí (kreslení a prohledávání Wait-For grafu, což je reaktivní přístup a stojí výkon) existují v databázích i **proaktivní protokoly**. Ty uváznutí předcházejí tím, že transakcím rovnou zakážou čekat určitým způsobem. Komise se často ptá na dva klasické algoritmy založené na časových razítkách (Timestamps).\n\n### Časové razítko $TS(T_i)$\nPři spuštění dostane každá transakce unikátní časové razítko $TS$. \n* Čím dříve transakce začala, tím je logicky **starší** a její číslo $TS$ je **menší**.\n* Pokud platí $TS(T_1) < TS(T_2)$, znamená to, že $T_1$ je starší než $T_2$.\n\nAby nemohl vzniknout cyklus v čekání, vynucujeme pravidlo, že čekat se smí jen 'jedním směrem' (např. starší smí čekat na mladší, ale nikdy ne naopak).\n\n### 1. Protokol Wait-Die (Ne-preemptivní)\nTransakce nikdy nevytrhne zámek z ruky jiné transakci (nepreemptivní). Řeší situaci, kdy $T_1$ žádá o zámek, který momentálně drží $T_2$.\n* **Pokud je $T_1$ starší než $T_2$:** $T_1$ dostane povolení **čekat** (Wait) ve frontě.\n* **Pokud je $T_1$ mladší než $T_2$:** $T_1$ se okamžitě sama ukončí, udusí se a umírá (**Die** - `ABORT`). Následně se restartuje se stejným (původním) časovým razítkem.\n* *Lidská pomůcka:* 'Starý trpělivě čeká, mladý netrpělivě umírá.'\n\n### 2. Protokol Wound-Wait (Preemptivní)\nAgresivnější přístup. Transakce může vytrhnout zámek z rukou jiné transakce (preemptivní) tím, že ji zabije.\n* **Pokud je $T_1$ starší než $T_2$:** $T_1$ vezme nůž a zraní/zabije $T_2$ (**Wound**). $T_2$ musí provést `ABORT`, pustí zámek a $T_1$ pokračuje.\n* **Pokud je $T_1$ mladší než $T_2$:** $T_1$ nesmí zabít staršího, musí si stoupnout do fronty a **čekat** (Wait).\n* *Lidská pomůcka:* 'Starý agresivně zabíjí, mladý respektuje stáří a čeká.'\n\n*Argumentace pro zkoušku:* Oba tyto protokoly garantují, že se orientovaný cyklus čekání ($T_1 \\rightarrow T_2 \\rightarrow T_1$) fyzicky nikdy neuzavře, protože hrany v grafu mohou vést pouze jedním striktním věkovým směrem. Zamezí se tak uváznutí bez nutnosti prohledávat graf."
+    },
+    {
+      "id": "019fd5aa-c117-748d-8354-28b5b200111e",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Big Data",
+        "Škálování",
+        "NoSQL",
+        "Limity SQL"
+      ],
+      "title": "Teorie: Fenomén Big Data a limity relačních databází",
+      "content": "S příchodem webových gigantů (Google, Facebook) přestaly tradiční SQL databáze stíhat. Tento posun je v sylabu definován přes pojem Big Data. Na zkoušce musíte znát definici (tzv. 4V model) a vysvětlit důvod fyzického selhání relačních databází.\n\n### Model 4V (Základní vlastnosti Big Data)\n1. **Volume (Objem):** Extrémní velikost dat (terabyty až petabyty). Data se fyzicky nevejdou na jeden disk.\n2. **Velocity (Rychlost):** Rychlost, jakou data přitékají (např. IoT senzory, streamy, logy webserveru). Systém musí data nejen rychle číst, ale hlavně bleskově zapisovat.\n3. **Variety (Rozmanitost):** Data nemají pevnou strukturu. Vedle tabulek máme semi-strukturovaná data (JSON, XML), logy, texty nebo binární data (obrázky). Tradiční pevné schéma (sloupce tabulky) se nedá použít.\n4. **Veracity (Pravdivost/Věrohodnost):** S rostoucím objemem roste šum a nejistota v datech (nekompletní údaje, výpadky senzorů). Systém musí umět fungovat i nad ne zcela čistými daty.\n\n### Selhání tradičních SQL systémů (Otázka pro komisi)\nProč prostě nenasadíme na Big Data PostgreSQL?\n\n* **Vertikální vs. Horizontální škálování:** SQL databáze byly navrženy v době drahého hardwaru pro **vertikální škálování** (Scale-up: kupujeme silnější server, více RAM). Jakmile ale narazíme na fyzikální limity jednoho serveru, SQL engine narazí do zdi. Big Data potřebují **horizontální škálování** (Scale-out: propojení tisíců levných obyčejných počítačů do clusteru).\n* **Problém s Shardingem (Dělením dat):** Pokud data rozdělíte na 10 počítačů (uzlů) a napíšete dotaz s operátorem `JOIN`, který spojuje tabulku A z Uzlu 1 s tabulkou B z Uzlu 5, výpočet absolutně zkolabuje na síťové latenci (posílání dat po kabelu je milionkrát pomalejší než čtení z RAM).\n* **Dan za ACID:** Transakční pilíře ACID a Striktní 2PL vyžadují zamykání napříč sítí. Dvoufázové potvrzování distribuované transakce drží zámky tak dlouho, že propustnost sítě klesne k nule.\n\n*Výsledek:* Vznikly **NoSQL** databáze, které zahodily (nebo oslabily) ACID transakce a tabulkové `JOIN` operace výměnou za to, že se dokážou rozprostřít po síti bez ztráty rychlosti."
+    },
+    {
+      "id": "019fd5aa-c117-748d-8354-2eebeae50e18",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Distribuované systémy",
+        "CAP Teorém",
+        "BASE",
+        "NoSQL"
+      ],
+      "title": "Teorie: Distribuované systémy, CAP Teorém a BASE",
+      "content": "K pochopení architektury distribuovaných databází (NoSQL, Big Data) je nezbytný CAP teorém. Na papíře nebo u obhajoby je to naprosto klíčový argument pro vysvětlení chování systému.\n\n### CAP Teorém (Zákon distribuovaných systémů)\nV libovolném distribuovaném systému (více uzlů spojených sítí) chceme ideálně 3 vlastnosti:\n1. **Consistency (Konzistence):** Pokaždé, když se přečtou data z jakéhokoliv uzlu, vrátí se vždy logicky **nejnovější a nejaktuálnější** hodnota. Všichni uživatelé vidí v daný okamžik to samé.\n2. **Availability (Dostupnost):** Každý neshazující (non-failing) uzel v systému musí vždy odpovědět na uživatelský požadavek (nevrátí timeout ani error).\n3. **Partition Tolerance (Tolerance výpadku sítě):** Systém funguje dál, i když se uzly navzájem nevidí (např. kvůli přetrženému kabelu nebo pádu síťového switche) a zprávy mezi nimi se ztrácí.\n\n**Znění teorému (Nutno napsat do písemky):** 'Při existenci síťového dělení (P) nelze u distribuovaného systému zároveň garantovat jak Konzistenci (C), tak Dostupnost (A). Můžete si vybrat pouze jedno z toho (CP nebo AP).'\n\n*Vysvětlení pro komisi:* Pokud praskne kabel mezi Uzlem 1 a Uzlem 2, a uživatel zapíše nová data na Uzel 1, Uzel 2 o nich neví. Pokud přijde čtenář na Uzel 2, máme jen dvě možnosti:\n- Uzel 2 mu vrátí svá stará data $\\rightarrow$ Jsme **AP** (Dostupní, ale nejsme Konzistentní).\n- Uzel 2 mu odmítne odpovědět, protože ví, že nezná pravdu $\\rightarrow$ Jsme **CP** (Zachovali jsme konzistenci vracených chyb, ale zabili jsme dostupnost).\n\n*(Chyták ústní zkoušky: 'C' v CAP není to samé jako 'C' v ACID! V ACID znamená C platnost integritních omezení klíčů. V CAP znamená C linearizovatelnost času - všichni čtou aktuální data).*\n\n### Posun k BASE principům\nProtože sítě občas padají vždy, moderní NoSQL (jako Cassandra) volí cestu **AP** a nahrazují těžkopádný ACID konceptem **BASE**:\n* **B**asically **A**vailable (V zásadě dostupné): Systém prioritizuje odpověď klientovi i za cenu občasného selhání části uzlů.\n* **S**oft state (Měkký stav): Stav systému (data) se může měnit i bez vstupu uživatele (např. jak se uzly na pozadí asynchronně synchronizují).\n* **E**ventual consistency (Konečná konzistence): Absolutní alfa a omega NoSQL! Systém negarantuje, že teď hned všichni uvidí to samé, ale garantuje, že *pokud přestanou přicházet nové zápisy, všechny uzly se časem shodnou na stejné hodnotě* (např. za 100 milisekund)."
+    },
+    {
+      "id": "019fd5aa-db4f-7028-aa5e-e75ffdb1554e",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Big Data",
+        "MapReduce",
+        "Distribuované výpočty"
+      ],
+      "title": "Teorie: Princip MapReduce (Algoritmus pro Big Data)",
+      "content": "Když máte 10 petabytů textových dat a chcete v nich najít nejčastější slovo, tradiční SQL databáze to nezvládne. Musíte data rozdělit na tisíce levných počítačů (uzlů). Problém ale je, jak to naprogramovat, aby vývojář nemusel řešit zamykání vláken a výpadky sítě. Google proto vymyslel paradigma **MapReduce**.\n\n### Zlaté pravidlo MapReduce\n'Nepřesouvej data k výpočtu (po síti), přesuň výpočet k datům (na disky, kde leží).' Po síti se posílají až malé mezivýsledky.\n\n### 3 hlavní fáze algoritmu (Nutno umět vysvětlit komisi!)\n\n**1. Map fáze (Mapování - Lokální výpočet)**\n* Řídící uzel (Master) rozdělí vstupní soubory na obrovské množství bloků a rozešle je na pracovní uzly (Mappery).\n* Funkce `Map` běží paralelně a zcela nezávisle na každém uzlu nad jeho kouskem dat.\n* **Signatura:** `map(klic1, hodnota1) -> list(klic2, hodnota2)`\n* Mappery generují miliony drobných klíč-hodnota párů (mezivýsledků).\n\n**2. Shuffle & Sort fáze (Míchání - Síťová magie)**\n* Toto neděláte vy, ale samotný MapReduce framework pod kapotou!\n* Framework vezme všechny vygenerované mezivýsledky ze všech Mapperů a **fyzicky je po síti přesune** tak, aby všechny páry **se stejným klíčem (klic2)** skončily na jednom stejném, cílovém počítači (Reduceru).\n* Zároveň je před předáním Reduceru abecedně seřadí.\n* *Zkouškový fakt:* Toto je síťově a diskově absolutně nejdražší fáze celého výpočtu.\n\n**3. Reduce fáze (Redukce - Finální agregace)**\n* Reducer dostane od frameworku vždy jeden unikátní klíč a k němu seznam *všech* hodnot, které k němu Mappery vygenerovaly.\n* **Signatura:** `reduce(klic2, list(hodnota2)) -> list(klic3, hodnota3)`\n* Reducer tento seznam projde (např. hodnoty sečte, zprůměruje) a zapíše finální výsledek na disk.\n\n### Výhody a nevýhody\n* **Výhody:** Brutální horizontální škálovatelnost. Odolnost proti chybám (Fault-tolerance): pokud během práce shoří Mapper počítač, Master to zjistí a přidělí jeho blok dat jinému počítači, aniž by programátor něco musel řešit.\n* **Nevýhody:** Zcela nevhodné pro real-time dotazování (trvá to minuty/hodiny). Mezi `Map` a `Reduce` fázemi se VŠE zapisuje na pevný disk, což je pomalé (dnes to řeší in-memory frameworky jako Apache Spark)."
+    },
+    {
+      "id": "019fd5aa-db4f-7028-aa5e-e9f796844e86",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "MapReduce",
+        "WordCount"
+      ],
+      "title": "Praxe: Návrh MapReduce pro WordCount (Extra zkoušková úloha)",
+      "content": "**Praktická zkušební úloha na papír (Pro zahřátí):**\n\nMějme neomezeně velký textový korpus (například celou anglickou Wikipedii rozdělenou na dokumenty). Chceme spočítat absolutní četnost každého unikátního slova (tj. chceme vědět, že slovo 'the' se tam vyskytuje 5 miliardkrát).\n\n1. Napište na papír pseudokód pro funkci `map` a funkci `reduce`.\n2. Krátce simulujte datový tok (co z mapy vypadne, co se stane v shuffle a co dojde do reduce) pro dva ukázkové dokumenty:\n   - D1: 'pes macka pes'\n   - D2: 'ryba macka'",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nToto je 'Hello World' úloha pro Big Data. Musíte ukázat, jak jednoduché páry rozbijí složitý problém.\n\n**1. Pseudokód (Takhle jednoduše to stačí):**\n\n```python\n// Mapper dostane na vstup ID dokumentu a jeho text\nfunction map(doc_id, text):\n    // text rozdělíme na slova\n    for word in text.split():\n        // pro každé slovo vygenerujeme mezivýsledek: klíč=slovo, hodnota=1\n        emit(word, 1)\n\n// Reducer dostane unikátní slovo a seznam všech jeho jedniček od všech Mapperů\nfunction reduce(word, list_of_counts):\n    sum = 0\n    for count in list_of_counts:\n        sum += count\n    // zapíšeme finální součet pro dané slovo\n    emit(word, sum)\n```\n\n**2. Simulace datového toku (Pro demonstraci komisi):**\n*   **Výstup z Mapperu 1 (pro D1):** `(pes, 1)`, `(macka, 1)`, `(pes, 1)`\n*   **Výstup z Mapperu 2 (pro D2):** `(ryba, 1)`, `(macka, 1)`\n*   *Fáze Shuffle (to dělá framework):* Sesbírá to ze sítě, seřadí a zagrupí podle klíče.\n*   **Vstup do Reducerů (po Shuffle):** \n    - Pro klíč 'macka' přijde: `(macka, [1, 1])`\n    - Pro klíč 'pes' přijde: `(pes, [1, 1])`\n    - Pro klíč 'ryba' přijde: `(ryba, [1])`\n*   **Výstup Reducerů (Konečný výsledek na disku):**\n    - `(macka, 2)`\n    - `(pes, 2)`\n    - `(ryba, 1)`\n\n*Bod k dobru:* Všimněte si, že Mappery nic nesčítají, jen slepě chrlí jedničky. To je princip nezávislosti - mapper nepotřebuje vědět o existenci ostatních."
+    },
+    {
+      "id": "019fd5aa-db4f-7028-aa5e-ee4c86424902",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Léto 2026",
+        "MapReduce",
+        "Invertovaný index",
+        "Combine"
+      ],
+      "title": "Praxe: MapReduce Invertovaný index a Combine (Zkoušková úloha Léto 2026)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte kolekci textových dokumentů. Každý dokument má identifikátor `doc_id` a textový obsah. Cílem je vytvořit invertovaný index, tedy pro každé slovo zjistit, ve kterých dokumentech se vyskytuje a kolikrát v každém z nich.\n\nNapříklad z dokumentů:\n`D1: data data index`\n`D2: web data`\n\nmá vzniknout (pro slovo 'data'): `data -> [(D1, 2), (D2, 1)]`\n\n1. Specifikujte v pseudokódu, co bude dělat funkce `map` a `reduce`.\n2. Vysvětlete komisi (nebo do písemky), zda by v této úloze pomohla tzv. **funkce combine** a k čemu obecně slouží.",
+      "hiddenContent": "**Vzorové autorské řešení a analýza zákeřné teorie:**\n\nTato úloha posouvá WordCount o krok dál a ptá se na optimalizační funkci `Combine`, což je častý kámen úrazu.\n\n**1. Návrh Map a Reduce:**\nMapper tentokrát nebude posílat hloupou jedničku, ale ID dokumentu, aby Reducer věděl, odkud slovo přišlo.\n\n```python\n// Mapper vygeneruje pro každé slovo pár (slovo, id_dokumentu)\nfunction map(doc_id, text):\n    for word in text.split():\n        emit(word, doc_id)\n\n// Příklad výstupu pro D1: (data, D1), (data, D1), (index, D1)\n```\n\nReducer dostane seznam ID dokumentů (zde se mohou a budou opakovat) a musí z nich udělat četnostní histogram.\n\n```python\nfunction reduce(word, list_of_doc_ids):\n    // Inicializujeme prázdnou mapu pro četnosti (doc_id -> pocet)\n    counts = HashMap()\n    for d_id in list_of_doc_ids:\n        if d_id in counts:\n            counts[d_id] += 1\n        else:\n            counts[d_id] = 1\n    \n    // Převedeme mapu na seznam dvojic a emitujeme finální výsledek\n    emit(word, convert_to_list_of_tuples(counts))\n```\n\n**2. Odpověď pro komisi: K čemu slouží funkce Combine a pomůže zde?**\n'Ano, funkce Combine by zde obrovsky pomohla. Obecně slouží jako tzv. **lokální mini-reducer**, který se spouští přímo na zdrojovém stroji Mapperu ještě PŘEDTÍM, než se data pošlou po síti do fáze Shuffle.'\n\n*Vysvětlení přínosu:* \nPředstavte si, že dokument D1 je obrovská kniha, kde se slovo 'data' vyskytuje 10 000x. Náš hloupý Mapper by po síti poslal 10 000 samostatných párů `(data, D1)`. To by extrémně zahltilo síť (network bottleneck). \nPokud zapneme `Combine`, proběhne po `Map` fázi lokální před-agregace. Combiner přímo na uzlu Mapperu zjistí, že má 10 000 stejných párů a sloučí je do jednoho komplexnějšího páru `(data, (D1, 10000))`. Teprve ten pošle po síti Reduceru. Combiner nijak nemění výsledek výpočtu, ale **drasticky snižuje objem přenášených dat po síti**."
+    },
+    {
+      "id": "019fd5aa-f7b0-732f-985a-da7f4b668fbd",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "NoSQL",
+        "Key-Value",
+        "Document",
+        "Column",
+        "Graph"
+      ],
+      "title": "Teorie: Klasifikace NoSQL databází a jejich rodiny",
+      "content": "Zatímco relační databáze (SQL) dominovaly 40 let díky svému striktnímu schématu a ACID transakcím, éra Big Data a horizontálního škálování dala vzniknout hnutí **NoSQL (Not Only SQL)**. Na státnicích musíte umět na papír vyjmenovat 4 základní rodiny NoSQL databází a přesvědčit komisi, na jaký typ problému byste je nasadili.\n\n### 1. Key-Value (Klíč-Hodnota) databáze\n* **Princip:** Nejprimitivnější a nejrychlejší model. Data jsou uložena jako obrovská hashovací tabulka. Hodnotou může být cokoliv (string, binární objekt, JSON), ale databáze do jejího obsahu 'nevidí'. Umí jen `get(key)` a `put(key, value)`.\n* **Zástupci:** Redis, Memcached, Amazon DynamoDB.\n* **Use-case pro komisi:** Cachování výsledků z hlavní databáze (snížení zátěže), ukládání stavu uživatelské session, nákupní košíky e-shopu.\n\n### 2. Dokumentové databáze\n* **Princip:** Rozšíření Key-Value modelu. Hodnotou je zde tzv. **dokument** (typicky JSON, BSON nebo XML). Dokument je *Self-descriptive* (obsahuje i názvy svých polí) a databáze do něj 'vidí' – umožňuje tvořit indexy nad vnořenými atributy.\n* **Zástupci:** MongoDB, Couchbase.\n* **Use-case pro komisi:** Agregační domény, systémy pro správu obsahu (CMS), uživatelské profily. Skvělé tam, kde se struktura dat často mění (tzv. schema-less, resp. schema-on-read).\n\n### 3. Sloupcové databáze (Wide-Column Stores)\n* **Princip:** V SQL se data na disk ukládají po řádcích. Ve sloupcových databázích se ukládají po sloupcích (rodinách sloupců). Čtení jednoho konkrétního sloupce přes milion záznamů nevyžaduje načítání ostatních sloupců z disku.\n* **Zástupci:** Apache Cassandra, HBase.\n* **Use-case pro komisi:** Extrémní objemy zápisů (Time-series data, logování ze senzorů IoT, ukládání lajků a kliknutí uživatelů).\n\n### 4. Grafové databáze\n* **Princip:** Zcela odlišný přístup. Neoptimalizují samotná data, ale **vztahy mezi nimi**. Architektura je tvořena uzly (Nodes), hranami (Edges) a jejich vlastnostmi (Properties).\n* **Zástupci:** Neo4j, Amazon Neptune.\n* **Use-case pro komisi:** Doporučovací systémy (Recommendations), detekce podvodů v bankovnictví, sociální sítě. Všude tam, kde je nutné zjišťovat 'přátele přátel mých přátel' (kde by SQL masivně selhalo na `JOIN` explozích)."
+    },
+    {
+      "id": "019fd5aa-f7b1-70bd-937f-c415b60f2773",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "MongoDB",
+        "BSON",
+        "Embedding"
+      ],
+      "title": "Praxe: Návrh BSON struktury pro dokumentovou DB (Extra úloha)",
+      "content": "**Praktická zkušební úloha na papír:**\n\nPředstavte si doménu blogovacího systému. Máme články (Post), u kterých evidujeme nadpis a obsah. Každý článek může mít mnoho komentářů (Comment - text, datum). Zároveň známe autora článku (Jméno, Email).\n\n1. Jak byste tuto doménu modelovali v klasické relační (SQL) databázi?\n2. Jak odlišně byste ji modelovali v dokumentové NoSQL databázi (např. MongoDB)? Napište na papír strukturu takového JSON/BSON dokumentu a vysvětlete koncept **Embeddingu (Vnoření)** a proč se používá.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nTato úloha vyžaduje demonstrovat změnu myšlení. V SQL data **normalizujeme** (rozbíjíme na kousky), v NoSQL dokumentových DB data často **denormalizujeme** (spojujeme dohromady), abychom urychlili čtení.\n\n**1. Relační SQL přístup (Normalizace):**\nRozbili bychom to na 3 striktní tabulky s cizími klíči:\n* `User (id PK, name, email)`\n* `Post (id PK, title, content, user_id FK)`\n* `Comment (id PK, text, date, post_id FK)`\n*K načtení jednoho článku i s komentáři a autorem musíme použít výpočetně drahý JOIN přes 3 tabulky.*\n\n**2. Dokumentový NoSQL přístup (Embedding):**\nV MongoDB preferujeme ukládat data, ke kterým se přistupuje společně, do jednoho agregátu (dokumentu). Vytvoříme kolekci `Posts`. Komentáře vložíme přímo do článku jako pole objektů. \n*A co autor?* Pokud se jméno a email autora příliš často nemění, můžeme ho také vnořit. Pokud ano, uložíme jen referenci (ale v NoSQL komise chce vidět hlavně to vnoření).\n\n**Zápis JSON/BSON struktury na papír:**\n```json\n{\n  '_id': 'p12345',\n  'title': 'Státnice z Databází',\n  'content': 'Dnes se podíváme na NoSQL...',\n  'author': {\n    'name': 'Karel Novák',\n    'email': 'karel@matfyz.cz'\n  },\n  'comments': [\n    {\n      'text': 'Skvělý článek!',\n      'date': '2026-08-04'\n    },\n    {\n      'text': 'Tomuto nerozumím.',\n      'date': '2026-08-05'\n    }\n  ]\n}\n```\n\n**Argumentace pro komisi (Proč Embedding?):**\n'Použili jsme denormalizaci a vnoření (Embedding). Hlavní výhodou je **čtení na jeden průchod diskem (Single-read retrieval)**. Když si uživatel otevře stránku článku, databáze jedním přečtením bloku získá článek, autora i všechny komentáře najednou. Nepotřebuje provádět spojování (JOIN) ani prohledávat další kolekce. Nevýhodou je, že velikost BSON dokumentu má tvrdý limit (v MongoDB typicky 16 MB), což by u miliardy komentářů selhalo (pak bychom museli použít Reference pattern).'"
+    },
+    {
+      "id": "019fd5aa-f7b1-70bd-937f-c8f53ed77d3b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Moderní DB",
+        "Multi-model",
+        "Polystore",
+        "PostgreSQL"
+      ],
+      "title": "Teorie: Architektura Multi-model DB vs. Polystore",
+      "content": "Někdy má aplikace natolik komplexní požadavky, že jeden datový model nestačí. E-shop potřebuje ACID transakce pro fakturaci (Relační model), grafy pro doporučování produktů (Graph model) a dokumenty pro uživatelské recenze a konfigurace (JSON model). Jak to architektonicky vyřešit? Komise zkouší dvě odlišné cesty: **Multi-model DB** a **Polystore**.\n\n### 1. Polystore Architektura (Polyglot Persistence)\n* **Princip:** Využívá více nezávislých databázových enginů současně. Spojuje je dohromady přes střední vrstvu (Mediator / Middleware) zabudovanou typicky do aplikačního kódu.\n* **Příklad:** Aplikace ukládá objednávky do `PostgreSQL`, graf přátel do `Neo4j` a cache hledání do `Elasticsearch`.\n* **Výhody pro zkoušku:** Využití principu 'Best tool for the job'. Každá část dat používá ten nejdokonaleji optimalizovaný engine na trhu.\n* **Nevýhody pro zkoušku:** Extrémní složitost nasazení a správy (DevOps noční můra). Nemožnost garantovat globální ACID transakce napříč zcela jinými systémy (databáze A potvrdí, databáze B spadne). Problém synchronizace dat.\n\n### 2. Multi-model Databáze\n* **Princip:** Jediný databázový engine, který nativně podporuje více modelů. Ukládá data do stejného paměťového prostoru a nad nimi nabízí sjednocený dotazovací jazyk a přístup k metadatům.\n* **Příklad:** `PostgreSQL` primárně relace, ale má perfektní podporu datového typu `JSONB` a operátorů nad ním. Případně `ArangoDB` (nativní Graf + Dokumenty + KeyValue).\n* **Výhody pro zkoušku:** Udržujeme jen jeden systém. Databáze dokáže garantovat **ACID transakce napříč oběma modely** v jediném dotazu. Vývojář používá jeden dotazovací jazyk (např. SQL rozšířené o JSON funkce).\n* **Nevýhody pro zkoušku:** Přístup 'Jack of all trades, master of none' (Zná všechno, neumí nic pořádně). Podpora grafů v rámci relační databáze nikdy nedosáhne takové rychlosti jako nativní traversal grafové vrstvy u `Neo4j`.\n\n*Otázka pro státnice:* Co je to 'impedance mismatch'? Jde o problém překladu datových typů. Když načítáte relační data do objektového programovacího jazyka (Java, C#), musíte používat těžké ORM frameworky (Hibernate). Ukládání JSON dokumentů rovnou z aplikace tento problém značně odstraňuje, protože jazyk (např. JavaScript) JSON reprezentuje nativně."
+    },
+    {
+      "id": "019fd5ab-7f01-704b-a203-f31afa94413d",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2024",
+        "Multi-model",
+        "JSON",
+        "PostgreSQL"
+      ],
+      "title": "Praxe: Dotazování na JSON v PostgreSQL (Zkoušková úloha Podzim 2024 - Část 3)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte problematiku multi-modelových dat a databází. Pro libovolnou multi-modelovou databázi vytvořte na papíře jednoduchý příklad databázového schématu a vložení dat. Nad těmito daty pak sestavte ukázkový multi-modelový dotaz a demonstrujte na něm výhody tohoto přístupu oproti čistě relačnímu modelu.",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nJako ukázkový systém zvolíme PostgreSQL, který dnes slouží jako etalon multi-model databáze (Relace + JSON/Dokumenty).\n\n**1. Tvorba schématu a vložení dat (DDL + DML)**\nVytvoříme klasickou tabulku, ale pro detaily objednávky použijeme datový typ 'JSONB' (binární JSON reprezentace umožňující indexaci).\n\n```sql\nCREATE TABLE zakaznik (\n    id INT PRIMARY KEY,\n    jmeno VARCHAR(50),\n    objednavky JSONB\n);\n\nINSERT INTO zakaznik VALUES \n(1, 'Karel Novák', '{\"cislo_obj\": \"o43\", \"polozky\": [{\"produkt\": \"Myš\", \"cena\": 230}]}');\n```\n\n**2. Multi-modelový dotaz**\nCílem je ukázat komisi speciální operátory (v Postgresu je to '->>' pro extrakci JSON hodnoty jako textu).\n\n```sql\n-- Chceme vypsat jména zákazníků a čísla jejich objednávek, \n-- pokud číslo objednávky nebylo 'o33'\nSELECT \n    jmeno, \n    objednavky->>'cislo_obj' AS cislo_objednavky\nFROM zakaznik\nWHERE objednavky->>'cislo_obj' <> 'o33';\n```\n\n**Argumentace výhod pro komisi:**\n'Tento přístup spojuje to nejlepší z obou světů. Můžeme zachovat striktní ACID transakce a primární klíče pro důležitá relační data (id, jméno), ale zároveň získáváme obrovskou NoSQL flexibilitu (schema-less) pro data, jejichž struktura se často mění nebo je nepředvídatelná (např. struktura košíku). Nemusíme složitě normalizovat košík do deseti tabulek a dotazování je přes operátor `->>` velmi elegantní a integrované přímo do standardního SQL.'"
+    },
+    {
+      "id": "019fd5ab-7f01-704b-a203-f78ba3b07cb1",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Grafové databáze",
+        "NoSQL",
+        "Neo4j",
+        "Property Graph"
+      ],
+      "title": "Teorie: Grafové databáze a Property Graph Model",
+      "content": "Na rozdíl od klasického SQL, které se zaměřuje na izolované entity, se Grafové databáze primárně zaměřují na **vztahy (Relationships)** mezi těmito entitami. Zkušební komise chce vědět, jaký fundamentální problém relační algebry se tím řeší.\n\n### Limity SQL (Exploze JOINů)\nPředstavte si sociální síť. Chcete najít 'přátele přátel mých přátel' (hloubka zanoření 3). V SQL byste museli tabulku 'Pratelstvi' (vazební M:N tabulku) spojit sama se sebou (SELF JOIN) celkem třikrát. To vyžaduje masivní prohledávání globálních B-stromových indexů a průniky obrovských množin. Výpočetní náročnost roste s objemem dat exponenciálně.\n\n### Property Graph Model (Architektura grafové DB)\nGrafové databáze (např. Neo4j) používají tzv. Property Graph Model. Ten se skládá ze tří prvků:\n1. **Uzly (Nodes):** Představují entity (Osoba, Kniha). Každý uzel může mít přiřazen jeden nebo více Štítků (Labels), např. ':Autor'.\n2. **Hrany (Edges / Relationships):** Představují vztahy. **Každá hrana musí být striktně orientovaná (mít směr)** a musí mít svůj Typ (např. ':NAPSAL'). I když je vztah sémanticky symetrický (např. přátelství), technicky se v databázi zapisuje jedním směrem, ale při dotazování se směr může ignorovat.\n3. **Vlastnosti (Properties):** Klíčový prvek modelu! Jak uzly, tak i hrany mohou uvnitř sebe obsahovat data ve formě Klíč-Hodnota. (Např. na hraně ':ZNA_SE' může ležet vlastnost 'od_roku: 2015').\n\n### Proč je to tak rychlé? (Index-Free Adjacency)\nToto je ultimátní argument pro ústní i písemnou část zkoušky. V grafové databázi nehledáte vztahy pomocí cizích klíčů a centrálního indexu. Každý uzel si fyzicky v paměti drží pole 'ukazatelů' (memory pointers) přímo na své sousedy. Procházení grafu (Traversal) znamená pouhé skákání po pointrech v RAM. \nRychlost dotazu je tak závislá **pouze na velikosti prohledávaného okolí**, nikoliv na celkové velikosti celé databáze!"
+    },
+    {
+      "id": "019fd5ab-7f02-7163-808a-9be33a8b1f80",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Zkoušková úloha",
+        "Podzim 2025",
+        "Neo4j",
+        "Cypher",
+        "Grafy"
+      ],
+      "title": "Praxe: Modelování a dotazování v jazyce Cypher (Zkoušková úloha Podzim 2025 - Část 2)",
+      "content": "**Zkoušková úloha na papír:**\n\nUvažujte následující situaci: Chceme vhodně reprezentovat entity 'Kniha', 'Autor' a 'Vydavatelství' a vztahy mezi nimi (kde byla kniha vydána, kdo ji napsal a zda jsou dva autoři přátelé). \n\nChceme vyhodnocovat následující dotaz: *'Které knihy napsal Dan Brown s někým, kdo nepatří do jeho přátel?'*\n\nDemonstrujte, jak byste taková data reprezentovali v grafové databázi (např. Neo4j), a jak by bylo možné zadaný dotaz vyjádřit v jazyce Cypher. (Není požadována absolutně přesná syntaxe, ale je třeba demonstrovat správnou znalost principů jazyka a ASCII-art notace).",
+      "hiddenContent": "**Vzorové autorské řešení a postup pro komisi:**\n\nCypher je deklarativní jazyk (podobně jako SQL), ale je silně vizuální. Je založen na tzv. Pattern Matchingu (hledání vzorů) pomocí ASCII umění.\n* Uzly se zapisují do kulatých závorek: `(alias:Stitek {vlastnost: 'hodnota'})`\n* Hrany se zapisují do hranatých závorek a ohraničují pomlčkami: `-[alias:TYP_VZTAHU]->`\n\n**1. Návrh reprezentace na papír:**\n* **Uzly (Labels):** `(:Autor)`, `(:Kniha)`, `(:Vydavatelstvi)`\n* **Hrany (Types):** `[:NAPSAL]`, `[:VYDAL]`, `[:PRITEL]`\n\n**2. Zápis dotazu v jazyce Cypher:**\nPotřebujeme v grafu najít vzor cesty: Dan Brown $\\\\rightarrow$ NAPSAL $\\\\rightarrow$ Kniha $\\\\leftarrow$ NAPSAL $\\\\leftarrow$ Spoluautor. Zároveň musí platit dodatečná podmínka, že mezi Danem a Spoluautorem neexistuje hrana PRITEL.\n\n```cypher\nMATCH \n  -- Nalezení vzoru spolupráce na stejné knize (šipky ukazují směr zrodu knihy)\n  (dan:Autor {jmeno: 'Dan Brown'})-[:NAPSAL]->(k:Kniha)<-[:NAPSAL]-(spoluautor:Autor)\nWHERE \n  -- Zajištění, že Dan není vyhodnocen jako spoluautor sám se sebou\n  dan <> spoluautor \n  -- Filtrování: Nesmí mezi nimi existovat vztah přátelství\n  -- (šipku u hrany cíleně vynecháváme, přátelství chápeme obousměrně)\n  AND NOT (dan)-[:PRITEL]-(spoluautor)\nRETURN DISTINCT \n  -- Chceme vrátit pouze názvy těch unikátních knih\n  k.nazev;\n```\n\n*Argumentace pro obhajobu (bod navíc k písemce):* 'Tento dotaz je v jazyce Cypher vysoce intuitivní a pro člověka snadno čitelný. V klasické relační databázi bychom museli tabulku Autorů spojovat s vazební tabulkou Napsal, pak s Knihou, znovu s vazební tabulkou Napsal a znovu s tabulkou Autorů (celkem 4x těžký JOIN). Následně bychom museli v poddotazu s `NOT EXISTS` řešit ještě navíc vazební tabulku Pratelstvi. Grafová databáze naproti tomu tento vzor nalezne pouhým proskakováním paměťových ukazatelů v čase $O(1)$ na souseda, bez použití globálních indexů.'"
+    },
+    {
+      "id": "019fd5ab-ae16-7199-8b10-f86ad629b266",
+      "type": "note",
+      "tags": [
+        "Praxe",
+        "Extra úloha",
+        "Grafové databáze",
+        "Složitost",
+        "Neo4j"
+      ],
+      "title": "Praxe: Srovnání časové složitosti SQL JOIN vs. Graph Traversal (Extra úloha pro obhajobu)",
+      "content": "**Praktická zkušební úloha na papír (Bonusová ústní obhajoba):**\n\nPředstavte si, že modelujete sociální síť. V SQL máte tabulku `Uzivatel` a vazební tabulku `Pratelstvi`. V Neo4j máte uzly `(:Uzivatel)` a hrany `[:PRITEL]`.\n\nZkušební komise se vás zeptá: 'Dokažte matematicky pomocí asymptotické časové složitosti (Big O notace), proč bude dotaz na nalezení *přátel přátel mých přátel* (hloubka 3) v relační databázi s rostoucím množstvím dat drasticky zpomalovat, zatímco v grafové databázi zůstane čas odpovědi téměř konstantní bez ohledu na to, zda má síť tisíc nebo miliardu uživatelů.'",
+      "hiddenContent": "**Vzorové autorské řešení a argumentace pro komisi:**\n\nToto je ultimátní argument pro použití NoSQL grafových databází. Zde je přesné srovnání:\n\n**1. Relační databáze (B-stromové indexy a JOIN)**\n* V SQL znamená skok o jednu úroveň přátelství provedení výpočetně drahé operace `JOIN`.\n* Databáze musí vzít ID uživatele a najít ho ve vazební tabulce. K tomu používá globální B+ stromový index.\n* Časová složitost vyhledání v B-stromu je $O(\\log N)$, kde $N$ je celkový počet všech přátelství v *celé* databázi!\n* Pokud hledáme přátele do hloubky 3 a každý uživatel má průměrně $F$ přátel, musíme index prohledat zhruba $F^3$-krát. Celková složitost je **$O(F^3 \\cdot \\log N)$**.\n* **Problém:** S tím, jak roste $N$ (počet lidí v síti, např. se přidá miliarda Indů), logaritmická složka neustále roste. Databáze zpomaluje pro *všechny* uživatele na planetě.\n\n**2. Grafové databáze (Index-Free Adjacency)**\n* Grafová databáze nepoužívá pro vyhodnocování vztahů žádný globální index (jako B-strom).\n* Jakmile najdeme startovní uzel (to trvá $O(\\log N)$ přes úvodní index), samotné 'skákání' po hranách přátelství znamená pouze přímé dereferencování fyzického paměťového ukazatele (pointeru) v RAM.\n* Dereference memory-pointeru má absolutně konstantní časovou složitost $O(1)$.\n* Celková složitost hledání do hloubky 3 je tedy čistě $O(F^3 \\cdot 1)$ = **$O(F^3)$**.\n* **Závěr pro komisi:** Proměnná $N$ (celková velikost sítě) z rovnice úplně zmizela! Čas vyhledání je závislý POUZE na velikosti prohledávaného lokálního okolí (počtu prozkoumaných sousedů $F$). Lokální dotaz proběhne naprosto stejně rychle v síti o 100 lidech jako v síti o 3 miliardách lidí."
+    },
+    {
+      "id": "019fd5ab-ae16-7199-8b10-ff87f173c09b",
+      "type": "note",
+      "tags": [
+        "Teorie",
+        "Distribuované systémy",
+        "2PC",
+        "Transakce",
+        "NoSQL"
+      ],
+      "title": "Teorie: Distribuované transakce a Two-Phase Commit (2PC)",
+      "content": "Pro kompletní uzavření teorie transakcí a pochopení architektury Big Data databází je nutné zmínit problém **Distribuovaných transakcí**. Jak zajistíme ACID vlastnosti, když se naše databáze horizontálně rozrostla na 10 nezávislých fyzických serverů (uzlů)?\n\n### Problém distribuovaného COMMITu\nPředstavme si, že Uzel A strhne peníze z účtu klienta a Uzel B je má přičíst na účet e-shopu. Co se stane, když Uzel B zhavaruje těsně před zápisem? Uzel A už potvrdil (`COMMIT`) a nemůže to vzít zpět (porušil by Trvanlivost/Durability). Celý databázový cluster by skončil v nekonzistentním stavu.\n\n### Protokol dvoufázového potvrzení (Two-Phase Commit - 2PC)\nAby distribuované relační databáze zachovaly ACID, zavádějí roli **Koordinátora** a rozdělují konec transakce do 2 přesných fází:\n\n**Fáze 1: Prepare (Příprava)**\n* Koordinátor pošle všem dotčeným uzlům (Participantům) výzvu: 'Jste připraveni potvrdit?'\n* Uzly musí zapsat svá data do logů na disk, zamknout cílové záznamy exkluzivními zámky ($L_X$) a pokud nenastal žádný problém (např. deadlock), odpoví Koordinátorovi: `VOTE_COMMIT`.\n\n**Fáze 2: Commit / Abort (Rozhodnutí)**\n* Pokud přijde Koordinátorovi od jakéhokoliv uzlu chyba (nebo na odpověď čeká příliš dlouho), rozešle všem příkaz `GLOBAL_ABORT` a transakce se zruší.\n* Pokud přijdou od všech uzlů souhlasné odpovědi `VOTE_COMMIT`, Koordinátor zapíše toto rozhodnutí do svého logu a zavelí `GLOBAL_COMMIT`. Uzly data finálně potvrdí a pustí zámky.\n\n### Proč NoSQL databáze 2PC nepoužívají (a volí raději BASE)\n* **Blocking problem (Fatální blokování):** Během celé Fáze 1 a 2 musí všechny zúčastněné uzly **držet své exkluzivní zámky** na upravovaných datech. \n* Pokud v tu chvíli Koordinátor zhavaruje nebo spadne síť, uzly zůstanou 'viset' (čekají na povel z Fáze 2) a data jsou zablokovaná pro všechny ostatní uživatele na neurčito.\n* To absolutně ničí propustnost a **Dostupnost (Availability v CAP teorému)**. Z toho důvodu většina Big Data / NoSQL řešení garantované distribuované transakce napříč clusterem nepodporuje a raději přechází na model Eventual Consistency."
+    },
+    {
+      "id": "019fd5ab-ae16-7199-8b11-005eb03e97ab",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Strategie",
+        "Shrnutí",
+        "Best Practices"
+      ],
+      "title": "Strategie: Závěrečné matfyzácké 'Best Practices' pro písemku z Databází",
+      "content": "### Checklist před odevzdáním písemky z Databází:\n\n**1. Kontrola SQL dotazů na papíře:**\n* Máte v dotazu agregační funkci (např. `AVG`) a zároveň vypisujete obyčejné textové sloupce (např. `jmeno`)? **Zkontrolujte**, že jsou všechny obyčejné sloupce do jednoho otrocky vypsané v klauzuli `GROUP BY`.\n* Filtrujete data pomocí výsledku agregace (např. 'Vypiš ty s počtem větším než 5')? **Zkontrolujte**, že je tato podmínka v klauzuli `HAVING` a ne omylem ve `WHERE`.\n* Použili jste operátor `NOT IN` s poddotazem? **Zkontrolujte**, zda by poddotaz nemohl náhodou vrátit hodnotu `NULL`. Pokud ano, raději to celé škrtněte a přepište na bezpečný korelovaný dotaz s `NOT EXISTS`.\n* Nepoužili jste čárkovou notaci tabulek v klauzuli `FROM`? Pokud ano, přepište to na ANSI standard `INNER JOIN ... ON`.\n\n**2. Kontrola ER / UML návrhů:**\n* Vytvořili jste vazební tabulku (kosočtverec, ze kterého jste udělali rovnou tabulku) přímo v ER diagramu? **Chyba!** Vazební tabulky patří POUZE do relačního (logického) modelu. V konceptuálním modelu stačí čára a vazba typu M:N.\n* Obsahuje nějaká vaše entita pole hodnot (např. seznam emailů)? **Chyba!** Porušuje to už první normální formu (1NF). Okamžitě tuto vlastnost extrahujte do samostatné entity s vazbou 1:N.\n\n**3. Kontrola Transakčních rozvrhů:**\n* Kreslíte precedenční graf? **Zkontrolujte**, že orientované hrany (šipky) vedou VŽDY ve směru plynutí času (od operace, co byla v rozvrhu dřív, k operaci, co byla později).\n* Píší transakce data, která se pak následně v jiné transakci čtou (Dirty Read)? **Zkontrolujte**, že ta transakce, co data čte, odesílá svůj `COMMIT` vždycky až JAKO POSLEDNÍ. Pokud potvrdí dříve než transakce, co data zapsala, máte na stole nezotavitelný rozvrh!"
+    }
+  ]
+}

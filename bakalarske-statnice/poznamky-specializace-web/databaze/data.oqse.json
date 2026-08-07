@@ -21,6 +21,19 @@
   },
   "items": [
     {
+      "id": "019fd5de-9987-712d-a864-fec9530fbb49",
+      "type": "note",
+      "tags": [
+        "Must have",
+        "Upozornění",
+        "Syntaxe",
+        "Uvozovky",
+        "Strategie"
+      ],
+      "title": "VAROVÁNÍ: Důležité upozornění k syntaxi uvozovek u zkoušky",
+      "content": "Z technických důvodů (aby nedocházelo ke kolizím ve struktuře těchto materiálů) používáme ve všech ukázkách kódu výhradně JEDNODUCHÉ APOSTROFY (tzv. single quotes). \n\nU státní zkoušky na papíře si ale musíte dát **obrovský pozor** na to, jaký jazyk nebo formát zrovna píšete. Komise na MFF UK je na syntaxi velmi přísná a za prohození uvozovek strhává body. Zde je kompletní přehled pravidel pro psaní na papír:\n\n### 1. Kde jsou striktně vyžadovány DVOJITÉ UVOZOVKY\nU zkoušky je musíte na papír nakreslit! Jednoduchý apostrof způsobí fatální syntaktickou chybu:\n* **JSON, JSON-Schema, JSON-LD:** Podle standardu IETF (RFC 8259) musí být VŠECHNY klíče objektů a všechny textové hodnoty obaleny výhradně dvojitými uvozovkami. Zápis `{ 'jmeno': 'Karel' }` z našich ukázek je pro JSON nevalidní – u komise na papír musíte nakreslit klasické uvozovky nahoře.\n* **Staticky typované jazyky (C#, Java, C++):** Obyčejný apostrof označuje pouze jediný znak (datový typ Char). Pro textové řetězce (String) se musí povinně použít uvozovky dvojité.\n* **CSV (RFC 4180):** Pokud tabulková buňka obsahuje čárku nebo konec řádku, musí se obsah obalit striktně do dvojitých uvozovek. Dvojitými uvozovkami se uvnitř textu escapují i samotné dvojité uvozovky.\n\n### 2. Kde jsou striktně vyžadovány JEDNODUCHÉ APOSTROFY\nZde naopak komise vyžaduje jednoduchou čárku nahoře, tak jak to vidíte v našich ukázkách:\n* **Jazyk SQL:** Databázové textové hodnoty (tzv. literály) se podle ANSI SQL standardu píší VÝHRADNĚ do jednoduchých apostrofů (např. `WHERE jmeno = 'Karel'`). Pokud byste v SQL použili uvozovky dvojité, databáze to pochopí jako název tabulky nebo sloupce (např. `SELECT * FROM Dvojite Uvozovky Nazev Tabulky`).\n\n### 3. Kde je to zcela volitelné (Lze obojí)\n* **HTML a XML:** Hodnoty atributů mohou být obaleny jak jednoduše, tak dvojitě (např. element `<div class='kontejner'>` je naprosto syntakticky validní). Běžnější konvence je sice dvojitá, ale komise vám u HTML/XML uzná obojí.\n* **Skriptovací jazyky (JavaScript, PHP, Python, Cypher):** Tyto jazyky umožňují definovat textový řetězec oběma způsoby. V PHP a Bash skriptech si jen dejte pozor, že text ve dvojitých uvozovkách navíc interpretuje vnořené proměnné (vyhodnocuje znak dolaru), zatímco jednoduchý apostrof text bere doslovně."
+    },
+    {
       "id": "019fcc08-2aa2-768e-a400-f0d16839b36c",
       "type": "note",
       "tags": [

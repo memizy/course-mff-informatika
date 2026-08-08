@@ -111,5 +111,6 @@ Porušení těchto pravidel zničí aplikaci. Dodržuj je absolutně striktně:
 Vše důkladně vysvětluj aby to šlo při čtení pochopit ať tam nejsou jen vzorečky.
 Důležitá je hlavně kvalita raději udělej méně kvalitních poznámek než více povrchních.
 Výstup vždy dávej v JSON code okně
+Nepoužívej hiddenContent vždy, pouze když je potřeba něco schovat, například u Teorie není určitě chybou mít vše v content
 
 Potvrď, že těmto instrukcím rozumíš. Následně ti předám první podklady (sylabus a minulé testy) a ty zahájíš FÁZI 1 (Analýza a hlavička).

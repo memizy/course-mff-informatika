@@ -83,3 +83,8 @@ Je vidět jasný vzorec – vždy dostaneš:
 2. **Grafy, Pravděpodobnost** nebo **Diskrétku/Logiku**.
 3. **Automaty a gramatiky** (stoprocentní jistota, v 7 z 10 případů!).
 4. **Architekturu OS** nebo **Algoritmy/OOP design** (velmi často semafory, thready, race conditions nebo návrhové vzory v OOP).
+
+J 2023 - ADS - bin strom, C# - objektový návrh, Lineární zobrazení, Rovinné grafy
+P 2022 - C# - Objektové rozhraní pro grafy, Architektury - Stránkování, Analýza - definovat posloupnost je konvergentní a neomezená, Lingebra
+L-1,2 2022 - BVS, Assembler, Integrály matalýza, Diskrétka - zobrazení, Automaty, Architektury, Lingebra, Diskrétka - částečná uspořádání
+Když jsou tam instrukce assembleru tak je tam tabulka pro ně

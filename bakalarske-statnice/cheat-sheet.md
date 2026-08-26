@@ -30,3 +30,6 @@
 ### Data
 
 ### Web
+
+#### Ještě kouknout na 
+Žlutý poznámky co jsem si tam nechal

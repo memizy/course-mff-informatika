@@ -67,3 +67,7 @@ Formální definice podobnostního modelu - objects, feature vector, distance fu
 
 JPEG - kvantizace zahození vysokých dimenzí po Diskrétní kosínové transformaci
 MP4 - nedělá kompresi není kodekem zabalí video, audio a titulky do jednoho souboru
+
+Metrické filtrování pomocí pivotů, matickové, stromové, hashované a hybridní vše jen kraťoulince abych si vzpomněl
+
+SOM a SSM algo a vzorec

@@ -13,7 +13,8 @@
 
 ### Logika
 
-## Past
+### Past
+Na mobilu jsou některé grafy uřízlé ale to je možná problém Learn pluginu
 
 ## Informatika
 

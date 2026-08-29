@@ -14,7 +14,40 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 
 ### Logika
 
-## Past
+### Past
+#### Pravděpodobnostní prostor:
+Trojice $(\Omega, \mathcal{F}, P)$:
+* $\Omega$ = Prostor elementárních jevů (množina všech možných výsledků $\omega$).
+* $\mathcal{F}$ = Prostor jevů (prvkem je náhodný jev), obsahuje prázdnou množinu a celé $\Omega$, je uzavřený na doplňky a na spočetná sjednocení.
+* $P$ = Pravděpodobnostní míra, Funkce $P: \mathcal{F} \to [0, 1]$.
+
+#### Podmíněná pravděpodobnost a nezávislost jevů:
+* **Podmíněná pravděpodobnost:** $P(A|B) = \frac{P(A \cap B)}{P(B)}$ pro $P(B) > 0$
+* **Nezávislost jevů:** $P(A \cap B) = P(A) \cdot P(B)$
+
+#### Bayesův vzorec a věta o úplné pravděpodobnosti:
+$$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(A|B_i) \cdot P(B_i)}$$
+* $P(B_j)$ = **apriorní pravděpodobnost** (víra před provedením testu/experimentu).
+* $P(B_j|A)$ = **aposteriorní pravděpodobnost** (upravená víra po zjištění výsledku $A$).
+
+#### Náhodná veličina a Distribuční funkce (CDF):
+* **Náhodná veličina:** Funkce $X: \Omega \to \mathbb{R}$
+* **Distribuční funkce:** $F_X(x) = P(X \le x)$
+* **Pravděpodobnost intervalu:** $P(a < X \le b) = F_X(b) - F_X(a)$
+
+#### Diskrétní rozdělení a pravděpodobnostní funkce (PMF):
+* **Pravděpodobnostní funkce:** $p_X(x) = P(X = x)$
+* **Bernoulliho $Ber(p)$:** $P(X=1) = p, \; P(X=0) = 1-p$ (indikátor $I_A$)
+* **Binomické $Bin(n, p)$:** $p_X(k) = \binom{n}{k} p^k (1-p)^{n-k}$ pro $k \in \{0, \dots, n\}$ ($X = \sum_{i=1}^n I_i$)
+* **Geometrické $Geom(p)$:** $p_X(k) = (1-p)^{k-1} p$ pro $k \in \{1, 2, \dots\}$ (bez paměti: $P(X > s+t \mid X > s) = P(X > t)$)
+* **Poissonovo $Pois(\lambda)$:** $p_X(k) = \frac{\lambda^k}{k!} e^{-\lambda}$ pro $k \in \{0, 1, 2, \dots\}$ (použít, pokud je $n$ obrovské a $p$ malinké $\implies \lambda = np$)
+
+#### Spojitá rozdělení a Hustota pravděpodobnosti (PDF):
+* **Hustota pravděpodobnosti:** Funkce $f_X: \mathbb{R} \to [0, \infty)$ splňující $f_X(x) \ge 0$ a $\int_{-\infty}^\infty f_X(x) dx = 1$.
+* **Pravděpodobnost intervalu:** $P(a \le X \le b) = \int_a^b f_X(x) dx$
+* **Vztah s CDF:** $F_X(x) = \int_{-\infty}^x f_X(t) dt \iff f_X(x) = F_X'(x)$
+* **Uniformní $U(a, b)$:** $f_X(x) = \frac{1}{b-a}, \; F_X(x) = \frac{x-a}{b-a}$ pro $x \in [a, b]$
+* **Exponenciální $Exp(\lambda)$:** Spojitý ekvivalent geometrického (také bez paměti), $f_X(x) = \lambda e^{-\lambda x}, \; F_X(x) = 1 - e^{-\lambda x}$ pro $x \ge 0$
 
 ## Informatika
 

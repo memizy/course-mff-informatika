@@ -47,7 +47,50 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 * **Pravděpodobnost intervalu:** $P(a \le X \le b) = \int_a^b f_X(x) dx$
 * **Vztah s CDF:** $F_X(x) = \int_{-\infty}^x f_X(t) dt \iff f_X(x) = F_X'(x)$
 * **Uniformní $U(a, b)$:** $f_X(x) = \frac{1}{b-a}, \; F_X(x) = \frac{x-a}{b-a}$ pro $x \in [a, b]$
-* **Exponenciální $Exp(\lambda)$:** Spojitý ekvivalent geometrického (také bez paměti), $f_X(x) = \lambda e^{-\lambda x}, \; F_X(x) = 1 - e^{-\lambda x}$ pro $x \ge 0$
+* **Exponenciální $Exp(\lambda)$:** Spojitý ekvivalent geometrického (také bez paměti), $\lambda$ je počet událostí za jednotku času, průměrné čekání je $\frac{1}{\lambda}$, $f_X(x) = \lambda e^{-\lambda x}, \; F_X(x) = 1 - e^{-\lambda x}$ pro $x \ge 0$, stačí si pamatovat tu distribuční funkci a zderivovat jí
+* **Normální (Gaussovo) $N(\mu, \sigma^2)$:** $f_X(x) = \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
+  * **Standardizace na $N(0, 1)$:** $Z = \frac{X - \mu}{\sigma} \sim N(0, 1)$
+  * **Výpočet pravděpodobnosti přes $\Phi$:** $P(X \le x) = \Phi\left(\frac{x - \mu}{\sigma}\right)$
+
+#### Střední hodnota $\mathbb{E}[X]$:
+* **Diskrétní:** $\mathbb{E}[X] = \sum_{x \in \operatorname{Im}(X)} x \cdot P(X = x)$
+* **Spojitá:** $\mathbb{E}[X] = \int_{-\infty}^\infty x \cdot f_X(x) \, dx$
+* **Diskrétní PNS:** $\mathbb{E}[g(X)] = \sum_x g(x) \cdot P(X = x)$
+* **Spojité PNS:** $\mathbb{E}[g(X)] = \int_{-\infty}^\infty g(x) \cdot f_X(x) \, dx$
+* **Linearita střední hodnoty (platí VŽDY, i pro ZÁVISLÉ veličiny!):**
+  $$\mathbb{E}[aX + bY + c] = a\mathbb{E}[X] + b\mathbb{E}[Y] + c$$
+* **Součin (platí POUZE pro NEZÁVISLÉ veličiny!):**
+  $$\mathbb{E}[X \cdot Y] = \mathbb{E}[X] \cdot \mathbb{E}[Y]$$
+* **Indikátorová veličina $I_A$:** $I_A \in \{0, 1\}, \; \mathbb{E}[I_A] = P(A)$ (rozklad složité veličiny na součet indikátorů $X = \sum I_{A_i} \implies \mathbb{E}[X] = \sum P(A_i)$)
+
+#### Rozptyl $\operatorname{var}(X)$ a Kovariance $\operatorname{cov}(X, Y)$:
+* **Definice rozptylu:** $\operatorname{var}(X) = \mathbb{E}\left[(X - \mathbb{E}[X])^2\right]$
+* **Výpočetní vzorec:** $\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$
+* **Vlastnosti rozptylu:**
+  * $\operatorname{var}(X + b) = \operatorname{var}(X)$ (posun nemění rozptyl)
+  * $\operatorname{var}(aX) = a^2 \operatorname{var}(X)$ (škálování se umocňuje)
+* **Kovariance:** $\operatorname{cov}(X, Y) = \mathbb{E}\left[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])\right] = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]$
+  * $X, Y$ rostou spolu $\implies \operatorname{cov} > 0$; jdou proti sobě $\implies \operatorname{cov} < 0$.
+  * **Nezávislost:** Pokud jsou $X, Y$ nezávislé $\implies \operatorname{cov}(X, Y) = 0$ (opačně neplatí!).
+  * **Rozptyl součtu:** $\operatorname{var}(X + Y) = \operatorname{var}(X) + \operatorname{var}(Y) + 2\operatorname{cov}(X, Y)$ (pro nezávislé/nekorelované platí $\operatorname{var}(X + Y) = \operatorname{var}(X) + \operatorname{var}(Y)$).
+
+#### Markovova nerovnost:
+* **Předpoklady:** $X \ge 0$ (nezáporná veličina) a $a > 0$.
+* **Vzorec:**
+  $$P(X \ge a) \le \frac{\mathbb{E}[X]}{a}$$
+
+#### Slabý zákon velkých čísel (WLLN):
+* **Předpoklady:** $X_1, X_2, \dots$ jsou stejně rozdělené nezávislé náhodné veličiny se střední hodnotou $\mu$ a konečným rozptylem $\sigma^2$.
+* **Výběrový průměr:** $\overline{X_n} = \frac{1}{n}\sum_{i=1}^n X_i \implies \mathbb{E}[\overline{X_n}] = \mu, \; \operatorname{var}(\overline{X_n}) = \frac{\sigma^2}{n}$.
+* **Tvrzení (konvergence v pravděpodobnosti $\overline{X_n} \xrightarrow{P} \mu$):**
+  $$\forall \varepsilon > 0: \lim_{n \to \infty} P\left(|\overline{X_n} - \mu| > \varepsilon\right) = 0$$
+
+#### Centrální limitní věta (CLV):
+* **Předpoklady:** $X_1, X_2, \dots$ jsou stejně rozdělené nezávislé náhodné veličiny se střední hodnotou $\mu$ a konečným rozptylem $\sigma^2$.
+* **Standardizovaná veličina:**
+  $$Y_n = \frac{\sum_{i=1}^n X_i - n\mu}{\sqrt{n}\sigma} = \frac{\overline{X_n} - \mu}{\sigma / \sqrt{n}}$$
+* **Tvrzení (konvergence v distribuci $Y_n \xrightarrow{d} N(0, 1)$):**
+  $$\lim_{n \to \infty} P(Y_n \le x) = \Phi(x) \quad \text{pro každé } x \in \mathbb{R}$$
 
 ## Informatika
 

@@ -92,6 +92,35 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 * **Tvrzení (konvergence v distribuci $Y_n \xrightarrow{d} N(0, 1)$):**
   $$\lim_{n \to \infty} P(Y_n \le x) = \Phi(x) \quad \text{pro každé } x \in \mathbb{R}$$
 
+#### Statistika a Bodové odhady parametrů $\theta$:
+* **Statistika:** Libovolná funkce dat $T(X_1, \dots, X_n)$ (je to náhodná veličina).
+* **Bodový odhad $\widehat{\theta}_n$:** Statistika použitá k odhadu neznámého parametru $\theta$.
+* **Vlastnosti odhadů:**
+  * **Nestrannost / Nevychýlenost (Unbiasedness):** $\mathbb{E}[\widehat{\theta}_n] = \theta$ (vychýlení $\operatorname{bias}(\widehat{\theta}_n) = \mathbb{E}[\widehat{\theta}_n] - \theta$).
+  * **Konzistence (Consistency):** $\widehat{\theta}_n \xrightarrow{P} \theta$ pro $n \to \infty$.
+  * **Střední kvadratická chyba (MSE):**
+    $$\operatorname{MSE}(\widehat{\theta}_n) = \mathbb{E}\left[(\widehat{\theta}_n - \theta)^2\right] = \operatorname{var}(\widehat{\theta}_n) + \operatorname{bias}^2(\widehat{\theta}_n)$$
+* **Metoda momentů (MME):**
+  * Položíme teoretickou střední hodnotu $\mathbb{E}[X] = f(\theta)$ rovnu výběrovému průměru $\overline{X_n}$ a vyjádříme $\widehat{\theta}$.
+  * *Příklad ($Exp(\lambda)$):* $\mathbb{E}[X] = \frac{1}{\lambda} \implies \overline{X_n} = \frac{1}{\lambda} \implies \widehat{\lambda} = \frac{1}{\overline{X_n}}$.
+
+#### Intervaly spolehlivosti:
+* **Definice $(1-\alpha)$ intervalu spolehlivosti:** $P(D \le \theta \le H) = 1 - \alpha$ (meze $D, H$ jsou náhodné statistiky, $\theta$ je pevný neznámý parametr; pro $\alpha = 0.05 \implies 95\%$ interval).
+* **Konstrukce pro $\mu$ při známém $\sigma$:**
+  $$\overline{X_n} \pm z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}$$
+  * **Standardní chyba průměru (Standard Error - SE):** $SE = \frac{\sigma}{\sqrt{n}}$ (směrodatná odchylka výběrového průměru $\overline{X_n}$).
+  * Pro $95\%$ interval ($\alpha = 0.05$): $z_{0.025} = \Phi^{-1}(0.975) \approx 1.96 \implies \overline{X_n} \pm 1.96 \cdot \frac{\sigma}{\sqrt{n}}$.
+
+#### Testování hypotéz:
+* **Základní princip:** Nulová hypotéza $H_0$ (výchozí stav, např. $\mu = \mu_0$) vs. Alternativní hypotéza $H_1$ (např. $\mu \ne \mu_0$).
+* **Chyby a hladina významnosti:**
+  * **Hladina významnosti $\alpha$:** Maximální povolená pravděpodobnost chyby 1. druhu (typicky $\alpha = 0.05$).
+  * **Chyba 1. druhu (Falešný poplach):** Zamítneme $H_0$, ačkoliv ve skutečnosti **platí** ($P(\text{Chyba I}) \le \alpha$).
+  * **Chyba 2. druhu (Přehlédnutí):** Nezamítneme $H_0$, ačkoliv ve skutečnosti **neplatí** ($P(\text{Chyba II}) = \beta$; síla testu je $1 - \beta$).
+* **Z-test (jednovýběrový test střední hodnoty při známém $\sigma$):**
+  * Testová statistika: $Z = \frac{\overline{X_n} - \mu_0}{\sigma / \sqrt{n}}$
+  * **Kritický obor (pro $H_1: \mu \ne \mu_0$):** Zamítáme $H_0$ na hladině $\alpha$, pokud $|Z| \ge z_{\alpha/2}$ (pro $\alpha = 0.05$ pokud $|Z| \ge 1.96$), resp. pokud $p\text{-hodnota} < \alpha$.
+
 ## Informatika
 
 ### Automaty

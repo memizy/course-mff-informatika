@@ -48,9 +48,46 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 #### Permutace a jejich vlastnosti ($S_n$ pro $|X| = n$):
 * **Permutace:** Každá bijekce $\pi: X \to X$. Množina všech permutací se značí $S_n$, celkový počet je **$|S_n| = n!$**.
 * **Pevný bod:** Prvek $x \in X$ splňující $\pi(x) = x$ (prvek se permutací nezmění, v cyklovém zápisu odpovídá cyklu délky 1).
-* **Derangement (permutace bez pevného bodu):** $\forall x \in X: \pi(x) \ne x$. Počet derangementů (problém šatnářky přes PIE):
-  $$D_n = n! \sum_{k=0}^n \frac{(-1)^k}{k!} = n! \left(1 - \frac{1}{1!} + \frac{1}{2!} - \frac{1}{3!} + \dots + \frac{(-1)^n}{n!}\right) \approx \frac{n!}{e}$$
-* **Rozklad na cykly a znaménko:** Každou permutaci lze jednoznačně rozložit na disjunktní cykly. Znaménko $\operatorname{sgn}(\pi) = (-1)^{n - k}$, kde $k$ je počet cyklů (včetně pevných bodů).
+
+#### Kombinační čísla a Binomická věta:
+* **Kombinační číslo $\binom{n}{k}$:** Počet $k$-prvkových podmnožin $n$-prvkové množiny: $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ (pro $0 \le k \le n$).
+* **Základní vztahy a identity:**
+  * **Symetrie:** $\binom{n}{k} = \binom{n}{n-k}$
+  * **Pascalovo pravidlo:** $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$
+  * **Výběr s podvýborem:** $\binom{n}{k} \binom{k}{m} = \binom{n}{m} \binom{n-m}{k-m}$ (speciálně pro $m=1$: $k \binom{n}{k} = n \binom{n-1}{k-1}$)
+* **Binomická věta:**
+  $$(x + y)^n = \sum_{k=0}^n \binom{n}{k} x^{n-k} y^k$$
+* **Aplikace a důsledky (speciální dosazení):**
+  * **Součet všech podmnožin ($x=1, y=1$):** $\sum_{k=0}^n \binom{n}{k} = (1+1)^n = 2^n$
+  * **Alternující součet ($x=1, y=-1$):** $\sum_{k=0}^n (-1)^k \binom{n}{k} = (1-1)^n = 0 \implies \sum_{k \text{ sudé}} \binom{n}{k} = \sum_{k \text{ liché}} \binom{n}{k} = 2^{n-1}$
+
+#### Princip inkluze a exkluze (PIE):
+* **Obecná formulace vzorce:**
+  $$\left|\bigcup_{i=1}^n A_i\right| = \sum_{i=1}^n |A_i| - \sum_{1 \le i < j \le n} |A_i \cap A_j| + \sum_{1 \le i < j < k \le n} |A_i \cap A_j \cap A_k| - \dots + (-1)^{n+1} |A_1 \cap \dots \cap A_n|$$
+* **Důkaz (zkrácený postup):**
+  * **Cíl:** Ukázat, že libovolný prvek $x$, který leží v celém sjednocení (v právě $k \ge 1$ množinách), se na pravé straně po všech odčítáních a přičítáních započítá nakonec **přesně jednou**.
+  * **Příspěvek prvku $x$:** $S = \binom{k}{1} - \binom{k}{2} + \binom{k}{3} - \dots + (-1)^{k-1} \binom{k}{k}$.
+  * **Využití binomické věty:** $0 = (1 - 1)^k = \binom{k}{0} - \binom{k}{1} + \binom{k}{2} - \dots = \binom{k}{0} - S \implies S = \binom{k}{0} = 1$.
+* **Hlavní aplikace PIE (univerzum $U$ minus sjednocení špatných vlastností):**
+  * **Problém šatnářky ($D_n$):** Počet permutací bez pevného bodu ($|U| = n!$, špatná vl. $A_i: \pi(i) = i$, $|A_i| = (n-1)!$):
+    $$D_n = n! - \binom{n}{1}(n-1)! + \binom{n}{2}(n-2)! - \dots = n! \sum_{k=0}^n \frac{(-1)^k}{k!} \approx \frac{n!}{e}$$
+  * **Počet surjekcí z $N$ do $M$ ($|N|=n, |M|=m$):** ($|U| = m^n$, špatná vl. $A_i$: cíl $i$ není zasažen, $|A_i| = (m-1)^n$):
+    $$Surj(n, m) = m^n - \binom{m}{1}(m-1)^n + \binom{m}{2}(m-2)^n - \dots = \sum_{k=0}^m (-1)^k \binom{m}{k} (m - k)^n$$
+  * **Eulerova funkce $\varphi(n)$:** Počet čísel $1 \le k \le n$ nesoudělných s $n$ ($n = p_1^{a_1} \cdots p_r^{a_r}$, špatná vl. $A_{p_i}$: dělitelnost $p_i$, $|A_{p_i}| = \frac{n}{p_i}$):
+    $$\varphi(n) = n - \left(\sum_i \frac{n}{p_i} - \sum_{i < j} \frac{n}{p_i p_j} + \sum_{i < j < k} \frac{n}{p_i p_j p_k} - \dots\right) = n \cdot \left(1 - \sum_i \frac{1}{p_i} + \sum_{i < j} \frac{1}{p_i p_j} - \dots\right) = n \prod_{i=1}^r \left(1 - \frac{1}{p_i}\right)$$
+
+#### Hallova věta o SRR a párování v bipartitním grafu:
+* **Systém různých reprezentantů (SRR):** Pro systém množin $\mathcal{M} = \{M_1, \dots, M_n\}$ je SRR výběr $n$ navzájem různých prvků $x_1 \in M_1, \dots, x_n \in M_n$ ($x_i \ne x_j$ pro $i \ne j$).
+* **Vztah k bipartitním grafům:** Bipartitní graf $G = (A \cup B, E)$, kde $A = \{M_1, \dots, M_n\}$ (množiny), $B = \bigcup M_i$ (prvky) a hrana $\{M_i, x\} \in E \iff x \in M_i$. SRR odpovídá **párování nasycujícímu celou partitu $A$** ($|M| = n$).
+* **Hallova věta (podmínka pro existenci SRR):** SRR existuje $\iff$ platí **Hallova podmínka**:
+  $$\forall I \subseteq \{1, \dots, n\}: \left|\bigcup_{i \in I} M_i\right| \ge |I| \quad (\text{grafově } \forall S \subseteq A: |N(S)| \ge |S|)$$
+* **Střídavá a zlepšující cesta:**
+  * **Střídavá cesta:** Cesta v grafu, která pravidelně střídá hrany ležící v párování $M$ a hrany mimo $M$.
+  * **Zlepšující cesta:** Střídavá cesta začínající i končící ve **volném (nenasyceném)** vrcholu. Její překlopení zvětší párování o 1 (Bergeovo lemma: párování je maximální $\iff$ neexistuje zlepšující cesta).
+* **Princip důkazu (sporem přes střídavé cesty):** Pokud maximální párování nenasytí celou partitu $A$, z nenasyceného vrcholu v $A$ prohledáme všechny střídavé cesty (začínáme z vrcholu hranou co je mimo párování, vracíme tou co je v párování). Množina dosažených levých vrcholů $S \subseteq A$ má sousedy $N(S)$ pouze v již spárovaných pravých vrcholech $\implies |N(S)| < |S|$ (spor s Hallovou podmínkou).
+* **Algoritmické aspekty (polynomiální nalezení SRR):**
+  * **Metoda střídavých cest:** Začneme s prázdným párováním. Opakovaně pomocí BFS hledáme zlepšující cestu a překlápíme na ní hrany dokud cesta existuje.
+  * **Složitost:** Maximálně $|V|$ zvětšení, každé BFS v $O(|E|) \implies$ celková složitost **$O(|V| \cdot |E|)$** (Hopcroft-Karp: $O(|E|\sqrt{|V|})$).
 
 ### Logika
 

@@ -1,1 +1,3 @@
 Moje rychlost 40-100 poznámek za den v závislosti na dni a na energii k učení
+
+Určitě je dobré si vyzkoušet reálné úlohy

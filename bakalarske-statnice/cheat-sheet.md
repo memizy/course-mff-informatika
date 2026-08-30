@@ -11,6 +11,16 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 ### Grafy
 
 ### Diskrétka
+#### Relace a jejich vlastnosti:
+* **Binární relace na množině $X$:** $R \subseteq X \times X$ (obecně mezi $X$ a $Y$: $R \subseteq X \times Y$)
+* **Reflexivita:** $\forall x \in X: (x, x) \in R$
+* **Symetrie:** $\forall x, y \in X: (x, y) \in R \implies (y, x) \in R$
+* **Antisymetrie:** $\forall x, y \in X: ((x, y) \in R \wedge (y, x) \in R) \implies x = y$
+* **Tranzitivita:** $\forall x, y, z \in X: ((x, y) \in R \wedge (y, z) \in R) \implies (x, z) \in R$
+
+#### Ekvivalence a rozklad množiny:
+* **Ekvivalence ($\sim$ nebo $\equiv$):** Relace, která je současně **reflexivní**, **symetrická** a **tranzitivní**.
+* **Rozkladová třída prvku $x$:** $[x]_\sim = \{y \in X \mid y \sim x\}$ rozsekají množinu $X$ na vzájemně **disjunktní neprázdné podmnožiny**
 
 ### Logika
 

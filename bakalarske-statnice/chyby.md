@@ -10,6 +10,7 @@
 ### Grafy
 
 ### Diskrétka
+Možná někde ještě slova zkouška
 
 ### Logika
 

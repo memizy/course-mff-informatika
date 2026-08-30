@@ -22,6 +22,36 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 * **Ekvivalence ($\sim$ nebo $\equiv$):** Relace, která je současně **reflexivní**, **symetrická** a **tranzitivní**.
 * **Rozkladová třída prvku $x$:** $[x]_\sim = \{y \in X \mid y \sim x\}$ rozsekají množinu $X$ na vzájemně **disjunktní neprázdné podmnožiny**
 
+#### Částečné uspořádání (Poset), extrémy, řetězce:
+* **Částečné uspořádání ($\le$):** Relace, která je současně **reflexivní**, **antisymetrická** a **tranzitivní** (pokud jsou každé dva prvky porovnatelné $\implies$ **lineární / úplné**).
+* **Nejmenší prvek $a$:** $\forall x \in X: a \le x$ (je menší nebo roven všem prvkům, existuje nejvýše jeden).
+* **Minimální prvek $a$:** $\neg\exists x \in X: x \le a \wedge x \ne a$ (neexistuje žádný ostře menší prvek; může jich být více i žádný). *Obdobně pro **největší** ($\forall x \in X: x \le a$) a **maximální** ($\neg\exists x \in X: a \le x \wedge x \ne a$).*
+* **Řetězec (Chain):** Podmnožina $C \subseteq X$, kde jsou každé dva prvky navzájem porovnatelné ($\forall x, y \in C: x \le y \vee y \le x$).
+* **Antiřetězec (Antichain):** Podmnožina $A \subseteq X$, kde žádné dva různé prvky nejsou porovnatelné ($\forall x, y \in A, x \ne y: x \not\le y \wedge y \not\le x$).
+* **Výška a šířka posetu:**
+  * **Výška posetu:** Velikost nejdelšího řetězce v $(X, \le)$.
+  * **Šířka posetu:** Velikost největšího antiřetězce v $(X, \le)$.
+* **Věta o dlouhém a širokém (posetu):** Každá konečná částečně uspořádaná množina s alespoň $n \cdot m + 1$ prvky obsahuje **buď řetězec délky alespoň $n+1$**, **nebo antiřetězec velikosti alespoň $m+1$** (platí $|X| \le \text{výška} \cdot \text{šířka}$).
+
+#### Funkce (Zobrazení) $f: X \to Y$ ($|X| = n, |Y| = m$):
+* **Typy funkcí:**
+  * **Injekce (prostá):** $\forall x_1, x_2 \in X: f(x_1) = f(x_2) \implies x_1 = x_2$ (každý cíl má nejvýše 1 vzor; nutně $n \le m$).
+  * **Surjekce (na):** $\forall y \in Y \; \exists x \in X: f(x) = y$ (každý cíl má alespoň 1 vzor; nutně $n \ge m$).
+  * **Bijekce (vzájemně jednoznačná):** Současně injekce i surjekce (dokonalé spárování 1:1, existuje inverzní $f^{-1}$; nutně $n = m$).
+* **Počty různých funkcí z $X$ do $Y$:**
+  * **Všechna zobrazení:** $m^n$
+  * **Injekce (prostá):** $\frac{m!}{(m-n)!} = m(m-1)\cdots(m-n+1)$ pro $n \le m$ (jinak $0$).
+  * **Bijekce:** $n!$ pro $n = m$ (jinak $0$).
+  * **Surjekce (na):** $\sum_{k=0}^m (-1)^k \binom{m}{k} (m-k)^n = m! \cdot S(n, m)$ pro $n \ge m$ (přes PIE; pro $n < m$ je $0$).
+* **Skládání $(f \circ g)(x) = f(g(x))$:** První se aplikuje vnitřní funkce $g$. ($f \circ g$ je injekce $\implies g$ je injekce; $f \circ g$ je surjekce $\implies f$ je surjekce).
+
+#### Permutace a jejich vlastnosti ($S_n$ pro $|X| = n$):
+* **Permutace:** Každá bijekce $\pi: X \to X$. Množina všech permutací se značí $S_n$, celkový počet je **$|S_n| = n!$**.
+* **Pevný bod:** Prvek $x \in X$ splňující $\pi(x) = x$ (prvek se permutací nezmění, v cyklovém zápisu odpovídá cyklu délky 1).
+* **Derangement (permutace bez pevného bodu):** $\forall x \in X: \pi(x) \ne x$. Počet derangementů (problém šatnářky přes PIE):
+  $$D_n = n! \sum_{k=0}^n \frac{(-1)^k}{k!} = n! \left(1 - \frac{1}{1!} + \frac{1}{2!} - \frac{1}{3!} + \dots + \frac{(-1)^n}{n!}\right) \approx \frac{n!}{e}$$
+* **Rozklad na cykly a znaménko:** Každou permutaci lze jednoznačně rozložit na disjunktní cykly. Znaménko $\operatorname{sgn}(\pi) = (-1)^{n - k}$, kde $k$ je počet cyklů (včetně pevných bodů).
+
 ### Logika
 
 ### Past
@@ -147,6 +177,7 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 ### Databáze
 
 ### Data
+* **W3C** – HTML, CSS, XML (XSD, XSLT), RDF, SPARQL, JSON-LD, CSVW, SKOS, DCAT, OWL | **IETF** – TCP/IP, HTTP, URI/URL, JSON (RFC 8259), CSV (RFC 4180) | **OGC** – WKT, GML, GeoSPARQL (prostorová data)
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

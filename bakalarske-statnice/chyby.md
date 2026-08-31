@@ -1,5 +1,6 @@
 # Chyby na pozdější opravu
 ## Celkové
+Možná ještě tam zbyly nějaké chyby z celkových změn věci jako zkoušková je vyžadováno a často tam zbyly tvrzení stále o zkoušce či sylabu co jsou nadnesené nebo nejsou úplně pravda, ty plošné změny mohly něco rozbít
 
 ## Matika
 

@@ -320,6 +320,7 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 ```
 
 #### JSON Schema – Validace struktury, typů a omezení (Draft 2020-12):
+* **Otevřenost vs. Uzavřenost:** JSON Schema je ve výchozím stavu **otevřené** (extra klíče jsou povoleny, dokud není nastaveno `"additionalProperties": false`). XML Schema (XSD) je naopak ve výchozím stavu **uzavřené** (jakýkoliv neznámý tag/atribut způsobí chybu validace).
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",

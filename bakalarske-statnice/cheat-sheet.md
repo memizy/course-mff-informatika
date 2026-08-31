@@ -216,6 +216,354 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 ### Data
 * **W3C** – HTML, CSS, XML (XSD, XSLT), RDF, SPARQL, JSON-LD, CSVW, SKOS, DCAT, OWL | **IETF** – TCP/IP, HTTP, URI/URL, JSON (RFC 8259), CSV (RFC 4180) | **OGC** – WKT, GML, GeoSPARQL (prostorová data)
 
+#### XML – Datový dokument (Well-formed a validní vůči schématu níže):
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Well-formed XML: 1 kořen, uzavřené tagy, uvozovky u atributů -->
+<knihovna>
+  <kniha isbn='978-80-200-0980-7'>
+    <nazev>R.U.R.</nazev>
+    <rok>1920</rok>
+    <autori>
+      <autor>Karel Čapek</autor>
+    </autori>
+  </kniha>
+  <kniha isbn='978-80-748-3012-3'>
+    <!-- Element rok je nepovinný, vnořených autorů může být více -->
+    <nazev>Povídky malostranské</nazev>
+    <autori>
+      <autor>Jan Neruda</autor>
+      <autor>Ilustrátor Neznámý</autor>
+    </autori>
+  </kniha>
+</knihovna>
+```
+
+#### XML Schema (XSD) – Definice struktury, kardinality a atributů:
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Kořen schématu s W3C jmenným prostorem xs: -->
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+  <xs:element name='knihovna'>
+    <xs:complexType>
+      <xs:sequence>
+        <!-- maxOccurs='unbounded' = pole/opakování (1..N) -->
+        <xs:element name='kniha' maxOccurs='unbounded'>
+          <xs:complexType>
+            <xs:sequence>
+              <!-- Povinný textový element (výchozí minOccurs='1') -->
+              <xs:element name='nazev' type='xs:string' />
+              <!-- Nepovinný číselný element (0..1) -->
+              <xs:element name='rok' type='xs:integer' minOccurs='0' />
+              <!-- Vnořený stromový blok autorů -->
+              <xs:element name='autori'>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name='autor' type='xs:string' maxOccurs='unbounded' />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <!-- Atribut se definuje UVNITŘ complexType, ale AŽ ZA sequence! -->
+            <xs:attribute name='isbn' type='xs:string' use='required' />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+```
+
+#### XSLT – Deklarativní transformace XML do HTML (Šablony, XPath, For-Each):
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Transformační stylesheet s jmenným prostorem xsl: -->
+<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+  <xsl:output method='html' indent='yes' encoding='UTF-8' />
+
+  <!-- 1. Hlavní šablona: match='/' zachytí kořenový uzel XML dokumentu -->
+  <xsl:template match='/'>
+    <html>
+      <body>
+        <h1>Katalog knih</h1>
+        <ul>
+          <!-- 2. Iterace přes všechny knihy (XPath: knihovna/kniha) -->
+          <xsl:for-each select='knihovna/kniha'>
+            <li>
+              <!-- 3. Relativní XPath: vytažení hodnoty elementu a atributu (@) -->
+              <strong><xsl:value-of select='nazev' /></strong>
+              (ISBN: <xsl:value-of select='@isbn' />) - 
+              <xsl:value-of select='rok' />: 
+              <!-- Iterace vnořených autorů -->
+              <xsl:for-each select='autori/autor'>
+                <span><xsl:value-of select='.' /> </span>
+              </xsl:for-each>
+            </li>
+          </xsl:for-each>
+        </ul>
+      </body>
+    </html>
+  </xsl:template>
+</xsl:stylesheet>
+```
+
+#### JSON – Datový dokument (RFC 8259, striktně dvojité uvozovky):
+```json
+{
+  "id": "ds-42",
+  "title": "Katalog knihovny",
+  "year": 1920,
+  "isPublic": true,
+  "authors": ["Karel Čapek"],
+  "tags": ["drama", "sci-fi", 100]
+}
+```
+
+#### JSON Schema – Validace struktury, typů a omezení (Draft 2020-12):
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "title", "authors"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^ds-[0-9]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "year": { "type": "integer", "minimum": 1500 },
+    "isPublic": { "type": "boolean" },
+    "authors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "number" }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+#### JSON-LD – Sémantické obohacení JSONu o RDF (@context, @id, @type, Language Maps):
+* **Struktura sémantiky:** V `@context` se definuje mapování lokálních klíčů na slovníky/ontologie (určuje význam **predikátů**). V těle JSONu se pak popisuje samotná entita (**subjekt**) přes globální IRI (`@id`), třídu (`@type`) a konkrétní data (**objekty**).
+```json
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    
+    "title": {
+      "@id": "dcterms:title",
+      "@container": "@language"
+    },
+    "year": "dcterms:issued",
+    "authors": {
+      "@id": "dcterms:creator",
+      "@type": "@id"
+    }
+  },
+  
+  "@id": "https://data.mff.cuni.cz/dataset/42",
+  "@type": "dcat:Dataset",
+  
+  "title": {
+    "cs": "Katalog knihovny",
+    "en": "Library Catalog"
+  },
+  "year": "1920",
+  "authors": [
+    "https://data.mff.cuni.cz/person/capek"
+  ]
+}
+```
+
+#### CSV (RFC 4180) a CSVW (JSON-LD metadatové mapování do RDF):
+```csv
+id,name,age
+1234,"Novák, Karel",22
+```
+
+```json
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "studenti.csv",
+  "tableSchema": {
+    "aboutUrl": "http://example.org/student/{id}",
+    "columns": [
+      { "name": "id", "suppressOutput": true },
+      { "name": "name", "propertyUrl": "http://schema.org/name" },
+      { "name": "age", "propertyUrl": "http://schema.org/age", "datatype": "integer" }
+    ]
+  }
+}
+```
+
+```turtle
+# Výsledné RDF trojice vygenerované z řádku CSV (Subjekt Predikát Objekt .)
+<http://example.org/student/1234> <http://schema.org/name> "Novák, Karel" .
+<http://example.org/student/1234> <http://schema.org/age>  "22"^^<http://www.w3.org/2001/XMLSchema#integer> .
+```
+
+#### RDF a RDF Schema (RDFS) – Třídy, Vlastnosti, Hierarchie a OWA odvozování:
+```turtle
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <http://example.org/uni/> .
+
+# 1. Definice tříd a hierarchie (rdfs:subClassOf)
+ex:Osoba    rdf:type rdfs:Class .
+ex:Profesor rdf:type rdfs:Class ;
+            rdfs:subClassOf ex:Osoba .
+ex:Student  rdf:type rdfs:Class ;
+            rdfs:subClassOf ex:Osoba .
+ex:Predmet  rdf:type rdfs:Class .
+
+# 2. Definice vlastnosti s doménou (Subjekt) a oborem hodnot (Objekt)
+ex:vyucuje  rdf:type rdf:Property ;
+            rdfs:domain ex:Profesor ;
+            rdfs:range  ex:Predmet .
+
+# 3. Instance a Open World Assumption (OWA) odvozování:
+# Pokud zapíšeme pouze tuto trojici, Reasoner sám odvodí:
+# ex:Karel a ex:Profesor . a ex:Matematika a ex:Predmet . (není to SQL constraint!)
+ex:Karel ex:vyucuje ex:Matematika .
+```
+
+#### DCAT – Datové katalogy a distribuce (Catalog, Dataset, Distribution, DataService):
+* **`dcat:Catalog` (Katalog):** Zastřešující kontejner pro publikované datasety (`dcat:dataset`).
+* **`dcat:Dataset` (Datová sada):** Abstraktní logická kolekce dat (autor, téma, licence). Není to fyzický soubor!
+* **`dcat:Distribution` (Distribuce):** Konkrétní fyzický soubor ke stažení jedním GET dotazem (`dcterms:format`, `dcat:downloadURL`).
+* **`dcat:DataService` (Datová služba / API):** Interaktivní API endpoint (REST, SPARQL) pro dynamický přístup (`dcat:endpointURL`, `dcat:servesDataset`).
+
+```turtle
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://mesto.cz/> .
+
+# 1. Katalog (Zastřešující kontejner)
+ex:Katalog a dcat:Catalog ;
+    dcterms:title "Katalog otevřených dat města"@cs ;
+    dcat:dataset  ex:JizdniRady .
+
+# 2. Datová sada (Logická entita)
+ex:JizdniRady a dcat:Dataset ;
+    dcterms:title        "Jízdní řády MHD"@cs ;
+    dcterms:publisher    <https://mesto.cz/dopravni-podnik> ;
+    dcat:distribution    ex:JizdniRadyCSV ;
+    dcat:distribution    ex:JizdniRadyAPI .
+
+# 3. Distribuce jako statický soubor ke stažení (Download)
+ex:JizdniRadyCSV a dcat:Distribution ;
+    dcterms:title    "Jízdní řády v CSV"@cs ;
+    dcterms:format   "text/csv" ;
+    dcat:downloadURL <https://mesto.cz/data/jizdni_rady.csv> .
+
+# 4. Datová služba / API endpoint pro dynamické dotazování
+ex:JizdniRadyAPI a dcat:DataService ;
+    dcterms:title      "REST API pro aktuální polohu a řády"@cs ;
+    dcat:endpointURL   <https://api.mesto.cz/v1/mhd> ;
+    dcat:servesDataset ex:JizdniRady .
+```
+
+#### SKOS a Dublin Core (DCMI) – Řízené slovníky, taxonomie a sémantický popis dat:
+* **SKOS:** Odlehčená ontologie pro tezaury a hierarchické taxonomie (`skos:Concept`).
+  * **Štítky:** `skos:prefLabel` (oficiální název, max 1 na jazyk), `skos:altLabel` (synonyma/zkratky), `skos:hiddenLabel` (překlepy pro vyhledávače).
+  * **Vztahy:** `skos:broader` (nadřazený/širší), `skos:narrower` (podřazený/užší), `skos:related` (asociace).
+* **Dublin Core (`dcterms:`):** Univerzální administrativní metadata (`title`, `creator`, `publisher`, `issued`, `modified`).
+* **Sémantický popis dat:** Odkázáním vlastnosti `dcat:theme` na IRI konceptu namísto volného textu (např. `"Auta"`) umožníme strojové vyhledávání přes synonyma i nadřazené kategorie.
+
+```turtle
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://mojedata.cz/> .
+
+# 1. Definice SKOS taxonomie (Pojmy, Štítky a Hierarchie)
+ex:slovnik/Doprava a skos:Concept ;
+    skos:prefLabel "Dopravní prostředek"@cs .
+
+ex:slovnik/Auto a skos:Concept ;
+    skos:prefLabel   "Osobní automobil"@cs ;
+    skos:altLabel    "Auťák"@cs, "Osobák"@cs ;   # Synonyma
+    skos:hiddenLabel "Aotomobil"@cs ;             # Zachycení překlepů
+    skos:broader     ex:slovnik/Doprava .        # Hierarchická vazba nahoru
+
+# 2. Sémantický popis datasetu pomocí Dublin Core a napojení na SKOS téma:
+ex:RegistrVozidel a dcat:Dataset ;
+    dcterms:title     "Registr vozidel ČR"@cs ;
+    dcterms:creator   "Ministerstvo dopravy"@cs ;
+    dcterms:issued    "2026-08-01"^^xsd:date ;
+    dcterms:modified  "2026-08-31"^^xsd:date ;
+    # Napojení na SKOS koncept (globální IRI interoperabilita)
+    dcat:theme        ex:slovnik/Auto .
+```
+
+#### Data Provenance a ontologie PROV-O (Sledování původu a historie dat):
+* **Data Provenance (Původ dat):** Záznam o tom, jaká data, jakým procesem a kým byla vytvořena/změněna (auditovatelnost, důvěryhodnost a reprodukovatelnost).
+* **PROV-O Trojúhelník (Základní entity a vztahy):**
+  * **`prov:Entity`:** Datový artefakt/soubor (`surova_data.csv`, `cista_data.csv`).
+  * **`prov:Activity`:** Proces, výpočet nebo transformace v čase (`ex:Agregace`).
+  * **`prov:Agent`:** Hybatel zodpovědný za spuštění (člověk, organizace, software: `ex:Alice`).
+* **Vztahy (Hrany grafu):**
+  * `prov:used` (Aktivita $\to$ Vstupní Entity)
+  * `prov:wasGeneratedBy` (Výstupní Entity $\to$ Aktivita)
+  * `prov:wasAssociatedWith` (Aktivita $\to$ Agent)
+  * `prov:wasDerivedFrom` (Výstupní Entity $\to$ Vstupní Entity, přímá zkratka)
+  * `prov:wasAttributedTo` (Entity $\to$ Agent)
+
+```turtle
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <http://example.org/pipeline/> .
+
+# 1. Entity (Vstupní a výstupní data)
+ex:SurovaData a prov:Entity .
+ex:CistaData  a prov:Entity ;
+    prov:wasGeneratedBy  ex:Agregace ;
+    prov:wasDerivedFrom  ex:SurovaData ;
+    prov:wasAttributedTo ex:Alice .
+
+# 2. Agent (Zodpovědná osoba / organizace / software)
+ex:Alice a prov:Agent ;
+    prov:actedOnBehalfOf <https://firma.cz> .
+
+# 3. Aktivita (Proces transformace dat)
+ex:Agregace a prov:Activity ;
+    prov:used              ex:SurovaData ;
+    prov:wasAssociatedWith ex:Alice ;
+    prov:startedAtTime     "2026-08-31T10:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime       "2026-08-31T10:05:00Z"^^xsd:dateTime .
+```
+
+#### Procesy zpracování dat, kvalita a typologie metadat:
+* **Data Lifting vs. Data Lowering:**
+  * **Data Lifting (Zvedání dat):** Transformace nestrukturovaných / relačních dat (CSV, JSON, SQL) do sémantického RDF grafu obohacením o ontologie (CSVW, RML, Tarql). Umožňuje SPARQL dotazování a globální propojitelnost.
+  * **Data Lowering (Srážení dat):** Transformace sémantických RDF grafů zpět do plochých formátů (CSV, JSON) pro klasické nástroje (BI, Pandas, ML matice), typicky přes `SPARQL SELECT`.
+* **Dimenze datové kvality ("Fitness for use", princip GIGO – Garbage In, Garbage Out):**
+  * **Přesnost (Accuracy):** Míra shody dat s reálným stavem (např. rodné číslo neprochází modulo 11, chybná krevní skupina).
+  * **Úplnost (Completeness):** Absence chybějících (NULL) hodnot v povinných atributech ($\frac{\text{vyplněné}}{\text{celkem}} \cdot 100\,\%$).
+  * **Konzistence (Consistency):** Vzájemná nerozpornost dat napříč atributy či systémy (např. datum propuštění < datum přijetí).
+  * **Včasnost (Timeliness):** Aktuálnost dat v momentě rozhodování (např. 15minutové zpoždění burzovních dat ničí jejich hodnotu).
+* **Druhy metadat (Data o datech, principy FAIR – Findable, Accessible, Interoperable, Reusable):**
+  * **Popisná (Descriptive):** Identifikace a vyhledání zdroje (`dcterms:title`, `creator`, `keywords`, abstrakt).
+  * **Strukturální (Structural):** Vnitřní organizace a vazby částí objektu (schéma tabulek, počet kapitol, relace).
+  * **Administrativní (Administrative):** Správa, licencování, URL pro stažení, archivace a ochrana (datum vytvoření, práva CC, původ PROV-O).
+* **Kontrolované slovníky (Hierarchie sémantické síly – od seznamu po ontologii):**
+  1. **Kontrolovaný seznam (Controlled List):** Plochý výčet povolených hodnot bez vztahů (např. dny v týdnu, kódy států).
+  2. **Klasifikační schéma (Classification Scheme):** Uspořádání do pevných kategorií pro archivaci/třídění (např. MDT – Mezinárodní desetinné třídění).
+  3. **Taxonomie (Taxonomy):** Stromová hierarchie nadřazený/podřazený pojem (vztah rodič–potomek, např. Zvíře $\to$ Savec $\to$ Pes).
+  4. **Tezaurus (Thesaurus):** Taxonomie doplněná o synonyma a asociace (`skos:prefLabel`, `altLabel`, `broader`, `related`).
+  5. **Ontologie (Ontology):** Nejsilnější formální model s axiomy, pravidly a doménami (`rdfs:domain`/`range`, OWL) umožňující logické odvozování nových faktů (Inference / Reasoner).
+
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:
 ```php

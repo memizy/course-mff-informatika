@@ -568,14 +568,107 @@ ex:Agregace a prov:Activity ;
   * **Včasnost (Timeliness):** Aktuálnost dat v momentě rozhodování (např. 15minutové zpoždění burzovních dat ničí jejich hodnotu).
 * **Druhy metadat (Data o datech, principy FAIR – Findable, Accessible, Interoperable, Reusable):**
   * **Popisná (Descriptive):** Identifikace a vyhledání zdroje (`dcterms:title`, `creator`, `keywords`, abstrakt).
-  * **Strukturální (Structural):** Vnitřní organizace a vazby částí objektu (schéma tabulek, počet kapitol, relace).
-  * **Administrativní (Administrative):** Správa, licencování, URL pro stažení, archivace a ochrana (datum vytvoření, práva CC, původ PROV-O).
+  * **Strukturální (Structural):** Vnitřní organizace, vazby a sémantika dat (schéma tabulek, počet kapitol, formát a relace).
+  * **Administrativní (Administrative):** Správa, licencování, odkaz / URL pro stažení (distribuce), archivace a ochrana (datum vytvoření, práva CC, původ PROV-O).
 * **Kontrolované slovníky (Hierarchie sémantické síly – od seznamu po ontologii):**
   1. **Kontrolovaný seznam (Controlled List):** Plochý výčet povolených hodnot bez vztahů (např. dny v týdnu, kódy států).
   2. **Klasifikační schéma (Classification Scheme):** Uspořádání do pevných kategorií pro archivaci/třídění (např. MDT – Mezinárodní desetinné třídění).
   3. **Taxonomie (Taxonomy):** Stromová hierarchie nadřazený/podřazený pojem (vztah rodič–potomek, např. Zvíře $\to$ Savec $\to$ Pes).
   4. **Tezaurus (Thesaurus):** Taxonomie doplněná o synonyma a asociace (`skos:prefLabel`, `altLabel`, `broader`, `related`).
   5. **Ontologie (Ontology):** Nejsilnější formální model s axiomy, pravidly a doménami (`rdfs:domain`/`range`, OWL) umožňující logické odvozování nových faktů (Inference / Reasoner).
+
+#### Grafové databáze a jazyk Cypher (LPG – Labeled Property Graph v Neo4j):
+* **Model LPG:** Uzly mají štítky `(:Autor)`, hrany mají směr a typ `[:NAPSAL]`. Obojí může nést **vlastnosti** (properties) ve formě klíč-hodnota.
+* **ASCII-art syntaxe:** Uzly v `()`, hrany v `[]` se šipkou `-->` (nebo bez šipky pro obousměrný průchod).
+* **Klauzule:** `MATCH` (vzor grafu), `WHERE` (filtry a negace `NOT ()--()`), `RETURN` (výpis), `CREATE` / `MERGE` (vložení/upsert).
+* **Variable-Length Path:** `*5` (přesně 5 skoků), `*1..3` (1 až 3 skoky), `*` (tranzitivní uzávěr 1 až $\infty$).
+
+```cypher
+// 1. Vyhledání spoluautorů Dana Browna s vyloučením přátel (negace vztahu)
+MATCH (dan:Autor {jmeno: 'Dan Brown'})-[:NAPSAL]->(k:Kniha)<-[:NAPSAL]-(spoluautor:Autor)
+WHERE dan <> spoluautor 
+  AND NOT (dan)-[:PRITEL]-(spoluautor)
+RETURN DISTINCT spoluautor.jmeno, k.nazev;
+
+// 2. Hledání cest s proměnnou délkou (přátelé přes 1 až 3 skoky)
+MATCH (a:Autor {jmeno: 'Dan Brown'})-[:PRITEL*1..3]-(znamy:Autor)
+RETURN DISTINCT znamy.jmeno;
+```
+
+#### Prostorová data (Spatial Data) – CRS a formáty (WKT, GML, GeoJSON, GeoSPARQL):
+* **Souřadnicový referenční systém (CRS / SRS):** Matematický model převádějící $(X,Y)$ čísla na reálný zemský geoid/elipsoid. Bez specifikace CRS jsou čísla bezvýznamná.
+  * **WGS 84 (EPSG:4326):** Globální GPS standard (zeměpisná šířka / délka ve stupních). Výchozí pro GeoJSON.
+  * **Web Mercator (EPSG:3857):** Standard webových map (Google Maps, OSM) v metrech.
+  * **S-JTSK (EPSG:5514):** Křovákovo zobrazení pro ČR a SR (katastrální mapy).
+* **Základní geometrie OGC:** `Point` (bod), `LineString` (lomená čára / cesta), `Polygon` (uzavřená plocha, vnější obvod + vnitřní díry).
+
+##### A) WKT (Well-Known Text – textový standard OGC, souřadnice odděleny mezerou, body čárkou):
+```wkt
+POINT(14.42 50.08)
+LINESTRING(14.4 50.0, 14.5 50.1, 14.6 50.2)
+POLYGON((14.0 50.0, 14.5 50.0, 14.5 50.5, 14.0 50.5, 14.0 50.0))
+```
+
+##### B) GeoJSON (RFC 7946 – JSON pro webové mapy, striktně WGS 84, pořadí `[Longitude, Latitude]`):
+```json
+// 1. Samostatný bod (Point)
+{
+  "type": "Point",
+  "coordinates": [14.4208, 50.0878]
+}
+
+// 2. Kompletní objekt (Feature s Polygonem a atributy)
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [ [14.0, 50.0], [14.5, 50.0], [14.5, 50.5], [14.0, 50.5], [14.0, 50.0] ]
+    ]
+  },
+  "properties": { "name": "Národní park", "area_km2": 150 }
+}
+```
+
+##### C) GML (Geography Markup Language – XML standard OGC, explicitní `srsName`):
+```xml
+<!-- 1. Bod (Point se souřadnicí pos) -->
+<gml:Point srsName="EPSG:4326" xmlns:gml="http://www.opengis.net/gml">
+  <gml:pos>50.0878 14.4208</gml:pos>
+</gml:Point>
+
+<!-- 2. Plocha (Polygon s LinearRing a posList) -->
+<gml:Polygon srsName="EPSG:4326" xmlns:gml="http://www.opengis.net/gml">
+  <gml:exterior>
+    <gml:LinearRing>
+      <gml:posList>50.0 14.0 50.0 14.5 50.5 14.5 50.5 14.0 50.0 14.0</gml:posList>
+    </gml:LinearRing>
+  </gml:exterior>
+</gml:Polygon>
+```
+
+##### D) GeoSPARQL (OGC rozšíření RDF/SPARQL, WKT literál s URI prefixem CRS):
+```turtle
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix geof: <http://www.opengis.net/def/function/geosparql/> .
+@prefix uom:  <http://www.opengis.net/def/uom/OGC/1.0/> .
+@prefix ex:   <http://example.org/geo/> .
+
+# Definice prostorového objektu (Feature) s geometrií a explicitním CRS:
+ex:Praha a geo:Feature ;
+    geo:hasGeometry [
+        a geo:Geometry ;
+        geo:asWKT "<http://www.opengis.net/def/crs/EPSG/0/4326> POINT(14.4208 50.0878)"^^geo:wktLiteral
+    ] .
+```
+
+```sparql
+# Prostorový dotaz: Nalezení prvků v okruhu 5 km od zadaného bodu
+SELECT ?feature WHERE {
+  ?feature geo:hasGeometry/geo:asWKT ?geom .
+  FILTER(geof:distance(?geom, "POINT(14.42 50.08)"^^geo:wktLiteral, uom:metre) <= 5000)
+}
+```
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

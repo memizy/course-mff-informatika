@@ -411,6 +411,9 @@ id,name,age
 ```
 
 #### RDF a RDF Schema (RDFS) – Třídy, Vlastnosti, Hierarchie a OWA odvozování:
+* **Blank Node (`[ ... ]` nebo `_:b1`):** Anonymní uzel bez globálního IRI (vnořený objekt).
+* **Vlastnosti na hraně (N-ární vztahy):** V čistém RDF hrany nesmí nést data (na rozdíl od LPG v Neo4j). Pro atributy vztahu (např. platnost od–do) se vytvoří pomocný Blank Node.
+
 ```turtle
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -434,6 +437,15 @@ ex:vyucuje  rdf:type rdf:Property ;
 # Pokud zapíšeme pouze tuto trojici, Reasoner sám odvodí:
 # ex:Karel a ex:Profesor . a ex:Matematika a ex:Predmet . (není to SQL constraint!)
 ex:Karel ex:vyucuje ex:Matematika .
+
+# 4. Blank Node a N-ární vztahy (vlastnosti na hraně: platnost od-do):
+# V čistém RDF hrany nemohou mít vlastnosti -> použijeme anonymní Blank Node [ ... ] s typu ex:Uvazek aby bylo možné se na úvazky dotazovat
+ex:Karel ex:vyucujeKurz [
+    a          ex:Uvazek ;
+    ex:predmet ex:Matematika ;
+    ex:od      "2020-10-01"^^xsd:date ;
+    ex:do      "2026-06-30"^^xsd:date
+] .
 ```
 
 #### DCAT – Datové katalogy a distribuce (Catalog, Dataset, Distribution, DataService):

@@ -703,17 +703,6 @@ SELECT ?feature WHERE {
   3. **LZW (Lempel-Ziv-Welch):** Nahrazuje opakující se sekvence znaků indexy z **dynamicky budovaného slovníku frází**.
   4. **Aritmetické kódování (Arithmetic Coding):** Nekóduje symboly po jednom, ale celou zprávu namapuje na **jedno reálné číslo** v intervalu $[0, 1)$ postupným zmenšováním podintervalu podle pravděpodobností znaků.
 
-#### Dynamické hashování na vnější paměti (Fagin, Cormack, Larson & Kalja):
-* **Faginovo rozšiřitelné hashování (Extendible Hashing – doporučená volba na papír):**
-  * **Struktura:** Adresář v RAM velikosti $2^G$ s **Globální hloubkou ($G$)** a datové kbelíky na disku s kapacitou $B$ a **Lokální hloubkou ($L \le G$)**. Klíče se adresují binárním prefixem/suffixem hash kódu délky $G$.
-  * **Pravidla štěpení při přeplnění kbelíku:**
-    * **Případ A ($L < G$):** Kbelík se rozštěpí na dva s $L \to L+1$, data se přerozdělí podle $(L+1)$-tého bitu hashe, ukazatele v adresáři se přenastaví. **Adresář se nezvětšuje.**
-    * **Případ B ($L = G$):** Adresář se **zdvojnásobí** ($G \to G+1$, každý původní slot se zdvojí), přeplněný kbelík se rozštěpí s $L \to L+1$ a adresář ukáže na nový kbelík.
-  * **Složitost:** Zaručuje vyhledání na **1 diskový přístup** (pokud je adresář v RAM).
-* **Alternativní přístupy (adresář neroste):**
-  * **Cormack:** Adresář má pevnou velikost; při kolizi v kbelíku se blok neštěpí, ale změní se lokální hashovací funkce $h_i(x)$ z rodiny funkcí tak, aby prvky v bloku rozptýlila bez kolize.
-  * **Larson & Kalja:** Řeší kolize pomocí bitových signatur a separátorů v paměti RAM, čímž eliminuje nutnost sahat na disk při neúspěšném vyhledávání.
-
 #### Fyzická organizace tabulek na disku (File Organization):
 * **Logická tabulka vs. Fyzický soubor:** Logická tabulka v SQL je na disku (úložný stroj / Storage Engine) uložena jako soubor rozřezaný na bloky/stránky (Pages, např. 4–16 KB).
 * **3 základní teoretické přístupy:**
@@ -723,6 +712,18 @@ SELECT ?feature WHERE {
 * **Co se používá v moderní praxi (2 hlavní tábory):**
   * **Tábor A – Heap File + B+ strom indexy (PostgreSQL, Oracle):** Data tabulky jsou v hromadě, každý řádek má diskovou adresu **TID (Tuple ID: blok + slot)**. Všechny indexy jsou samostatné B+ stromy ukazující na toto TID.
   * **Tábor B – Klusterovaný B+ strom (MySQL InnoDB, SQLite, MS SQL):** Samotná tabulka **JE** fyzicky jedním velkým B+ stromem (Index-Organized Table). Celá data řádků leží přímo v **listech B+ stromu** seřazená podle primárního klíče (dynamické štěpení uzlů s garancí $\mathcal{O}(\log N)$ bez nutnosti offline reorganizace).
+
+#### Dynamické hashování na vnější paměti (Fagin, Cormack, Larson & Kalja):
+* **Faginovo rozšiřitelné hashování (Extendible Hashing – doporučená volba na papír):**
+  * **Struktura:** Adresář v RAM velikosti $2^G$ s **Globální hloubkou ($G$)** a datové kbelíky na disku s kapacitou $B$ a **Lokální hloubkou ($L \le G$)**. Klíče se adresují binárním prefixem/suffixem hash kódu délky $G$.
+  * **Pravidla štěpení při přeplnění kbelíku:**
+    * **Případ A ($L < G$):** Kbelík se rozštěpí na dva s $L \to L+1$, data se přerozdělí podle $(L+1)$-tého bitu hashe, ukazatele v adresáři se přenastaví. **Adresář se nezvětšuje.**
+    * **Případ B ($L = G$):** Adresář se **zdvojnásobí** ($G \to G+1$, každý původní slot se zdvojí), přeplněný kbelík se rozštěpí s $L \to L+1$ a adresář ukáže na nový kbelík.
+  * **Složitost:** Zaručuje vyhledání na **1 diskový přístup** (pokud je adresář v RAM).
+* **Alternativní přístupy (adresář neroste):**
+  * **Cormack:** Adresář má pevnou velikost a ukazuje na souvislé oblasti bloků (**Chunky**). Při přeplnění se na disku alokuje větší chunk a najde se nová lokální hashovací funkce $h_i(x)$, která prvky rozptýlí do bloků v chunku bez kolizí (perfektní hashování).
+  * **Larson & Kalja:** Řeší kolize pomocí bitových signatur záznamů a **tabulky separátorů držené trvale v RAM** (jedno malé číslo pro každý kbelík), čímž zjišťuje správný blok (primární vs. přetečení) ještě před sáhnutím na disk.
+
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

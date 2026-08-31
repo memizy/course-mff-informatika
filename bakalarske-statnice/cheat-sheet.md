@@ -706,12 +706,12 @@ SELECT ?feature WHERE {
 #### Fyzická organizace tabulek na disku (File Organization):
 * **Logická tabulka vs. Fyzický soubor:** Logická tabulka v SQL je na disku (úložný stroj / Storage Engine) uložena jako soubor rozřezaný na bloky/stránky (Pages, např. 4–16 KB).
 * **3 základní teoretické přístupy:**
-  1. **Hromada (Heap File):** Řádky se sypou na konec posledního bloku bez řazení. Rychlý `INSERT` ($\mathcal{O}(1)$), pomalý `SELECT` (Full Table Scan $\mathcal{O}(N)$). Vyžaduje **hustý (dense) index**.
-  2. **Sekvenční / Tříděný soubor (Sorted File):** Řádky jsou v blocích fyzicky seřazeny podle klíče. Rychlý `SELECT` (binární půlení $\mathcal{O}(\log N)$, range scan), drahý `INSERT`/`DELETE` ($\mathcal{O}(N)$ kvůli posouvání). Stačí **řídký (sparse) index**.
+  1. **Hromada (Heap File):** Řádky se sypou na konec posledního bloku bez řazení. Rychlý `INSERT` ($\mathcal{O}(1)$), pomalý `SELECT` (Full Table Scan $\mathcal{O}(N)$). Vyžaduje **hustý (dense) index** (odkaz na každý řádek / `TID`).
+  2. **Sekvenční / Tříděný soubor (Sorted File):** Řádky jsou v blocích fyzicky seřazeny podle klíče. Rychlý `SELECT` (binární půlení $\mathcal{O}(\log N)$, range scan), drahý `INSERT`/`DELETE` ($\mathcal{O}(N)$ kvůli posouvání). Stačí **řídký (sparse) index** (1 ukazatel na blok).
   3. **Index-sekvenční soubor (ISAM):** Tříděná data s řídkým indexem a bloky přetečení (Overflow blocks). Odstranil posouvání, ale trpí degradací řetězců přetečení (nutnost offline reorganizace).
 * **Co se používá v moderní praxi (2 hlavní tábory):**
-  * **Tábor A – Heap File + B+ strom indexy (PostgreSQL, Oracle):** Data tabulky jsou v hromadě, každý řádek má diskovou adresu **TID (Tuple ID: blok + slot)**. Všechny indexy jsou samostatné B+ stromy ukazující na toto TID.
-  * **Tábor B – Klusterovaný B+ strom (MySQL InnoDB, SQLite, MS SQL):** Samotná tabulka **JE** fyzicky jedním velkým B+ stromem (Index-Organized Table). Celá data řádků leží přímo v **listech B+ stromu** seřazená podle primárního klíče (dynamické štěpení uzlů s garancí $\mathcal{O}(\log N)$ bez nutnosti offline reorganizace).
+  * **Tábor A – Heap File + B+ strom indexy (PostgreSQL, Oracle):** Data tabulky jsou v hromadě, každý řádek má diskovou adresu **TID (Tuple ID: blok + slot)**. Všechny indexy jsou samostatné **husté sekundární B+ stromy** ukazující na toto TID.
+  * **Tábor B – Klusterovaný B+ strom (MySQL InnoDB, SQLite, MS SQL):** Samotná tabulka **JE** fyzicky jedním velkým B+ stromem (Index-Organized Table). Celá data řádků leží přímo v **listech B+ stromu** seřazená podle primárního klíče.
 
 #### Dynamické hashování na vnější paměti (Fagin, Cormack, Larson & Kalja):
 * **Faginovo rozšiřitelné hashování (Extendible Hashing – doporučená volba na papír):**
@@ -724,6 +724,30 @@ SELECT ?feature WHERE {
   * **Cormack:** Adresář má pevnou velikost a ukazuje na souvislé oblasti bloků (**Chunky**). Při přeplnění se na disku alokuje větší chunk a najde se nová lokální hashovací funkce $h_i(x)$, která prvky rozptýlí do bloků v chunku bez kolizí (perfektní hashování).
   * **Larson & Kalja:** Řeší kolize pomocí bitových signatur záznamů a **tabulky separátorů držené trvale v RAM** (jedno malé číslo pro každý kbelík), čímž zjišťuje správný blok (primární vs. přetečení) ještě před sáhnutím na disk.
 
+#### Hierarchické indexy (B-strom, B+ strom, B* strom):
+* **B-strom (neredundantní):** $m$-árnost (řád $m$) udává **maximální počet potomků** uzlu $\implies$ uzel pojme maximálně **$m - 1$ klíčů** (při $m$ klíčích přeteče) a vnitřní uzel má minimálně $\lceil m/2 \rceil$ potomků. Každý klíč se v celém stromu vyskytuje **právě jednou** (data/ukazatele jsou v listech i vnitřních uzlech).
+  * *Štěpení při přetečení ($m$ klíčů):* Medián **stoupá do rodiče a ze spodního patra ZMIZÍ**.
+  * *Podtečení při mazání ($< \lceil m/2 \rceil - 1$ klíčů):* 
+    1. **Rotace/výpůjčka:** Klíč od souseda jde do rodiče a dělící klíč z rodiče sjede do podtečeného uzlu.
+    2. **Slití (Merge):** Dva uzly se sloučí a dělící klíč z rodiče **se stáhne dolů mezi ně**.
+* **B+ strom (redundantní – standard pro SQL DB):** Všechna data leží **pouze v listech** propojených obousměrným spojovým seznamem (Linked List). Vnitřní uzly nesou jen navigační rozcestníky (kopie klíčů).
+  * *Vkládání:* Při rozdělení listu medián **stoupá do rodiče a ZŮSTÁVÁ i dole v listu**.
+  * *Konvence ($\le$ vlevo, $>$ vpravo):* Počátek intervalu najdeme vlevo a pak jednoduše čteme doprava přes spojový seznam listů.
+  * *Mazání:* Smazaný klíč zmizí z listu, ale **ve vnitřních navigačních uzlech ZŮSTÁVÁ** (slouží jen jako rozcestník).
+  * *Podtečení listu:* Při výpůjčce se v rodiči **jen upraví navigační hodnota**; při slití listů se navigační klíč v rodiči **smaže**.
+* **B*-strom (s odloženým štěpením):** Při přetečení přelévá přebytečná data do volného souseda přes rodiče (přesný opak výpůjčky při podtečení); teprve když jsou oba sourozenci plní, štěpí 2 uzly na 3 (garance zaplnění $2/3 \approx 66\,\%$).
+  * *Proč se v praxi nepoužívá:* Extrémní režie zamykání sourozenců (**Sibling lock contention**), která drtí paralelní zápisy; úspora místa je u moderních SSD zanedbatelná.
+
+#### Výpočet pater a kapacity hierarchického indexu (Zkouškový vzorec):
+* **Parametry:** $N$ záznamů celkem, kapacita indexového bloku $B$ položek (např. 64), kapacita datového bloku tabulky $D$ řádků (např. 10).
+* **1. Hustý index (Dense – pro netříděný soubor / Heap):**
+  * Index adresuje **každý jednotlivý záznam**:
+  * 1. patro (listy): $L_1 = \lceil N / B \rceil$ bloků.
+  * 2. patro: $L_2 = \lceil L_1 / B \rceil$ bloků $\dots$ až $L_k = 1$ (kořen).
+  * *Příklad ($N=8192, B=64$):* $L_1 = 8192/64 = 128$ bloků $\to L_2 = 128/64 = 2$ bloky $\to L_3 = \lceil 2/64 \rceil = 1$ blok (kořen). **Výška = 3 patra.**
+* **2. Řídký index (Sparse – pro tříděný soubor / Sorted File):**
+  * Index adresuje **pouze datové bloky tabulky** ($K = \lceil N / D \rceil$ bloků dat):
+  * 1. patro: $L_1 = \lceil K / B \rceil$ bloků $\dots$ až po kořen (výrazně méně pater než u hustého indexu).
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

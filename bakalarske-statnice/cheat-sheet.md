@@ -557,6 +557,29 @@ ex:Agregace a prov:Activity ;
     prov:endedAtTime       "2026-08-31T10:05:00Z"^^xsd:dateTime .
 ```
 
+#### Datový model Wikidata a dotazování (WDQS / SPARQL):
+* **Struktura Wikidat (Entity - Property - Statement):**
+  * **Položky (Items `wd:Q...`):** Koncepty a reálné objekty grafu (např. `wd:Q42` Douglas Adams, `wd:Q213` ČR).
+  * **Vlastnosti (Properties `wdt:P...`):** Typy vztahů a atributů (`wdt:P31` instance of, `wdt:P39` position held, `wdt:P569` date of birth).
+  * **Reifikace výroků (Statements):** Protože v čistém RDF hrany nemohou mít vlastnosti (např. Havel byl prezidentem *od 1993 do 2003* s referencí na zdroj), tvrzení se reprezentuje mezilehlým uzlem (**Statement node**). Ten nese samotnou hodnotu (`ps:P...`), **Kvalifikátory** (Qualifiers `pq:P...`, např. platnost od-do) a **Reference** (zdroje tvrzení).
+* **Způsob dotazování (SPARQL):**
+  * **Truthy prefix `wdt:`:** Přímá zkratka Subjekt $\to$ Objekt (vrací aktuální/preferované tvrzení bez nutnosti reifikace).
+  * **Label Service:** `SERVICE wikibase:label { bd:serviceParam wikibase:language "cs,en". }` pro automatické doplnění čitelných štítků (`?osobaLabel`).
+
+```sparql
+# Hledání prezidentů ČR (Q1914624) a jejich data narození
+SELECT ?osoba ?osobaLabel ?datumNarozeni WHERE {
+  # 1. Truthy trojice: osoba má funkci prezidenta ČR
+  ?osoba wdt:P39 wd:Q1914624 .
+  
+  # 2. Volitelné datum narození (záznam se nezahodí, pokud datum chybí)
+  OPTIONAL { ?osoba wdt:P569 ?datumNarozeni . }
+  
+  # 3. Magická služba pro získání lidsky čitelných štítků
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "cs,en". }
+}
+```
+
 #### Procesy zpracování dat, kvalita a typologie metadat:
 * **Data Lifting vs. Data Lowering:**
   * **Data Lifting (Zvedání dat):** Transformace nestrukturovaných / relačních dat (CSV, JSON, SQL) do sémantického RDF grafu obohacením o ontologie (CSVW, RML, Tarql). Umožňuje SPARQL dotazování a globální propojitelnost.
@@ -669,6 +692,37 @@ SELECT ?feature WHERE {
   FILTER(geof:distance(?geom, "POINT(14.42 50.08)"^^geo:wktLiteral, uom:metre) <= 5000)
 }
 ```
+
+#### Komprese dat a Teorie informace (Shannonova věta, RLE, Huffman, LZW, Aritmetika):
+* **Informační entropie ($H$) a Shannonova věta o kódování zdrojů:**
+  * **Vzorec entropie:** $H(X) = - \sum_{i=1}^n p(x_i) \log_2 p(x_i)$ (střední hodnota informace v bitech na symbol).
+  * **Shannonova věta:** Žádný bezztrátový algoritmus nedokáže zakódovat zprávu tak, aby průměrná délka kódového slova byla menší než informační entropie $H(X)$ daného zdroje ($L \ge H(X)$).
+* **Čtyři základní kompresní algoritmy:**
+  1. **RLE (Run-Length Encoding):** Nahrazuje sekvence opakujících se stejných symbolů dvojicí `(počet, symbol)`, např. `AAAAABBB` $\to$ `5A3B`.
+  2. **Huffmanovo kódování (Huffman Coding):** Entropické kódování stavěné **zdola nahoru (Bottom-Up)** slučováním dvou uzlů s nejmenší pravděpodobností do binárního stromu.
+  3. **LZW (Lempel-Ziv-Welch):** Nahrazuje opakující se sekvence znaků indexy z **dynamicky budovaného slovníku frází**.
+  4. **Aritmetické kódování (Arithmetic Coding):** Nekóduje symboly po jednom, ale celou zprávu namapuje na **jedno reálné číslo** v intervalu $[0, 1)$ postupným zmenšováním podintervalu podle pravděpodobností znaků.
+
+#### Dynamické hashování na vnější paměti (Fagin, Cormack, Larson & Kalja):
+* **Faginovo rozšiřitelné hashování (Extendible Hashing – doporučená volba na papír):**
+  * **Struktura:** Adresář v RAM velikosti $2^G$ s **Globální hloubkou ($G$)** a datové kbelíky na disku s kapacitou $B$ a **Lokální hloubkou ($L \le G$)**. Klíče se adresují binárním prefixem/suffixem hash kódu délky $G$.
+  * **Pravidla štěpení při přeplnění kbelíku:**
+    * **Případ A ($L < G$):** Kbelík se rozštěpí na dva s $L \to L+1$, data se přerozdělí podle $(L+1)$-tého bitu hashe, ukazatele v adresáři se přenastaví. **Adresář se nezvětšuje.**
+    * **Případ B ($L = G$):** Adresář se **zdvojnásobí** ($G \to G+1$, každý původní slot se zdvojí), přeplněný kbelík se rozštěpí s $L \to L+1$ a adresář ukáže na nový kbelík.
+  * **Složitost:** Zaručuje vyhledání na **1 diskový přístup** (pokud je adresář v RAM).
+* **Alternativní přístupy (adresář neroste):**
+  * **Cormack:** Adresář má pevnou velikost; při kolizi v kbelíku se blok neštěpí, ale změní se lokální hashovací funkce $h_i(x)$ z rodiny funkcí tak, aby prvky v bloku rozptýlila bez kolize.
+  * **Larson & Kalja:** Řeší kolize pomocí bitových signatur a separátorů v paměti RAM, čímž eliminuje nutnost sahat na disk při neúspěšném vyhledávání.
+
+#### Fyzická organizace tabulek na disku (File Organization):
+* **Logická tabulka vs. Fyzický soubor:** Logická tabulka v SQL je na disku (úložný stroj / Storage Engine) uložena jako soubor rozřezaný na bloky/stránky (Pages, např. 4–16 KB).
+* **3 základní teoretické přístupy:**
+  1. **Hromada (Heap File):** Řádky se sypou na konec posledního bloku bez řazení. Rychlý `INSERT` ($\mathcal{O}(1)$), pomalý `SELECT` (Full Table Scan $\mathcal{O}(N)$). Vyžaduje **hustý (dense) index**.
+  2. **Sekvenční / Tříděný soubor (Sorted File):** Řádky jsou v blocích fyzicky seřazeny podle klíče. Rychlý `SELECT` (binární půlení $\mathcal{O}(\log N)$, range scan), drahý `INSERT`/`DELETE` ($\mathcal{O}(N)$ kvůli posouvání). Stačí **řídký (sparse) index**.
+  3. **Index-sekvenční soubor (ISAM):** Tříděná data s řídkým indexem a bloky přetečení (Overflow blocks). Odstranil posouvání, ale trpí degradací řetězců přetečení (nutnost offline reorganizace).
+* **Co se používá v moderní praxi (2 hlavní tábory):**
+  * **Tábor A – Heap File + B+ strom indexy (PostgreSQL, Oracle):** Data tabulky jsou v hromadě, každý řádek má diskovou adresu **TID (Tuple ID: blok + slot)**. Všechny indexy jsou samostatné B+ stromy ukazující na toto TID.
+  * **Tábor B – Klusterovaný B+ strom (MySQL InnoDB, SQLite, MS SQL):** Samotná tabulka **JE** fyzicky jedním velkým B+ stromem (Index-Organized Table). Celá data řádků leží přímo v **listech B+ stromu** seřazená podle primárního klíče (dynamické štěpení uzlů s garancí $\mathcal{O}(\log N)$ bez nutnosti offline reorganizace).
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

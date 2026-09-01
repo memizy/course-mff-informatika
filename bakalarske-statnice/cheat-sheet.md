@@ -746,7 +746,17 @@ SELECT ?feature WHERE {
   * *Příklad ($N=8192, B=64$):* $L_1 = 8192/64 = 128$ bloků $\to L_2 = 128/64 = 2$ bloky $\to L_3 = \lceil 2/64 \rceil = 1$ blok (kořen). **Výška = 3 patra.**
 * **2. Řídký index (Sparse – pro tříděný soubor / Sorted File):**
   * Index adresuje **pouze datové bloky tabulky** ($K = \lceil N / D \rceil$ bloků dat):
-  * 1. patro: $L_1 = \lceil K / B \rceil$ bloků $\dots$ až po kořen (výrazně méně pater než u hustého indexu).
+
+#### Prostorové indexování a Space-Filling Curves (Z-křivka, Hilbert, R-strom):
+* **Problém & Řešení (SFC):** B+ strom umí třídit jen 1D data. Křivky vyplňující prostor (Space-Filling Curves) zredukují 2D bod $[x, y]$ na **1D kód**, který se uloží do klasického B+ stromu.
+* **Rozklad 2D dotazu na 1D intervaly (Multi-Range Query v B+ stromu):**
+  1. *Bounding Box:* Dotaz (např. okruh 5 km) se ohraničí minimálním obdélníkem $[x_{min}, y_{min}]$ až $[x_{max}, y_{max}]$.
+  2. *Dekompozice:* Databáze spočítá segmenty křivky procházející obdélníkem $\implies$ vznikne sada 1D intervalů (např. $[12 \dots 15] \cup [48 \dots 52] \cup [120 \dots 128]$).
+  3. *B+ strom Range Scan:* B+ strom najde v $\mathcal{O}(\log N)$ začátek každého intervalu a sekvenčně přečte jeho listy; nerelevantní mezilehlá data přeskočí.
+* **Z-křivka (Mortonův kód) vs. Hilbertova křivka:**
+  * **Z-křivka:** Triviální na CPU (střídavé prokládání bitů). Pro tvar **Z** se začíná od $Y$ ($y_1 x_1 \dots$, bit řádku $Y$ má vyšší váhu než $X$), pro tvar **N** od $X$ ($x_1 y_1 \dots$, např. Geohash) – v praxi se používají obě možnosti. Trpí *dlouhými skoky* $\implies$ 2D dotaz rozseká na **mnoho roztrhaných intervalů** (více I/O dotazů do B+ stromu).
+  * **Hilbertova křivka:** Složitější výpočet (rotace tvaru 'U'). Dokonalé shlukování $\implies$ stejný 2D dotaz obslouží **mnohem méně souvislými intervaly** (rychlejší sekvenční I/O čtení z disku).
+* **R-strom (MBR):** Nativní strom pro polygony a plochy. Obálky MBR se mohou **překrývat (Overlap)** $\implies$ dotaz musí prohledat více větví současně (v nejhorším případě $\mathcal{O}(N)$).
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

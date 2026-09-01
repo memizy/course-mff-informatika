@@ -749,13 +749,14 @@ SELECT ?feature WHERE {
 
 #### Prostorové indexování a Space-Filling Curves (Z-křivka, Hilbert, R-strom):
 * **Problém & Řešení (SFC):** B+ strom umí třídit jen 1D data. Křivky vyplňující prostor (Space-Filling Curves) zredukují 2D bod $[x, y]$ na **1D kód**, který se uloží do klasického B+ stromu.
-* **Rozklad 2D dotazu na 1D intervaly (Multi-Range Query v B+ stromu):**
-  1. *Bounding Box:* Dotaz (např. okruh 5 km) se ohraničí minimálním obdélníkem $[x_{min}, y_{min}]$ až $[x_{max}, y_{max}]$.
-  2. *Dekompozice:* Databáze spočítá segmenty křivky procházející obdélníkem $\implies$ vznikne sada 1D intervalů (např. $[12 \dots 15] \cup [48 \dots 52] \cup [120 \dots 128]$).
-  3. *B+ strom Range Scan:* B+ strom najde v $\mathcal{O}(\log N)$ začátek každého intervalu a sekvenčně přečte jeho listy; nerelevantní mezilehlá data přeskočí.
+* **Dvoufázový rozklad 2D dotazu na 1D intervaly (Filter & Refine v B+ stromu):**
+  1. *Bounding Box:* Dotaz (např. okruh 5 km) se ohraničí obdélníkem $[x_{min}, y_{min}]$ až $[x_{max}, y_{max}]$.
+  2. *Dekompozice (Trade-off):* Databáze rozloží obdélník na sadu buněk křivky $\implies$ vznikne rozumný počet 1D intervalů (např. $[12 \dots 15] \cup [48 \dots 52]$). Tyto intervaly ale mírně přesahují mimo obdélník.
+  3. *Fáze 1 (Filter - B+ strom):* B+ strom najde začátky intervalů v $\mathcal{O}(\log N)$ a načte záznamy včetně přesahů (**False Positives**).
+  4. *Fáze 2 (Refine - CPU):* Procesor v RAM bleskově otestuje `xmin <= x <= xmax && ymin <= y <= ymax` a falešné body zahodí.
 * **Z-křivka (Mortonův kód) vs. Hilbertova křivka:**
-  * **Z-křivka:** Triviální na CPU (střídavé prokládání bitů). Pro tvar **Z** se začíná od $Y$ ($y_1 x_1 \dots$, bit řádku $Y$ má vyšší váhu než $X$), pro tvar **N** od $X$ ($x_1 y_1 \dots$, např. Geohash) – v praxi se používají obě možnosti. Trpí *dlouhými skoky* $\implies$ 2D dotaz rozseká na **mnoho roztrhaných intervalů** (více I/O dotazů do B+ stromu).
-  * **Hilbertova křivka:** Složitější výpočet (rotace tvaru 'U'). Dokonalé shlukování $\implies$ stejný 2D dotaz obslouží **mnohem méně souvislými intervaly** (rychlejší sekvenční I/O čtení z disku).
+  * **Z-křivka:** Triviální na CPU (prokládání bitů: pro tvar **Z** začínáme od $Y$, pro tvar **N** od $X$). Kvůli *dlouhým skokům* buď vygeneruje **mnoho roztrhaných intervalů**, nebo při jejich sloučení načte **vysoké procento False Positives** z cizích částí mapy.
+  * **Hilbertova křivka:** Složitější na CPU (rotace tvaru 'U'). Dokonalé shlukování $\implies$ vygeneruje **málo intervalů a zároveň minimum False Positives** (dramaticky šetří diskové I/O).
 * **R-strom (MBR):** Nativní strom pro polygony a plochy. Obálky MBR se mohou **překrývat (Overlap)** $\implies$ dotaz musí prohledat více větví současně (v nejhorším případě $\mathcal{O}(N)$).
 
 ### Web

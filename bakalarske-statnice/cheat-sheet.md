@@ -735,7 +735,7 @@ SELECT ?feature WHERE {
   * *Konvence ($\le$ vlevo, $>$ vpravo):* Počátek intervalu najdeme vlevo a pak jednoduše čteme doprava přes spojový seznam listů.
   * *Mazání:* Smazaný klíč zmizí z listu, ale **ve vnitřních navigačních uzlech ZŮSTÁVÁ** (slouží jen jako rozcestník).
   * *Podtečení listu:* Při výpůjčce se v rodiči **jen upraví navigační hodnota**; při slití listů se navigační klíč v rodiči **smaže**.
-* **B*-strom (s odloženým štěpením):** Při přetečení přelévá přebytečná data do volného souseda přes rodiče (přesný opak výpůjčky při podtečení); teprve když jsou oba sourozenci plní, štěpí 2 uzly na 3 (garance zaplnění $2/3 \approx 66\,\%$).
+* **B\*-strom (s odloženým štěpením):** Při přetečení přelévá přebytečná data do volného souseda přes rodiče (přesný opak výpůjčky při podtečení); teprve když jsou oba sourozenci plní, štěpí 2 uzly na 3 (garance zaplnění $2/3 \approx 66\,\%$).
   * *Proč se v praxi nepoužívá:* Extrémní režie zamykání sourozenců (**Sibling lock contention**), která drtí paralelní zápisy; úspora místa je u moderních SSD zanedbatelná.
 
 #### Výpočet pater a kapacity hierarchického indexu (Zkouškový vzorec):

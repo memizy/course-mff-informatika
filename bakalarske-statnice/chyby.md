@@ -2,6 +2,8 @@
 ## Celkové
 Možná ještě tam zbyly nějaké chyby z celkových změn věci jako zkoušková je vyžadováno a často tam zbyly tvrzení stále o zkoušce či sylabu co jsou nadnesené nebo nejsou úplně pravda, ty plošné změny mohly něco rozbít
 
+Title u poznámek by měl být plain text otázka je jestli to tak chceme opravdu
+
 ## Matika
 
 ### Analýza

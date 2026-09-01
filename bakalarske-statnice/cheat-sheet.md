@@ -747,17 +747,17 @@ SELECT ?feature WHERE {
 * **2. Řídký index (Sparse – pro tříděný soubor / Sorted File):**
   * Index adresuje **pouze datové bloky tabulky** ($K = \lceil N / D \rceil$ bloků dat):
 
-#### Prostorové indexování a Space-Filling Curves (Z-křivka, Hilbert, R-strom):
-* **Problém & Řešení (SFC):** B+ strom umí třídit jen 1D data. Křivky vyplňující prostor (Space-Filling Curves) zredukují 2D bod $[x, y]$ na **1D kód**, který se uloží do klasického B+ stromu.
-* **Dvoufázový rozklad 2D dotazu na 1D intervaly (Filter & Refine v B+ stromu):**
-  1. *Bounding Box:* Dotaz (např. okruh 5 km) se ohraničí obdélníkem $[x_{min}, y_{min}]$ až $[x_{max}, y_{max}]$.
-  2. *Dekompozice (Trade-off):* Databáze rozloží obdélník na sadu buněk křivky $\implies$ vznikne rozumný počet 1D intervalů (např. $[12 \dots 15] \cup [48 \dots 52]$). Tyto intervaly ale mírně přesahují mimo obdélník.
-  3. *Fáze 1 (Filter - B+ strom):* B+ strom najde začátky intervalů v $\mathcal{O}(\log N)$ a načte záznamy včetně přesahů (**False Positives**).
-  4. *Fáze 2 (Refine - CPU):* Procesor v RAM bleskově otestuje `xmin <= x <= xmax && ymin <= y <= ymax` a falešné body zahodí.
-* **Z-křivka (Mortonův kód) vs. Hilbertova křivka:**
-  * **Z-křivka:** Triviální na CPU (prokládání bitů: pro tvar **Z** začínáme od $Y$, pro tvar **N** od $X$). Kvůli *dlouhým skokům* buď vygeneruje **mnoho roztrhaných intervalů**, nebo při jejich sloučení načte **vysoké procento False Positives** z cizích částí mapy.
-  * **Hilbertova křivka:** Složitější na CPU (rotace tvaru 'U'). Dokonalé shlukování $\implies$ vygeneruje **málo intervalů a zároveň minimum False Positives** (dramaticky šetří diskové I/O).
-* **R-strom (MBR):** Nativní strom pro polygony a plochy. Obálky MBR se mohou **překrývat (Overlap)** $\implies$ dotaz musí prohledat více větví současně (v nejhorším případě $\mathcal{O}(N)$).
+#### Prostorové indexování (SFC, Quad-tree, k-d tree, R-strom):
+* **Křivky vyplňující prostor (SFC – Z-křivka, Hilbert):** Redukují 2D/3D bod $[x, y]$ na **1D kód** pro uložení do klasického $B^+$ stromu.
+  * **Z-křivka (Mortonův kód):** Střídavé prokládání bitů souřadnic ($Z = y_1 x_1 y_2 x_2 \dots$ pro tvar Z). Rychlé na CPU, ale trpí *skokovými anomáliemi* (roztrhané intervaly a False Positives).
+  * **Hilbertova křivka:** Rotuje tvar 'U' $\implies$ dokonalé shlukování (málo 1D intervalů i False Positives), ale dražší výpočet na CPU.
+* **Point Quad-tree (pro 2D body):** Každý uzel dělí prostor na **4 kvadranty** (NW, NE, SW, SE) křížem procházejícím daným bodem. *Nevýhoda:* Tvar závisí na pořadí vkládání (není vyvážený $\implies$ v nejhorším $\mathcal{O}(N)$).
+* **k-d tree ($k$-dimenzionální strom pro body):** Binární strom, kde se v každém patře **cyklicky střídá dělící osa** (kořen dělí podle $X$, patro 1 podle $Y$, patro 2 podle $X\dots$). Dělící nadrovina prochází přímo bodem v uzlu.
+* **R-strom (pro plochy a polygony):** Výškově vyvážený strom, data jsou **pouze v listech**, vnitřní uzly drží **MBR obálky**. MBR se mohou **překrývat (Overlap)** $\implies$ dotaz může prohledávat více větví současně.
+  * *Guttmanovo štěpení při přetečení ($M+1$ objektů, $\mathcal{O}(M^2)$):*
+    1. **PickSeeds:** Vybere 2 objekty s největším mrtvým prostorem jako základ skupin $G_1, G_2$.
+    2. **PickNext:** Ze zbývajících vybere prvek s **maximálním rozdílem plošných nárůstů** $|\Delta Area_1 - \Delta Area_2|$ a přiřadí ho do skupiny s menším $\Delta Area$.
+    3. **Minimální zaplnění ($m \approx 30\%\text{--}40\% M$):** Nižší limit než u B-stromu dává geometrickou volnost tvořit kompaktnější MBR s menším překryvem.
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

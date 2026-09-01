@@ -758,6 +758,12 @@ SELECT ?feature WHERE {
     1. **PickSeeds:** Vybere 2 objekty s největším mrtvým prostorem jako základ skupin $G_1, G_2$.
     2. **PickNext:** Ze zbývajících vybere prvek s **maximálním rozdílem plošných nárůstů** $|\Delta Area_1 - \Delta Area_2|$ a přiřadí ho do skupiny s menším $\Delta Area$.
     3. **Minimální zaplnění ($m \approx 30\%\text{--}40\% M$):** Nižší limit než u B-stromu dává geometrickou volnost tvořit kompaktnější MBR s menším překryvem.
+* **Varianty R-stromu (R+ vs. R\*):**
+  * **R+ strom:** Zákaz překryvu MBR $\implies$ objekty na hranicích se **rozsekávají a duplikují** do více listů (garance $\mathcal{O}(\log_m N)$ pro bodové dotazy, ale růst paměti).
+  * **R\* strom:** Standard v DB (PostGIS). Povoluje překryv, ale minimalizuje jej (plocha, překryv, obvod) + **Forced Re-insert** (při přeplnění vyjme $30\,\%$ okrajových prvků a znovu je vloží od kořene $\implies$ často předejde štěpení).
+* **Prostorové spojení (Spatial Join – např. silnice protínající řeky):**
+  * Naivní spojení je $\mathcal{O}(N \times M)$ (drahé na CPU).
+  * **Filter & Refine:** 1. *Filter* (rychlé porovnání MBR např. pomocí **Plane-Sweep** v $\mathcal{O}(N \log N)$ nebo **synchronního průchodu dvěma R-stromy** s ořezáváním neprotínajících se větví) $\implies$ 2. *Refine* (přesný geometrický výpočet polygonů pouze nad kandidáty).
 
 ### Web
 #### Serverové PHP – Backend API, Front Controller a Databázové JSON Endpointy:

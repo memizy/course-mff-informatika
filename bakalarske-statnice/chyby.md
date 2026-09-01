@@ -35,6 +35,7 @@ Na mobilu jsou některé grafy uřízlé ale to je možná problém Learn plugin
 ### Databáze
 
 ### Data
+U Hashování jsou tam všechny tři ve finálním souhrnu ale stačí jen 1
 
 ### Web
 Občas malé chybky ve formátování že se nenapárují správně **

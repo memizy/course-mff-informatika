@@ -1,0 +1,415 @@
+# Společná matematika
+
+## 1. Základy diferenciálního a integrálního počtu
+- **Posloupnosti reálných čísel a jejich limity**
+  - definice, aritmetika limit
+  - věta o dvou policajtech, limity a uspořádání
+- **Řady**
+  - definice částečného součtu a součtu
+  - geometrická řada, harmonická řada
+- **Reálné funkce jedné reálné proměnné**
+  - limita funkce v bodě
+    - definice, aritmetika limit
+    - vztah s uspořádáním
+    - limita složené funkce
+  - funkce spojité na intervalu
+    - nabývání mezihodnot
+    - nabývání maxima
+- **Derivace a její aplikace**
+  - definice a základní pravidla pro výpočet
+  - l’Hospitalovo pravidlo
+  - vyšetření průběhu funkcí: extrémy, monotonie a konvexita/konkavita
+  - Taylorův polynom (limitní forma)
+- **Integrály a jejich aplikace**
+  - primitivní funkce: definice a metody výpočtu (substituce, per-partes)
+  - Riemannův integrál: definice, souvislost s primitivní funkcí (Newtonovým integrálem)
+  - aplikace
+    - odhady součtu řad (konečných i nekonečných)
+    - obsahy rovinných útvarů
+    - objemy a povrchy rotačních útvarů v prostoru
+    - délka křivky
+
+## 2. Algebra a lineární algebra
+- **Algebraické struktury:**
+  - grupy a podgrupy, permutace
+  - tělesa a speciálně konečná tělesa
+- **Soustavy lineárních rovnic:**
+  - maticový zápis, elementární řádkové úpravy, odstupňovaný tvar matice
+  - Gaussova a Gaussova-Jordanova eliminace, popis množiny řešení
+- **Matice:**
+  - operace s maticemi a základní typy matic, hodnost matice
+  - regulární a inverzní matice
+- **Vektorové prostory:**
+  - vektorový prostor, lineární kombinace, lineární závislost a nezávislost, lineární obal, systém generátorů
+  - Steinitzova věta o výměně, báze, dimenze, souřadnice
+  - vektorové podprostory, zejména maticové (řádkový, sloupcový, jádro) a jejich dimenze
+- **Lineární zobrazení:**
+  - definice, maticová reprezentace lineárního zobrazení, matice složeného zobrazení
+  - obraz a jádro lineárních zobrazení
+  - isomorfismus prostorů
+- **Skalární součin:**
+  - skalární součin, norma indukovaná skalárním součinem
+  - Pythagorova věta, Cauchyho-Schwarzova nerovnost, trojúhelníková nerovnost
+  - ortonormální systémy vektorů, Fourierovy koeficienty, Gramova-Schmidtova ortogonalizace
+  - ortogonální doplněk, ortogonální projekce, projekce jako lineární zobrazení
+  - ortogonální matice a jejich vlastnosti
+- **Determinanty:**
+  - definice a základní vlastnosti determinantu (multiplikativnost, determinant transponované matice, vztah s regularitou a vlastními čísly)
+  - Laplaceův rozvoj determinantu
+  - geometrická interpretace determinantu
+- **Vlastní čísla a vlastní vektory:**
+  - definice, geometrický význam a základní vlastnosti vlastních čísel, charakteristický polynom, násobnost vlastních čísel
+  - podobnost a diagonalizovatelnost matic, spektrální rozklad
+  - symetrické matice, jejich vlastní čísla a spektrální rozklad
+- **Positivně semidefinitní a positivně definitní matice:**
+  - charakterizace a vlastnosti, vztah se skalárním součinem, vlastními čísly
+  - Choleského rozklad (znění věty a praktické použití)
+
+## 3. Diskrétní matematika
+- **Relace**
+  - vlastnosti binárních relací (reflexivita, symetrie, antisymetrie, tranzitivita)
+- **Ekvivalence a rozkladové třídy**
+- **Částečná uspořádání**
+  - základní pojmy (minimální a maximální prvky, nejmenší a největší prvky, řetězec, antiřetězec)
+  - výška a šířka částečně uspořádané množiny a věta o jejich vztahu (o dlouhém a širokém)
+- **Funkce**
+  - typy funkcí (prostá, na, bijekce)
+  - počty různých typů funkcí mezi dvěma konečnými množinami
+- **Permutace a jejich základní vlastnosti (počet a pevný bod)**
+- **Kombinační čísla a vztahy mezi nimi, binomická věta a její aplikace**
+- **Princip inkluze a exkluze**
+  - obecná formulace (a důkaz)
+  - použití (problém šatnářky, Eulerova funkce pro počet dělitelů, počet surjekcí)
+- **Hallova věta o systému různých reprezentantů a její vztah k párování v bipartitním grafu**
+  - princip důkazu a algoritmické aspekty (polynomiální algoritmus pro nalezení SRR)
+
+## 4. Teorie grafů
+- **Základní pojmy teorie grafů**
+  - graf, vrcholy a hrany, izomorfismus grafů, podgraf, okolí vrcholu a stupeň vrcholu, doplněk grafu, bipartitní graf
+- **Základní příklady grafů**
+  - úplný graf a úplný bipartitní graf, cesty a kružnice
+- **Souvislost grafů, komponenty souvislosti, vzdálenost v grafu**
+- **Stromy**
+  - definice a základní vlastnosti (existence listů, počet hran stromu)
+  - ekvivalentní charakteristiky stromů
+- **Rovinné grafy**
+  - definice a základní pojmy (rovinný graf a rovinné nakreslení grafu, stěny)
+  - Eulerova formule a maximální počet hran rovinného grafu (důkaz a použití)
+- **Barevnost grafů**
+  - definice dobrého obarvení
+  - vztah barevnosti a klikovosti grafu
+- **Hranová a vrcholová souvislost grafů**
+  - hranová a vrcholová verze Mengerovy věty
+- **Orientované grafy, silná a slabá souvislost**
+- **Toky v sítích**
+  - definice sítě a toku v ní
+  - existence maximálního toku (bez důkazu)
+  - princip hledání maximálního toku v síti s celočíselnými kapacitami (například pomocí Ford-Fulkersonova algoritmu)
+
+## 5. Pravděpodobnost a statistika
+- **Pravděpodobnostní prostor, náhodné jevy, pravděpodobnost**
+  - definice těchto pojmů, příklady
+  - základní pravidla pro počítání s pravděpodobností
+  - nezávislost náhodných jevů, podmíněná pravděpodobnost
+  - Bayesův vzorec
+- **Náhodné veličiny a jejich rozdělení**
+  - diskrétní i spojitý případ
+  - popis pomocí distribuční funkce a pomocí pravděpodobnostní funkce/hustoty
+  - střední hodnota
+    - linearita střední hodnoty
+    - střední hodnota součinu nezávislých veličin
+    - Markovova nerovnost
+  - rozptyl
+    - definice
+    - vzorec pro rozptyl součtu (závislých či nezávislých veličin)
+  - práce s konkrétními rozděleními: geometrické, binomické, Poissonovo, normální, exponenciální
+- **Limitní věty**
+  - zákon velkých čísel
+  - centrální limitní věta
+- **Bodové odhady**
+  - alespoň jedna metoda pro jejich tvorbu
+  - vlastnosti
+- **Intervalové odhady: metoda založená na aproximaci normálním rozdělením**
+- **Testování hypotéz**
+  - základní přístup
+  - chyby 1. a 2. druhu
+  - hladina významnosti
+
+## 6. Logika
+- **Syntaxe**
+  - znalost a práce se základními pojmy syntaxe výrokové a predikátové logiky (jazyk, otevřená a uzavřená formule, instance formule, apod.)
+  - normální tvary výrokových formulí
+  - prenexní tvary formulí predikátové logiky
+  - znalost základních normálních tvarů (CNF, DNF, PNF)
+  - převody na normální tvary
+  - použití pro algoritmy (SAT, rezoluce)
+- **Sémantika**
+  - pojem modelu teorie
+  - pravdivost, lživost, nezávislost formule vzhledem k teorii
+  - splnitelnost, tautologie, důsledek
+  - analýza výrokových teorií nad konečně mnoha prvovýroky
+- **Extenze teorií**
+  - schopnost porovnat sílu teorií
+  - konzervativnost, skolemizace
+- **Dokazatelnost:**
+  - pojem formálního důkazu, zamítnutí
+  - schopnost práce v některém z formálních dokazovacích systémů (např. tablo metoda, rezoluce, Hilbertovský kalkul)
+- **Věty o kompaktnosti a úplnosti výrokové a predikátové logiky**
+  - znění a porozumění významu
+  - použití na příkladech, důsledky
+- **Rozhodnutelnost**
+  - pojem kompletnosti a její kritéria, význam pro rozhodnutelnost
+  - příklady rozhodnutelných a nerozhodnutelných teorií
+
+# Společná informatika
+
+## 1. Automaty a jazyky
+- **Regulární jazyky**
+  - regulární gramatiky
+  - deterministický a nedeterministický konečný automat
+  - regulární výrazy
+- **Bezkontextové jazyky**
+  - bezkontextové gramatiky, jazyk generovaný gramatikou
+  - zásobníkový automat, třída jazyků přijímaných zásobníkovými automaty
+- **Rekurzivně spočetné jazyky**
+  - gramatika typu 0
+  - Turingův stroj
+  - algoritmicky nerozhodnutelné problémy
+- **Chomského hierarchie**
+  - schopnost zařazení konkrétního jazyka do Chomského hierarchie (zpravidla sestrojení odpovídajícího automatu či gramatiky)
+
+## 2. Algoritmy a datové struktury
+- **Časová složitost algoritmů**
+  - časová a prostorová složitost algoritmu
+  - měření velikosti dat
+  - složitost v nejlepším, nejhorším a průměrném případě
+  - asymptotická notace
+- **Třídy složitosti**
+  - třídy P a NP
+  - převoditelnost problémů, NP-těžkost a NP-úplnost
+  - příklady NP-úplných problémů a převodů mezi nimi
+- **Metoda rozděl a panuj**
+  - princip rekurzivního dělení problému na podproblémy
+  - výpočet složitosti pomocí rekurentních rovnic
+  - Master theorem (kuchařková věta) (bez důkazu)
+  - aplikace
+    - Mergesort
+    - násobení dlouhých čísel
+- **Binarní vyhledávací stromy**
+  - definice vyhledávacího stromu
+  - operace s nevyvažovanými stromy
+  - AVL stromy (definice)
+- **Třídění**
+  - primitivní třídicí algoritmy (Bubblesort, Insertsort)
+  - Quicksort
+  - dolní odhad složitosti porovnávacích třídicích algoritmů
+- **Grafové algoritmy**
+  - prohledávání do šířky a do hloubky
+  - topologické třídění orientovaných grafů
+  - nejkratší cesty v ohodnocených grafech (Dijkstrův a Bellmanův-Fordův algoritmus)
+  - minimální kostra grafu (Jarníkův a Borůvkův algoritmus)
+  - toky v sítích (Ford-Fulkerson algoritmus)
+
+## 3. Programovací jazyky
+> Některé následující body definují varianty požadavků pro různé individuální volby povinně volitelných předmětů. Vyžaduje se zvládnutí všech bodů bez označení Ⓥ a zvládnutí všech bodů s označením Ⓥ pro jeden z jazyků C#, C++ nebo Java.
+
+- **Koncepty pro abstrakci, zapouzdření a polymorfismus.**
+  - související konstrukty programovacích jazyků
+  - třídy, rozhraní, metody, datové položky, dědičnost, viditelnost
+  - Ⓥ zapouzdření poskytované moduly v Javě
+  - (dynamický) polymorfismus, statické a dynamické typování
+  - jednoduchá dědičnost
+  - Ⓥ virtuální a nevirtuální metody v C++ a C#
+  - vícenásobná dědičnost a její problémy
+  - Ⓥ vícenásobná a virtuální dědičnost v C++
+  - Ⓥ interfaces a defaultní metody v Javě
+  - Ⓥ interfaces v C#
+  - implementace rozhraní (interface)
+  - vhodné použití uvedených konceptů
+- **Primitivní a objektové typy a jejich reprezentace.**
+  - číselné a výčtové typy
+  - Ⓥ ukazatele a reference v C++
+  - Ⓥ hodnotové a referenční typy v C#
+  - Ⓥ reference, imutabilní typy a boxing v C# a Javě
+- **Generické typy a funkcionální prvky (procedurálních programovacích jazyků).**
+  - Ⓥ šablony (templates) a statický polymorfismus v C++
+  - Ⓥ generické typy v Javě a C# (bez omezení typových parametrů)
+  - Ⓥ typy reprezentující funkce v C++, C#, nebo Javě
+  - lambda funkce a funkcionální rozhraní
+- **Manipulace se zdroji a mechanizmy pro ošetření chyb.**
+  - správa životního cyklu zdrojů v případě výskytu chyb
+  - Ⓥ RAII v C++
+  - Ⓥ using v C#
+  - Ⓥ try-with-resources v Javě
+  - konstrukce pro obsluhu a propagaci výjimek
+- **Životní cyklus objektů a správa paměti.**
+  - alokace (alokace statická, na zásobníku, na haldě)
+  - inicializace (konstruktory, volání zděděných konstruktorů)
+  - destrukce (destruktory, finalizátory)
+  - explicitní uvolňování objektů, reference counting, garbage collector
+- **Vlákna a podpora synchronizace.**
+  - reprezentace vláken v programovacích jazycích
+  - specifikace funkce vykonávané vláknem a základní operace na vlákny
+  - časově závislé chyby a mechanizmy pro synchronizaci vláken
+- **Implementace základních prvků objektových jazyků.**
+  - základní objektové koncepty v konkrétním jazyce
+  - implementace a interní reprezentace primitivních typů
+  - implementace a interní reprezentace složených typů a objektů
+  - implementace dynamického polymorfismu (tabulka virtuálních metod)
+- **Nativní a interpretovaný běh, řízení překladu a sestavení programu.**
+  - reprezentace programu, bytecode, interpret jazyka
+  - just-in-time (JIT) a ahead-of-time (AOT) překlad
+  - proces sestavení programu, oddělený překlad, linkování
+  - staticky a dynamicky linkované knihovny
+  - běhové prostředí procesu a vazba na operační systém
+
+## 4. Architektura počítačů a operačních systémů
+- **Základní architektura počítače, reprezentace čísel, dat a programů.**
+  - reprezentace a přístup k datům v paměti, adresa, adresový prostor
+  - ukládání jednoduchých a složených datových typů
+  - základní aritmetické a logické operace
+- **Instrukční sada, vazba na prvky vyšších programovacích jazyků.**
+  - Implementovat běžné programové konstrukce vyšších jazyků (přiřazení, podmínka, cyklus, volání funkce) pomocí instrukcí procesoru
+  - Zapsat běžnou konstrukci vyššího jazyka (přiřazení, podmínka, cyklus, volání funkce), která odpovídá zadané sekvenci (vysvětlených) instrukcí procesoru
+- **Podpora pro běh operačního systému.**
+  - privilegovaný a neprivilegovaný režim procesoru
+  - jádro operačního systému
+- **Rozhraní periferních zařízení a jejich obsluha.**
+  - Popsat roli řadiče zařízení při programem řízené obsluze zařízení (PIO), pro zadané adresy a funkce vstupních a výstupních portů implementovat programem řízenou obsluhu zadaného zařízení (myš, disk)
+  - Popsat roli přerušení při programem řízené obsluze zařízení (PIO), na úrovni vykonávání instrukcí popsat reakci procesoru (hardware) a operačního systému (software) na žádost o přerušení
+- **Základní abstrakce, rozhraní a mechanizmy OS pro běh programů, sdílení prostředků a vstup/výstup.**
+  - neprivilegované (uživatelské) procesy
+  - sdílení procesoru
+    - procesy, vlákna, kontext procesu a vlákna
+    - přepínání kontextu, kooperativní a preemptivní multitasking
+    - plánování běhu procesů a vláken, stavy vlákna
+  - sdílení paměti
+    - Vysvětlit rozdíl mezi virtuální a fyzickou adresou a identifikovat, zda se v zadaném kontextu či fragmentu kódu používá virtuální nebo fyzická adresa
+    - Na zadaném příkladu identifikovat a vysvětlit význam komponent virtuální a fyzické adresy (číslo stránky, číslo rámce, offset)
+    - Pro konkrétní adresy a obsah jednoúrovňové stránkovací tabulky řešit úlohy překladu adres
+    - Vysvětlit roli virtuálních adresových prostorů v ochraně paměti procesů a vláken
+  - sdílení úložného prostoru
+    - soubory, analogie s adresovým prostorem
+    - abstrakce a rozhraní pro práci se soubory
+- **Paralelismus, vlákna a rozhraní pro jejich správu, synchronizace vláken.**
+  - časově závislé chyby (race conditions)
+  - kritická sekce, vzájemné vyloučení
+  - základní sychronizační primitiva, jejich rozhraní a použití
+  - zámky
+  - aktivní a pasivní čekání
+
+# Webové a datově orientované programování
+> Studenti této specializace mají ke společným tématům ještě následující témata specializace.
+
+## 1. Databáze
+- **Architektury databázových systémů**
+  - Vysvětlit pojmy konceptuální, logická a fyzická úroveň při návrhu dat.
+  - Vysvětlit pojem normální formy při návrhu relací a důvody pro normalizaci relací. Uvést příklad relace, která danou normální formu porušuje a navrhnout opravu daného návrhu.
+  - Vytvořit konceptuální model (UML, ER) pro zadaný problém. Převést konceptuální model na (relační) logický datový model.
+- **Transakční zpracování**
+  - Popsat ACID vlastnosti transakcí.
+  - Vysvětlit a rozpoznat vlastnosti rozvrhů (uspořádatelnost, zotavitelnost).
+  - Popsat a použít uzamykací protokoly pro dosažení vlastností rozvrhů.
+  - Vysvětlit pojem zablokování.
+- **Přehled SQL**
+  - Vysvětlit význam jednoduchého SQL dotazu.
+  - Vysvětlit účel jednotlivých klauzulí SQL dotazu.
+  - Napsat jednoduchý SQL dotaz (včetně spojování tabulek) pro zadaný problém.
+  - Použít klauzule pro seskupování a agregaci dat.
+  - Použít vnořené dotazy a testy na NULL hodnotu.
+- **Moderní databázové systémy**
+  - Vyjmenovat základní třídy moderních databázových systémů a krátce popsat jejich specifické vlastnosti. Pomocí jednoduchého příkladu srovnat jejich vlastnosti s tradičními (SQL) databázemi.
+  - Vysvětlit pojem Big Data, alespoň čtyři základní vlastnosti a jejich význam. Specifikovat alespoň dva příklady zdrojů velkých dat. Vysvětlit nové výzvy a problémy pro tradiční databázové systémy.
+  - Vysvětlit princip MapReduce a zapsat v pseudokódu jednoduchý příklad jeho aplikace na konkrétní úlohu. Popsat výhody a nedostatky tohoto principu, zmínit alternativní přístupy.
+  - Specifikovat typy, vlastnosti, výhody a nevýhody NoSQL databází. Ukázat rozdíly příslušných modelů na jednoduchém příkladu.
+  - Specifikovat datový model grafové databáze, vytvořit jednoduchý příklad. Specifikovat třídy grafových dotazů, uvést jednoduché příklady použití.
+  - Specifikovat rozdíly, výhody a nevýhody multi-model databáze a polystore. Vytvořit jednoduchý příklad multi-model dotazu a popsat možné problémy při jeho vyhodnocení.
+
+## 2. Datový management
+- **Datové formáty.**
+  - Popsat základní typy strukturovaných dat, uvést jejich reprezentanty a použití. Popsat, ve kterých situacích se který formát hodí, ukázat příklady.
+  - Vysvětlit rozdíl mezi pojmy datový model, datový formát a datové schéma. Popsat základní vlastnosti textových formátů, uvést příklady standardizačních organizací, popsat jejich fungování, uvést příklady standardů definujících datové formáty.
+  - Uvést, popsat, porovnat a použít modely a formáty pro grafová data - RDF a jeho serializace, Labeled Property Graf. Uvést, popsat a použít slovník pro definici slovníků použitelných v RDF - RDF Schema a uvést příklady použití. Uvést, popsat a použít jazyky pro dotazování a transformaci grafových dat - SPARQL, Cypher.
+  - Uvést, popsat, porovnat a použít formáty pro stromová (hierarchická) data (XML, JSON), uvést, popsat a použít jazyky pro schémata stromových (hierarchických) dat XML Schema a JSON Schema, včetně příkladů. Vysvětlit, jakým způsobem lze zajistit, že na data v JSON lze nahlížet také jako na data v RDF vhodná pro výměnu na Webu (JSON-LD). Popsat a použít jazyk pro transformaci XML dat (XSLT).
+  - Uvést, použít a popsat formát pro tabulková data CSV a jeho specifikace. Popsat použití standardu CSV on the Web pro tvorbu schémat a zajištění, že na data v CSV lze nahlížet také jako na data v RDF vhodná pro výměnu na Webu.
+  - Vysvětlit a ukázat na příkladech, co je to souřadnicový referenční systém v kontextu prostorových dat, a ukázat, jak lze prostorová data reprezentovat v různých formátech, zejména WKT, GML, GeoJSON a GeoSPARQL.
+  - Vysvětlit, jak lze sémanticky popsat data pomocí RDF Schema a slovníků jako je Dublin Core či SKOS. Popsat datový model Wikidata a vysvětlit, jak se lze ve Wikidata dotazovat.
+- **Procesy zpracování dat**
+  - Popsat a na příkladu vysvětlit datové operace data selection, data projection, data summarization, data reduction, data lifting a data lowering.
+  - Vysvětlit pojem datové kvality a její důležitost pro uživatele dat.
+  - Uvést příklady dimenzí datové kvality a jejich měření.
+  - Na zvoleném příkladu vysvětlit data provenance a ten popsat pomocí PROV-O ontologie.
+- **Katalogizace dat, metadata**
+  - Vyjmenovat druhy metadat a uvést jejich význam.
+  - Popsat význam a využití datového katalogu.
+  - Vysvětlit, jak je možné realizovat datový katalog pomocí DCAT (Data Catalog Vocabulary).
+  - Na příkladu ukázat použití DCAT - zejména třídy dcat:Dataset, dcat:DataService, dcat:Distribution a dcat:Catalog.
+- **Sémantický popis dat, slovníky**
+  - Popsat vznik a řešení problému datových sil.
+  - Popsat výhody využití kontrolovaných slovníků (controlled vocabulary) k popisu dat.
+  - Vysvětlit rozdíl mezi typy slovníků (controlled list, taxonomy, thesaurus, classification scheme, ontology).
+  - Popsat základní strukturu SKOS (Simple Knowledge Organization System).
+  - Definovat ontologii pomocí SKOS a následně jí použít k popisu dat.
+- **Základy šifrování a komprese dat**
+  - Vysvětlit význam Shannonovy věty o kódování zdrojů (Shannon’s source coding theorem) v kontextu komprese dat.
+  - Na příkladech vysvětlit základní myšlenky algoritmů pro kompresi: Run-Length Encoding, Huffman Coding, Lempel-Ziv-Welch a Arithmetic coding.
+  - Vysvětlit pojem digitálního certifikátu a jeho použití.
+  - Vysvětlit potřebu existence PKI (public key infrastructure) ve vztahu k digitálnímu certifikátu.
+  - Vysvětlit použití symetrického a asymetrického šifrování v kontextu digitálního certifikátu.
+- **Základy indexování**
+  - Na příkladech vysvětlit práci se základními typy organizace souborů (hromada, sekvenční soubor, indexovaný sekvenční soubor) a jejich (ne)výhody.
+  - Vysvětlit a na příkladech demonstrovat pojmy přímé/nepřímé indexování a primární/sekundární index.
+  - Vysvětlit principy hashování na vnější paměti, vybraný konkrétní přístup (např. Cormack, Larson & Kalja, Fagin, …) demonstrovat na příkladu.
+  - Vysvětlit, k čemu slouží a jaké jsou výhody hierarchických indexů. Na příkladu demonstrovat datovou strukturu B-strom a související operace. Popsat další modifikace (B+ strom, B* strom).
+- **Indexování v prostorových databázích**
+  - Nakreslit a vysvětlit výhody křivek vyplňujících prostor (Z-křivka, Hilbertova křivka).
+  - Pro zadaný příklad nakreslit Quad-tree, vysvětlit princip, výhody a nevýhody.
+  - Pro zadaný příklad nakreslit k-d-tree, vysvětlit princip, výhody a nevýhody.
+  - Pro zadaný příklad nakreslit R-strom, vysvětlit princip, výhody a nevýhody. Vysvětlit rozdíly oproti R+ stromu, popř. R* stromu.
+  - Vysvětlit pojem prostorové spojení - princip, problémy. Na příkladu demonstrovat konkrétní přístup podrobněji.
+
+## 3. Web
+- **Principy www, HTML, XHTML, HTML5 a CSS**
+  - Vytvořit statickou webovou stránku pomocí HTML, HTML5 v rozsahu osobního blogu, či e-shopu.
+  - Na příkladu ukázat výhody HTML5 sémantických tagů.
+  - Na příkladu ukázat využití HTML formulářů včetně validace vstupních polí.
+  - Vysvětlit principy fungování CSS: syntaxe, specificita selektorů, vložení do stránky.
+  - Vytvořit responzivní layout stránky v rozsahu: menu, hlavní obsah se sloupci, patička.
+- **Architektury, základní principy, návrhové vzory a techniky webových aplikací**
+  - Vysvětlit použití návrhových vzorů: Front Controller, MVC/MVP, MVVC.
+- **Programování na straně klienta, JavaScript, standardní API v prohlížeči**
+  - Napsat klientský kód (JavaScript), který v reakci na událost provede dotaz na server, zpracuje odpověď a modifikuje DOM.
+  - Uvést příklady standardních API dostupných v prohlížeči.
+  - Vysvětlit a použít mechanizmy pro asynchronní programování v JavaScriptu: callbacks, promises, async/await, event loop.
+- **API webových aplikací a webové služby**
+  - Vysvětlit základní principy REST API.
+  - Popsat úrovně REST API.
+  - Popsat REST API pomocí OpenAPI.
+  - Položit dotaz v GraphQL, popsat výhody a nevýhody GraphQL.
+- **Single-page aplikace, udržování stavu a uživatelské relace**
+  - Vysvětlit princip fungování single-page aplikací.
+  - Popsat možnosti udržování stavu pro webové aplikace v kontextu single-page aplikací.
+- **Programování na straně serveru, CGI a CGI-like aplikace**
+  - Vysvětlit fungování CGI a CGI-like aplikací.
+  - Popsat možnosti udržování stavu pro webové aplikace a využití uživatelských relací.
+  - Na příkladu demonstrovat PHP interleaving.
+  - Vytvořit jednoduchou stránku v PHP, s využitím HTTP wrapperu a připojením k SQL databázi.
+- **Základy bezpečnosti webových aplikací**
+  - Vysvětlit vztah HTTPS a HTTP, popsat výhody.
+  - Na příkladu (JWT) vysvětlit použití autentizačních tokenů.
+  - Identifikovat a popsat základní bezpečností rizika webových aplikací.
+- **Doporučovací systémy**
+  - Vysvětlit typické workflow doporučovacích systémů a popsat typické vstupy a výstupy. Popsat problémy, které způsobuje dynamičnost doporučovacího procesu (např. cold start, new item problem, online model updates).
+  - Vysvětlit princip fungování, výhody a nevýhody kolaborativního filtrování. Vysvětlit funkci jednoduchých algoritmů (user/item-based KNN, varianty faktorizace matic).
+  - Vysvětlit princip fungování, výhody a nevýhody content-based a knowledge-based doporučování.
+  - Vysvětlit cíle, rozdíly a omezení v offline/online/user-studies hodnocení doporučovacích systémů a uvést typické hodnotící metriky.
+- **Vyhledávání na webu a v multimediálních databázích**
+  - Popsat booleovské a vektorové modely, word2vec.
+  - Popsat vyhledávání v hypertextu, ranking, PageRank.
+  - Vysvětlit optimalizaci webových stránek pro vyhledávače.
+  - Popsat metrické indexování podobnosti (filtrování pomocí pivotů, maticové, stromové, hašované a hybridní indexy)
+  - Uvést základní formáty spojené s vizuálními daty (konkrétně BMP, JPEG, MP4) a vysvětlit základní principy komprese videa (vysvětlit, proč P a B snímky zlepšují kompresi, vysvětlit kódovací strom u HEVC), popsat algoritmy detekce střihů ve videu pomocí podobnosti snímků a konvolučních sítí (stačí inference).
+  - Formalizovat a vysvětlit základní podobnostní model (deskriptor, funkce podobnosti, Kosinova a Euklidovská vzdálenost), vysvětlit principy kombinace více modelů (early/late fusion).
+  - Vysvětlit způsob vyhledávání a klasifikace v obrázkové databázi na základě textu s využitím neuronové sítě CLIP, vysvětlit základní stavební prvky architektury CLIP (stačí inference).
+  - Popsat techniky vizualizace výsledků hledání v gridu pomocí různých technik zobrazení rankované množiny, popsat a vysvětlit možnosti zobrazení obrázkových dat pomocí SOM (self-organizing map) a algoritmus řazení obrázkových dat ve 2D gridu (self-sorting map)l
+  - Popsat techniky vyhodnocování efektivity vyhledávacího modelu (zejména pojmy přesnost, úplnost, mAP, F1-score), popsat možnosti vyhodnocování efektivity interaktivních systémů.

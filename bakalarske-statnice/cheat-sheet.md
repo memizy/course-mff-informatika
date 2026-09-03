@@ -1013,7 +1013,207 @@ $$P(B_j|A) = \frac{P(B_j \cap A)}{P(A)} = \frac{P(A|B_j) \cdot P(B_j)}{\sum_i P(
 
 ## Informatika
 
-### Automaty
+### Automaty a gramatiky
+#### Základní pojmy a notace:
+* **Abeceda $\Sigma$:** Konečná neprázdná množina symbolů (znaků, např. $\Sigma = \{0, 1\}$ či $\{a, b\}$).
+* **Slovo (řetězec) $w \in \Sigma^*$:** Konečná posloupnost symbolů z abecedy $\Sigma$.
+  * **Prázdné slovo:** Značíme $\varepsilon$ (či $\lambda$), platí délka $|\varepsilon| = 0$.
+  * **Délka slova $|w|$:** Počet symbolů ve slově (např. $|auto| = 4$). Počet výskytů znaku $a$ značíme $|w|_a$.
+  * **Zřetězení slov $u \cdot v$ (či $uv$):** Spojení slov za sebe. Neutrální prvek je $\varepsilon$ ($u \varepsilon = \varepsilon u = u$).
+  * **Mocnina slova $u^n$:** $u^0 = \varepsilon$, $u^{n+1} = u^n \cdot u$ (např. $(ab)^2 = abab$).
+  * **Množina všech slov $\Sigma^*$:** Kleeneho uzávěr abecedy (všechna konečná slova včetně $\varepsilon$).
+  * **Množina neprázdných slov $\Sigma^+$:** $\Sigma^+ = \Sigma^* \setminus \{\varepsilon\}$.
+* **Formální jazyk $L$:** Libovolná podmnožina slov nad abecedou $\Sigma$, tj. $L \subseteq \Sigma^*$.
+
+#### Deterministický konečný automat (DFA):
+* **Definice DFA:** Pětice $A = (Q, \Sigma, \delta, q_0, F)$, kde:
+  * $Q$ je konečná neprázdná množina **stavů**.
+  * $\Sigma$ je konečná neprázdná **vstupní abeceda**.
+  * $\delta: Q \times \Sigma \to Q$ je **přechodová funkce** (v klasické definici totální).
+  * $q_0 \in Q$ je **počáteční stav**.
+  * $F \subseteq Q$ je množina **koncových (přijímajících) stavů**.
+* **Úmluva o totální přechodové funkci (Dead state):** Pokud pro některý stav a písmeno není přechod definován, automat doplníme o nový „pekelný/odpadní stav“ $q_{dead} \notin F$, do kterého vedou všechny chybějící přechody a z nějž vedou smyčky pod všemi písmeny $\delta(q_{dead}, a) = q_{dead}$.
+* **Rozšířená přechodová funkce $\delta^*: Q \times \Sigma^* \to Q$ (Tranzitivní uzávěr):**
+  Definuje stav, do kterého automat přejde po přečtení celého slova. Induktivní definice:
+  1. **Báze:** $\delta^*(q, \varepsilon) = q$ (přečtení prázdného slova stav nezmění).
+  2. **Indukční krok:** $\forall w \in \Sigma^*, x \in \Sigma: \delta^*(q, w x) = \delta(\delta^*(q, w), x)$.
+* **Jazyk přijímaný DFA:**
+  Jazyk rozpoznávaný automatem $A$ je množina všech slov, která převedou automat z počátečního stavu do některého koncového stavu:
+  $$L(A) = \{w \in \Sigma^* \mid \delta^*(q_0, w) \in F\}$$
+  Třídu všech jazyků přijímaných DFA nazýváme **regulární jazyky** ($\mathcal{R}$).
+
+#### Nedeterministický konečný automat (NFA a $\varepsilon$-NFA):
+* **Definice $\varepsilon$-NFA:** Pětice $A = (Q, \Sigma, \delta, q_0, F)$, kde přechodová funkce:
+  $$\delta: Q \times (\Sigma \cup \{\varepsilon\}) \to \mathcal{P}(Q)$$
+  přiřazuje dvojici (stav, symbol nebo $\varepsilon$) **množinu** možných následujících stavů (může být prázdná $\emptyset$).
+* **$\varepsilon$-uzávěr ($\varepsilon\text{-closure}(q)$):** Množina všech stavů dosažitelných ze stavu $q$ po nula či více $\varepsilon$-přechodech. Pro množinu $S \subseteq Q$ je $\varepsilon\text{-closure}(S) = \bigcup_{q \in S} \varepsilon\text{-closure}(q)$.
+* **Rozšířená přechodová funkce pro NFA $\delta^*: Q \times \Sigma^* \to \mathcal{P}(Q)$:**
+  1. $\delta^*(q, \varepsilon) = \varepsilon\text{-closure}(\{q\})$
+  2. $\delta^*(q, w a) = \varepsilon\text{-closure}\left(\bigcup_{p \in \delta^*(q, w)} \delta(p, a)\right)$ pro $a \in \Sigma$.
+* **Jazyk přijímaný NFA:** Slovo $w$ je přijato, pokud **alespoň jedna** větev výpočtu skončí v koncovém stavu:
+  $$L(A) = \{w \in \Sigma^* \mid \delta^*(q_0, w) \cap F \ne \emptyset\}$$
+* **Podmnožinová konstrukce (Převod NFA na ekvivalentní DFA):**
+  * Každý nedeterministický automat lze převést na DFA přijímající stejný jazyk ($L(DFA) = L(NFA)$).
+  * Stavy nového DFA jsou **podmnožiny stavů původního NFA**: $Q_{DFA} \subseteq \mathcal{P}(Q_{NFA})$.
+  * Počáteční stav DFA: $S_0 = \varepsilon\text{-closure}(\{q_0\})$.
+  * Přechodová funkce DFA: pro stav $S \subseteq Q_{NFA}$ a $a \in \Sigma$:
+    $$\delta_{DFA}(S, a) = \varepsilon\text{-closure}\left(\bigcup_{q \in S} \delta_{NFA}(q, a)\right)$$
+  * Koncové stavy DFA: všechny podmnožiny obsahující alespoň jeden koncový stav NFA:
+    $$F_{DFA} = \{S \subseteq Q_{NFA} \mid S \cap F_{NFA} \ne \emptyset\}$$
+  * *Složitost:* Původní NFA s $n$ stavy může vést na DFA s až $2^n$ stavy (exponenciální nárůst v nejhorším případě).
+* **Minimalizace DFA (Tabulková vyškrtávací metoda / Table-Filling):**
+  * *Kdy použít:* K **nalezení minimálního DFA** (sloučení nerozlišitelných stavů do reduktu) a k **ověření ekvivalence dvou DFA** ($L(A_1) = L(A_2)$ spojením jejich stavů do jedné tabulky).
+  * *Jak funguje:* V trojúhelníkové tabulce všech neuspořádaných dvojic $\{p, q\}$ nejprve vyškrtneme dvojice koncový–nekoncový ($p \in F \land q \notin F$), a pak iterativně vyškrtáváme $\{p, q\}$, pokud pro nějaký symbol $a \in \Sigma$ je dvojice následníků $\{\delta(p, a), \delta(q, a)\}$ již vyškrtnutá; políčka, která zůstanou nevyškrtnutá, představují nerozlišitelné stavy ($p \sim q$), které sloučíme.
+
+#### Regulární gramatiky (Chomského typ 3):
+* **Formální definice gramatiky:** Čtveřice $G = (V, T, P, S)$, kde:
+  * $V$ je konečná množina **neterminálů** (proměnných).
+  * $T$ je konečná množina **terminálů** (abeceda výsledných slov), přičemž $V \cap T = \emptyset$.
+  * $S \in V$ je **startovací (počáteční) neterminál**.
+  * $P$ je konečná množina přepisovacích pravidel.
+* **Pravidla regulární (pravé lineární) gramatiky:**
+  Všechna pravidla v $P$ mají **pouze tvar**:
+  $$A \to w B \quad \text{nebo} \quad A \to w \quad (A, B \in V, \, w \in T^*)$$
+  (ve zkrácené standardní formě $A \to a B$, $A \to a$, $A \to \varepsilon$ pro $a \in T$).
+  * *(Levá lineární gramatika má tvar $A \to B w \mid w$. Pozor: pravidla pravá a levá se v jedné gramatice NESMÍ míchat, jinak by gramatika nebyla regulární!).*
+* **Jazyk generovaný gramatikou:** $L(G) = \{w \in T^* \mid S \Rightarrow^* w\}$ (množina všech terminálních slov odvoditelných ze startovacího symbolu).
+* **Ekvivalence s konečnými automaty:**
+  * Jazyk je generovatelný regulární gramatikou $\iff$ je přijímaný konečným automatem.
+  * *Převod gramatiky na NFA:* neterminály $V$ odpovídají stavům, $S$ je počáteční stav $q_0$. Pravidlo $A \to a B$ dává přechod $\delta(A, a) \ni B$, pravidlo $A \to a$ dává přechod do koncového stavu $\delta(A, a) \ni q_{final}$, pravidlo $A \to \varepsilon \implies A \in F$.
+
+#### Regulární výrazy (RegEx) a Kleeneho věta:
+* **Přehled operátorů a symbolů v regulárních výrazech:**
+  * **Základní konstanty:**
+    * $\emptyset$: **Prázdný jazyk** ($L(\emptyset) = \emptyset$, nepřijímá žádné slovo).
+    * $\varepsilon$ (či $\lambda$): **Prázdné slovo** ($L(\varepsilon) = \{\varepsilon\}$, slovo nulové délky; platí lemma $\emptyset^* = \{\varepsilon\}$).
+    * $a \in \Sigma$: **Jednotlivý znak abecedy** ($L(a) = \{a\}$).
+  * **Základní teoretické operace (induktivní definice):**
+    * **$+$ (Alternativa / Sjednocení):** $\alpha + \beta$ (v programování $\alpha \mid \beta$) znamená „buď $\alpha$, nebo $\beta$“; $L(\alpha + \beta) = L(\alpha) \cup L(\beta)$.
+    * **$\cdot$ (Zřetězení / Konkatenace):** $\alpha \beta$ (či $\alpha \cdot \beta$) znamená „za slovo z $\alpha$ připoj slovo z $\beta$“; $L(\alpha \beta) = L(\alpha) \cdot L(\beta)$.
+    * **$*$ (Kleeneho hvězdička / Iterace):** $\alpha^*$ znamená **0 nebo více opakování** $\alpha$; $L(\alpha^*) = \bigcup_{i=0}^\infty (L(\alpha))^i = \{\varepsilon\} \cup L(\alpha) \cup L(\alpha)^2 \cup \dots$.
+    * **$()$ (Závorky):** $(\alpha)$ slouží ke změně priority vyhodnocování ($L((\alpha)) = L(\alpha)$).
+  * **Odvozené zkratky:**
+    * **$+$ (Pozitivní iterace jako exponent):** $\alpha^+ = \alpha \cdot \alpha^*$ znamená **1 nebo více opakování** (vylučuje nultou mocninu $\varepsilon$, pokud ji neobsahuje samotné $\alpha$).
+    * **$?$ (Volitelný výskyt):** $\alpha? = (\alpha + \varepsilon)$ znamená 0 nebo 1 výskyt.
+  * **Priorita operátorů (od nejvyšší k nejnižší):**
+    1. **Iterace:** $*$ a $+$ (vážou nejpevněji, např. $a b^* = a(b^*)$).
+    2. **Zřetězení:** $\cdot$ (váže pevněji než sjednocení, např. $a b + c = (a b) + c$).
+    3. **Alternativa (sjednocení):** $+$ (či $\mid$, má nejnižší prioritu).
+* **Kleeneho věta (Základní ekvivalence regulárních reprezentací):**
+  Následující tvrzení jsou ekvivalentní pro každý jazyk $L \subseteq \Sigma^*$:
+  1. $L$ je rozpoznatelný deterministickým konečným automatem (DFA).
+  2. $L$ je rozpoznatelný nedeterministickým konečným automatem (NFA / $\varepsilon$-NFA).
+  3. $L$ je popsatelný regulárním výrazem (RegEx).
+  4. $L$ je generovatelný regulární (pravou lineární) gramatikou.
+* **Převod konečného automatu na RegEx (Metoda eliminace stavů):**
+  1. **Normalizace:** Přidáme nový počáteční stav $q_{start}$ ($\varepsilon$-přechod do původního $q_0$) a nový jediný koncový stav $q_{end}$ ($\varepsilon$-přechody ze všech původních koncových stavů). Původní stavy již nejsou počáteční ani koncové.
+  2. **Postupná eliminace:** Vybereme libovolný vnitřní stav $q$ k odstranění. Pro každou dvojici stavů $p$ (vstupující do $q$) a $r$ (vystupující z $q$) s přechody $p \xrightarrow{\alpha} q$, smyčkou $q \xrightarrow{\gamma} q$ a $q \xrightarrow{\beta} r$ přidáme k přímé hraně $p \xrightarrow{\delta} r$ novou větev:
+     $$p \xrightarrow{\delta + \alpha \gamma^* \beta} r$$
+  3. Stav $q$ a všechny jeho incidentní hrany smažeme.
+  4. Opakujeme, dokud nezbudou jen stavy $q_{start}$ a $q_{end}$. Výraz na jediné zbývající hraně $q_{start} \to q_{end}$ je hledaný regulární výraz.
+
+#### Pumping lemma pro regulární jazyky (Důkaz neregularity):
+* **Znění věty (Pumping lemma / Iterační lemma):**
+  Nechť $L$ je regulární jazyk. Potom existuje přirozené číslo $p \ge 1$ (pumpovací délka) takové, že každé slovo $w \in L$ o délce $|w| \ge p$ lze rozdělit na tři části $w = x y z$ splňující:
+  1. $|x y| \le p$ (pumpovací část leží v prvních $p$ znacích).
+  2. $|y| \ge 1$ (pumpovací část $y$ je neprázdná, $y \ne \varepsilon$).
+  3. $\forall i \ge 0: x y^i z \in L$ (slovo lze libovolně „napumpovat“ i vyfouknout pro $i = 0$).
+* **Použití Pumping lemmatu (Důkaz sporem, že jazyk $L$ NENÍ regulární):**
+  * Hra s oponentem:
+    1. Předpokládáme sporem, že $L$ je regulární $\implies$ existuje $p \ge 1$.
+    2. My zvolíme zákeřné slovo $w \in L$ splňující $|w| \ge p$ (zapsané pomocí parametru $p$).
+    3. Oponent ho rozdělí na $w = x y z$ splňující $|xy| \le p$ a $|y| \ge 1$. Z toho odvodíme, jak přesně $y$ musí vypadat.
+    4. My zvolíme mocninu $i \ge 0$ a dokážeme, že slovo $x y^i z \notin L$, což je spor s Pumping lemmatem $\implies L$ není regulární.
+  * *Klasické příklady neregulárních jazyků:*
+    * $L = \{0^n 1^n \mid n \ge 0\}$ (vyžaduje neomezenou paměť na počítání nul a jedniček; zvolíme $w = 0^p 1^p \implies y = 0^k, k \ge 1 \implies x y^2 z = 0^{p+k} 1^p \notin L$).
+    * $L = \{w w^R \mid w \in \{0, 1\}^*\}$ (jazyk palindromů).
+    * $L = \{a^{p} \mid p \text{ je prvočíslo}\}$ nebo $\{a^{n^2} \mid n \ge 0\}$.
+
+#### Uzávěrové vlastnosti regulárních jazyků:
+* **Konstrukce součinového automatu ($A_1 \times A_2$ pro paralelní běh):** Stavy jsou dvojice $(p, q) \in Q_1 \times Q_2$, počáteční stav je $(q_{01}, q_{02})$, a přechodová funkce provádí krok v obou automatech současně: $\delta((p, q), a) = (\delta_1(p, a), \delta_2(q, a))$. Jednotlivé operace se liší pouze volbou koncových stavů:
+  * **Průnik ($L_1 \cap L_2$):** $F = F_1 \times F_2$ (oba stavy musí být koncové: $p \in F_1 \land q \in F_2$).
+  * **Sjednocení ($L_1 \cup L_2$):** $F = (F_1 \times Q_2) \cup (Q_1 \times F_2)$ (alespoň jeden je koncový: $p \in F_1 \lor q \in F_2$).
+  * **Rozdíl ($L_1 \setminus L_2 = L_1 \cap \overline{L_2}$):** $F = F_1 \times (Q_2 \setminus F_2)$ (první je koncový a druhý ne: $p \in F_1 \land q \notin F_2$).
+Třída regulárních jazyků je **uzavřená** na všechny základní operace:
+1. **Sjednocení, průnik, rozdíl:** Viz součinová konstrukce výše (popř. sjednocení přes nový počáteční stav s $\varepsilon$-přechody v NFA).
+4. **Doplněk (Komplement $\overline{L} = \Sigma^* \setminus L$):**
+   * Vezmeme automat pro $L$, **musí být deterministický a totální!** (pokud není, nejprve determinizujeme a doplníme dead state).
+   * Prohodíme koncové a nekoncové stavy: $F_{new} = Q \setminus F$.
+5. **Zřetězení ($L_1 \cdot L_2$):** Propojíme koncové stavy $A_1$ pomocí $\varepsilon$-přechodů s počátečním stavem $A_2$.
+6. **Kleeneho iterace ($L^*$):** Přidáme $\varepsilon$-přechody z koncových stavů zpět do počátečního stavu a nový počáteční koncový stav pro slovo $\varepsilon$.
+7. **Reverze (Zrcadlení $L^R = \{w^R \mid w \in L\}$):** Všechny orientované hrany v automatu obrátíme do protisměru, z koncových stavů uděláme počáteční a z původního počátečního stavu uděláme koncový (vytvoříme NFA s novým počátečním stavem přes $\varepsilon$).
+
+#### Bezkontextové jazyky (Chomského typ 2):
+* **Bezkontextová gramatika (CFG):**
+  * **Definice:** Čtveřice $G = (V, T, P, S)$, kde $V$ jsou neterminály, $T$ terminály ($V \cap T = \emptyset$), $S \in V$ startovací symbol a $P$ konečná množina pravidel tvaru:
+    $$A \to \alpha \quad (A \in V, \, \alpha \in (V \cup T)^*)$$
+    *(Na levé straně pravidla stojí **právě jeden neterminál bez okolního kontextu**).*
+  * **Derivace a jazyk gramatiky:**
+    * Krok přímé derivace: $\beta A \gamma \Rightarrow \beta \alpha \gamma$ (přepsání neterminálu $A$ podle pravidla $A \to \alpha$).
+    * Reflexivně tranzitivní uzávěr $\Rightarrow^*$.
+    * **Jazyk generovaný gramatikou:** $L(G) = \{w \in T^* \mid S \Rightarrow^* w\}$. Třída těchto jazyků tvoří **bezkontextové jazyky (CFL)**.
+  * **Víceznačnost (Ambiguity):** Gramatika $G$ je víceznačná, pokud pro nějaké slovo $w \in L(G)$ existují alespoň dva různé derivační stromy (ekvivalentně dvě různé levé derivace).
+  * **Chomského normální forma (ChNF):** Každou bezkontextovou gramatiku (bez $\varepsilon$) lze převést na ekvivalentní gramatiku s pravidly pouze ve tvaru:
+    $$A \to B C \quad \text{nebo} \quad A \to a \quad (A, B, C \in V, \, a \in T)$$
+    *(Je-li $\varepsilon \in L$, povoluje se navíc $S \to \varepsilon$, přičemž $S$ se pak nesmí vyskytovat na pravé straně žádného pravidla. V ChNF má derivační strom binární strukturu a slovo délky $n \ge 1$ se odvodí v přesně $2n - 1$ krocích).*
+  * **Postup převodu libovolné CFG do ChNF (5 kroků):**
+    1. **Odstranění $\varepsilon$-pravidel ($A \to \varepsilon$):** Najdeme nulovatelné neterminály ($A \Rightarrow^* \varepsilon$). V každém pravidle vygenerujeme všechny kombinace s vynecháním těchto neterminálů (pokud $\varepsilon \in L$, zavedeme nový start $S_0 \to S \mid \varepsilon$).
+    2. **Odstranění jednotkových pravidel ($A \to B$):** Pro každý neterminál spočteme tranzitivně dosažitelné neterminály a pravidla $A \to B$ nahradíme všemi nejednotkovými pravidly z $B$.
+    3. **Odstranění zbytečných symbolů (Redukce gramatiky):**
+       * Nejprve odstraníme **neproduktivní symboly** (které nedokážou vygenerovat terminální slovo $A \not\Rightarrow^* w \in T^*$).
+       * Poté odstraníme **nedostupné symboly** (které nelze dosáhnout ze startovacího $S$). *(Pořadí je nutné dodržet!).*
+    4. **Izolace terminálů:** V pravidlech délky $\ge 2$ nahradíme každý terminál $a$ novým neterminálem $T_a$ s pravidlem $T_a \to a$.
+    5. **Kaskádovité zkrácení dlouhých pravidel:** Pravidla $A \to B_1 B_2 \dots B_k$ ($k \ge 3$) rozsekáme pomocí pomocných neterminálů na dvojice: $A \to B_1 C_1, C_1 \to B_2 C_2, \dots, C_{k-2} \to B_{k-1} B_k$.
+* **Zásobníkový automat (PDA – Pushdown Automaton):**
+  * **Definice (Sedmice):** $P = (Q, \Sigma, \Gamma, \delta, q_0, Z_0, F)$, kde:
+    * $Q$ je konečná množina **stavů**.
+    * $\Sigma$ je konečná **vstupní abeceda**.
+    * $\Gamma$ je konečná **zásobníková abeceda**.
+    * $\delta: Q \times (\Sigma \cup \{\varepsilon\}) \times \Gamma \to \mathcal{P}_{FIN}(Q \times \Gamma^*)$ je **přechodová funkce**.
+    * $q_0 \in Q$ je **počáteční stav**.
+    * $Z_0 \in \Gamma$ je **počáteční symbol na zásobníku** (na začátku je v zásobníku právě jen $Z_0$).
+    * $F \subseteq Q$ je množina **koncových stavů** (při přijímání prázdným zásobníkem může být prázdná).
+  * **Anotace hrany v přechodovém diagramu a krok automatu:**
+    $$\text{Hrana z } p \text{ do } q \text{ s návěstím: } \mathbf{a, X \to \gamma} \iff (q, \gamma) \in \delta(p, a, X)$$
+    * Význam: Je-li automat ve stavu $p$, přečte ze vstupu symbol $a$ (nebo $\varepsilon$), z vrcholu zásobníku **vyjme (POP)** symbol $X$ a na jeho místo **uloží (PUSH)** řetězec $\gamma \in \Gamma^*$.
+    * **DŮLEŽITÉ – Pořadí ukládání na zásobník (Zprava doleva):**
+      Pro řetězec $\gamma = Y_1 Y_2 \dots Y_k$ (např. $\gamma = A B C$) je **první symbol zleva ($Y_1 = A$) na SAMÉM VRCHOLU ZÁSOBNÍKU**, a poslední symbol ($Y_k = C$) je nejhlouběji!
+      *(Představujeme si, že na zásobník se symboly sypou zprava doleva: nejprve $C$, pak $B$, a navrch $A$. V diagramu to odpovídá: $a, Z_0 \to A Z_0$ nechá $Z_0$ dole a nad něj položí $A$).*
+    * **Základní operace na hraně:**
+      * $a, X \to \varepsilon$: **POP** (odebrání $X$ z vrcholu bez náhrady).
+      * $a, X \to X$: **Čtení bez změny** (vrchol $X$ zůstává).
+      * $a, X \to Y X$: **PUSH $Y$** (ponechání $X$ a vložení nového symbolu $Y$ nad něj).
+* **Způsoby přijímání slov a třída jazyků PDA:**
+  * **Dva způsoby přijímání:**
+    1. **Přijetí koncovým stavem:** $L(P) = \{w \in \Sigma^* \mid (q_0, w, Z_0) \vdash^* (q_f, \varepsilon, \gamma), \, q_f \in F, \, \gamma \in \Gamma^*\}$.
+    2. **Přijetí prázdným zásobníkem:** $L_\varepsilon(P) = \{w \in \Sigma^* \mid (q_0, w, Z_0) \vdash^* (q, \varepsilon, \varepsilon), \, q \in Q\}$.
+    * *Ekvivalence:* Obě definice přijímání jsou navzájem převoditelné a rozpoznávají **přesně stejnou třídu jazyků** ($\mathcal{L}(PDA_F) = \mathcal{L}(PDA_\varepsilon)$).
+  * **Ekvivalence PDA a CFG a konstrukce 1-stavového PDA (Top-down analýza):**
+    * Třída jazyků přijímaných nedeterministickými PDA je přesně třída **bezkontextových jazyků**: $\mathcal{L}(\text{PDA}) = \mathcal{L}(\text{CFG}) = \text{CFL}$.
+    * **Konstrukce PDA z libovolné CFG (přijímá prázdným zásobníkem):** Sestrojíme automat $P = (\{q\}, T, V \cup T, \delta, q, S, \emptyset)$ s jediným stavem $q$, kde všechny přechody jsou smyčky $q \to q$:
+      1. **Expanze neterminálu (uhodnutí pravidla):** Pro každé pravidlo $A \to \alpha \in P$:
+         $$\delta(q, \varepsilon, A) \ni (q, \alpha) \quad (\text{hrana: } \varepsilon, A \to \alpha)$$
+      2. **Porovnání terminálu se vstupem (Match):** Pro každý terminál $a \in T$:
+         $$\delta(q, a, a) = \{(q, \varepsilon)\} \quad (\text{hrana: } a, a \to \varepsilon)$$
+      *(Automat simuluje levou sentenciální formu: neterminál na vrcholu zásobníku nahradí pravou stranou pravidla, a jakmile je na vrcholu terminál, porovná ho se vstupem a smaže. Po přečtení slova zůstane zásobník prázdný).*
+  * **Deterministické PDA (DPDA) a deterministické bezkontextové jazyky (DCFL):**
+    * DPDA má v každé konfiguraci nejvýše jeden možný přechod (pokud je definován $\varepsilon$-krok pro $(q, \varepsilon, X)$, nesmí pro tentýž stav a vrchol zásobníku existovat krok pod žádným $a \in \Sigma$).
+    * **Nedeterminismus u PDA zvyšuje sílu:**
+      $$\text{Regulární (RL)} \subsetneq \text{DCFL} \subsetneq \text{CFL}$$
+    * Jazyky z $\text{CFL} \setminus \text{DCFL}$ (např. symetrické palindromy sudé délky $\{w w^R \mid w \in \{0, 1\}^*\}$) vyžadují nedeterminismus pro uhodnutí středu slova.
+* **Uzávěrové vlastnosti CFL:**
+  * **CFL JE uzavřená na:**
+    * **Sjednocení** ($L_1 \cup L_2$), **zřetězení** ($L_1 \cdot L_2$), **Kleeneho iteraci** ($L^*$).
+    * **Průnik s regulárním jazykem:** Je-li $L \in \text{CFL}$ a $R \in \text{REG}$, pak $L \cap R \in \text{CFL}$ (konstrukce synchronního součinu PDA $\times$ DFA).
+  * **CFL NENÍ uzavřená na:**
+    * **Průnik:** Např. $L_1 = \{a^n b^n c^m \mid n, m \ge 0\} \in \text{CFL}$ a $L_2 = \{a^m b^n c^n \mid n, m \ge 0\} \in \text{CFL}$, ale jejich průnik $L_1 \cap L_2 = \{a^n b^n c^n \mid n \ge 0\} \notin \text{CFL}$!
+    * **Doplněk (Komplement):** Kdyby byla uzavřená na doplněk, z De Morgana $L_1 \cap L_2 = \overline{\overline{L_1} \cup \overline{L_2}}$ by musela být uzavřená i na průnik (spor).
+* **Pumping lemma pro bezkontextové jazyky (uvwxy lemma):**
+  * **Znění:** Nechť $L \in \text{CFL}$. Pak existuje $p \ge 1$ takové, že každé slovo $z \in L$ o délce $|z| \ge p$ lze rozdělit na 5 částí $z = u v w x y$ splňující:
+    1. $|v w x| \le p$ (pumpovací úsek je omezen délkou $p$).
+    2. $|v x| \ge 1$ (alespoň jedno ze slov $v, x$ je neprázdné).
+    3. $\forall i \ge 0: u v^i w x^i y \in L$ (obě části $v$ a $x$ se pumpují současně stejnou mocninou).
+  * *Použití:* Důkaz sporem, že jazyk není bezkontextový (např. pro $L = \{a^n b^n c^n \mid n \ge 0\}$ zvolíme $z = a^p b^p c^p$; úsek $vwx$ o délce $\le p$ nemůže zasáhnout symboly $a$ i $c$ zároveň, napumpováním se poruší rovnost počtů $a, b, c$).
 
 ### Ads
 

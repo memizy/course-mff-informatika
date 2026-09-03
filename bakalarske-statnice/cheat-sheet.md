@@ -1730,9 +1730,9 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * *MMIO (Memory-Mapped I/O):* Registry leží přímo na adresách fyzické paměti RAM $\implies$ přístup běžnými instrukcemi pro práci s pamětí (`volatile` ukazatele).
 * **Způsoby obsluhy zařízení (PIO vs. Přerušení vs. DMA):**
   * **PIO (Programmed I/O):** Aktivní čekání (Polling) `while (status & BUSY);` $\implies$ 100% zbytečné vytížení procesoru po celou dobu mechanické operace.
-  * **Přerušení (Interrupts / IRQ):** CPU zadá příkaz a věnuje se jiným procesům. Po dokončení pošle řadič signál IRQ:
-    * *Hardware:* Uloží `PC` a `FLAGS` na stack, přepne do Kernel mode, skočí na obsluhu (`ISR` z tabulky `IDT`).
-    * *Software (OS):* Uloží registry, obslouží data, pošle řadiči potvrzení (`EOI`), probudí proces/vlákno (stav Ready), návrat instrukcí `IRET`.
+  * **Přerušení (Interrupts):** CPU zadá příkaz a věnuje se jiným procesům. Po dokončení pošle řadič žádost o přerušení:
+    * *Hardware:* Uloží `PC` a stavový registr na zásobník, přepne do Kernel mode a skočí na kód obsluhy přerušení v jádře OS.
+    * *Software (OS):* Uloží registry, přečte data ze zařízení, probudí čekající proces/vlákno (stav Ready) a vrátí se instrukcí `IRET` zpět do přerušeného programu.
   * **DMA (Direct Memory Access):** Řadič přenáší bloky dat (sektory) přímo do RAM bez asistence CPU $\implies$ po přenesení celého bloku vyvolá jediné přerušení.
     * **Zkouškový chyták:** **DMA pracuje výhradně s FYZICKÝMI adresami RAM!** (Řadič nezná stránkování MMU, proto mu OS musí předat fyzickou adresu bufferu).
 * **Praktická ukázka ovladače disku: C vs. C# (Zadání Jaro 2024):**

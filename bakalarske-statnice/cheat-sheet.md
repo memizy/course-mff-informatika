@@ -7,6 +7,181 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 ### Analýza
 
 ### Lingebra
+#### Algebraické struktury (Grupy, permutace a tělesa):
+* **Grupa $(G, \circ)$:** Množina $G$ s binární operací $\circ: G \times G \to G$ splňující:
+  1. **Asociativita:** $\forall a, b, c \in G: a \circ (b \circ c) = (a \circ b) \circ c$.
+  2. **Neutrální prvek:** $\exists e \in G \ \forall a \in G: a \circ e = e \circ a = a$.
+  3. **Inverzní prvek:** $\forall a \in G \ \exists a^{-1} \in G: a \circ a^{-1} = a^{-1} \circ a = e$.
+  * **Abelovská (komutativní) grupa:** Navíc platí $\forall a, b \in G: a \circ b = b \circ a$.
+* **Podgrupa ($H \le G$):** Podmnožina $H \subseteq G$, která je sama grupou se zúženou operací (ekvivalentně: $e \in H$ a $\forall a, b \in H: a \circ b^{-1} \in H$).
+* **Permutace a symetrická grupa $S_n$:** Permutace množiny $[n]$ je bijekce $p: [n] \to [n]$.
+  * **Inverze v permutaci:** Dvojice indexů $(i, j)$ taková, že $i < j$, ale $p(i) > p(j)$.
+  * **Znaménko permutace:** $\operatorname{sgn}(p) = (-1)^{\#\text{inverzí}} \in \{+1, -1\}$ (sudá vs. lichá permutace; pro transpozici je $-1$).
+* **Těleso $(\mathbb{K}, +, \cdot)$:** Množina $\mathbb{K}$ se dvěma operacemi:
+  1. $(\mathbb{K}, +)$ tvoří Abelovskou grupu s neutrálním prvkem $0$.
+  2. $(\mathbb{K} \setminus \{0\}, \cdot)$ tvoří Abelovskou grupu s neutrálním prvkem $1$.
+  3. **Distributivita:** $\forall a, b, c \in \mathbb{K}: a \cdot (b + c) = a \cdot b + a \cdot c$.
+* **Charakteristika tělesa:** Nejmenší $n \in \mathbb{N}$ takové, že $\sum_{i=1}^n 1 = 0$ v $\mathbb{K}$. Pokud takové $n$ neexistuje, $\operatorname{char}(\mathbb{K}) = 0$ (např. $\mathbb{Q}, \mathbb{R}, \mathbb{C}$). Charakteristika je vždy $0$ nebo prvočíslo $p$.
+* **Konečná tělesa ($GF(p^n)$ / Galois Fields):** Konečné těleso existuje právě tehdy, když má mohutnost $q = p^n$ ($p$ je prvočíslo, $n \ge 1$). Pro $n=1$ je to těleso zbytkových tříd $\mathbb{Z}_p = (\{0, \dots, p-1\}, +_p, \cdot_p)$.
+
+#### Soustavy lineárních rovnic a eliminace:
+* **Maticový zápis:** Soustava $m$ rovnic o $n$ neznámých: $Ax = b$, kde $A \in \mathbb{K}^{m \times n}$ je matice soustavy, $x \in \mathbb{K}^n$ vektor neznámých, $b \in \mathbb{K}^m$ vektor pravých stran. Rozšířená matice soustavy: $(A \mid b) \in \mathbb{K}^{m \times (n+1)}$.
+* **Elementární řádkové úpravy (EŘÚ):** Nemění množinu řešení soustavy:
+  1. Vynásobení řádku nenulovým skalárem $t \in \mathbb{K} \setminus \{0\}$.
+  2. Přičtení $t$-násobku jednoho řádku k jinému řádku.
+  3. Záměna (prohození) dvou řádků.
+* **Odstupňovaný tvar matice (REF – Row Echelon Form):**
+  * Nulové řádky jsou umístěny pod všemi nenulovými řádky.
+  * První nenulový prvek každého nenulového řádku se nazývá **pivot**.
+  * Pivot v každém nižším řádku leží ve sloupci přísně více vpravo než pivot v předchozím řádku ($j(1) < j(2) < \dots < j(r)$).
+* **Redukovaný odstupňovaný tvar (RREF):** Matice je v REF a navíc:
+  1. Všechny pivoty jsou rovny $1$.
+  2. Nad každým pivotem jsou samé nuly (pivot je jediným nenulovým prvkem ve svém sloupci).
+* **Gaussova a Gauss-Jordanova eliminace (Idea):**
+  * **Gaussova eliminace:** Převod matice na REF pomocí EŘÚ přímým chodem (shora dolů) eliminací prvků pod pivoty $\to$ následné nalezení řešení zpětnou substitucí.
+  * **Gauss-Jordanova eliminace:** Rozšíření o zpětný chod (zdola nahoru) – eliminace i prvků nad pivoty a normalizace pivotů na $1 \to$ vzniká RREF (řešení lze přímo vyčíst).
+* **Popis množiny řešení soustavy:**
+  * **Frobeniova věta:** Soustava $Ax = b$ je řešitelná $\iff \operatorname{rank}(A) = \operatorname{rank}(A \mid b)$.
+  * **Struktura řešení:** Množina všech řešení tvoří afinní podprostor:
+    $$x = x_p + x_h = x_p + \operatorname{Ker}(A)$$
+    kde $x_p$ je libovolné **partikulární řešení** ($Ax_p = b$) a $x_h \in \operatorname{Ker}(A)$ je obecné řešení homogenní soustavy ($Ax = 0$).
+  * **Parametry (volné neznámé):** Proměnné ve sloupcích bez pivotů se volí jako nezávislé parametry. Počet parametrů je $n - \operatorname{rank}(A) = \dim(\operatorname{Ker}(A))$.
+
+#### Matice, hodnost a regulární matice:
+* **Operace s maticemi:**
+  * **Násobení matic:** Pro $A \in \mathbb{K}^{m \times p}$ a $B \in \mathbb{K}^{p \times n}$ je $AB \in \mathbb{K}^{m \times n}$, kde $(AB)_{i, j} = \sum_{k=1}^p A_{i, k} B_{k, j}$. (Asociativní, nekomutativní).
+  * **Transpozice matice:** Pro $A \in \mathbb{K}^{m \times n}$ je transponovaná matice $A^T \in \mathbb{K}^{n \times m}$ definována $(A^T)_{i, j} = A_{j, i}$ (překlopení podle hlavní diagonály). Platí $(AB)^T = B^T A^T$ a $(A^T)^T = A$.
+  * **Symetrická matice:** Čtvercová matice splňující $A = A^T$ ($A_{i, j} = A_{j, i}$).
+* **Hodnost matice $\operatorname{rank}(A)$:** Počet lineárně nezávislých řádků (sloupců), což odpovídá počtu pivotů v libovolném REF tvaru matice. Platí $\operatorname{rank}(A) = \operatorname{rank}(A^T) \le \min(m, n)$.
+* **Inverzní matice $A^{-1}$:** K čtvercové matici $A \in \mathbb{K}^{n \times n}$ je to matice splňující $A \cdot A^{-1} = A^{-1} \cdot A = I_n$ (počítá se eliminací $(A \mid I_n) \sim (I_n \mid A^{-1})$).
+* **Ekvivalentní charakteristiky regulární matice (Zkouškový přehled):**
+  Pro čtvercovou matici $A \in \mathbb{K}^{n \times n}$ jsou následující tvrzení ekvivalentní:
+  1. $A$ je **regulární** (existuje inverzní matice $A^{-1}$).
+  2. $\det(A) \ne 0$ (matice s $\det(A) = 0$ je **singulární**).
+  3. $\operatorname{rank}(A) = n$ (plná hodnost).
+  4. $\operatorname{Ker}(A) = \{0\}$ (homogenní soustava $Ax = 0$ má pouze triviální nulové řešení).
+  5. Soustava $Ax = b$ má pro každou pravou stranu $b$ právě jedno řešení ($x = A^{-1}b$).
+  6. Řádky (resp. sloupce) matice $A$ jsou lineárně nezávislé a tvoří bázi $\mathbb{K}^n$.
+  7. RREF tvar matice $A$ je jednotková matice $I_n$.
+  8. $0$ není vlastním číslem matice $A$.
+
+#### Vektorové prostory a podprostory:
+* **Vektorový prostor $(V, +, \cdot)$ nad tělesem $\mathbb{K}$:** Množina vektorů $V$ s operacemi sčítání $+: V \times V \to V$ a násobení skalárem $\cdot: \mathbb{K} \times V \to V$, kde $(V, +)$ je Abelovská grupa a pro skaláry platí:
+  1. $1 \cdot v = v$, $\quad (a \cdot b) \cdot v = a \cdot (b \cdot v)$,
+  2. $(a + b) \cdot v = a \cdot v + b \cdot v$, $\quad a \cdot (u + v) = a \cdot u + a \cdot v$.
+* **Lineární kombinace a nezávislost:**
+  * **Lineární kombinace:** Vektor $\sum_{i=1}^k a_i v_i$ pro $a_i \in \mathbb{K}, v_i \in V$.
+  * **Lineární nezávislost (LN):** Množina vektorů $\{v_1, \dots, v_k\}$ je LN $\iff \sum_{i=1}^k a_i v_i = 0$ nastává pouze pro triviální volbu $a_1 = \dots = a_k = 0$. (Lineárně závislá: jeden vektor lze vyjádřit jako lin. kombinaci ostatních).
+* **Lineární obal a systém generátorů:**
+  * **Lineární obal $\operatorname{span}(X) = \mathcal{L}(X)$:** Množina všech konečných lineárních kombinací vektorů z $X$ (nejmenší podprostor obsahující $X$).
+  * **Systém generátorů:** Množina $X \subseteq V$ generuje $V$, pokud $\mathcal{L}(X) = V$.
+* **Steinitzova věta o výměně:**
+  Nechť $X$ je konečná lineárně nezávislá množina ve $V$ a $Y$ je systém generátorů $V$. Potom:
+  1. $|X| \le |Y|$ (žádná lineárně nezávislá množina nemůže mít více prvků než systém generátorů).
+  2. Existuje podmnožina $Z \subseteq Y$ o velikosti $|Z| = |Y| - |X|$ taková, že $\mathcal{L}(X \cup Z) = V$ (vektory z $X$ lze doplnit vhodnými vektory z $Y$ na systém generátorů).
+* **Báze, dimenze a souřadnice:**
+  * **Báze $B$:** Lineárně nezávislý systém generátorů prostoru $V$ (minimální systém generátorů / maximální LN množina).
+  * **Dimenze $\dim(V)$:** Počet prvků libovolné báze prostoru $V$ (dle Steinitzovy věty mají všechny báze stejnou mohutnost).
+  * **Vektor souřadnic $[u]_B$:** Pro uspořádanou bázi $B = (v_1, \dots, v_n)$ jsou souřadnice vektoru $u \in V$ jednoznačně určené skaláry $(a_1, \dots, a_n)^T \in \mathbb{K}^n$ takové, že $u = \sum_{i=1}^n a_i v_i$.
+* **Maticové podprostory (pro matici $A \in \mathbb{K}^{m \times n}$):**
+  * **Jádro (nulový prostor):** $\operatorname{Ker}(A) = \{x \in \mathbb{K}^n \mid Ax = 0\} \le \mathbb{K}^n$.
+  * **Řádkový prostor:** $\operatorname{Row}(A) = \mathcal{L}(\text{řádky } A) = \{A^T y \mid y \in \mathbb{K}^m\} \le \mathbb{K}^n$.
+  * **Sloupcový prostor (obraz):** $\operatorname{Col}(A) = \mathcal{L}(\text{sloupce } A) = \{Ax \mid x \in \mathbb{K}^n\} \le \mathbb{K}^m$.
+  * **Věta o dimenzích (Rank-Nullity teorém):**
+    $$\dim(\operatorname{Row}(A)) = \dim(\operatorname{Col}(A)) = \operatorname{rank}(A), \quad \dim(\operatorname{Ker}(A)) = n - \operatorname{rank}(A)$$
+  * **Ortogonalita řádkového prostoru a jádra:**
+    $$\operatorname{Row}(A) \perp \operatorname{Ker}(A) \quad (\text{v } \mathbb{R}^n \text{ platí } \operatorname{Ker}(A) = (\operatorname{Row}(A))^\perp \text{ a } \operatorname{Row}(A) = (\operatorname{Ker}(A))^\perp)$$
+    Pro symetrické matice ($A = A^T$) navíc platí $\operatorname{Row}(A) = \operatorname{Col}(A)$.
+
+#### Lineární zobrazení a isomorfismus:
+* **Lineární zobrazení $f: U \to V$ (mezi prostory nad stejným tělesem $\mathbb{K}$):**
+  Zobrazení zachovávající operace sčítání vektorů a násobení skalárem:
+  1. $f(u + v) = f(u) + f(v)$ pro všechny $u, v \in U$.
+  2. $f(a \cdot u) = a \cdot f(u)$ pro všechny $a \in \mathbb{K}, u \in U$.
+* **Jádro a obraz zobrazení:**
+  * **Jádro $\operatorname{Ker}(f) = \{u \in U \mid f(u) = 0\} \le U$.** Zobrazení $f$ je **prosté (injektivní)** $\iff \operatorname{Ker}(f) = \{0\}$.
+  * **Obraz $\operatorname{Im}(f) = f(U) = \{f(u) \mid u \in U\} \le V$.** Zobrazení $f$ je **na (surjektivní)** $\iff \operatorname{Im}(f) = V$.
+  * **Věta o dimenzi jádra a obrazu:** $\dim(U) = \dim(\operatorname{Ker}(f)) + \dim(\operatorname{Im}(f))$.
+* **Maticová reprezentace zobrazení vůči bázím:**
+  Nechť $B_U = (u_1, \dots, u_n)$ je báze $U$ a $B_V = (v_1, \dots, v_m)$ báze $V$. Matice zobrazení $_{B_V}[f]_{B_U} \in \mathbb{K}^{m \times n}$ má ve sloupcích souřadnice obrazů bázových vektorů vzoru vyjádřené v bázi cíle:
+  $$_{B_V}[f]_{B_U} = \begin{pmatrix} \mid & & \mid \\ [f(u_1)]_{B_V} & \dots & [f(u_n)]_{B_V} \\ \mid & & \mid \end{pmatrix}$$
+  * **Přepočet souřadnic obrazu:** $[f(x)]_{B_V} = {_{B_V}[f]_{B_U}} \cdot [x]_{B_U}$.
+  * **Matice složeného zobrazení:** Pro $f: U \to V$ a $g: V \to W$ platí:
+    $$_{B_W}[g \circ f]_{B_U} = {_{B_W}[g]_{B_V}} \cdot {_{B_V}[f]_{B_U}}$$
+* **Isomorfismus vektorových prostorů:**
+  * **Definice:** Bijektivní lineární zobrazení $f: U \to V$ (prostory $U, V$ jsou pak isomorfní, $U \cong V$).
+  * **Věta o isomorfismu:** Dva konečně-dimenzionální prostory $U, V$ nad stejným tělesem $\mathbb{K}$ jsou isomorfní $\iff \dim(U) = \dim(V)$.
+  * Každý prostor $V$ dimenze $n$ nad $\mathbb{K}$ je isomorfní prostoru aritmetických vektorů $\mathbb{K}^n$ (isomorfismus zprostředkovává zobrazení souřadnic $u \mapsto [u]_B$).
+
+#### Skalární součin, ortogonalita a projekce:
+* **Skalární součin:** Zobrazení $\langle \cdot \mid \cdot \rangle: V \times V \to \mathbb{C}$ (resp. $\mathbb{R}$), které dvojici vektorů přiřadí skalár a splňuje 3 základní vlastnosti:
+  1. **Pozitivní definitnost:** $\forall u \in V: \langle u \mid u \rangle \in \mathbb{R}_0^+$ (vždy reálné nezáporné číslo $\ge 0$) a zároveň platí rovnost $\langle u \mid u \rangle = 0 \iff u = 0$.
+  2. **Konjugovaná symetrie:** $\forall u, v \in V: \langle v \mid u \rangle = \overline{\langle u \mid v \rangle}$ (pro reálné prostory $\mathbb{R}$ je to čistá symetrie $\langle u \mid v \rangle = \langle v \mid u \rangle$).
+  3. **Linearita v 1. složce:** $\forall u, v, w \in V, \forall a \in \mathbb{C}$:
+     * *Aditivita:* $\langle u + v \mid w \rangle = \langle u \mid w \rangle + \langle v \mid w \rangle$,
+     * *Homogenita:* $\langle a u \mid v \rangle = a \langle u \mid v \rangle$ (ve 2. složce z toho plyne antilinearita: $\langle u \mid a v \rangle = \overline{a} \langle u \mid v \rangle$).
+  * *Standardní skalární součin v $\mathbb{R}^n$:* $\langle x \mid y \rangle = x^T y = \sum_{i=1}^n x_i y_i$. Geometricky vyjadřuje míru, jak moc jde jeden vektor ve směru druhého ($\langle x \mid y \rangle = \|x\| \|y\| \cos \varphi$).
+* **Norma indukovaná skalárním součinem:** Délka (velikost) vektoru: $\|u\| = \sqrt{\langle u \mid u \rangle}$.
+* **Základní věty a nerovnosti:**
+  * **Pythagorova věta:** Jsou-li $u \perp v$ ($\langle u \mid v \rangle = 0$), potom $\|u + v\|^2 = \|u\|^2 + \|v\|^2$.
+  * **Cauchyho-Schwarzova nerovnost:** Pro libovolné vektory $u, v \in V$ platí:
+    $$|\langle u \mid v \rangle| \le \|u\| \cdot \|v\|$$
+    (Rovnost nastává právě tehdy, když jsou $u, v$ lineárně závislé).
+  * **Trojúhelníková nerovnost:** Pro každou indukovanou normu platí $\|u + v\| \le \|u\| + \|v\|$.
+* **Ortonormální (ON) systémy a Fourierovy koeficienty:**
+  * **Ortogonální systém:** $\forall i \ne j: \langle v_i \mid v_j \rangle = 0$.
+  * **Ortonormální systém / báze (ON báze):** Ortogonální systém normovaných vektorů: $\forall i, j: \langle v_i \mid v_j \rangle = \delta_{ij}$ (kde $\delta_{ij} = 1$ pro $i = j$ a $0$ jinak). Každý ON systém je lineárně nezávislý.
+  * **Fourierovy koeficienty:** Má-li $V$ ortonormální bázi $Z = (v_1, \dots, v_n)$, pak pro každý vektor $u \in V$ platí:
+    $$u = \sum_{i=1}^n \langle u \mid v_i \rangle v_i$$
+    kde skaláry $\alpha_i = \langle u \mid v_i \rangle$ jsou **Fourierovy koeficienty** (velikost kolmého průmětu $u$ na bázový vektor $v_i$).
+* **Gramova-Schmidtova ortogonalizace:**
+  * Algoritmus, který z libovolné lineárně nezávislé množiny $(x_1, \dots, x_n)$ vytvoří ortonormální bázi $(z_1, \dots, z_n)$ prostoru $\operatorname{span}\{x_1, \dots, x_n\}$.
+  * Pro $k = 1, \dots, n$:
+    1. Odečti průměty do předchozích vektorů: $y_k = x_k - \sum_{j=1}^{k-1} \langle x_k \mid z_j \rangle z_j$.
+    2. Znormalizuj vektor na jednotkovou délku: $z_k = \frac{y_k}{\|y_k\|}$.
+* **Ortogonální doplněk a ortogonální projekce:**
+  * **Ortogonální doplněk podmnožiny $V \le W$:** Množina všech vektorů kolmých na celý podprostor $V$:
+    $$V^\perp = \{u \in W \mid \forall v \in V: \langle u \mid v \rangle = 0\}$$
+    Platí: $(V^\perp)^\perp = V$ a $\dim(V) + \dim(V^\perp) = \dim(W)$ (pro konečně-dimenzionální prostory).
+  * **Ortogonální projekce:** Je-li $(v_1, \dots, v_k)$ ON báze podprostoru $V \le W$, pak zobrazení $p_V: W \to V$:
+    $$p_V(u) = \sum_{i=1}^k \langle u \mid v_i \rangle v_i$$
+    je **lineární zobrazení**, splňuje $u - p_V(u) \in V^\perp$ a vektor $p_V(u)$ je **nejlepší aproximací** vektoru $u$ v podprostoru $V$ (minimalizuje vzdálenost $\|u - v\|$ pro $v \in V$).
+* **Ortogonální matice ($Q \in \mathbb{R}^{n \times n}$):**
+  * Pro čtvercovou reálnou matici $Q$ jsou ekvivalentní vlastnosti:
+    1. $Q^T Q = Q Q^T = I_n$ (inverzní matice se rovná transponované: $Q^{-1} = Q^T$).
+    2. Sloupce matice $Q$ tvoří ortonormální bázi $\mathbb{R}^n$.
+    3. Řádky matice $Q$ tvoří ortonormální bázi $\mathbb{R}^n$.
+    4. $Q$ zachovává skalární součin: $\langle Qx \mid Qy \rangle = \langle x \mid y \rangle$ (izometrie: zachovává délky $\|Qx\| = \|x\|$ i úhly).
+    5. $|\det(Q)| = 1$ (tedy $\det(Q) \in \{+1, -1\}$; rotační matice mají $\det = +1$).
+
+#### Determinanty:
+* **Definice determinantu (Leibnizova formule):**
+  Pro čtvercovou matici $A \in \mathbb{K}^{n \times n}$:
+  $$\det(A) = \sum_{p \in S_n} \operatorname{sgn}(p) \prod_{i=1}^n a_{i, p(i)}$$
+* **Rychlý výpočet malých determinantů:**
+  * **Matice $2 \times 2$:** $\det \begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc$.
+  * **Matice $3 \times 3$ (Sarrusovo pravidlo):**
+    $$\det \begin{pmatrix} a & b & c \\ d & e & f \\ g & h & i \end{pmatrix} = (aei + bfg + cdh) - (ceg + afh + bdi)$$
+    *(Pozor: Sarrusovo pravidlo platí POUZE pro $3 \times 3$, pro $4 \times 4$ a větší neplatí!)*
+* **Základní vlastnosti determinantu:**
+  * **Multiplikativnost:** $\det(AB) = \det(A) \cdot \det(B)$.
+  * **Determinant transponované matice:** $\det(A^T) = \det(A)$.
+  * **Vztah s regularitou:** $A$ je regulární $\iff \det(A) \ne 0$. Pro regulární matici platí $\det(A^{-1}) = \frac{1}{\det(A)}$.
+  * **Vztah s vlastními čísly:** Determinant je roven součinu všech vlastních čísel matice (včetně algebraických násobností): $\det(A) = \prod_{i=1}^n \lambda_i$.
+  * **Trojúhelníková matice:** Je-li $A$ horní či dolní trojúhelníková (např. v REF tvaru), determinant je součin prvků na hlavní diagonále: $\det(A) = \prod_{i=1}^n a_{ii}$.
+  * **Vliv elementárních úprav (EŘÚ):**
+    * Prohození dvou řádků/sloupců: násobí determinant $-1$.
+    * Vynásobení řádku/sloupce skalárem $c$: násobí determinant číslem $c$ (platí $\det(c \cdot A) = c^n \det(A)$ pro $n \times n$).
+    * Přičtení násobku jiného řádku k danému: **nemění** hodnotu determinantu.
+* **Laplaceův rozvoj determinantu:**
+  * **Rozvoj podle $i$-tého řádku:** $\det(A) = \sum_{j=1}^n a_{ij} (-1)^{i+j} \det(A^{ij})$.
+  * **Rozvoj podle $j$-tého sloupce:** $\det(A) = \sum_{i=1}^n a_{ij} (-1)^{i+j} \det(A^{ij})$,
+    kde $A^{ij}$ je podmatice vzniklá z $A$ vyškrtnutím $i$-tého řádku a $j$-tého sloupce (člen $(-1)^{i+j} \det(A^{ij})$ je tzv. **algebraický doplněk**).
+  * **Adjungovaná matice $\operatorname{adj}(A)$:** Transponovaná matice algebraických doplňků: $(\operatorname{adj}(A))_{j, i} = (-1)^{i+j} \det(A^{ij})$.
+    Pro regulární matici platí: $A^{-1} = \frac{1}{\det(A)} \operatorname{adj}(A)$.
+* **Geometrická interpretace determinantu:**
+  * **Objem rovnoběžnostěnu:** Absolutní hodnota $|\det(A)|$ se přesně rovná objemu $n$-rozměrného rovnoběžnostěnu určeného sloupcovými (či řádkovými) vektory matice $A$ (v $\mathbb{R}^2$ plocha rovnoběžníku, v $\mathbb{R}^3$ objem rovnoběžnostěnu).
+  * **Znaménko $\operatorname{sgn}(\det(A))$:** Udává, zda transformace zachovává orientaci prostoru ($\det > 0$: zachovává pravotočivost báze, $\det < 0$: mění orientaci / zrcadlí).
 
 ### Grafy
 #### Základní pojmy teorie grafů:

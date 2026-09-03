@@ -134,8 +134,8 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * **Fourierovy koeficienty:** Má-li $V$ ortonormální bázi $Z = (v_1, \dots, v_n)$, pak pro každý vektor $u \in V$ platí:
     $$u = \sum_{i=1}^n \langle u \mid v_i \rangle v_i$$
     kde skaláry $\alpha_i = \langle u \mid v_i \rangle$ jsou **Fourierovy koeficienty** (velikost kolmého průmětu $u$ na bázový vektor $v_i$).
-* **Gramova-Schmidtova ortogonalizace:**
-  * Algoritmus, který z libovolné lineárně nezávislé množiny $(x_1, \dots, x_n)$ vytvoří ortonormální bázi $(z_1, \dots, z_n)$ prostoru $\operatorname{span}\{x_1, \dots, x_n\}$.
+* **Gramova-Schmidtova ortogonalizace (Jak v praxi najít ON bázi):**
+  * Vezmeme libovolnou známou bázi $(x_1, \dots, x_n)$ prostoru $V$ (např. bázové vektory řešení homogenní soustavy či sloupců) a algoritmem z ní vytvoříme ortonormální bázi $(z_1, \dots, z_n)$:
   * Pro $k = 1, \dots, n$:
     1. Odečti průměty do předchozích vektorů: $y_k = x_k - \sum_{j=1}^{k-1} \langle x_k \mid z_j \rangle z_j$.
     2. Znormalizuj vektor na jednotkovou délku: $z_k = \frac{y_k}{\|y_k\|}$.
@@ -163,6 +163,9 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * **Matice $3 \times 3$ (Sarrusovo pravidlo):**
     $$\det \begin{pmatrix} a & b & c \\ d & e & f \\ g & h & i \end{pmatrix} = (aei + bfg + cdh) - (ceg + afh + bdi)$$
     *(Pozor: Sarrusovo pravidlo platí POUZE pro $3 \times 3$, pro $4 \times 4$ a větší neplatí!)*
+* **Jak v praxi počítat determinanty větších matic ($4 \times 4$ a více):**
+  1. **Převod na horní trojúhelníkový tvar pomocí EŘÚ (Gaussova eliminace – nejrychlejší):** Upravujeme matici do REF. Přičtení násobku řádku hodnotu nemění; hlídáme si prohození řádků (mění znaménko na opačné) a vytknutí skaláru z celého řádku. Výsledný determinant je součin prvků na hlavní diagonále $\prod a_{ii}$.
+  2. **Kombinace s Laplaceovým rozvojem:** Pokud má řádek či sloupec hodně nul, rozvineme podle něj (ideálně nejprve pomocí EŘÚ vyrobíme v jednom sloupci nuly všude kromě jediné pozice a pak rozvineme).
 * **Základní vlastnosti determinantu:**
   * **Multiplikativnost:** $\det(AB) = \det(A) \cdot \det(B)$.
   * **Determinant transponované matice:** $\det(A^T) = \det(A)$.
@@ -182,6 +185,66 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 * **Geometrická interpretace determinantu:**
   * **Objem rovnoběžnostěnu:** Absolutní hodnota $|\det(A)|$ se přesně rovná objemu $n$-rozměrného rovnoběžnostěnu určeného sloupcovými (či řádkovými) vektory matice $A$ (v $\mathbb{R}^2$ plocha rovnoběžníku, v $\mathbb{R}^3$ objem rovnoběžnostěnu).
   * **Znaménko $\operatorname{sgn}(\det(A))$:** Udává, zda transformace zachovává orientaci prostoru ($\det > 0$: zachovává pravotočivost báze, $\det < 0$: mění orientaci / zrcadlí).
+
+#### Vlastní čísla, vlastní vektory a diagonalizace:
+* **Vlastní číslo a vlastní vektor:**
+  * Pro čtvercovou matici $A \in \mathbb{K}^{n \times n}$ (či operátor $f: V \to V$) je $\lambda \in \mathbb{K}$ **vlastní číslo** a $v \in V \setminus \{0\}$ jemu odpovídající **vlastní vektor**, pokud platí:
+    $$A v = \lambda v \quad (\iff (A - \lambda I_n)v = 0)$$
+  * **Geometrický význam:** Lineární transformace $A$ vektor $v$ pouze **škáluje (natahuje/zkracuje či obrací)** faktorem $\lambda$, ale nemění jeho směr (přímka $\operatorname{span}\{v\}$ je invariantní).
+* **Charakteristický polynom a jak v praxi spočíst vlastní čísla:**
+  * **Charakteristický polynom:** $p_A(\lambda) = \det(A - \lambda I_n)$ (polynom stupně $n$).
+  * **Výpočet v praxi (2 kroky):**
+    1. **Nalezení vlastních čísel:** Vyřešíme charakteristickou rovnici $\det(A - \lambda I_n) = 0$. Její kořeny jsou právě vlastní čísla $\lambda_1, \dots, \lambda_n$.
+    2. **Nalezení vlastních vektorů:** Pro každé nalezené $\lambda$ dosadíme do rovnice $(A - \lambda I_n)v = 0$ a najdeme bázi jádra $\operatorname{Ker}(A - \lambda I_n)$ pomocí Gaussovy eliminace.
+* **Násobnost vlastních čísel:**
+  * **Algebraická násobnost:** Násobnost čísla $\lambda$ jako kořene charakteristického polynomu $p_A$.
+  * **Geometrická násobnost:** Dimenze podprostoru vlastních vektorů $\dim(\operatorname{Ker}(A - \lambda I_n))$.
+  * Platí nerovnost: $1 \le \text{geometrická násobnost} \le \text{algebraická násobnost}$.
+* **Základní vlastnosti vlastních čísel:**
+  * **Stopa matice $\operatorname{trace}(A)$:** Součet prvků na hlavní diagonále je roven součtu vlastních čísel: $\operatorname{trace}(A) = \sum_{i=1}^n a_{ii} = \sum_{i=1}^n \lambda_i$.
+  * **Determinant:** Součin vlastních čísel: $\det(A) = \prod_{i=1}^n \lambda_i$.
+  * $A$ je regulární $\iff 0$ není vlastním číslem $A$.
+  * Vlastní čísla $A^{-1}$ jsou $\lambda_i^{-1}$, matice $A^k$ má vlastní čísla $\lambda_i^k$, matice $\alpha A$ má $\alpha \lambda_i$, a $A + \alpha I$ má $\lambda_i + \alpha$ (pro stejné vlastní vektory). $A^T$ má stejná vlastní čísla jako $A$.
+* **Podobnost matic ($A \sim B$):**
+  * Matice $A, B \in \mathbb{K}^{n \times n}$ jsou si podobné, pokud existuje regulární matice $R$ taková, že $A = R^{-1} B R$ (odpovídá témuž operátoru vyjádřenému v různých bázích, $R$ je matice přechodu).
+  * *Invarianty podobnosti:* Podobné matice mají stejný charakteristický polynom, stejná vlastní čísla (včetně násobností), stejný determinant, stopu i hodnost.
+* **Diagonalizovatelnost a spektrální rozklad:**
+  * Matice $A$ je **diagonalizovatelná**, pokud je podobná diagonální matici $\Lambda = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$, tj. existuje regulární matice $S$ taková, že:
+    $$A = S \Lambda S^{-1} \quad (\iff S^{-1} A S = \Lambda)$$
+  * **Podmínka diagonalizovatelnosti:** Matice $A \in \mathbb{K}^{n \times n}$ je diagonalizovatelná $\iff$:
+    1. Prostor $\mathbb{K}^n$ má bázi tvořenou vlastními vektory matice $A$ ($n$ lineárně nezávislých vlastních vektorů).
+    2. Pro každé vlastní číslo se jeho **algebraická násobnost rovná geometrické násobnosti** (pokud má nějaké vícenásobné $\lambda$ méně vlastních vektorů než svou násobnost, matice diagonalizovatelná není!).
+  * **Jak v praxi matici diagonalizovat (Sestrojení $S$ a $\Lambda$):**
+    1. Spočteme vlastní čísla $\lambda_1, \dots, \lambda_n$ $\implies$ položíme je na hlavní diagonálu matice $\Lambda$.
+    2. Pro každé $\lambda_i$ vyřešíme soustavu $(A - \lambda_i I_n)v = 0 \implies$ získáme vlastní vektory $v_i$.
+    3. Vlastní vektory poskládáme do **sloupců matice $S = (v_1 \mid v_2 \mid \dots \mid v_n)$** ve stejném pořadí, v jakém jsou vlastní čísla na diagonále $\Lambda$ ($j$-tý sloupec v $S$ odpovídá číslu $\lambda_j$).
+
+#### Symetrické matice, pozitivní definitnost a Choleského rozklad:
+* **Vlastnosti reálných symetrických matic ($A = A^T$):**
+  * Všechna vlastní čísla reálné symetrické matice jsou **reálná** ($\lambda_i \in \mathbb{R}$).
+  * Vlastní vektory příslušné různým vlastním číslům jsou navzájem **ortogonální** ($u \perp v$).
+  * **Spektrální věta pro symetrické matice:** Každá reálná symetrická matice je **ortogonálně diagonalizovatelná**: existuje **ortogonální matice $Q$** ($Q^{-1} = Q^T$) a diagonální $\Lambda$ tak, že:
+    $$A = Q \Lambda Q^T = \sum_{i=1}^n \lambda_i q_i q_i^T$$
+    kde sloupce $q_i$ tvoří ortonormální bázi vlastních vektorů $\mathbb{R}^n$.
+* **Pozitivně definitní (PD) a semidefinitní (PSD) matice:**
+  * Symetrická matice $A \in \mathbb{R}^{n \times n}$ se nazývá:
+    * **Pozitivně definitní (PD):** $\forall x \in \mathbb{R}^n \setminus \{0\}: x^T A x > 0$.
+    * **Pozitivně semidefinitní (PSD):** $\forall x \in \mathbb{R}^n: x^T A x \ge 0$.
+* **Ekvivalentní charakterizace pozitivní definitnosti (Zkouškový přehled):**
+  Pro symetrickou matici $A \in \mathbb{R}^{n \times n}$ jsou následující tvrzení ekvivalentní:
+  1. $A$ je PD ($\forall x \ne 0: x^T A x > 0$).
+  2. **Vlastní čísla:** Všechna vlastní čísla jsou **ostře kladná**: $\lambda_i > 0$ pro všechna $i$ (pro PSD platí $\lambda_i \ge 0$).
+  3. **Sylvestrovo kritérium:** Determinanty všech hlavních vedoucích podmatic jsou kladné: $\det(A_k) > 0$ pro $k = 1, \dots, n$ (kde $A_k$ je podmatice prvních $k$ řádků a sloupců).
+  4. **Choleského rozklad:** Existuje regulární horní trojúhelníková matice $U$ s kladnou diagonálou t.ž. $A = U^T U$ (v dolním tvaru $A = L L^T$).
+  5. **Gramova matice:** $A$ je Gramovou maticí nějaké lineárně nezávislé báze: $a_{ij} = \langle b_i \mid b_j \rangle$.
+* **Vztah se skalárním součinem:**
+  Každý skalární součin na $\mathbb{R}^n$ lze vyjádřit pomocí pozitivně definitní matice $A$ vztahem $\langle x \mid y \rangle = x^T A y$, a naopak každá PD matice definuje skalární součin.
+* **Choleského rozklad:**
+  * **Věta o Choleského rozkladu:** Pro každou reálnou symetrickou pozitivně definitní matici $A$ existuje **jediná horní trojúhelníková matice $U$ s kladnými prvky na diagonále** ($u_{ii} > 0$) taková, že:
+    $$A = U^T U \quad (\text{resp. } A = L L^T \text{ pro dolní trojúhelníkovou } L = U^T)$$
+  * **Praktické použití:**
+    1. **Řešení soustav rovnic $Ax = b$:** Rozložíme $A = L L^T \implies$ řešíme dvě trojúhelníkové soustavy přímou a zpětnou substitucí: $L y = b$ a následně $L^T x = y$. Vyžaduje pouze $O(n^2)$ operací (po rozkladu) a spotřebuje poloviční čas i paměť oproti LU rozkladu, navíc je numericky stabilní bez nutnosti pivotizace.
+    2. **Ověření pozitivní definitnosti:** Pokud při algoritmu Choleského rozkladu narazíme na odmocninu ze záporného čísla nebo nuly, matice není pozitivně definitní.
 
 ### Grafy
 #### Základní pojmy teorie grafů:

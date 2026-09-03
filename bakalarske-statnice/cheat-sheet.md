@@ -9,6 +9,175 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 ### Lingebra
 
 ### Grafy
+#### Základní pojmy teorie grafů:
+* **Graf $G = (V, E)$:** Uspořádaná dvojice, kde $V$ je konečná neprázdná množina **vrcholů** ($|V| = n$) a $E \subseteq \binom{V}{2}$ je množina **hran** ($|E| = m$, dvouprvkové podmnožiny $\{u, v\}$, bez smyček a násobných hran).
+* **Izomorfismus grafů ($G \cong H$):** Grafy $G=(V_G, E_G)$ a $H=(V_H, E_H)$ jsou izomorfní, pokud existuje **bijekce** $f: V_G \to V_H$ zachovávající hrany:
+  $$\forall u, v \in V_G: \{u, v\} \in E_G \iff \{f(u), f(v)\} \in E_H$$
+  * *Grafové invarianty* (nutné podmínky pro $G \cong H$): stejný počet vrcholů $n$, hran $m$, stejné skóre stupňů, délka nejkratší kružnice (girth), klikovost $\omega(G)$, nezávislost $\alpha(G)$, bipartitnost.
+* **Podgraf a indukovaný podgraf:**
+  * **Podgraf ($H \subseteq G$):** $V_H \subseteq V_G$ a $E_H \subseteq E_G \cap \binom{V_H}{2}$ (vznikne odebráním některých vrcholů a/nebo hran).
+  * **Indukovaný podgraf ($G[U]$ pro $U \subseteq V_G$):** $V_H = U$ a $E_H = E_G \cap \binom{U}{2}$ (obsahuje *všechny* původní hrany mezi vrcholy podmnožiny $U$).
+* **Okolí a stupeň vrcholu:**
+  * **Otevřené okolí $N_G(v)$:** Množina sousedů: $N(v) = \{u \in V \mid \{u, v\} \in E\}$.
+  * **Stupeň vrcholu $\deg_G(v)$:** Počet incidentních hran: $\deg(v) = |N(v)|$. Minimální stupeň $\delta(G)$, maximální stupeň $\Delta(G)$.
+  * **Princip sudosti (Handshaking lemma):** Součet stupňů všech vrcholů je roven dvojnásobku počtu hran:
+    $$\sum_{v \in V} \deg(v) = 2|E| \implies \text{počet vrcholů lichého stupně je vždy sudý}$$
+  * **$k$-regulární graf:** Všechny vrcholy mají stejný stupeň: $\forall v \in V: \deg(v) = k$ (platí $k \cdot n = 2m$).
+  * **Skóre grafu:** Posloupnost stupňů všech vrcholů (obvykle uspořádaná nerostoucí či neklesající).
+* **Doplněk grafu ($\overline{G}$):** Graf na stejné množině vrcholů $V$, kde hrany tvoří právě ty dvojice, které v $G$ nejsou:
+  $$\overline{G} = \left(V, \binom{V}{2} \setminus E\right), \quad |E(G)| + |E(\overline{G})| = \binom{n}{2} = \frac{n(n-1)}{2}$$
+* **Bipartitní graf:** Graf $G=(V, E)$, jehož vrcholy lze rozdělit na dvě disjunktní partity $V = V_1 \cup V_2$ ($V_1 \cap V_2 = \emptyset$) tak, že každá hrana spojuje vrchol z $V_1$ s vrcholem z $V_2$ ($\forall e \in E: |e \cap V_1| = 1$, hrany nikdy nevedou uvnitř stejné partity).
+  * **Charakterizační věta:** Graf $G$ je bipartitní $\iff$ **neobsahuje žádnou lichou kružnici** ($\iff$ je 2-obarvitelný, $\chi(G) \le 2$).
+
+#### Základní příklady grafů, průchody a Eulerovské tahy:
+* **Úplný graf $K_n$:** $V = [n]$, $E = \binom{V}{2}$, počet hran $\binom{n}{2} = \frac{n(n-1)}{2}$, každý vrchol má stupeň $n-1$.
+* **Úplný bipartitní graf $K_{n, m}$:** Partity o velikostech $n$ a $m$ ($V = \{u_1, \dots, u_n\} \cup \{v_1, \dots, v_m\}$), $E = \{\{u_i, v_j\}\}$; počet hran $|E| = n \cdot m$.
+* **Cesta $P_n$:** Graf na $n$ vrcholech spojených za sebou: $V = [n]$, $E = \{\{i, i+1\} \mid 1 \le i \le n-1\}$. Má $n$ vrcholů a délku $n-1$ hran.
+* **Kružnice $C_n$ ($n \ge 3$):** Cyklus na $n$ vrcholech: $V = [n]$, $E = \{\{i, i+1\} \mid 1 \le i \le n-1\} \cup \{\{1, n\}\}$. Má $n$ vrcholů a $n$ hran (2-regulární).
+* **Průchody grafem (Sled, Tah, Cesta):**
+  * **Sled:** Sled z $v_0$ do $v_n$ je posloupnost $(v_0, e_1, v_1, e_2, \dots, e_n, v_n)$, pokud $\forall i$ platí $e_i = \{v_{i-1}, v_i\}$ (kde $v$ jsou vrcholy a $e$ hrany). **Mohou se opakovat vrcholy i hrany**.
+  * **Tah:** Sled, kde $e$ jsou navzájem různé hrany. **Mohou se opakovat vrcholy, ale NE hrany**.
+  * **Cesta:** Tah s navzájem různými vrcholy. **Neopakují se vrcholy ani hrany**.
+* **Eulerovský graf a Eulerovský tah:**
+  * **Eulerovský tah:** Tah, který projde **každou hranou grafu právě jednou**.
+  * **Otevřený Eulerovský tah** (začíná a končí v různých vrcholech) existuje $\iff$ graf $G$ je souvislý a má **právě 2 vrcholy lichého stupně** (v jednom začíná, ve druhém končí).
+  * **Uzavřený Eulerovský tah / Eulerovský graf** (končí ve stejném vrcholu) existuje $\iff$ graf $G$ je souvislý a **každý vrchol má sudý stupeň** ($\forall v \in V: \deg(v) \text{ je sudý}$).
+
+#### Souvislost grafů, komponenty souvislosti a vzdálenost:
+* **Souvislý graf:** Graf $G$ je souvislý, pokud $\forall u, v \in V$ existuje v $G$ cesta mezi $u$ a $v$.
+* **Relace dosažitelnosti ($\sim$):** Ekvivalence na $V$ ($u \sim v \iff$ existuje cesta mezi $u$ a $v$).
+  * *Reflexivní* ($u \sim u$ přes cestu délky 0), *symetrická* (neorientované hrany lze projít obousměrně), *tranzitivní* (napojení cest).
+* **Komponenty souvislosti:** Podgrafy indukované jednotlivými rozkladovými třídami ekvivalence $\sim$ (maximální souvislé podgrafy).
+* **Vzdálenost v grafu $d_G(u, v)$:** Délka (počet hran) nejkratší cesty mezi $u$ a $v$ ($d(u, v) = \infty$, pokud cesta neexistuje).
+  * **Vlastnosti metriky na souvislém grafu ($\forall u, v, w \in V$):**
+    1. **Nezápornost:** $d(u, v) \ge 0$ (délka cesty je nezáporná).
+    2. **Identita nerozlišitelných:** $d(u, v) = 0 \iff u = v$.
+    3. **Symetrie:** $d(u, v) = d(v, u)$.
+    4. **Trojúhelníková nerovnost:** $d(u, w) \le d(u, v) + d(v, w)$ (napojení nejkratších cest $u \to v$ a $v \to w$ dává sled délky $d(u,v)+d(v,w)$, nejkratší cesta nemůže být delší).
+
+#### Stromy (Definice, vlastnosti a ekvivalentní charakteristiky):
+* **Definice stromu:** Souvislý acyklický graf (graf bez kružnic).
+* **Les:** Acyklický graf (jeho komponenty souvislosti jsou stromy).
+* **List:** Vrchol stupně 1 ($\deg(v) = 1$).
+* **Základní vlastnosti stromů:**
+  * Každý strom s alespoň dvěma vrcholy ($|V| \ge 2$) má **alespoň dva listy**.
+  * Pro graf $G$ s listem $v$ platí: **$G$ je strom $\iff G - v$ je strom**.
+  * Počet hran každého stromu s $n$ vrcholy je roven **$|E| = |V| - 1 = n - 1$** (pro les s $k$ komponentami platí $|E| = |V| - k$).
+* **Ekvivalentní charakteristiky stromu (pro graf $G=(V, E)$ s $|V| = n$):**
+  1. $G$ je souvislý a acyklický (= strom).
+  2. $\forall u, v \in V(G)$ existuje **právě jedna cesta** mezi $u$ a $v$ (jednoznačná souvislost).
+  3. $G$ je souvislý a $\forall e \in E(G): G - e$ není souvislý (minimální souvislost / každá hrana je most).
+  4. $G$ je acyklický a $\forall e \in \binom{V}{2} \setminus E: G + e$ obsahuje kružnici (maximální acykličnost).
+  5. $G$ je souvislý a $|E| = |V| - 1$ (Eulerova formule pro stromy).
+  6. $G$ je acyklický a $|E| = |V| - 1$.
+* **Kostra grafu:** Podgraf $T \subseteq G$, který je stromem a obsahuje všechny vrcholy $V(T) = V(G)$. Graf má kostru $\iff$ je souvislý.
+
+#### Rovinné grafy (Nakreslení, Eulerova formule a vlastnosti):
+* **Rovinný graf a nakreslení:**
+  * **Rovinný graf:** Graf, pro který existuje rovinné nakreslení v ploše $\mathbb{R}^2$.
+  * **Rovinné nakreslení:** Přiřazení různých bodů vrcholům a jednoduchých spojitých křivek (oblouků) hranám tak, že žádné dva oblouky nesdílí vnitřní bod (protínají se nanejvýš ve společném koncovém vrcholu).
+* **Stěny (Faces, $F$):** Souvislé komponenty otevřené množiny $\mathbb{R}^2 \setminus (\text{nakreslení } G)$. Právě jedna stěna je neomezená (vnější stěna).
+  * **Stupeň stěny $\deg(f)$:** Délka hraničního sledu stěny $f$.
+  * **Princip sudosti pro stěny:**
+    $$\sum_{f \in F} \deg(f) = 2|E|$$
+* **Eulerova formule:** Pro každý **souvislý rovinný graf** s $v = |V|$ vrcholy, $e = |E|$ hranami a $f = |F|$ stěnami platí:
+  $$v - e + f = 2 \quad (\text{neboli } v + f = e + 2)$$
+  * **Důkaz indukcí podle počtu hran $e$ (při pevném $v$):**
+    1. *Báze ($e = v - 1$):* Graf je strom, nemá žádné kružnice $\implies$ má pouze $f = 1$ stěnu (vnější). Dosazení: $v + 1 = (v - 1) + 2 = v + 1$ (platí).
+    2. *Indukční krok ($e - 1 \to e$):* Mějme graf s $e \ge v$ hranami. Graf obsahuje kružnici; zvolme hranu $\lambda$ na kružnici a odebereme ji: $G' = G - \lambda$. V $G'$ ubude 1 hrana a spojí se 2 sousední stěny do jedné ($v' = v$, $e' = e - 1$, $f' = f - 1$). Z indukčního předpokladu pro $G'$ platí $v' + f' = e' + 2 \implies v + (f - 1) = (e - 1) + 2 \implies v + f = e + 2$ $\square$.
+* **Maximální počet hran rovinného grafu:**
+  * V každém rovinném grafu s alespoň 3 vrcholy ($v \ge 3$) platí:
+    $$|E| \le 3|V| - 6$$
+    * *Důkaz:* Každá stěna je ohraničena alespoň 3 hranami ($\deg(f) \ge 3$). Z principu sudosti pro stěny: $2e = \sum \deg(f) \ge 3f \implies f \le \frac{2}{3}e$. Dosazením do Eulerovy formule: $2 = v - e + f \le v - e + \frac{2}{3}e = v - \frac{1}{3}e \implies \frac{1}{3}e \le v - 2 \implies e \le 3v - 6$ $\square$.
+  * **Pro rovinné grafy bez trojúhelníků (např. bipartitní, $\deg(f) \ge 4$):**
+    $$|E| \le 2|V| - 4$$
+    *(Důkaz: $2e \ge 4f \implies f \le \frac{e}{2} \implies 2 \le v - \frac{e}{2} \implies e \le 2v - 4$).*
+* **Existence vrcholu malého stupně:** V každém rovinném grafu existuje vrchol stupně **nejvýše 5** ($\delta(G) \le 5$).
+  * *Důkaz sporem:* Kdyby $\forall v \in V: \deg(v) \ge 6 \implies 2e = \sum \deg(v) \ge 6v \implies e \ge 3v$, což je spor s $e \le 3v - 6$.
+* **Kuratowského věta:** Graf $G$ je rovinný $\iff$ neobsahuje podgraf izomorfní **dělení grafu $K_5$ ani $K_{3,3}$** (dělení hrany = přidání vrcholů na hrany $K_5$ či $K_{3,3}$).
+
+#### Barevnost grafů:
+* **Dobré $k$-obarvení vrcholů:** Zobrazení $c: V(G) \to \{1, \dots, k\}$ takové, že:
+  $$\forall \{u, v\} \in E(G): c(u) \ne c(v) \quad (\text{žádné dva sousední vrcholy nemají stejnou barvu})$$
+* **Barevnost (Chromatické číslo) $\chi(G)$:** Nejmenší $k$, pro které existuje dobré $k$-obarvení grafu $G$.
+  * **Charakterizace 2-obarvitelnosti:** $\chi(G) \le 2 \iff G$ je bipartitní $\iff G$ nemá lichou kružnici.
+* **Klika a klikovost $\omega(G)$:**
+  * **Klika:** Podmnožina vrcholů, které jsou navzájem všechny propojené hranou (indukují úplný podgraf $K_k$).
+  * **Klikovost $\omega(G)$:** Velikost největší kliky v grafu $G$.
+* **Vztah barevnosti a klikovosti:**
+  $$\chi(G) \ge \omega(G)$$
+  * *Důvod:* Každý z $\omega(G)$ vrcholů kliky musí mít navzájem různou barvu.
+  * *Pozor (Obrácená nerovnost neplatí!):* Existují grafy s libovolně vysokou barevností bez trojúhelníků ($\omega=2$, např. Mycielského konstrukce).
+* **Dobré hranové obarvení:** Zobrazení $\varphi: E(G) \to \{1, \dots, k\}$ takové, že každé dvě hrany $e_1, e_2$ incidentní se stejným vrcholem mají různou barvu ($\varphi(e_1) \ne \varphi(e_2)$).
+  * **Hranová barevnost (Chromatický index) $\chi'(G)$:** Nejmenší počet barev pro hranové obarvení.
+
+#### Hranová a vrcholová souvislost grafů:
+* **Hranový řez a Hranová souvislost:**
+  * **Hranový řez:** Množina hran $F \subseteq E$, pro kterou je graf $G \setminus F$ nesouvislý.
+  * **Hranová $k$-souvislost:** Graf $G$ je hranově $k$-souvislý, pokud neobsahuje žádný hranový řez velikosti menší než $k$ (k rozpojení grafu je třeba odebrat alespoň $k$ hran).
+  * **Hranová souvislost $k_e(G)$ (či $\lambda(G)$):** Největší $k$ takové, že $G$ je hranově $k$-souvislý.
+* **Vrcholový řez a Vrcholová souvislost:**
+  * **Vrcholový řez:** Množina vrcholů $U \subseteq V$, pro kterou je indukovaný podgraf $G[V \setminus U]$ nesouvislý (nebo triviální).
+  * **Vrcholová $k$-souvislost:** Graf $G$ je vrcholově $k$-souvislý, pokud má alespoň $k + 1$ vrcholů ($|V| \ge k + 1$) a neobsahuje žádný vrcholový řez velikosti $< k$.
+  * **Vrcholová souvislost $k_v(G)$ (či $\kappa(G)$):** Největší $k$ takové, že $G$ je vrcholově $k$-souvislý.
+  * **Vztah souvislostí:** Pro každý netriviální graf platí $k_v(G) \le k_e(G) \le \delta(G)$.
+* **Mengerova věta (Všechny 4 varianty):**
+  * **1. Hranová $xy$-verze (lokální):** Pro dva různé vrcholy $x, y \in V$:
+    $$G \text{ obsahuje } k \text{ hranově disjunktních cest mezi } x, y \iff G \text{ neobsahuje hranový } xy\text{-řez velikosti } < k$$
+  * **2. Vrcholová $xy$-verze (lokální):** Pro dva různé **nesousední** vrcholy $x, y \in V$:
+    $$G \text{ obsahuje } k \text{ vrcholově disjunktních cest mezi } x, y \iff G \text{ neobsahuje vrcholový } xy\text{-řez velikosti } < k$$
+  * **3. Globální hranová verze:**
+    $$G \text{ je hranově } k\text{-souvislý} \iff \text{mezi každými dvěma různými vrcholy existuje alespoň } k \text{ hranově disjunktních cest}$$
+  * **4. Globální vrcholová verze:**
+    $$G \text{ je vrcholově } k\text{-souvislý} \iff \text{mezi každými dvěma různými vrcholy existuje alespoň } k \text{ vrcholově disjunktních cest}$$
+
+#### Orientované grafy, silná a slabá souvislost:
+* **Orientovaný graf (Digraf) $G = (V, E)$:** Uspořádaná dvojice, kde $E \subseteq V^2 \setminus \{(x, x) \mid x \in V\}$ je množina orientovaných hran (uspořádaných dvojic $(u, v)$, bez smyček).
+* **Podkladový graf $H = (V, F)$:** Neorientovaný graf na stejných vrcholech, kde zahodíme šipky:
+  $$F = \left\{\{u, v\} \in \binom{V}{2} \;\middle|\; (u, v) \in E \vee (v, u) \in E\right\}$$
+* **Stupně vrcholů:** Vstupní stupeň $\deg^-(v) = |\{u \in V \mid (u, v) \in E\}|$, výstupní stupeň $\deg^+(v) = |\{u \in V \mid (v, u) \in E\}|$. Graf je **vyvážený**, pokud $\forall v \in V: \deg^+(v) = \deg^-(v)$.
+* **Typy souvislosti orientovaného grafu:**
+  * **Slabá souvislost:** Podkladový neorientovaný graf $H$ je souvislý.
+  * **Silná souvislost:** Pro každé dva vrcholy $u, v \in V$ existuje orientovaná cesta z $u$ do $v$ (i z $v$ do $u$).
+* **Eulerovský orientovaný graf (Ekvivalence):** Pro orientovaný graf $G$ jsou následující tvrzení ekvivalentní:
+  1. $G$ je vyvážený a slabě souvislý.
+  2. $G$ má uzavřený eulerovský tah (projde každou orientovanou hranu právě jednou a skončí v počátku).
+  3. $G$ je vyvážený a silně souvislý.
+
+#### Toky v sítích (Definice, vlastnosti a Ford-Fulkerson):
+* **Toková síť:** Pětice $(V, E, z, s, c)$, kde:
+  * $V$ je konečná množina vrcholů, $E \subseteq V \times V$ množina orientovaných hran.
+  * $z \in V$ je **zdroj** (source), $s \in V \setminus \{z\}$ je **stok** (sink / spotřebič).
+  * $c: E \to [0, +\infty)$ je **kapacita** hran ($c(e)$ udává maximální propustnost).
+* **Tok v síti:** Funkce $f: E \to [0, +\infty)$ splňující dvě podmínky:
+  1. **Kapacitní omezení:** $\forall e \in E: 0 \le f(e) \le c(e)$ (tok nepřekročí kapacitu).
+  2. **Kirchhoffův zákon (zachování toku):** Pro každý vnitřní uzel $u \in V \setminus \{z, s\}$ platí:
+     $$\sum_{v: (v, u) \in E} f(v, u) = \sum_{v: (u, v) \in E} f(u, v) \quad (\text{neboli } f_{in}(u) = f_{out}(u))$$
+* **Velikost toku $w(f)$:** Čistý odtok ze zdroje $z$ (rovná se čistému přítoku do stoku $s$):
+  $$w(f) = f(Out(z)) - f(In(z)) = \sum_{v: (z, v) \in E} f(z, v) - \sum_{v: (v, z) \in E} f(v, z)$$
+* **Existence maximálního toku (Fakt):** V každé síti **existuje maximální tok** (množina všech přípustných toků tvoří uzavřenou a omezenou podmnožinu $\mathbb{R}^{|E|}$, je tedy kompaktní; velikost toku $w(f)$ je spojitá funkce, a spojitá funkce na kompaktu vždy nabývá svého maxima).
+* **Řez v síti a jeho kapacita:**
+  * **Řez v síti:** Množina hran $R \subseteq E$ taková, že každá orientovaná cesta ze $z$ do $s$ má neprázdný průnik s $R$ (odebráním $R$ se přeruší všechna spojení ze $z$ do $s$). Často definován rozkladem $V = A \cup B$ ($z \in A, s \in B, A \cap B = \emptyset$), řez jsou hrany vedoucí z $A$ do $B$.
+  * **Kapacita řezu:** $c(R) = \sum_{e \in R} c(e)$.
+  * **Minimální řez:** Řez s nejmenší celkovou kapacitou mezi všemi řezy sítě.
+* **Věta o maximálním toku a minimálním řezu (Max-Flow Min-Cut / Minimax):**
+  Pro každý tok $f$ a každý řez $R$ platí $w(f) \le c(R)$. Zejména pro maximální tok $f_{max}$ a minimální řez $R_{min}$ platí rovnost:
+  $$w(f_{max}) = c(R_{min})$$
+  * **Ekvivalentní charakteristiky maximálního toku:** Pro tok $f$ je ekvivalentní:
+    1. $f$ je maximální tok.
+    2. V síti neexistuje žádná zlepšující (nenasycená) cesta ze $z$ do $s$.
+    3. Existuje řez $R$ takový, že $w(f) = c(R)$.
+* **Hledání maximálního toku (Ford-Fulkersonův algoritmus):**
+  * **Zlepšující (nenasycená) cesta $P$:** Neorientovaná cesta ze $z$ do $s$, kde:
+    * Pro každou **dopřednou hranu** $e = (x_i, x_{i+1}) \in E$ je rezerva $r(e) = c(e) - f(e) > 0$ (lze přilít).
+    * Pro každou **zpětnou hranu** $e = (x_{i+1}, x_i) \in E$ je rezerva $r(e) = f(e) > 0$ (lze ubrat / přesměrovat).
+  * **Algoritmus pro celočíselné kapacity ($c(e) \in \mathbb{N}_0$):**
+    1. Nastav $f(e) = 0$ pro všechny hrany (nulový tok).
+    2. Dokud existuje zlepšující cesta $P$ ze $z$ do $s$:
+       * Spočti úzké hrdlo cesty: $\varepsilon = \min_{e \in P} r(e)$ (minimální rezerva podél cesty).
+       * Zvětši tok podél $P$ o $\varepsilon$: na dopředných hranách $f(e) \leftarrow f(e) + \varepsilon$, na zpětných $f(e) \leftarrow f(e) - \varepsilon$.
+    3. Vrať maximální tok $f$.
+  * **Konečnost a celočíselnost:** Jsou-li kapacity celá čísla, je v každém kroku $\varepsilon \ge 1$ celé číslo $\implies$ v každém kroku vzroste velikost toku alespoň o 1. Protože je velikost toku shora omezena kapacitou libovolného řezu, algoritmus **zaručeně skončí v konečném počtu kroků** v čase $\mathcal{O}(|E| \cdot w(f_{max}))$. Výsledný tok je celočíselný.
 
 ### Diskrétka
 #### Relace a jejich vlastnosti:

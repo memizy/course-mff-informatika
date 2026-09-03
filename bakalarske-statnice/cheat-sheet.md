@@ -5,6 +5,260 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 ## Matika
 
 ### Analýza
+#### Posloupnosti reálných čísel a jejich limity:
+* **Definice posloupnosti:** Reálná posloupnost je zobrazení $a: \mathbb{N} \to \mathbb{R}$, značíme $(a_n)_{n=1}^\infty$, kde $a_n$ je $n$-tý člen.
+  * **Monotonie:** Posloupnost je *rostoucí* ($a_n < a_{n+1}$), *klesající* ($a_n > a_{n+1}$), *neklesající* ($a_n \le a_{n+1}$), *nerostoucí* ($a_n \ge a_{n+1}$).
+* **Definice limity posloupnosti (vlastní i nevlastní, $L \in \mathbb{R}^* = \mathbb{R} \cup \{\pm\infty\}$):**
+  Posloupnost $(a_n)$ má limitu $L$ (píšeme $\lim_{n \to \infty} a_n = L$), pokud:
+  $$\forall \varepsilon > 0 \ \exists n_0 \in \mathbb{N} \ \forall n \ge n_0: a_n \in U(L, \varepsilon)$$
+  * **Vlastní limita v konečném čísle ($L \in \mathbb{R}$):** $\forall \varepsilon > 0 \ \exists n_0 \ \forall n \ge n_0: |a_n - L| < \varepsilon$ (od indexu $n_0$ leží všechny členy v pásu kolem $L$). Posloupnost s vlastní limitou nazýváme **konvergentní**.
+  * **Nevlastní limita $+\infty$:** $\forall K \in \mathbb{R} \ \exists n_0 \ \forall n \ge n_0: a_n > K$ (členy přerostou libovolnou mez).
+  * **Nevlastní limita $-\infty$:** $\forall K \in \mathbb{R} \ \exists n_0 \ \forall n \ge n_0: a_n < K$.
+* **Aritmetika limit posloupností:**
+  Nechť $\lim a_n = K \in \mathbb{R}^*$ a $\lim b_n = L \in \mathbb{R}^*$. Pokud mají výrazy v $\mathbb{R}^*$ smysl, platí:
+  1. $\lim (a_n \pm b_n) = K \pm L$
+  2. $\lim (a_n \cdot b_n) = K \cdot L$
+  3. $\lim \left(\frac{a_n}{b_n}\right) = \frac{K}{L}$ (pokud $b_n \ne 0$ pro všechna $n \ge n_0$ a $L \ne 0$).
+  * *Pozor na neurčité výrazy:* $\infty - \infty, \ 0 \cdot (\pm\infty), \ \frac{\pm\infty}{\pm\infty}, \ \frac{0}{0}$ (zde nelze aritmetiku limit přímo použít, je třeba výraz algebraicky upravit).
+* **Věta o dvou policajtech (Sandwich theorem):**
+  Nechť $(a_n), (b_n), (c_n)$ jsou posloupnosti splňující $\lim a_n = \lim b_n = A \in \mathbb{R}$ a od indexu $n_0$ platí $a_n \le c_n \le b_n$.
+  Potom i sevřená posloupnost $(c_n)$ konverguje a platí:
+  $$\lim_{n \to \infty} c_n = A$$
+  *(Varianta „jeden policajt“ pro nevlastní limitu: pokud $c_n \ge a_n$ a $a_n \to +\infty$, pak nutně $c_n \to +\infty$).*
+* **Limity a uspořádání:**
+  * **Přenos ostré nerovnosti z limit na členy:** Pokud $\lim a_n = K < L = \lim b_n$, pak existuje index $n_0$ takový, že $\forall n \ge n_0: a_n < b_n$.
+  * **Přechod k limitě v nerovnosti:** Pokud od indexu $n_0$ platí $a_n \le b_n$, potom $\lim a_n \le \lim b_n$. *(Pozor: i z ostré nerovnosti $a_n < b_n$ v limitě plyne pouze neostrá nerovnost $\lim a_n \le \lim b_n$, např. $\frac{1}{n} > 0$, ale limita je $0$)*.
+* **Důležité vlastnosti posloupností:**
+  * **Věta o limitě monotónní posloupnosti:** Každá monotónní posloupnost má limitu (je-li navíc omezená, má vlastní limitu $L \in \mathbb{R}$; je-li neomezená shora a neklesající, má limitu $+\infty$).
+  * **Vybraná podposloupnost:** Má-li $(a_n)$ limitu $L$, má každá její vybraná podposloupnost $(a_{k_n})$ tutéž limitu $L$.
+  * **Kritérium nulové vzdálenosti:** Pro $L \in \mathbb{R}$ platí $\lim a_n = L \iff \lim |a_n - L| = 0$.
+
+#### Nekonečné číselné řady:
+* **Definice řady a jejího součtu:**
+  * **Řada:** Formální součet členů posloupnosti $(a_n)_{n=1}^\infty$, značíme $\sum_{n=1}^\infty a_n = a_1 + a_2 + a_3 + \dots$
+  * **Posloupnost částečných součtů:** $s_n = \sum_{k=1}^n a_k = a_1 + a_2 + a_3 + \dots + a_n$.
+  * **Součet řady:** Limita posloupnosti částečných součtů:
+    $$\sum_{n=1}^\infty a_n = \lim_{n \to \infty} s_n \in \mathbb{R}^*$$
+    * Existuje-li konečná limita $s = \lim s_n \in \mathbb{R}$, říkáme, že řada **konverguje** k součtu $s$.
+    * Pokud limita neexistuje nebo je $\pm\infty$, řada **diverguje** (do $\pm\infty$, popř. osciluje).
+* **Nutná podmínka konvergence řady:**
+  $$\sum_{n=1}^\infty a_n \text{ konverguje} \implies \lim_{n \to \infty} a_n = 0$$
+  *(Pokud $\lim a_n \ne 0$ nebo neexistuje, řada zaručeně diverguje. Obrácená implikace ale NEPLATÍ – viz harmonická řada!).*
+* **Absolutní konvergence:** Řada $\sum a_n$ je absolutně konvergentní, pokud konverguje řada absolutních hodnot $\sum |a_n|$. Platí: absolutní konvergence $\implies$ konvergence.
+* **Geometrická řada:** $\sum_{n=0}^\infty q^n = 1 + q + q^2 + \dots$ s kvocientem $q \in \mathbb{R}$:
+  * Pro $|q| < 1$ (tj. $q \in (-1, 1)$): **konverguje** a její součet je $\frac{1}{1 - q}$ (obecně pro $\sum_{n=0}^\infty a q^n = \frac{a}{1 - q}$).
+  * Pro $q \ge 1$: **diverguje** do $+\infty$ ($s_n \to +\infty$).
+  * Pro $q \le -1$: **diverguje** (součet neexistuje, posloupnost $s_n$ osciluje).
+* **Harmonická řada:**
+  * **Základní harmonická řada ($s = 1$):** $\sum_{n=1}^\infty \frac{1}{n} = 1 + \frac{1}{2} + \frac{1}{3} + \dots$ **diverguje do $+\infty$** (přestože $\lim \frac{1}{n} = 0$).
+  * **Obecná harmonická (Dirichletova) řada $\sum_{n=1}^\infty \frac{1}{n^s}$:**
+    * **Konverguje** právě tehdy, když **$s > 1$** (např. $\sum \frac{1}{n^2} = \frac{\pi^2}{6}$).
+    * **Diverguje** do $+\infty$ pro všechna **$s \le 1$**.
+
+#### Reálné funkce jedné proměnné – Limita v bodě:
+* **Okolí bodu:**
+  * **$\delta$-okolí bodu $a \in \mathbb{R}$:** $U(a, \delta) = (a - \delta, a + \delta) = \{x \in \mathbb{R} \mid |x - a| < \delta\}$.
+  * **Prstencové (redukované) okolí:** $P(a, \delta) = U(a, \delta) \setminus \{a\} = \{x \in \mathbb{R} \mid 0 < |x - a| < \delta\}$.
+  * **Okolí nevlastních bodů:** $U(+\infty, \varepsilon) = P(+\infty, \varepsilon) = (1/\varepsilon, +\infty)$, resp. $U(-\infty, \varepsilon) = (-\infty, -1/\varepsilon)$.
+* **Definice limity funkce v bodě ($a \in \mathbb{R}^*, A \in \mathbb{R}^*$):**
+  Funkce $f$ má v bodě $a$ limitu $A$ (píšeme $\lim_{x \to a} f(x) = A$), pokud:
+  $$\forall \varepsilon > 0 \ \exists \delta > 0 \ \forall x \in P(a, \delta): f(x) \in U(A, \varepsilon)$$
+  * **Vlastní limita ve vlastním bodě ($a, A \in \mathbb{R}$):**
+    $$\forall \varepsilon > 0 \ \exists \delta > 0 \ \forall x \in \mathbb{R}: 0 < |x - a| < \delta \implies |f(x) - A| < \varepsilon$$
+  * *Poznámka:* Limita v bodě $a$ vůbec **nezávisí na hodnotě $f(a)$**; funkce $f$ v bodě $a$ ani nemusí být definována (zajímá nás pouze chování na prstencovém okolí $P(a, \delta)$).
+* **Jednostranné limity a Heineho věta:**
+  * **Jednostranné limity:** Limita zprava $\lim_{x \to a^+} f(x)$ uvažuje $x \in (a, a+\delta)$; limita zleva $\lim_{x \to a^-} f(x)$ uvažuje $x \in (a-\delta, a)$. Oboustranná limita existuje $\iff \lim_{x \to a^+} f(x) = \lim_{x \to a^-} f(x) = A$.
+  * **Heineho věta (most mezi funkcemi a posloupnostmi):**
+    $\lim_{x \to a} f(x) = A \iff$ pro každou posloupnost $(x_n)$ v definičním oboru splňující $x_n \ne a$ a $\lim_{n \to \infty} x_n = a$ platí $\lim_{n \to \infty} f(x_n) = A$.
+* **Aritmetika limit funkcí:**
+  Nechť $\lim_{x \to a} f(x) = A \in \mathbb{R}^*$ a $\lim_{x \to a} g(x) = B \in \mathbb{R}^*$. Pokud mají výrazy v $\mathbb{R}^*$ smysl:
+  1. $\lim_{x \to a} (f(x) \pm g(x)) = A \pm B$
+  2. $\lim_{x \to a} (f(x) \cdot g(x)) = A \cdot B$
+  3. $\lim_{x \to a} \frac{f(x)}{g(x)} = \frac{A}{B}$ (pokud navíc $g(x) \ne 0$ na nějakém $P(a, \delta)$ a $B \ne 0$).
+* **Limity funkcí a uspořádání:**
+  1. **Zachování ostré nerovnosti:** Pokud $\lim_{x \to a} f(x) > \lim_{x \to a} g(x)$, pak $\exists \delta > 0 \ \forall x \in P(a, \delta): f(x) > g(x)$.
+  2. **Přechod k limitě:** Pokud na nějakém $P(a, \delta)$ platí $f(x) \le g(x)$, pak $\lim_{x \to a} f(x) \le \lim_{x \to a} g(x)$.
+  3. **Věta o dvou policajtech pro funkce:** Pokud na nějakém $P(a, \delta)$ platí $f(x) \le h(x) \le g(x)$ a $\lim_{x \to a} f(x) = \lim_{x \to a} g(x) = A \in \mathbb{R}^*$, potom existuje i limita $h(x)$ a $\lim_{x \to a} h(x) = A$.
+* **Věta o limitě složené funkce (VOLSF):**
+  Nechť $\lim_{x \to A} g(x) = B$ a $\lim_{y \to B} f(y) = C$. Potom:
+  $$\lim_{x \to A} f(g(x)) = C$$
+  pokud je splněna **alespoň jedna** z následujících podmínek:
+  * **(P1) Spojitost vnější funkce:** Funkce $f$ je spojitá v bodě $B$ (tj. $f(B) = C$).
+  * **(P2) Nenabývání limitní hodnoty:** Na nějakém prstencovém okolí $P(A, \eta)$ funkce $g$ nenabývá své limity $B$, tj. $\forall x \in P(A, \eta): g(x) \ne B$.
+
+#### Funkce spojité na intervalu a jejich vlastnosti:
+* **Spojitost v bodě a na intervalu:**
+  * **Spojitost v bodě:** Funkce $f$ je spojitá v bodě $a \in \mathbb{R} \iff \lim_{x \to a} f(x) = f(a)$ (limita se rovná funkční hodnotě).
+  * **Spojitost na intervalu $I$:** Funkce $f$ je spojitá na intervalu $I$, je-li spojitá v každém vnitřním bodě $I$ a v případných krajních bodech je jednostranně spojitá zevnitř intervalu.
+* **Věta o nabývání mezihodnot (Bolzano-Darbouxova věta):**
+  Nechť funkce $f$ je spojitá na uzavřeném intervalu $[a, b]$.
+  Označme $m = \min\{f(a), f(b)\}$ a $M = \max\{f(a), f(b)\}$.
+  Potom pro každé číslo $y \in [m, M]$ existuje alespoň jedno $c \in [a, b]$ takové, že:
+  $$f(c) = y$$
+  * **Důsledek (Bolzanova věta o kořeni):** Pokud $f$ je spojitá na $[a, b]$ a $f(a) \cdot f(b) < 0$ (v krajích má opačná znaménka), pak existuje $c \in (a, b)$ takové, že $f(c) = 0$ (funkce protíná osu $x$).
+  * **Důsledek pro intervaly:** Spojitý obraz libovolného intervalu je opět interval (spojitá funkce „netrhá“ intervaly).
+* **Extrémy a nabývání maxima (Weierstrassova věta o nabývání extrémů):**
+  * **Globální (absolutní) extrémy:** Funkce $f$ nabývá v bodě $a \in M$ svého maxima na $M$, pokud $\forall x \in M: f(x) \le f(a)$ (minima, pokud $\forall x \in M: f(x) \ge f(a)$).
+  * **Weierstrassova věta:** Nechť $f: [a, b] \to \mathbb{R}$ je spojitá funkce na **uzavřeném a omezeném (kompaktním)** intervalu $[a, b]$. Potom:
+    1. Funkce $f$ je na $[a, b]$ **omezená**.
+    2. Funkce $f$ na $[a, b]$ **nabývá svého maxima i minima**, tj. existují body $x_{min}, x_{max} \in [a, b]$ takové, že:
+       $$\forall x \in [a, b]: f(x_{min}) \le f(x) \le f(x_{max})$$
+    *(Odtud plyne, že obrazem uzavřeného intervalu $[a, b]$ spojitou funkcí je opět uzavřený omezený interval $[f(x_{min}), f(x_{max})]$).*
+
+#### Derivace funkce a základní pravidla pro výpočet:
+* **Definice derivace v bodě:**
+  Nechť $f$ je definována na okolí bodu $b \in \mathbb{R}$. Derivace funkce $f$ v bodě $b$ je limita:
+  $$f'(b) = \lim_{h \to 0} \frac{f(b + h) - f(b)}{h} = \lim_{x \to b} \frac{f(x) - f(b)}{x - b} \in \mathbb{R}^*$$
+  * *Jednostranné derivace:* $f'_+(b)$ pro $h \to 0^+$ (resp. $x \to b^+$), $f'_-(b)$ pro $h \to 0^-$. Oboustranná derivace existuje $\iff f'_+(b) = f'_-(b)$.
+  * **Geometrický význam:** Směrnice tečny ke grafu funkce v bodě $[b, f(b)]$. Rovnice tečny má tvar: $y - f(b) = f'(b)(x - b)$.
+  * **Fyzikální význam:** Okamžitá rychlost změny veličiny $f$ v čase $b$.
+* **Diferencovatelnost a spojitost:**
+  * Má-li funkce $f$ v bodě $b$ **vlastní derivaci** ($f'(b) \in \mathbb{R}$), pak je v bodě $b$ **spojitá**.
+  * *(Obrácená implikace neplatí! Např. $f(x) = |x|$ je v $0$ spojitá, ale $f'_+(0) = 1 \ne -1 = f'_-(0)$, derivace neexistuje).*
+* **Aritmetika derivací (Základní algebraická pravidla):**
+  Nechť $f, g$ mají v bodě $b$ vlastní derivaci:
+  1. **Součet a rozdíl:** $(f \pm g)'(b) = f'(b) \pm g'(b)$
+  2. **Násobek konstantou:** $(\alpha f)'(b) = \alpha f'(b)$ pro $\alpha \in \mathbb{R}$
+  3. **Součin (Leibnizovo pravidlo):** $(f \cdot g)'(b) = f'(b)g(b) + f(b)g'(b)$
+  4. **Podíl:** $\left(\frac{f}{g}\right)'(b) = \frac{f'(b)g(b) - f(b)g'(b)}{g(b)^2}$ (pokud $g(b) \ne 0$)
+  5. **Řetízkové pravidlo (derivace složené funkce):** $(f(g(x)))' = f'(g(x)) \cdot g'(x)$
+  6. **Derivace inverzní funkce:** $(f^{-1})'(y_0) = \frac{1}{f'(x_0)}$, kde $y_0 = f(x_0)$ a $f'(x_0) \ne 0$.
+* **Souhrn vzorců základních derivací:**
+  * $(x^n)' = n x^{n-1} \quad (n \in \mathbb{R}, x > 0)$
+  * $(e^x)' = e^x, \quad (a^x)' = a^x \ln a$
+  * $(\ln x)' = \frac{1}{x}, \quad (\log_a x)' = \frac{1}{x \ln a}$
+  * $(\sin x)' = \cos x, \quad (\cos x)' = -\sin x$
+  * $(\operatorname{tg} x)' = \frac{1}{\cos^2 x}, \quad (\operatorname{cotg} x)' = -\frac{1}{\sin^2 x}$
+  * $(\arcsin x)' = \frac{1}{\sqrt{1-x^2}}, \quad (\arccos x)' = -\frac{1}{\sqrt{1-x^2}}$
+  * $(\operatorname{arctg} x)' = \frac{1}{1+x^2}, \quad (\operatorname{arccotg} x)' = -\frac{1}{1+x^2}$
+
+#### l'Hospitalovo pravidlo a vyšetření průběhu funkcí:
+* **l'Hospitalovo pravidlo:**
+  Nechť $a \in \mathbb{R}^*$, funkce $f, g$ mají na prstencovém okolí $P(a, \delta)$ vlastní derivaci a $g'(x) \ne 0$.
+  Jestliže platí jedna z podmínek:
+  1. $\lim_{x \to a} f(x) = \lim_{x \to a} g(x) = 0$ (typ $\frac{0}{0}$), **nebo**
+  2. $\lim_{x \to a} |g(x)| = +\infty$ (typ $\frac{\text{cokoliv}}{\pm\infty}$),
+  potom platí:
+  $$\lim_{x \to a} \frac{f'(x)}{g'(x)} = A \in \mathbb{R}^* \implies \lim_{x \to a} \frac{f(x)}{g(x)} = A$$
+  *(Platí i pro jednostranné limity).*
+  * **Kdy a jak l'Hospitala používat v praxi:**
+    * **Přímé použití:** Pouze u podílů typu $\frac{0}{0}$ a $\frac{\pm\infty}{\pm\infty}$, kde derivace čitatele a jmenovatele výraz zjednoduší (např. polynomy, goniometrie, $e^x, \ln x$).
+    * **Převod ostatních neurčitých výrazů na podíl:**
+      * Typ $0 \cdot \infty$: přepíšeme jako zlomek $f \cdot g = \frac{f}{1/g}$ (tím vznikne $\frac{0}{0}$ nebo $\frac{\infty}{\infty}$).
+      * Typ $\infty - \infty$: převedeme na společného jmenovatele do jednoho zlomku.
+      * Typy $1^\infty, \infty^0, 0^0$: přepíšeme přes exponenciálu $f(x)^{g(x)} = e^{g(x) \ln f(x)}$ a l'Hospitala aplikujeme na exponent $g(x) \ln f(x)$ (typ $0 \cdot \infty$).
+  * **Kdy l'Hospitala NEPOUŽÍVAT (časté chyby):**
+    1. **Není splněn typ $\frac{0}{0}$ ani $\frac{\text{cokoliv}}{\pm\infty}$:** Pokud má zlomek nenulový jmenovatel, l'Hospital dá **zcela špatný výsledek** (např. $\lim_{x \to 0} \frac{x+1}{x+2} = \frac{1}{2}$, ale l'Hospital by dal $\frac{1}{1} = 1$).
+    2. **Cyklení derivací:** Když derivování výraz nezjednodušuje, ale točí v kruhu (např. podíly s odmocninami $\frac{x}{\sqrt{x^2+1}}$ nebo $e^x \pm e^{-x}$).
+    3. **Limita podílu derivací $\lim \frac{f'}{g'}$ neexistuje:** Např. $\lim_{x \to \infty} \frac{x + \sin x}{x} = 1$, ale derivace $\frac{1 + \cos x}{1}$ v nekonečnu osciluje $\implies$ l'Hospital nelze použít, ale původní limita existuje!
+    4. **Složitější rozdíly:** Kde by bylo nutné derivovat 3× a vícekrát po sobě, je často mnohem rychlejší a méně náchylný k chybám **Taylorův polynom**.
+* **Monotonie a extrémy (1. derivace):**
+  * **Monotonie:** Je-li $f'(x) > 0$ na intervalu, je $f$ **rostoucí**; je-li $f'(x) < 0$, je $f$ **klesající**.
+  * **Nutná podmínka pro lokální extrém (Fermatova věta):** Má-li $f$ v bodě $a$ lokální extrém a existuje $f'(a)$, pak $f'(a) = 0$ (**stacionární bod**).
+  * **Hledání lokálních extrémů:** Extrém může nastat **pouze** ve stacionárních bodech ($f'(a) = 0$) nebo v bodech, kde derivace neexistuje.
+  * **Postačující podmínka:** Mění-li $f'$ v bodě $a$ znaménko z $+$ na $-$, jde o **lokální maximum**; z $-$ na $+$, jde o **lokální minimum** (případně test 2. derivací: $f'(a) = 0$ a $f''(a) > 0 \implies$ lokální minimum; $f''(a) < 0 \implies$ lokální maximum).
+* **Konvexita, konkavita a inflexní body (2. derivace):**
+  * **Konvexita:** Graf leží pod sečnou (prohnutý jako „U“, leží nad tečnami): $f(x) \le f(a) + (x-a)\frac{f(b)-f(a)}{b-a}$ pro $a < x < b$.
+    * Kritérium: $f''(x) > 0$ na intervalu $\implies f$ je **ryze konvexní**.
+  * **Konkavita:** Graf leží nad sečnou (tvar kopce, leží pod tečnami):
+    * Kritérium: $f''(x) < 0$ na intervalu $\implies f$ je **ryze konkávní**.
+  * **Inflexní bod:** Bod, v němž funkce přechází z konvexní na konkávní (nebo naopak) a existuje v něm tečna.
+    * Nutná podmínka: $f''(x_0) = 0$ nebo $f''(x_0)$ neexistuje. Postačující podmínka: $f''$ mění v $x_0$ znaménko.
+* **Systematický postup vyšetření průběhu funkce v praxi:**
+  1. **Definiční obor $D(f)$, spojitost, symetrie:** Určit $D(f)$, nulové body ($f(x) = 0$), průsečík s osou $y$, sudost ($f(-x) = f(x)$), lichost ($f(-x) = -f(x)$) a periodicitu.
+  2. **Limity v krajních bodech a asymptoty:** Spočíst limity v krajích $D(f)$ (včetně bodů nespojitosti $\implies$ svislé asymptoty $x = x_0$).
+     * *Asymptoty v $\pm\infty$ ($y = kx + q$):* $k = \lim_{x \to \pm\infty} \frac{f(x)}{x}$, $q = \lim_{x \to \pm\infty} (f(x) - kx)$ (pokud jsou obě limity vlastní).
+  3. **1. derivace (Monotonie a extrémy):** Spočíst $f'(x)$, nalézt stacionární body ($f'(x) = 0$) a body neexistence derivace, určit intervaly růstu a poklesu, vyčíslit funkční hodnoty v lokálních extrémech.
+  4. **2. derivace (Konvexita, konkavita, inflexe):** Spočíst $f''(x)$, nalézt body, kde $f''(x) = 0$, určit intervaly konvexity ($f'' > 0$) a konkavity ($f'' < 0$), určit inflexní body.
+  5. **Obor hodnot $H(f)$ a náčrt grafu:** Zanést všechny klíčové body (průsečíky, extrémy, inflexní body) a asymptoty do kartézské soustavy a načrtnout křivku.
+
+#### Taylorův polynom (limitní forma):
+* **Definice Taylorova polynomu:**
+  Nechť $f$ má v bodě $a \in \mathbb{R}$ vlastní $n$-tou derivaci ($n \in \mathbb{N}_0$). **Taylorův polynom stupně $n$** funkce $f$ v bodě $a$ je:
+  $$T_n^{f, a}(x) = \sum_{k=0}^n \frac{f^{(k)}(a)}{k!} (x - a)^k = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \dots + \frac{f^{(n)}(a)}{n!}(x-a)^n$$
+  *(Pro střed $a = 0$ se nazývá **Maclaurinův polynom**).*
+* **Taylorova věta s Peanovým tvarem zbytku (Limitní forma):**
+  Nechť $f$ má v bodě $a$ vlastní $n$-tou derivaci. Potom:
+  $$f(x) - T_n^{f, a}(x) = o((x - a)^n) \quad \text{pro } x \to a$$
+  což znamená, že chyba aproximace klesá k nule rychleji než $(x - a)^n$:
+  $$\lim_{x \to a} \frac{f(x) - T_n^{f, a}(x)}{(x - a)^n} = 0$$
+  * *Význam:* $T_n^{f, a}(x)$ je **jediný polynom stupně $\le n$**, který má v bodě $a$ stejnou funkční hodnotu i všechny derivace až do řádu $n$ jako funkce $f$. Slouží k přesné aproximaci funkcí v okolí bodu $a$ a k rychlému výpočtu limit typu $\frac{0}{0}$.
+* **Jak v praxi použít Taylorův polynom na výpočet limit (v krocích):**
+  1. **Zvolíme střed rozvoje:** Obvykle počítáme limitu pro $x \to 0$ (pokud $x \to x_0 \ne 0$, posuneme substitucí $t = x - x_0 \to 0$).
+  2. **Určíme řád rozvoje $n$ podle jmenovatele:** Zjistíme, jakou mocninu $x^n$ má jmenovatel (např. pro $x^3$ musíme čitatel rozvinout do řádu alespoň $n = 3$, aby se členy nevyrušily do nuly).
+  3. **Nahradíme funkce jejich Maclaurinovými polynomy:** Dosadíme známé rozvoje se zbytkem $+ o(x^n)$.
+  4. **Algebraicky sloučíme členy:** Konstanty a nižší mocniny se odečtou (vyruší neurčitost).
+  5. **Vytkneme $x^n$ a pokrátíme:** Protože $\frac{o(x^n)}{x^n} \to 0$ pro $x \to 0$, rovnou zbude výsledná hodnota limity.
+  * *Příklad (proč je lepší než l'Hospital):* $\lim_{x \to 0} \frac{x - \sin x}{x^3} = \lim_{x \to 0} \frac{x - (x - \frac{x^3}{6} + o(x^3))}{x^3} = \lim_{x \to 0} \frac{\frac{x^3}{6} + o(x^3)}{x^3} = \frac{1}{6}$ (na 2 řádky bez nutnosti 3× po sobě derivovat l'Hospitalem!).
+* **Základní Maclaurinovy polynomy v bodě $a = 0$:**
+  * $e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \dots + \frac{x^n}{n!} + o(x^n)$
+  * $\sin x = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \dots + (-1)^k \frac{x^{2k+1}}{(2k+1)!} + o(x^{2k+2})$
+  * $\cos x = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \dots + (-1)^k \frac{x^{2k}}{(2k)!} + o(x^{2k+1})$
+  * $\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \dots + (-1)^{n-1} \frac{x^n}{n} + o(x^n)$
+  * $\frac{1}{1 - x} = 1 + x + x^2 + \dots + x^n + o(x^n)$
+
+#### Integrály a jejich aplikace:
+* **Primitivní funkce (Neurčitý integrál):**
+  * **Definice:** Nechť $I \subseteq \mathbb{R}$ je otevřený interval a $f: I \to \mathbb{R}$. Funkce $F: I \to \mathbb{R}$ je **primitivní funkcí** k $f$ na intervalu $I$, pokud pro všechna $x \in I$ platí:
+    $$F'(x) = f(x)$$
+    Množinu všech primitivních funkcí k $f$ značíme neurčitým integrálem $\int f(x) \, dx = F(x) + c$ ($c \in \mathbb{R}$ je integrační konstanta).
+  * *Vlastnost:* Každé dvě primitivní funkce $F_1, F_2$ k téže funkci $f$ na intervalu $I$ se liší pouze o aditivní konstantu: $F_1(x) - F_2(x) = c$.
+  * *Existence:* Každá spojitá funkce na intervalu $I$ má na $I$ primitivní funkci.
+* **Metody výpočtu primitivní funkce:**
+  1. **Integrace per partes (podle částí):**
+     $$\int u'(x) v(x) \, dx = u(x) v(x) - \int u(x) v'(x) \, dx$$
+     * *Kdy použít:* U součinu dvou různých typů funkcí:
+       * polynom $\times$ exponenciála/goniometrie (např. $x e^x, x \sin x$): derivujeme polynom $v = x \implies v' = 1$, integrujeme $u' = e^x \implies u = e^x$.
+       * polynom $\times$ logaritmus/cyklometrie (např. $x \ln x, 1 \cdot \operatorname{arctg} x$): integrujeme polynom $u' = x \implies u = \frac{x^2}{2}$, derivujeme $v = \ln x \implies v' = \frac{1}{x}$.
+       * cyklický per partes (např. $e^x \sin x$): po dvou integracích per partes vyjádříme původní integrál jako neznámou z rovnice.
+  2. **Substituční metoda:**
+     * *1. věta o substituci (zjednodušení vnitřní funkce):*
+       $$\int f(\varphi(t)) \cdot \varphi'(t) \, dt = \int f(u) \, du = F(u) + c = F(\varphi(t)) + c \quad (\text{substituce } u = \varphi(t), \, du = \varphi'(t) dt)$$
+       *Kdy použít:* Když je v integrálu přítomen výraz $\varphi(t)$ a zároveň vedle něj jeho derivace $\varphi'(t)$ (např. $\int \sin^3(x) \cos(x) dx \to \text{sub } u = \sin x, du = \cos x dx \implies \int u^3 du = \frac{u^4}{4}$).
+     * *Speciální případ (logaritmická integrace):* $\int \frac{f'(x)}{f(x)} \, dx = \ln |f(x)| + c$.
+     * *2. věta o substituci (odstranění odmocnin):* $\int f(x) dx = \int f(\varphi(t)) \varphi'(t) dt$, kde $x = \varphi(t)$ je ryze monotónní s $\varphi' \ne 0$, po integraci dosadíme zpět $t = \varphi^{-1}(x)$.
+* **Souhrn vzorců základních neurčitých integrálů:**
+  * $\int x^n \, dx = \frac{x^{n+1}}{n+1} + c \quad (n \ne -1)$
+  * $\int \frac{1}{x} \, dx = \ln |x| + c$
+  * $\int e^x \, dx = e^x + c, \quad \int a^x \, dx = \frac{a^x}{\ln a} + c$
+  * $\int \sin x \, dx = -\cos x + c, \quad \int \cos x \, dx = \sin x + c$
+  * $\int \frac{1}{\cos^2 x} \, dx = \operatorname{tg} x + c, \quad \int \frac{1}{\sin^2 x} \, dx = -\operatorname{cotg} x + c$
+  * $\int \frac{1}{1 + x^2} \, dx = \operatorname{arctg} x + c, \quad \int \frac{1}{\sqrt{1 - x^2}} \, dx = \arcsin x + c$
+* **Riemannův integrál (Kompaktní definice):**
+  * Pro omezenou funkci $f$ na $[a, b]$ a dělení $D = (a = x_0 < x_1 < \dots < x_n = b)$ definujeme:
+    * **Dolní součet:** $s(f, D) = \sum_{i=0}^{n-1} \inf_{x \in I_i} f(x) \cdot (x_{i+1} - x_i)$ (součet vepsaných obdélníků pod grafem).
+    * **Horní součet:** $S(f, D) = \sum_{i=0}^{n-1} \sup_{x \in I_i} f(x) \cdot (x_{i+1} - x_i)$ (součet opsaných obdélníků nad grafem).
+  * **Dolní a horní integrál:** $\underline{\int_a^b} f = \sup_D s(f, D)$ a $\overline{\int_a^b} f = \inf_D S(f, D)$.
+  * **Definice Riemannova integrálu:** Funkce $f$ je riemannovsky integrovatelná ($f \in \mathcal{R}[a, b]$), pokud se dolní a horní integrál **rovnají a jsou konečné**:
+    $$\int_a^b f(x) \, dx = \underline{\int_a^b} f = \overline{\int_a^b} f \in \mathbb{R}$$
+  * *Které funkce jsou integrovatelné:* Každá **spojitá** funkce na $[a, b]$ a každá **monotónní** omezená funkce na $[a, b]$.
+* **Souvislost s primitivní funkcí a Newtonovým integrálem:**
+  * **1. základní věta analýzy (Integrál jako funkce horní meze):** Je-li $f \in \mathcal{R}[a, b]$, pak funkce $F(x) = \int_a^x f(t) \, dt$ je spojitá na $[a, b]$ a v každém bodě spojitosti $x_0$ funkce $f$ platí $F'(x_0) = f(x_0)$ (tj. $F$ je primitivní funkcí k $f$!).
+  * **2. základní věta analýzy (Newtonova-Leibnizova formule):** Má-li $f$ na intervalu $(a, b)$ primitivní funkci $F$ spojitou na $[a, b]$, potom:
+    $$\int_a^b f(x) \, dx = [F(x)]_a^b = F(b) - F(a)$$
+    *(Pro spojité funkce na $[a, b]$ se tedy Riemannův integrál přesně rovná Newtonovu integrálu).*
+* **Aplikace určitého integrálu v geometrii a analýze:**
+  1. **Obsahy rovinných útvarů:**
+     * Plocha pod grafem nezáporné funkce $f(x) \ge 0$ na $[a, b]$: $S = \int_a^b f(x) \, dx$.
+     * Plocha mezi dvěma křivkami $f(x) \ge g(x)$ na $[a, b]$:
+       $$S = \int_a^b (f(x) - g(x)) \, dx$$
+       *(V praxi nejprve najdeme průsečíky $f(x) = g(x)$, které určí meze integrace $a, b$, a integrujeme horní křivku mínus dolní).*
+  2. **Délka křivky:**
+     * Délka grafu hladké funkce $y = f(x)$ pro $x \in [a, b]$:
+       $$L = \int_a^b \sqrt{1 + (f'(x))^2} \, dx$$
+  3. **Objemy a povrchy rotačních těles (Rotace kolem osy $x$ pro $x \in [a, b]$):**
+     * **Objem rotačního tělesa:** Vzniklé rotací plochy pod grafem $f(x) \ge 0$:
+       $$V = \pi \int_a^b f(x)^2 \, dx$$
+       *(Intuice: součet objemů tenkých válcových disků o poloměru $r = f(x)$ a výšce $dx$, kde $dV = \pi r^2 dx$).*
+     * **Povrch (plášť) rotačního tělesa:**
+       $$S_{pl} = 2\pi \int_a^b f(x) \sqrt{1 + (f'(x))^2} \, dx$$
+       *(Intuice: obvod podstavy $2\pi f(x)$ krát délka elementu křivky $dL = \sqrt{1 + (f')^2} dx$).*
+  4. **Odhady součtu řad (konečných i nekonečných):**
+     * **Integrální odhad konečného součtu:** Pro neklesající funkci $f$ na $[1, n]$:
+       $$\sum_{k=1}^{n-1} f(k) \le \int_1^n f(x) \, dx \le \sum_{k=2}^n f(k)$$
+     * **Integrální kritérium konvergence nekonečných řad:** Nechť $f$ je kladná a nerostoucí na $[1, \infty)$ t.ž. $a_n = f(n)$. Potom:
+       $$\sum_{n=1}^\infty a_n \text{ konverguje} \iff \int_1^\infty f(x) \, dx < \infty$$
+       *(Příklad použití: pro řadu $\sum_{n=1}^\infty \frac{1}{n^s}$ spočteme $\int_1^\infty \frac{1}{x^s} dx = [\frac{x^{1-s}}{1-s}]_1^\infty$, což konverguje právě pro $s > 1$).*
 
 ### Lingebra
 #### Algebraické struktury (Grupy, permutace a tělesa):

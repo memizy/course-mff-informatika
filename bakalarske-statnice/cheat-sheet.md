@@ -1874,6 +1874,27 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * **Souborový deskriptor (File Descriptor / Handle):** Malé celé číslo (0 = stdin, 1 = stdout, 2 = stderr), index do per-proces tabulky otevřených souborů.
   * **i-node na disku:** Datová struktura reprezentující soubor. Obsahuje metadata (velikost, vlastník, přístupová práva, časová razítka) a ukazatele na datové bloky na disku (přímé ukazatele + nepřímé bloky pro velké soubory).
   * **Zkouškový chyták:** **i-node NEOBSAHUJE název souboru!** Název je uložen v adresáři jako mapování: `název souboru -> číslo i-nodu`. Proto může existovat více názvů (Hard Linků) ukazujících na tentýž soubor.
+  * **Správa zdrojů OS v C# (`using` a `IDisposable`):**
+    * *Problém:* Otevřený soubor alokuje v jádře OS deskriptor (*unmanaged resource*). Garbage Collector spravuje pouze paměť na haldě, ale neuzavírá systémové handly včas!
+    * *Řešení v C#:* Blok `using` garantuje volání `Dispose()` a uzavření deskriptoru i při vyhození výjimky:
+    ```csharp
+    // 1. Zápis pomocí using (od C# 8 stačí using deklarace):
+    using var reader = new StreamReader("data.txt");
+    while (!reader.EndOfStream) {
+        string? line = reader.ReadLine();
+    }
+
+    // 2. Co kompilátor reálně vygeneruje pod kapotou (ekvivalent):
+    StreamReader r = new StreamReader("data.txt");
+    try {
+        while (!r.EndOfStream) {
+            string? line = r.ReadLine();
+        }
+    }
+    finally {
+        if (r != null) ((IDisposable)r).Dispose(); // zavře OS deskriptor i při výjimce!
+    }
+    ```
 
 #### 6. Synchronizace, kritická sekce a synchronizační primitiva (OS & C#):
 * **Race Condition (Souběh) a Kritická sekce:**
@@ -1890,13 +1911,39 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     ```
   * **Compare-and-Swap (CAS / `Interlocked.CompareExchange` v C#):** Atomicky provede: *„Pokud paměť obsahuje očekávanou hodnotu, přepiš ji novou.“* Základ pro lock-free datové struktury.
   * *Spinlock vs. Mutex:* Spinlock neuspává vlákno (žere 100 % CPU, vhodný jen na mikrosekundy u vícejádrových systémů). Mutex při neúspěchu uspí vlákno v jádře OS (stav Blocked $\implies$ nulové vytížení CPU).
+* **Rozdíl: `lock` (`Monitor`) vs. `Mutex` a meziprocesová synchronizace:**
+  * **`lock (obj)` / `Monitor.Enter` (In-Process / User-mode):**
+    * Bleskový (~20–50 ns), žije výhradně v runtime CLR a zamyká na hlavičce objektu na haldě (`SyncBlockIndex`).
+    * **Funguje POUZE uvnitř 1 procesu** (procesy mají oddělené virtuální paměti, nemohou sdílet C# objekt).
+  * **`System.Threading.Mutex` a `Semaphore` (Cross-Process / Kernel Objects):**
+    * **Garantuje je přímo jádro operačního systému (Kernel Objects)!**
+    * **Doba trvání:** Jsou pomalejší (~1–2 $\mu$s), protože každé volání `WaitOne()` a `Release()` vyžaduje přechod do jádra OS (*syscall*). Naproti tomu odlehčený in-process `SemaphoreSlim` trvá jen desítky nanosekund (~20–50 ns).
+    * **Jak se v C# udělá synchronizace mezi procesy?** Předáním systémového jména s prefixem `Global\`:
+    ```csharp
+    // 1. Pojmenovaný Mutex (Typické použití: Single-Instance aplikace):
+    using var mutex = new Mutex(true, "Global\\MojeAplikace_ID", out bool isNewInstance);
+    if (!isNewInstance) {
+        Console.WriteLine("Aplikace již běží v jiném procesu!");
+        return; // ukončit druhou instanci
+    }
+    // Běžná vzájemně vylučující kritická sekce mezi procesy:
+    mutex.WaitOne(); // čeká v jádře OS (~1-2 us)
+    try { /* zápis do sdíleného souboru */ }
+    finally { mutex.ReleaseMutex(); }
+
+    // 2. Pojmenovaný Semafor (Omezení na max 3 procesy současně přistupující ke zdroji):
+    using var sem = new Semaphore(initialCount: 3, maximumCount: 3, "Global\\MujSdilenySemafor");
+    sem.WaitOne(); // sníží čítač v jádře OS (~1-2 us), při 0 uspí proces
+    try { /* práce se sdíleným hardwarem/databází */ }
+    finally { sem.Release(); } // zvýší čítač v jádře OS
+    ```
 * **Mutex vs. Semafor:**
-  * **Mutex (Mutual Exclusion):** Má **vlastníka** (odemknout ho smí POUZE vlákno, které ho zamklo). Slouží výhradně k ochraně kritické sekce.
+  * **Mutex (Mutual Exclusion):** Má **vlastníka** (odemknout ho smí POUZE vlákno, které ho zamklo). Slouží k ochraně kritické sekce (binární 0/1).
   * **Semafor (Čítačový semafor):** **NEMÁ vlastníka!**
-    * Drží celočíselný čítač $S \ge 0$.
+    * Drží celočíselný čítač volných zdrojů $S \ge 0$.
     * `Wait()` / `P()`: pokud $S > 0$, sníží $S \gets S - 1$; pokud $S == 0$, vlákno se zablokuje.
-    * `Signal()` / `V()` / `Release()`: zvýší $S \gets S + 1$ a probudí jedno čekající vlákno.
-    * **Využití:** Signalizace mezi vlákny/procesy a problém Producent-Konzument (často se používají 2 semafory: `volno` o kapacitě $N$ a `obsazeno` s počátkem 0).
+    * `Signal()` / `Release()`: zvýší $S \gets S + 1$ a probudí jedno čekající vlákno (může ho zavolat libovolné jiné vlákno!).
+    * **Využití:** Signalizace mezi vlákny/procesy a problém Producent-Konzument (často se používají 2 semafory: `volno` o kapacitě $N$ a `obsazeno` s počátkem 0). V C# existuje rychlý in-process `SemaphoreSlim` (~20–50 ns) a meziprocesový `Semaphore("Global\\...")` garantovaný OS (~1–2 $\mu$s).
 * **Monitor v C# (`lock`, `Monitor.Wait` a `Monitor.Pulse`):**
   * Klíčové slovo `lock (lockObj)` je v C# syntaktický cukr pro `Monitor.Enter(lockObj)` a `Monitor.Exit(lockObj)` v bloku `try-finally`.
   * **Podmínková proměnná (Condition Variable) přes `Wait` a `Pulse`:**

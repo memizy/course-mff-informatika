@@ -228,7 +228,8 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * Pro omezenou funkci $f$ na $[a, b]$ a dělení $D = (a = x_0 < x_1 < \dots < x_n = b)$ definujeme:
     * **Dolní součet:** $s(f, D) = \sum_{i=0}^{n-1} \inf_{x \in I_i} f(x) \cdot (x_{i+1} - x_i)$ (součet vepsaných obdélníků pod grafem).
     * **Horní součet:** $S(f, D) = \sum_{i=0}^{n-1} \sup_{x \in I_i} f(x) \cdot (x_{i+1} - x_i)$ (součet opsaných obdélníků nad grafem).
-  * **Dolní a horní integrál:** $\underline{\int_a^b} f = \sup_D s(f, D)$ a $\overline{\int_a^b} f = \inf_D S(f, D)$.
+  * **Dolní a horní integrál:** $\underline{\int_a^b} f = \sup_D s(f, D)$ a $\overline{\int_a^b} f = \inf_D S(f, D)$ (přes **všechna** možná dělení $D$).
+  * *Kde je v definici schované „$n \to \infty$“:* Uvažujeme množinu **všech možných dělení $D$**. Přidáním dělících bodů (zjemněním dělení) se dolní součet zvětšuje ($s(f, D) \le s(f, D')$). Abychom dosáhli **suprema** $\sup_D$, bereme stále jemnější a jemnější dělení z této množiny všech dělení, kde počet dílků roste do nekonečna ($n \to \infty$).
   * **Definice Riemannova integrálu:** Funkce $f$ je riemannovsky integrovatelná ($f \in \mathcal{R}[a, b]$), pokud se dolní a horní integrál **rovnají a jsou konečné**:
     $$\int_a^b f(x) \, dx = \underline{\int_a^b} f = \overline{\int_a^b} f \in \mathbb{R}$$
   * *Které funkce jsou integrovatelné:* Každá **spojitá** funkce na $[a, b]$ a každá **monotónní** omezená funkce na $[a, b]$.

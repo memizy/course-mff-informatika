@@ -1722,9 +1722,37 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * Kompilátor **nesmí hodnotu kešovat v registru procesoru** a při každém čtení i zápisu musí provést skutečnou instrukci na paměťovou sběrnici!
     * Typické použití u registrů zařízení: `typedef volatile struct { uint32_t status; ... } disk_regs_t;`. Bez `volatile` by smyčka `while (regs->status & BUSY);` skončila nekonečným cyklem, protože by si kompilátor načetl stav do registru jen jednou!
 
-#### 2. Vstup/Výstup, řadiče periférií, přerušení (PIO, MMIO, DMA) a mmap:
+#### 2. Procesor, registry, instrukční sada RISC a běhové režimy:
+* **Klíčové registry procesoru:**
+  * `PC` (Program Counter / Instruction Pointer): adresa právě prováděné instrukce.
+  * `SP` (Stack Pointer): adresa vrcholu zásobníku (zásobník roste směrem dolů k nižším adresám!).
+  * `BP` / `FP` (Base / Frame Pointer): bázový ukazatel na počátek stack framu aktuální funkce (přístup k lokálním proměnným a parametrům přes relativní offsety jako `[BP - 4]`, `[BP + 8]`).
+  * Stavový registr příznaků: drží výsledkové bity operací (Zero, Carry, Overflow, Sign) a stavový bit režimu procesoru.
+* **Uživatelský (User) vs. Privilegovaný (Kernel) režim procesoru:**
+  * *User mode:* Běžný kód procesů. Zákaz přímého I/O, zákaz změny stránkovacích tabulek a zákaz vypnutí přerušení.
+  * *Kernel mode:* Neomezený přístup k veškerému hardwaru a instrukcím procesoru.
+  * *Přechod z User do Kernel mode probíhá výhradně 3 způsoby:*
+    1. **Systémové volání (Syscall):** Synchronní požadavek procesu na službu OS (např. čtení ze souboru).
+    2. **Hardwarové přerušení (Interrupt):** Asynchronní událost z vnějšího hardwaru (řadič disku, časovač).
+    3. **Výjimka procesoru (Exception):** Chyba při vykonání instrukce (dělení nulou, Page Fault).
+* **RISC architektura a překlad konstrukcí (Load/Store model):**
+  * Žádná instrukce neoperuje přímo s RAM – data se musí nejdřív načíst do registru (`LOAD`), spočítat a zapsat zpět (`STORE`).
+  * **Ukázka překladu cyklu `while (a < b) a += 2;` do RISC instrukcí:**
+    ```text
+    loop_start:
+        LOAD R1, [a]        ; načti proměnnou a do registru R1
+        LOAD R2, [b]        ; načti proměnnou b do registru R2
+        CMP R1, R2          ; porovnej R1 a R2
+        BGE loop_end        ; pokud a >= b, vyskoč z cyklu (Branch if Greater or Equal)
+        ADD R1, R1, 2       ; a += 2 (přičti konstantu 2 k registru R1)
+        STORE [a], R1       ; ulož novou hodnotu a zpět do RAM
+        JMP loop_start      ; skoč zpět na začátek cyklu
+    loop_end:
+    ```
+
+#### 3. Vstup/Výstup, řadiče periférií, přerušení a ovladač disku (C vs. C#):
 * **Řadič zařízení (Device Controller):**
-  * Hardware rozhraní mezi sběrnicí a zařízením. Registry: `Status` (stav: bit `BUSY`, bit `ERR`), `Command` (akce: 1=čtení, 2=zápis), `Data` / `LBA` / `DMA` (parametry).
+  * Hardware rozhraní mezi sběrnicí a mechanickým zařízením. Registry: `Status` (stav: bit `BUSY`, bit `ERR`), `Command` (akce: 1=čtení, 2=zápis), `Data` / `LBA` / `DMA` (parametry).
   * **PMIO vs. MMIO:**
     * *PMIO (Port-Mapped I/O):* Oddělený adresní prostor pro porty, vyžaduje speciální instrukce procesoru (`IN`/`OUT`).
     * *MMIO (Memory-Mapped I/O):* Registry leží přímo na adresách fyzické paměti RAM $\implies$ přístup běžnými instrukcemi pro práci s pamětí (`volatile` ukazatele).
@@ -1804,8 +1832,28 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
         }
     }
     ```
+
+#### 4. Virtuální paměť, stránkování, TLB, cache a mmap:
+* **Proč virtuální paměť:**
+  1. *Ochrana paměti:* Proces nemůže číst ani přepsat paměť jiného procesu ani jádra OS.
+  2. *Iluze souvislého adresního prostoru:* Program vidí souvislý prostor od adresy `0`, i když fyzická RAM je fragmentovaná.
+* **Stránkování (Paging) – Stránka vs. Rámec:**
+  * Virtuální adresní prostor je rozdělen na **stránky (Pages)** (typicky 4 KB).
+  * Fyzická paměť RAM je rozdělena na stejně velké **rámce (Frames)**.
+  * **Zkouškový chyták (12 spodních bitů se nepřekládá!):**
+    * Velikost stránky 4 KB znamená $4096 = 2^{12}$ bajtů.
+    * **Spodních 12 bitů virtuální adresy tvoří offset (posun)** uvnitř stránky i rámce a zůstává zcela beze změny!
+    * Jednotka MMU překládá pouze **horních 20 bitů** (číslo virtuální stránky $\to$ číslo fyzického rámce) pomocí stránkovací tabulky.
+* **Ochranné a stavové bity ve stránkovací tabulce:**
+  * `Present bit (P)`: 1 = rámec je v RAM; 0 = stránka není v RAM $\implies$ vyvolá hardwarovou výjimku **Page Fault (výpadek stránky)**, jádro OS stránku načte ze swapu/disku a obnoví instrukci.
+  * `User / Supervisor bit (U/S)`: 0 = Supervisor only (jádro OS je namapováno v horní polovině adresního prostoru s tímto bitem $\implies$ uživatelský kód tam nesmí přistoupit).
+  * `Read / Write bit (R/W)`: 0 = Read-only (kód programu `.text`), 1 = Read-Write (halda, zásobník).
+  * `No-Execute bit (NX)`: Zákaz spouštění kódu ze zásobníku a haldy (ochrana proti spuštění škodlivého kódu).
+* **Hardwarová akcelerace překladu a přístupu (TLB a Cache):**
+  * **TLB (Translation Lookaside Buffer):** Rychlá asociativní cache uvnitř MMU, která si pamatuje nedávné překlady: *číslo virtuální stránky $\to$ číslo rámce*. (TLB Hit = 1 cyklus; TLB Miss = pomalé čtení tabulky z RAM).
+  * **Cache paměť procesoru (L1, L2, L3):** Načítá se vždy po celých blocích (**Cache Line = 64 B**) $\implies$ sekvenční procházení paměti je mnohonásobně rychlejší než náhodné skákání.
 * **Paměťové mapování souborů (`mmap` v OS / `MemoryMappedFile` v C#):**
-  * Mapuje soubor z disku přímo do virtuálního adresního prostoru procesu $\implies$ přístup k souboru jako k poli v RAM bez nutnosti volat `read()` a `write()` (Zero-Copy).
+  * Mapuje soubor z disku přímo do virtuálního adresního prostoru procesu $\implies$ přístup k souboru jako k poli v paměti RAM bez nutnosti volat `read()` a `write()` (Zero-Copy).
   * **Líné načítání (Lazy loading via Page Fault):** Fyzické načtení z disku do RAM proběhne až při prvním skutečném sáhnutí na danou adresu vyvoláním hardwarového výpadku stránky (Page Fault).
   * **Využití:** Maximální rychlost I/O a nejrychlejší sdílená paměť pro meziprocesovou komunikaci (IPC).
 

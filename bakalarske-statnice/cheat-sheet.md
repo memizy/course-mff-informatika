@@ -1749,6 +1749,10 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
         JMP loop_start      ; skoč zpět na začátek cyklu
     loop_end:
     ```
+  * **Překlad volání funkce (Stack Frame, CALL a RET):**
+    * *Volající:* Předá parametry (v registrech nebo na stack přes `PUSH`) a zavolá `CALL cil` (instrukce automaticky uloží návratovou adresu `PC` na stack a skočí na cíl).
+    * *Prolog funkce (vytvoření stack framu):* `PUSH BP` (ulož starý base pointer), `MOV BP, SP` (nastav nový rámec), `SUB SP, N` (alokuj $N$ bajtů pro lokální proměnné). Lokální proměnné jsou na záporném offsetu `[BP - 4]`, parametry na kladném `[BP + 8]`.
+    * *Epilog funkce a návrat:* `MOV SP, BP` (uvolni lokální proměnné), `POP BP` (obnov starý base pointer), `RET` (vyzvedne návratovou adresu ze stacku do `PC`).
 
 #### 3. Vstup/Výstup, řadiče periférií, přerušení a ovladač disku (C vs. C#):
 * **Řadič zařízení (Device Controller):**
@@ -1856,6 +1860,86 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * Mapuje soubor z disku přímo do virtuálního adresního prostoru procesu $\implies$ přístup k souboru jako k poli v paměti RAM bez nutnosti volat `read()` a `write()` (Zero-Copy).
   * **Líné načítání (Lazy loading via Page Fault):** Fyzické načtení z disku do RAM proběhne až při prvním skutečném sáhnutí na danou adresu vyvoláním hardwarového výpadku stránky (Page Fault).
   * **Využití:** Maximální rychlost I/O a nejrychlejší sdílená paměť pro meziprocesovou komunikaci (IPC).
+
+#### 5. Procesy, vlákna, plánování a souborový systém:
+* **Proces (PCB) vs. Vlákno (TCB) – Co je vlastní a co sdílené:**
+  * **Proces:** Nezávislá jednotka alokace zdrojů (drží deskriptor procesu PCB). Má vlastní virtuální adresní prostor, tabulku otevřených souborů, oprávnění a PID.
+  * **Vlákno:** Jednotka plánování běhu na CPU (drží deskriptor vlákna TCB):
+    * *Vlastní kontext vlákna:* Program Counter (`PC`), registry CPU, vlastní zásobník (Stack) a Stack Pointer (`SP`), stav vlákna.
+    * *Sdílené v rámci procesu mezi všemi jeho vlákny:* Celý virtuální adresní prostor (halda, globální data, kód `.text`), tabulka otevřených souborů/socketů.
+* **Stavy vlákna a preemptivní multitasking:**
+  * **Stavy vlákna:** *Running* (vykonává se na CPU), *Ready* (čeká ve frontě na přidělení CPU), *Blocked / Waiting* (čeká na I/O, zámek nebo časovač).
+  * **Preemptivní přepínání kontextu:** Periodické přerušení od hardwarového časovače (timer tick) předá řízení OS $\implies$ jádro vyčerpalo-li vlákno časové kvantum, uloží jeho registry do TCB (přepne do Ready) a obnoví registry jiného vlákna (přepne do Running).
+* **Soubory, deskriptor a i-node:**
+  * **Souborový deskriptor (File Descriptor / Handle):** Malé celé číslo (0 = stdin, 1 = stdout, 2 = stderr), index do per-proces tabulky otevřených souborů.
+  * **i-node na disku:** Datová struktura reprezentující soubor. Obsahuje metadata (velikost, vlastník, přístupová práva, časová razítka) a ukazatele na datové bloky na disku (přímé ukazatele + nepřímé bloky pro velké soubory).
+  * **Zkouškový chyták:** **i-node NEOBSAHUJE název souboru!** Název je uložen v adresáři jako mapování: `název souboru -> číslo i-nodu`. Proto může existovat více názvů (Hard Linků) ukazujících na tentýž soubor.
+
+#### 6. Synchronizace, kritická sekce a synchronizační primitiva (OS & C#):
+* **Race Condition (Souběh) a Kritická sekce:**
+  * *Race condition:* Chyba, kdy výsledek programu závisí na náhodném pořadí přepínání vláken plánovačem.
+  * *Příčina:* Ani jednoduchá operace `x++` není na procesoru atomická! V assembleru jde o 3 instrukce (`LOAD`, `ADD`, `STORE`). Přepne-li časovač vlákno uprostřed, dojde ke ztrátě zápisu (*Lost Update*).
+  * *Kritická sekce:* Úsek kódu přistupující ke sdíleným datům, kde smí v libovolný okamžik běžet nanejvýš jedno vlákno (**Vzájemné vyloučení / Mutual Exclusion**).
+* **Hardwarová atomická primitiva (Aktivní čekání / Spinlock):**
+  * **Test-and-Set:** HW instrukce, která atomicky zapíše `1` do proměnné a vrátí její původní hodnotu:
+    ```c
+    // Spinlock: aktivní točení v cyklu (Busy-waiting):
+    while (test_and_set(&lock) == 1); // toč se, dokud je zamčeno
+    // ... kritická sekce ...
+    lock = 0; // uvolnění zámku
+    ```
+  * **Compare-and-Swap (CAS / `Interlocked.CompareExchange` v C#):** Atomicky provede: *„Pokud paměť obsahuje očekávanou hodnotu, přepiš ji novou.“* Základ pro lock-free datové struktury.
+  * *Spinlock vs. Mutex:* Spinlock neuspává vlákno (žere 100 % CPU, vhodný jen na mikrosekundy u vícejádrových systémů). Mutex při neúspěchu uspí vlákno v jádře OS (stav Blocked $\implies$ nulové vytížení CPU).
+* **Mutex vs. Semafor:**
+  * **Mutex (Mutual Exclusion):** Má **vlastníka** (odemknout ho smí POUZE vlákno, které ho zamklo). Slouží výhradně k ochraně kritické sekce.
+  * **Semafor (Čítačový semafor):** **NEMÁ vlastníka!**
+    * Drží celočíselný čítač $S \ge 0$.
+    * `Wait()` / `P()`: pokud $S > 0$, sníží $S \gets S - 1$; pokud $S == 0$, vlákno se zablokuje.
+    * `Signal()` / `V()` / `Release()`: zvýší $S \gets S + 1$ a probudí jedno čekající vlákno.
+    * **Využití:** Signalizace mezi vlákny/procesy a problém Producent-Konzument (často se používají 2 semafory: `volno` o kapacitě $N$ a `obsazeno` s počátkem 0).
+* **Monitor v C# (`lock`, `Monitor.Wait` a `Monitor.Pulse`):**
+  * Klíčové slovo `lock (lockObj)` je v C# syntaktický cukr pro `Monitor.Enter(lockObj)` a `Monitor.Exit(lockObj)` v bloku `try-finally`.
+  * **Podmínková proměnná (Condition Variable) přes `Wait` a `Pulse`:**
+    * `Monitor.Wait(lockObj)`: Atomicky uvolní zámek a uspí vlákno. Po probuzení zámek automaticky znovu získá.
+    * `Monitor.Pulse(lockObj)` / `PulseAll`: Probudí jedno / všechna čekající vlákna.
+    * **Zkouškový chyták:** **`Monitor.Wait` se VŽDY musí volat v cyklu `while (!podminka)`**, NIKDY v pouhém `if`!
+      *(Důvody: 1. Falešné probuzení / Spurious wakeup ze strany OS; 2. Než se probuzené vlákno dostane k běhu a znovu získá zámek, jiné vlákno mohlo podmínku opět zneplatnit!).*
+  * *Vzorová blokující fronta (Producent-Konzument v C#):*
+    ```csharp
+    public class BlockingQueue<T> {
+        private readonly Queue<T> q = new Queue<T>();
+        private readonly int capacity;
+        private readonly object lockObj = new object();
+
+        public BlockingQueue(int cap) => capacity = cap;
+
+        public void Enqueue(T item) {
+            lock (lockObj) {
+                while (q.Count >= capacity) // VŽDY while!
+                    Monitor.Wait(lockObj);
+                q.Enqueue(item);
+                Monitor.PulseAll(lockObj); // probuď čekající konzumenty
+            }
+        }
+
+        public T Dequeue() {
+            lock (lockObj) {
+                while (q.Count == 0) // VŽDY while!
+                    Monitor.Wait(lockObj);
+                T item = q.Dequeue();
+                Monitor.PulseAll(lockObj); // probuď čekající producenty
+                return item;
+            }
+        }
+    }
+    ```
+* **Čtenářsko-písařský zámek (Reader-Writer Lock):**
+  * Povoluje souběžné čtení více čtenářům (`EnterReadLock`), ale zápis je striktně exkluzivní (`EnterWriteLock`).
+  * V C# realizováno třídou `ReaderWriterLockSlim`.
+* **Práce s vlákny a asynchronie v C#:**
+  * `Thread`: Těžké vlákno OS (`t = new Thread(Metoda); t.Start(); t.Join();`).
+  * `ThreadPool`: Fond předvytvořených vláken jádra pro krátké operace (`ThreadPool.QueueUserWorkItem(...)`).
+  * `Task` a `async / await`: Abstrakce nad ThreadPoolem. `Task.Run(...)` naplánuje delegáta do ThreadPoolu. Klíčové slovo `await` uvolní aktuální vlákno a zbytek metody se dokončí jako pokračování po dokončení asynchronní operace.
 
 ## Web
 

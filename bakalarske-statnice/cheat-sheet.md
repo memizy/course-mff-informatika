@@ -1215,6 +1215,124 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     3. $\forall i \ge 0: u v^i w x^i y \in L$ (obě části $v$ a $x$ se pumpují současně stejnou mocninou).
   * *Použití:* Důkaz sporem, že jazyk není bezkontextový (např. pro $L = \{a^n b^n c^n \mid n \ge 0\}$ zvolíme $z = a^p b^p c^p$; úsek $vwx$ o délce $\le p$ nemůže zasáhnout symboly $a$ i $c$ zároveň, napumpováním se poruší rovnost počtů $a, b, c$).
 
+#### Rekurzivně spočetné jazyky, gramatiky typu 0 a Turingovy stroje:
+* **Gramatika typu 0 (Neomezená gramatika):**
+  * Pravidla mají zcela obecný tvar:
+    $$\alpha \to \omega \quad (\alpha, \omega \in (V \cup T)^*, \, |\alpha|_V \ge 1)$$
+    *(Jediná podmínka: levá strana $\alpha$ musí obsahovat alespoň jeden neterminál. Na rozdíl od kontextových gramatik zde pravidla mohou libovolně zkracovat řetězce).*
+  * **Jazyky generované gramatikami typu 0** jsou právě **rekurzivně spočetné jazyky** ($\mathcal{L}_0$ / RE – Recursively Enumerable).
+* **Turingův stroj (TM – Turing Machine):**
+  * **Formální definice (Sedmice):** $M = (Q, \Sigma, \Gamma, \delta, q_0, B, F)$, kde:
+    * $Q$ je konečná množina **stavů**.
+    * $\Sigma$ je konečná neprázdná množina **vstupních symbolů** ($B \notin \Sigma$).
+    * $\Gamma$ je konečná množina **páskových symbolů**, přičemž $\Gamma \supseteq \Sigma$ a $Q \cap \Gamma = \emptyset$.
+    * $\delta: (Q \setminus F) \times \Gamma \to Q \times \Gamma \times \{L, R\}$ je (částečná) **přechodová funkce**.
+      *(Je-li stroj ve stavu $q \in Q \setminus F$ a čte symbol $X \in \Gamma$, pak $\delta(q, X) = (p, Y, D)$ znamená: přejde do stavu $p \in Q$, na pásku zapíše symbol $Y \in \Gamma$ [přepíše $X$] a posune čtecí/zápisovou hlavu ve směru $D \in \{L, R\}$ [doleva či doprava]).*
+    * $q_0 \in Q$ je **počáteční stav**.
+    * $B \in \Gamma \setminus \Sigma$ je **prázdný symbol (Blank)**. Na začátku výpočtu je na pásce zapsáno vstupní slovo $w \in \Sigma^*$ a všechny ostatní buňky pásky (do nekonečna vpravo i vlevo) obsahují symbol $B$.
+    * $F \subseteq Q$ je množina **koncových (přijímajících) stavů**. Jakmile stroj vstoupí do stavu z $F$, výpočet končí přijetím.
+  * **Konfigurace TM a krok výpočtu:**
+    * Konfigurace se zapisuje řetězcem $\alpha q \beta$ ($\alpha, \beta \in \Gamma^*, q \in Q$): hlava čte první symbol slova $\beta$, slovo $\alpha$ leží vlevo od hlavy a zbytek $\beta$ vpravo.
+    * Počáteční konfigurace pro vstup $w \in \Sigma^*$: $q_0 w$ (pro $w = \varepsilon$ je to $q_0 B$).
+    * Krok výpočtu značíme $\vdash$.
+  * **Jazyk přijímaný Turingovým strojem:**
+    $$L(M) = \{w \in \Sigma^* \mid q_0 w \vdash^* \alpha q_f \beta, \, q_f \in F, \, \alpha, \beta \in \Gamma^*\}$$
+    * **Chování pro slova mimo jazyk ($w \notin L(M)$):** Stroj buď po konečném počtu kroků **zastaví v nekoncovém stavu** (nedefinovaný přechod), NEBO se **zacyklí (běží do nekonečna)**.
+  * **Ekvivalence výpočetních modelů TM (Churchova-Turingova teze):**
+    * *Vícepáskový TM:* má $k$ nezávislých pásek s vlastními hlavami. Lze nasimulovat 1-páskovým TM se stopami (Tracks) s kvadratickým časovým zpomalením $O(T^2)$.
+    * *Nedeterministický TM (NTM):* $\delta(q, X) \subseteq Q \times \Gamma \times \{L, R\}$. Lze nasimulovat deterministickým TM (prohledáváním stromu konfigurací do šířky BFS) s exponenciálním zpomalením $O(2^{c \cdot T})$.
+    * *Obousměrně nekonečná páska:* ekvivalentní jednosměrně nekonečné pásce (pásku rozdělíme na horní a dolní stopu).
+    * *Závěr:* Žádná z těchto modifikací **nezvyšuje třídu rozpoznatelných jazyků**, definují přesně tutéž třídu $\mathcal{L}_0$.
+
+#### Algoritmická rozhodnutelnost a nerozhodnutelné problémy:
+* **Rozhodnutelnost vs. Rekurzivní spočetnost:**
+  * **Rozhodnutelný problém (Rekurzivní jazyk $\mathcal{R}$):** Existuje algoritmus (TM), který se pro **každý** vstup v konečném čase zastaví a řekne ANO / NE.
+  * **Částečně rozhodnutelný (Rekurzivně spočetný jazyk $\mathcal{L}_0$ / RE):** Pro ANO se TM v konečném čase zastaví a přijme; pro NE se ale může **zacyklit (běžet do nekonečna)**.
+  * **Postova věta:** Jazyk $L$ je rozhodnutelný právě tehdy, když je on i jeho doplněk rekurzivně spočetný:
+    $$L \in \mathcal{R} \iff L \in \mathcal{L}_0 \ \land \ \overline{L} \in \mathcal{L}_0$$
+    *(Běží-li paralelně TM pro $L$ i TM pro $\overline{L}$, jeden z nich musí pro libovolný vstup zastavit).*
+
+* **Přehled hlavních nerozhodnutelných problémů:**
+  * **1. Problém zastavení (Halting Problem – $H$):**
+    * *Otázka:* Zastaví zadaný Turingův stroj $M$ na vstupu $w$?
+    * *Výsledek:* Je částečně rozhodnutelný ($H \in \mathcal{L}_0$), ale **algoritmicky nerozhodnutelný** ($H \notin \mathcal{R}$).
+    * *Intuice důkazu (Paradox lháře v kódu / Cantorova diagonalizace):*
+      Kdyby existoval univerzální analyzátor `Halt(M, w)`, napíšeme program `Rebel(P)`: zeptá se analyzátoru na `Halt(P, P)` a **udělá naschvál přesný opak** (pokud `Halt` předpoví, že $P$ zastaví, `Rebel` se schválně zacyklí; pokud předpoví, že poběží navždy, `Rebel` ihned skončí).
+      Co se stane, když programu předložíme jeho vlastní kód `Rebel(Rebel)`?
+      $$\text{Rebel se zastaví} \iff \text{Halt předpověděl zacyklení} \iff \text{Rebel se nezastaví}$$
+      Ať `Halt` odpoví cokoliv, lže (obdoba věty *„Tato věta je lež“*). Protože samotný kód `Rebel` je triviální, jediná neexistující věc je samotný analyzátor `Halt` $\implies$ univerzální algoritmus pro detekci zastavení nemůže existovat.
+    * *Doplněk $\overline{H}$ (stroje, co nezastaví):* Není ani rekurzivně spočetný ($\overline{H} \notin \mathcal{L}_0$).
+  * **2. Diagonální jazyk ($L_d$):**
+    * Jazyk kódů strojů, které nepřijmou svůj vlastní kód: $L_d = \{w_i \mid M_i \text{ nepřijme } w_i\}$.
+    * **Není ani rekurzivně spočetný** ($L_d \notin \mathcal{L}_0$) – dokazuje se Cantorovým sporem na diagonále matice strojů a slov.
+  * **3. Postův korespondenční problém (PCP – skládání domina):**
+    * *Zadání:* Máme domino kostky s horním a dolním slovem $\left[\frac{w_i}{x_i}\right]$ (seznamy $A, B$).
+    * *Otázka:* Lze za sebe poskládat řadu kostek (s opakováním) tak, aby horní slovo bylo stejné jako dolní? ($w_{i_1}\dots w_{i_m} = x_{i_1}\dots x_{i_m}$).
+    * *Výsledek:* PCP je **algoritmicky nerozhodnutelný**.
+    * *Využití (redukce na bezkontextové gramatiky):* Z PCP se dokazuje nerozhodnutelnost klíčových otázek o CFG:
+      * **Ekvivalence:** Zda $L(G_1) = L(G_2)$? $\implies$ **nerozhodnutelné!**
+      * **Disjunktnost (Prázdnost průniku):** Zda $L(G_1) \cap L(G_2) = \emptyset$? $\implies$ **nerozhodnutelné!**
+      * **Univerzalita:** Zda $L(G) = \Sigma^*$? $\implies$ **nerozhodnutelné!**
+      * **Víceznačnost:** Zda je daná CFG víceznačná? $\implies$ **nerozhodnutelné!**
+      *(POZOR na zkouškový chyták: Samotná prázdnost $L(G) = \emptyset$ a konečnost $L(G)$ jsou pro CFG ROZHODNUTELNÉ odstraněním neproduktivních symbolů).*
+  * **4. Riceova věta:**
+    * *Každá netriviální sémantická vlastnost rekurzivně spočetných jazyků je nerozhodnutelná.*
+    * *Lidsky:* Z pouhého zdrojového kódu Turingova stroje nelze algoritmicky zjistit **žádnou vlastnost jeho chování** (např. zda přijímá prázdný jazyk $L(M) = \emptyset$, zda je jazyk konečný, regulární, nebo zda přijímá konkrétní slovo).
+  * **5. Algoritmická redukce ($A \le B$):**
+    * Převod vstupu $w \in A \iff f(w) \in B$ pomocí algoritmu $f$, který vždy zastaví.
+    * *Princip:* Pokud víme, že $A$ je nerozhodnutelný a svedeme $A \le B$, pak je i **$B$ nutně nerozhodnutelný** (řešení $B$ by vyřešilo i $A$).
+
+#### Chomského hierarchie a zařazení konkrétního jazyka:
+* **Přehledná tabulka Chomského hierarchie:**
+
+| Typ | Třída jazyků | Tvar přepisovacích pravidel gramatiky | Rozpoznávací automat | Uzávěrové vlastnosti |
+| :--- | :--- | :--- | :--- | :--- |
+| **Typ 3** | **Regulární (RL)** | $A \to w B \mid w$ ($A, B \in V, w \in T^*$) | **DFA, NFA** (Konečný automat) | $\cup, \cap, \overline{L}, \cdot, *$ (vše) |
+| **Typ 2** | **Bezkontextové (CFL)** | $A \to \alpha$ ($A \in V, \alpha \in (V \cup T)^*$) | **PDA** (Zásobníkový automat) | $\cup, \cdot, *$, průnik s REG<br>*(NENÍ na $\cap, \overline{L}$)* |
+| **Typ 1** | **Kontextové (CSL)** | $\gamma A \beta \to \gamma \omega \beta$ ($\omega \ne \varepsilon$) nebo monotónní $\|\alpha\| \le \|\beta\|$ *(výjimka $S \to \varepsilon$)* | **LBA** (Lineárně ohraničený automat) | $\cup, \cap, \overline{L}, \cdot, *$ (vše včetně doplňku) |
+| — | **Rekurzivní ($\mathcal{R}$)** | *(nemá přirozenou generativní gramatiku)* | **Úplný TM** (vždy zastaví – algoritmus) | $\cup, \cap, \overline{L}, \cdot, *$ (vše včetně doplňku) |
+| **Typ 0** | **Rekurzivně spočetné (RE)** | $\alpha \to \beta$ ($\alpha, \beta \in (V \cup T)^*, \|\alpha\|_V \ge 1$) | **Turingův stroj (TM)** | $\cup, \cap, \cdot, *$ *(NENÍ na doplněk $\overline{L}$)* |
+
+* **Vztah tříd (Ostrá hierarchie):**
+  $$\mathcal{L}_3 \subsetneq \mathcal{L}_2 \subsetneq \mathcal{L}_1 \subsetneq \mathcal{R} \subsetneq \mathcal{L}_0$$
+
+* **Metodika zařazení konkrétního jazyka do Chomského hierarchie na zkoušce:**
+  Pro určení *nejnižší* vrstvy $\mathcal{L}_k$, do které jazyk $L$ patří, musíme provést dva kroky:
+  1. **Krok 1 (Důkaz, že $L \in \mathcal{L}_k$):**
+     * Pro $\mathcal{L}_3$: Napíšeme regulární výraz, regulární gramatiku, nebo nakreslíme DFA/NFA.
+     * Pro $\mathcal{L}_2$: Zkonstruujeme bezkontextovou gramatiku (CFG) nebo navrhneme PDA (využití LIFO zásobníku k párování 1 dvojice počtů).
+     * Pro $\mathcal{L}_1$: Sestrojíme lineárně ohraničený automat LBA (pracuje pouze v prostoru délky vstupního slova, např. metoda Ping-Pong se škrtáním symbolů) nebo monotónní gramatiku.
+     * Pro $\mathcal{R}$: Navrhneme Turingův stroj (algoritmus), který pro každé slovo garantovaně zastaví.
+     * Pro $\mathcal{L}_0$: Sestrojíme TM, který pro slova z $L$ zastaví a přijme.
+  2. **Krok 2 (Důkaz, že $L \notin \mathcal{L}_{k+1}$ – nepatří do nižší třídy):**
+     * Pro vyvrácení regularity ($L \notin \mathcal{L}_3$): použijeme **Pumping lemma pro RL** (sporem) nebo Myhillovu-Nerodovu větu (nekonečně mnoho prefixů s různými residui).
+     * Pro vyvrácení bezkontextovosti ($L \notin \mathcal{L}_2$): použijeme **Pumping lemma pro CFL ($uvwxy$)** nebo uzávěrové vlastnosti (např. $L \cap R \notin \text{CFL}$ pro $R \in \text{REG}$).
+     * Pro vyvrácení rozhodnutelnosti ($L \notin \mathcal{R}$): použijeme **algoritmickou redukci** z problému zastavení ($H \le L$) nebo **Riceovu větu**.
+     * Pro vyvrácení rekurzivní spočetnosti ($L \notin \mathcal{L}_0$): použijeme redukci z doplňku halting problému ($\overline{H} \le L$) nebo diagonálního jazyka ($L_d \le L$).
+
+* **Kanonické příklady jazyků pro jednotlivá patra hierarchie:**
+  * **Typ 3 (Regulární):**
+    * $L = \{a^n b^m \mid n, m \ge 0\}$ (RegEx: $a^* b^*$, 2 stavy).
+    * $L = \{w \in \{a, b\}^* \mid |w|_a \equiv 0 \pmod 2\}$ (konečná paměť na paritu).
+  * **Typ 2, ale ne Typ 3 (Bezkontextové neregulární):**
+    * $L = \{a^n b^n \mid n \ge 0\}$ (CFG: $S \to a S b \mid \varepsilon$; vyžaduje čítání jedné závislosti do neomezené hloubky).
+    * $L = \{w w^R \mid w \in \{a, b\}^*\}$ (symetrické palindromy; zásobník ověřuje inverzní pořadí).
+    * Dyckův jazyk správného uzávorkování: $S \to (S) S \mid \varepsilon$.
+  * **Typ 1, ale ne Typ 2 (Kontextové nebezkontextové):**
+    * $L = \{a^n b^n c^n \mid n \ge 1\}$ (tři vzájemně vázané počty; PDA zvládne porovnat jen 2, LBA škrtá trojice $a, b, c$ sem a tam v prostoru délky slova).
+    * $L = \{a^n b^m c^n d^m \mid n, m \ge 1\}$ (křížové závislosti).
+    * $L = \{w w \mid w \in \{a, b\}^*\}$ (opakování stejného slova v přímém pořadí; vyžaduje netriviální porovnání dvou polovin, LBA zvládne, PDA ne).
+  * **Rekurzivní, ale ne Typ 1 ($\mathcal{R} \setminus \mathcal{L}_1$):**
+    * Jazyky vyžadující prostor rostoucí rychleji než lineárně (např. paměť $2^n$ nebo čas Ackermannovy funkce).
+  * **Typ 0, ale ne Rekurzivní ($\mathcal{L}_0 \setminus \mathcal{R}$):**
+    * Problém zastavení $H = \{\langle M, w \rangle \mid M \text{ zastaví na } w\}$.
+    * Univerzální jazyk $L_u = \{\langle M, w \rangle \mid M \text{ přijme } w\}$.
+    * Jazyk dvojic kódů CFG s neprázdným průnikem $\{\langle G_1, G_2 \rangle \mid L(G_1) \cap L(G_2) \ne \emptyset\}$.
+  * **Mimo Typ 0 (Nerekurzivně spočetné, $\notin \mathcal{L}_0$):**
+    * Diagonální jazyk $L_d = \{w_i \mid M_i \text{ nepřijme } w_i\}$.
+    * Doplněk problému zastavení $\overline{H} = \{\langle M, w \rangle \mid M \text{ nezastaví na } w\}$.
+    * Jazyk všech kódů TM, které nepřijímají žádné slovo: $L_{empty} = \{\langle M \rangle \mid L(M) = \emptyset\}$.
+
 ### Ads
 
 ### Architektury

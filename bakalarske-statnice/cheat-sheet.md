@@ -1651,9 +1651,163 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     $$\text{Velikost maximálního toku } |f_{max}| = \text{Kapacita minimálního } s\text{-}t \text{ řezu } c(A, B)$$
     *(Minimální řez tvoří množina vrcholů $A$ dosažitelných ze zdroje $s$ v reziduální síti $G_f$ po skončení algoritmu a $B = V \setminus A$).*
 
-### Architektury
+### Architektura počítačů, OS a Programovací jazyky
 
-### Programko
+#### 1. Reprezentace dat v paměti, hardware a čtení C / C++:
+* **Reprezentace celých čísel (Dvojkový doplněk – Two's Complement):**
+  * Kladná čísla začínají bitem `0`, záporná čísla začínají bitem `1`.
+  * **Pravidlo pro negaci čísla:** Invertuj všechny bity (NOT / `~`) a přičti 1:
+    $$-x = \sim x + 1$$
+    *(Příklad na 4 bitech: $+3 = 0011_2 \implies \sim(0011_2) = 1100_2 \implies +1 = 1101_2 = -3$).*
+  * **Rozsah na $k$ bitech:** Od $-2^{k-1}$ do $+2^{k-1} - 1$. (Asymetrie: záporných je o 1 více, $0$ má jediný kód, nejmenší záporné číslo nelze znegovat bez přetečení!).
+* **Reprezentace reálných čísel s plovoucí řádovou čárkou (IEEE 754):**
+  * Každé číslo je uloženo ve 3 složkách: **Znaménko $s$** (1 bit), **Exponent $E$** (posunutý o bias $B$), **Mantisa $M$** (normalizovaná, implicitní jednička před čárkou $1.M$):
+    $$x = (-1)^s \cdot (1 + M) \cdot 2^{E - B}$$
+  * **Typy a velikosti:**
+    * `float` (32 bitů): $s = 1\text{b}$, $E = 8\text{b}$ (bias $B = 127$), $M = 23\text{b}$.
+    * `double` (64 bitů): $s = 1\text{b}$, $E = 11\text{b}$ (bias $B = 1023$), $M = 52\text{b}$.
+  * **Speciální hodnoty:**
+    * *Exponent samé 1 a mantisa 0:* $\pm \infty$ (při dělení nenulového čísla nulou).
+    * *Exponent samé 1 a mantisa $\ne 0$:* $\text{NaN}$ (Not a Number, např. $0/0$, $\sqrt{-1}$, neplatí ani $\text{NaN} == \text{NaN}$).
+    * *Exponent samé 0:* Denormalizovaná čísla (umožňují postupný podtékání k nule) a $\pm 0$.
+* **Endianita (Pořadí ukládání bajtů v paměti):**
+  * Mějme 4bajtové číslo `0x12345678` uložené na paměťové adrese `0x100`:
+    * **Little-Endian (x86, x86-64, ARM):** *Nejméně významný bajt (LSB = `0x78`) je na nejnižší adrese:*
+      `[0x100] = 0x78`, `[0x101] = 0x56`, `[0x102] = 0x34`, `[0x103] = 0x12`.
+    * **Big-Endian (Síťový pořádek / Network Byte Order):** *Nejvíce významný bajt (MSB = `0x12`) je na nejnižší adrese:*
+      `[0x100] = 0x12`, `[0x101] = 0x34`, `[0x102] = 0x56`, `[0x103] = 0x78`.
+* **Bitové operace a masky v C# (POZOR na přetypování!):**
+  * Operátory: `&` (AND), `|` (OR), `^` (XOR), `~` (bitová negace NOT), `<<` (posun vlevo), `>>` (posun vpravo).
+  * **Zkouškový chyták v C#:** Bitové operace nad menšími typy (`byte`, `short`) kompilátor **automaticky povyšuje na `int`**! Výsledek je nutné explicitně přetypovat:
+    ```csharp
+    byte b = 0b0000_1111;
+    byte mask = (byte)(~b); // BEZ (byte) CHYBA PŘEKLADU: Cannot implicitly convert 'int' to 'byte'
+    ```
+  * **Základní triky s maskami na $k$-tém bitu:**
+    * *Test bitu:* `bool isSet = (val & (1 << k)) != 0;`
+    * *Nastavení bitu na 1:* `val |= (1 << k);`
+    * *Vynulování bitu na 0:* `val &= ~(1 << k);`
+    * *Přepnutí bitu (Toggle):* `val ^= (1 << k);`
+* **Zarovnání dat v paměti (Data Alignment & Padding):**
+  * **Pravidlo hardwaru:** $k$-bajtový primitivní typ (např. 4B `int`, 8B `double`) musí v paměti začínat na **adrese dělitelné $k$** (jinak procesor potřebuje 2 paměťové cykly nebo vyvolá výjimku).
+  * Kompilátor proto mezi položky struktur vkládá neviditelné výplňové bajty (**padding**).
+  * **Celková velikost struktury `sizeof`** je navíc zarovnána na násobek velikosti **jejího největšího primitivního členu**:
+    ```c
+    struct Priklad {
+        char a;     // 1 byte  + 3 bajty padding (aby int ležel na adrese dělitelné 4)
+        int b;      // 4 bajty
+        short c;    // 2 bajty + 2 bajty padding na konci (aby pole struktur bylo zarovnané)
+    }; // sizeof(struct Priklad) = 12 bajtů (nikoliv 7!).
+    ```
+* **Jak číst a chápat C / C++ kód v zadání (Pointery, Reference, Dereference):**
+  * **Adresa `&` vs. Dereference `*`:**
+    * `int x = 42;`
+    * `int* ptr = &x;` $\implies$ `ptr` obsahuje adresu buňky paměti, kde leží `x` (např. `0x7fff00`).
+    * `*ptr = 100;` $\implies$ **dereference**: zápis na adresu, na kterou pointer ukazuje $\implies$ hodnota `x` je nyní `100`.
+  * **Šipka `->` vs. Tečka `.`:**
+    * Máme-li instanci přímo: `mojeStruktura.polozka`
+    * Máme-li pointer: `(*ptr).polozka` je syntakticky ekvivalentní zápisu **`ptr->polozka`** (šipka provede dereferenci a přístup ke členu v jednom kroku).
+  * **Pravidlo čtení `const` pointerů (Čti zprava doleva):**
+    * `const int* p;` *(nebo `int const* p;`)* $\implies$ pointer na konstantní int. **Hodnotu `*p` nelze měnit**, ale samotný ukazatel `p` lze přepojit na jinou proměnnou.
+    * `int* const p = &x;` $\implies$ konstantní pointer na int. **Hodnotu `*p` lze měnit**, ale ukazatel `p` je přilepen k `x` a nelze jej přepojit.
+    * `const int* const p = &x;` $\implies$ konstantní pointer na konstantní int (zamčeno obojí).
+  * **Reference v C++ (`int& ref = x;`):**
+    * Pouhý alias (přezdívka) pro existující proměnnou. Na rozdíl od pointeru **nemůže být `NULL`**, musí být inicializována ihned a nelze ji přepojit na jinou paměť. Změna `ref` přímo mění `x`.
+  * **Pointerová aritmetika a pole:**
+    * Název pole `arr` v C funguje jako pointer na nultý prvek `&arr[0]`.
+    * Přičtení čísla $i$ k pointeru `T* ptr` posune adresu o **$i \times \text{sizeof}(T)$ bajtů**!
+    * Indexace `arr[i]` je přesně definována jako dereference `*(arr + i)`.
+  * **Klíčové slovo `volatile` (Kritické pro Memory-Mapped I/O a hardware):**
+    * Říká kompilátoru: *„Tato paměťová buňka se může změnit zásahem hardwaru nebo jiného vlákna bez vědomí tohoto kódu.“*
+    * Kompilátor **nesmí hodnotu kešovat v registru procesoru** a při každém čtení i zápisu musí provést skutečnou instrukci na paměťovou sběrnici!
+    * Typické použití u registrů zařízení: `typedef volatile struct { uint32_t status; ... } disk_regs_t;`. Bez `volatile` by smyčka `while (regs->status & BUSY);` skončila nekonečným cyklem, protože by si kompilátor načetl stav do registru jen jednou!
+
+#### 2. Vstup/Výstup, řadiče periférií, přerušení (PIO, MMIO, DMA) a mmap:
+* **Řadič zařízení (Device Controller):**
+  * Hardware rozhraní mezi sběrnicí a zařízením. Registry: `Status` (stav: bit `BUSY`, bit `ERR`), `Command` (akce: 1=čtení, 2=zápis), `Data` / `LBA` / `DMA` (parametry).
+  * **PMIO vs. MMIO:**
+    * *PMIO (Port-Mapped I/O):* Oddělený adresní prostor pro porty, vyžaduje speciální instrukce procesoru (`IN`/`OUT`).
+    * *MMIO (Memory-Mapped I/O):* Registry leží přímo na adresách fyzické paměti RAM $\implies$ přístup běžnými instrukcemi pro práci s pamětí (`volatile` ukazatele).
+* **Způsoby obsluhy zařízení (PIO vs. Přerušení vs. DMA):**
+  * **PIO (Programmed I/O):** Aktivní čekání (Polling) `while (status & BUSY);` $\implies$ 100% zbytečné vytížení procesoru po celou dobu mechanické operace.
+  * **Přerušení (Interrupts / IRQ):** CPU zadá příkaz a věnuje se jiným procesům. Po dokončení pošle řadič signál IRQ:
+    * *Hardware:* Uloží `PC` a `FLAGS` na stack, přepne do Kernel mode, skočí na obsluhu (`ISR` z tabulky `IDT`).
+    * *Software (OS):* Uloží registry, obslouží data, pošle řadiči potvrzení (`EOI`), probudí proces/vlákno (stav Ready), návrat instrukcí `IRET`.
+  * **DMA (Direct Memory Access):** Řadič přenáší bloky dat (sektory) přímo do RAM bez asistence CPU $\implies$ po přenesení celého bloku vyvolá jediné přerušení.
+    * **Zkouškový chyták:** **DMA pracuje výhradně s FYZICKÝMI adresami RAM!** (Řadič nezná stránkování MMU, proto mu OS musí předat fyzickou adresu bufferu).
+* **Praktická ukázka ovladače disku: C vs. C# (Zadání Jaro 2024):**
+  * *V jazyce C (Nízkoúrovňový ovladač v jádře OS):*
+    ```c
+    typedef volatile struct {
+        uint32_t status;  // bit 0: ERR (1=chyba), bit 1: BUSY (1=zařízení pracuje)
+        uint32_t size;    // velikost disku v blocích
+        uint32_t command; // 1 = čtení, 2 = zápis
+        uint32_t lba;     // logická adresa bloku
+        uint32_t dma;     // FYZICKÁ adresa v RAM pro uložení dat
+    } disk_regs_t;
+
+    typedef struct {
+        disk_regs_t *ctl;
+        mutex_t mutex;    // ošetření souběžného volání z více procesů
+    } disk_t;
+
+    bool disk_read_block(disk_t *disk, uint32_t lba, uint32_t phys_addr) {
+        mutex_lock(&disk->mutex);
+        while (disk->ctl->status & 2); // aktivní čekání na !BUSY
+        
+        disk->ctl->lba = lba;
+        disk->ctl->dma = phys_addr;
+        disk->ctl->command = 1;        // spustit čtení
+        
+        while (disk->ctl->status & 2); // čekání na dokončení
+        bool ok = (disk->ctl->status & 1) == 0; // kontrola bitu ERR
+        mutex_unlock(&disk->mutex);
+        return ok;
+    }
+    ```
+  * *V jazyce C# (Reprezentace řadiče přes `class` a `volatile`):*
+    * **Proč v C# `class` a v C++ `struct`?** V C/C++ je `struct` pouhá šablona rozložení paměti, na kterou se přímo ukáže pointerem `disk_regs_t* ctl = (disk_regs_t*)addr`. V C# je však `struct` hodnotový typ (Value Type) – při předání do ovladače by se celý zkopíroval po hodnotě a zápisy by šly do lokální kopie místo do hardwaru! Proto v C# volíme `class` (referenční typ), kde se předává odkaz na stejnou instanci registrů.
+    * Proměnné označíme klíčovým slovem **`volatile` přímo v definici třídy** (nativní C# klíčové slovo, které zakáže kešování v registrech CPU a vynutí přímý přístup do paměti):
+    ```csharp
+    public class DiskRegisters {
+        public volatile uint Status;  // bit 0: ERR, bit 1: BUSY
+        public uint Size;
+        public volatile uint Command; // 1 = čtení, 2 = zápis
+        public volatile uint Lba;
+        public volatile uint Dma;     // fyzická adresa v RAM
+    }
+
+    public class DiskDriver {
+        private readonly DiskRegisters regs;
+        private readonly object lockObj = new object(); // zámek pro kritickou sekci
+
+        public DiskDriver(DiskRegisters registers) {
+            this.regs = registers;
+        }
+
+        public bool ReadBlock(uint lba, uint physAddr) {
+            lock (lockObj) { // lock chrání souběžný přístup z více vláken
+                // 1. Aktivní čekání, dokud zařízení neukončí předchozí práci (!BUSY)
+                while ((regs.Status & 2) != 0) { }
+
+                // 2. Zadání parametrů a příkazu
+                regs.Lba = lba;
+                regs.Dma = physAddr;
+                regs.Command = 1; // 1 = čtení
+
+                // 3. Aktivní čekání na dokončení čtení
+                while ((regs.Status & 2) != 0) { }
+
+                // 4. Úspěch, pokud bit ERR (bit 0) je 0
+                return (regs.Status & 1) == 0;
+            }
+        }
+    }
+    ```
+* **Paměťové mapování souborů (`mmap` v OS / `MemoryMappedFile` v C#):**
+  * Mapuje soubor z disku přímo do virtuálního adresního prostoru procesu $\implies$ přístup k souboru jako k poli v RAM bez nutnosti volat `read()` a `write()` (Zero-Copy).
+  * **Líné načítání (Lazy loading via Page Fault):** Fyzické načtení z disku do RAM proběhne až při prvním skutečném sáhnutí na danou adresu vyvoláním hardwarového výpadku stránky (Page Fault).
+  * **Využití:** Maximální rychlost I/O a nejrychlejší sdílená paměť pro meziprocesovou komunikaci (IPC).
 
 ## Web
 

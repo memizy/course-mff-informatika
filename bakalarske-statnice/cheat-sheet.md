@@ -1335,6 +1335,322 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
 
 ### Ads
 
+#### Časová a prostorová složitost algoritmů:
+* **Časová a prostorová složitost (Model RAM):**
+  * **Časová složitost $T(n)$:** Celkový počet elementárních kroků/instrukcí RAMu provedených během výpočtu jako funkce velikosti vstupu $n = |x|$ ($T: \mathbb{N} \to \mathbb{R}$).
+  * **Prostorová složitost $S(n)$:** Rozsah indexů (maximální počet) použitých buněk paměti RAMu během výpočtu jako funkce velikosti vstupu ($S: \mathbb{N} \to \mathbb{R}$).
+* **Měření velikosti dat a cenové modely RAMu:**
+  * **Jednotková cena (Uniform cost):** Každá operace a přístup k libovolné buňce stojí $\mathcal{O}(1)$.
+    * *Problém neomezených čísel:* Pokud by buňky mohly obsahovat libovolně velká čísla bez penalizace, lze prostorovou a časovou složitost hackovat (do jednoho obřího čísla zakódujeme celou paměť a bitovými posuny/násobením provádíme paralelní výpočty).
+    * *Řešení v teorii i praxi:* Omezení velikosti čísel konstantou nebo polynomem / velikostí slova $c \cdot \log n$ bitů (do buňky se vejde právě adresa/pointer na $n$-prvkový vstup).
+  * **Logaritmická cena (Logarithmic cost):** Cena operace a přístupu k buňce odpovídá počtu bitů čísel: přístup k číslu $x$ stojí $\mathcal{O}(\log |x|)$ a operace nad $x, y$ stojí $\mathcal{O}(\log |x| + \log |y|)$. Fyzikálně a matematicky věrnější, ale pracná na výpočet.
+  * **Poměrná logaritmická cena:** Cena operace je poměr logaritmů velikosti vstupu a velikosti čísel (pro polynomem omezená čísla je cena operace konstantní $\mathcal{O}(1)$).
+* **Složitost v nejlepším, nejhorším a průměrném případě:**
+  * **Nejhorší případ (Worst-case) $T_{worst}(n) = \max_{|x|=n} T(x)$:** Maximum přes všechny možné vstupy velikosti $n$. Nejpoužívanější přístup – poskytuje **garantovanou horní mez** (algoritmus nikdy nepoběží déle).
+  * **Nejlepší případ (Best-case) $T_{best}(n) = \min_{|x|=n} T(x)$:** Minimum přes všechny vstupy velikosti $n$ (např. InsertSort na seřazeném poli provede jen $n-1$ porovnání $\implies \mathcal{O}(n)$).
+  * **Průměrný případ (Average-case) $T_{avg}(n) = \sum_{|x|=n} P(x) \cdot T(x)$:** Střední hodnota času přes všechny vstupy při daném pravděpodobnostním rozdělení $P(x)$ (typicky rovnoměrném). Dobře vystihuje reálné chování (např. Quicksort má v průměru $\mathcal{O}(n \log n)$, i když v nejhorším případě $\mathcal{O}(n^2)$), ale je matematicky obtížná na odvození.
+* **Asymptotická notace (Landauovy symboly):**
+  * **Horní mez ($\mathcal{O}$):** $f \in \mathcal{O}(g) \iff \exists c > 0, n_0 \in \mathbb{N} \ \forall n \ge n_0: f(n) \le c \cdot g(n)$.
+  * **Dolní mez ($\Omega$):** $f \in \Omega(g) \iff \exists c > 0, n_0 \in \mathbb{N} \ \forall n \ge n_0: f(n) \ge c \cdot g(n)$.
+  * **Těsná mez ($\Theta$):** $f \in \Theta(g) \iff f \in \mathcal{O}(g) \land f \in \Omega(g)$ ($\exists c_1, c_2 > 0, n_0: c_1 g(n) \le f(n) \le c_2 g(n)$).
+  * **Ostrá horní mez ($o$):** $f \in o(g) \iff \lim_{n \to \infty} \frac{f(n)}{g(n)} = 0$.
+  * **Ostrá dolní mez ($\omega$):** $f \in \omega(g) \iff \lim_{n \to \infty} \frac{f(n)}{g(n)} = \infty$.
+
+#### Třídy složitosti (P, NP, převoditelnost a NP-úplnost):
+* **Rozhodovací problémy:**
+  * Problém kódovaný jako funkce $P: \{0, 1\}^* \to \{0, 1\}$ s odpovědí $\{\text{ANO}, \text{NE}\}$, odpovídající jazyku $L = \{x \in \{0, 1\}^* \mid P(x) = 1\}$.
+* **Třídy P a NP:**
+  * **Třída P (Polynomiální čas):**
+    Problémy řešitelné deterministickým algoritmem v polynomiálním čase vzhledem k délce vstupu:
+    $$L \in \text{P} \iff \exists \text{ deterministický algoritmus } A, \exists \text{ polynom } p: \forall x \in \{0, 1\}^*: A(x) \text{ doběhne do } p(|x|) \text{ kroků} \land A(x) = L(x)$$
+    *(Třída prakticky a efektivně zvládnutelných problémů – např. 2-SAT, nejkratší cesty, minimální kostra, párování v bipartitním grafu).*
+  * **Třída NP (Nedeterministický polynomiální čas / Polynomiální verifikace):**
+    Problémy, kde kladnou odpověď (svědka/certifikát) lze **v polynomiálním čase zkontrolovat**:
+    $$L \in \text{NP} \iff \exists \text{ deterministický verifikátor } V \in \text{P}, \exists \text{ polynom } g: \forall x: L(x) = 1 \iff \exists y \text{ (certifikát)}, |y| \le g(|x|) \land V(x, y) = 1$$
+    *(Např. pro problém Kliky velikosti $k$ je certifikátem seznam $k$ vrcholů; verifikátor v čase $\mathcal{O}(k^2)$ ověří, že mezi všemi dvojicemi vede hrana).*
+    *Ekvivalentní definice:* Jazyky přijímané nedeterministickým Turingovým strojem v polynomiálním čase.
+  * **Vztah P a NP:**
+    $$\text{P} \subseteq \text{NP}$$
+    *(Zda $\text{P} = \text{NP}$, nebo $\text{P} \subsetneq \text{NP}$, je nejvýznamnější otevřený problém informatiky; všeobecně se předpokládá $\text{P} \ne \text{NP}$).*
+* **Převoditelnost problémů (Karpova polynomiální redukce $A \le_P B$ neboli $A \to B$):**
+  * Problém $A$ je polynomiálně převoditelný na problém $B$ ($A \le_P B$), pokud existuje funkce $f: \{0, 1\}^* \to \{0, 1\}^*$ vyčíslitelná v polynomiálním čase taková, že:
+    $$\forall x \in \{0, 1\}^*: x \in A \iff f(x) \in B$$
+  * **Vlastnosti převoditelnosti:**
+    * *Reflexivní:* $A \le_P A$ ($f$ je identita).
+    * *Tranzitivní:* $A \le_P B \land B \le_P C \implies A \le_P C$ (složení dvou polynomiálních funkcí $f \circ g$ je opět polynomiální).
+    * *Není antisymetrická:* Např. problém „vstup má sudou délku“ a „vstup má lichou délku“ lze převádět oběma směry, ale nejsou to totožné problémy.
+    * *Existují vzájemně nepřevoditelné problémy:* Mezi triviálním problémem „vždy odpověz 0“ a „vždy odpověz 1“ převod neexistuje.
+    * Převoditelnost tvoří **částečné kvaziuspořádání** na množině problémů.
+  * **Klíčové věty o převodu:**
+    1. Pokud $A \le_P B$ a $B \in \text{P}$, pak $A \in \text{P}$ *(pokud umíme $B$ řešit rychle, umíme i $A$)*.
+    2. Pokud $A \le_P B$ a $A \notin \text{P}$, pak $B \notin \text{P}$ *(těžkost se přenáší dopředu)*.
+* **NP-těžkost a NP-úplnost:**
+  * **NP-těžký problém (NP-hard):** Problém $L$ je NP-těžký, pokud je na něj polynomiálně převoditelný **každý** problém z NP:
+    $$\forall K \in \text{NP}: K \le_P L$$
+    *(NP-těžký problém nemusí sám ležet v NP; může být klidně nerozhodnutelný, např. Halting problem je NP-těžký).*
+  * **NP-úplný problém (NP-complete / NPC):** Problém $L$ je NP-úplný, pokud:
+    1. $L \in \text{NP}$ (leží v NP – má polynomiální verifikátor), a zároveň
+    2. $L$ je NP-těžký ($\forall K \in \text{NP}: K \le_P L$).
+  * **Věta o dokazování NP-úplnosti:**
+    Pokud je problém $A$ NP-úplný, problém $B \in \text{NP}$ a platí **$A \le_P B$**, pak je **$B$ také NP-úplný**!
+    *(POZOR na směr převodu: redukujeme ZE známého NP-úplného problému NA nový zkoumaný problém!).*
+  * **Cook-Levinova věta:** Problém SAT (splnitelnost Booleovských formulí) je **NP-úplný** (historicky první dokázaný NP-úplný problém, přímo simuluje kroky libovolného NTM pomocí logického obvodu/formule).
+* **Katalog NP-úplných problémů:**
+  * **Logické:**
+    * **SAT:** Splnitelnost CNF formule ($\exists$ pravdivostní ohodnocení proměnných?).
+    * **3-SAT:** SAT, kde každá klauzule obsahuje nejvýše 3 literály.
+    * **3,3-SAT:** 3-SAT, kde se navíc každá proměnná vyskytuje v celé formuli nejvýše 3krát.
+    * **Circuit-SAT:** Splnitelnost Booleovského obvodu s hradly AND, OR, NOT.
+    *(Pozor: 2-SAT $\in \text{P}$ přes silně souvislé komponenty implikačního grafu; Horn-SAT $\in \text{P}$).*
+  * **Grafové:**
+    * **Klika (Clique):** Existuje v $G$ úplný podgraf na alespoň $k$ vrcholech?
+    * **Nezávislá množina (Independent Set):** Existuje v $G$ množina alespoň $k$ vrcholů, mezi nimiž nevede žádná hrana?
+    * **Vrcholové pokrytí (Vertex Cover):** Existuje v $G$ množina nejvýše $k$ vrcholů, která pokrývá všechny hrany grafu?
+    * **3D-párování (3D-Matching):** Mějme množiny $A, B, C$ stejné velikosti a trojice $T \subseteq A \times B \times C$. Existuje perfektní podmnožina trojic pokrývající každý prvek právě jednou? *(Pozor: 2D párování v bipartitním grafu $\in \text{P}$).*
+    * **$k$-obarvitelnost:** Lze vrcholy obarvit $k$ barvami bez konfliktu sousedů? (Pro $k \ge 3$ je NP-úplné; pro $k = 2$ je v P – test bipartitnosti).
+    * **Hamiltonovská kružnice / cesta:** Existuje kružnice procházející každý vrchol právě jednou? *(Pozor: Eulerovský tah procházející každou hranu právě jednou je v P!).*
+    * **Problém obchodního cestujícího (TSP – rozhodovací):** Existuje hamiltonovská kružnice s délkou $\le K$?
+  * **Číselné (slabě NP-úplné, mají pseudopolynomiální algoritmus přes dynamické programování):**
+    * **Součet podmnožiny (Subset Sum):** Množina celých čísel $S$ a cíl $K$. Existuje podmnožina se součtem přesně $K$?
+    * **Batoh (Knapsack – rozhodovací):** Lze vybrat věci s celkovou vahou $\le W$ a cenou $\ge C$?
+    * **Dva loupežníci (Partition):** Lze rozdělit čísla na dvě hromádky se stejným součtem?
+* **Konkrétní konstrukce polynomiálních převodů (zkouškové šablony):**
+  * **1. Klika $\leftrightarrow$ Nezávislá množina:**
+    * Vrcholy $S \subseteq V$ tvoří kliku v $G \iff$ tvoří nezávislou množinu v doplňkovém grafu $\overline{G} = (V, \binom{V}{2} \setminus E)$.
+    * Převodní funkce: $f(G, k) = (\overline{G}, k)$. Spočtení doplňku trvá $\mathcal{O}(V^2)$, tedy v polynomiálním čase.
+  * **2. SAT $\to$ 3-SAT (Štípání dlouhých klauzulí):**
+    * Cíl: Nahradit klauzule délky $\ell > 3$ klauzulemi délky 3 při zachování ekvisplnitelnosti.
+    * Klauzuli $(\alpha \lor \beta)$ s $|\alpha| = 2$ a $|\beta| = \ell - 2$ nahradíme pomocí nového pomocného literálu $z$:
+      $$(\alpha \lor z) \land (\beta \lor \neg z)$$
+    * První klauzule má délku 3, druhá délku $\ell - 1$. Tento krok opakujeme na druhou klauzuli, dokud nemá délku 3. Počet kroků i nových proměnných je lineární vzhledem k délce formule.
+  * **3. 3-SAT $\to$ 3,3-SAT (Omezení počtu výskytů proměnné):**
+    * Nechť proměnná $x$ má v formuli $k > 3$ výskytů.
+    * Nahradíme její výskyty novými proměnnými $x_1, x_2, \dots, x_k$ (každá se vyskytne 1× v původních klauzulích).
+    * Ekvivalenci všech $x_i$ vynutíme kružnicí implikací: $(x_1 \implies x_2) \land (x_2 \implies x_3) \land \dots \land (x_k \implies x_1)$, zapsaných jako 2-literálové klauzule:
+      $$(\neg x_1 \lor x_2) \land (\neg x_2 \lor x_3) \land \dots \land (\neg x_k \lor x_1)$$
+    * Každá proměnná $x_i$ se pak vyskytne v celé formuli celkem nejvýše 3krát (1× původně, 2× v kružnici).
+  * **4. 3-SAT $\to$ Nezávislá množina:**
+    * Mějme 3-CNF formuli s $m$ klauzulemi $C_1, \dots, C_m$.
+    * **Konstrukce grafu:**
+      1. Pro každou klauzuli $C_i = (\ell_{i,1} \lor \ell_{i,2} \lor \ell_{i,3})$ vytvoříme trojúhelník (kliku $K_3$) o 3 vrcholech odpovídajících literálům této klauzule (celkem $3m$ vrcholů).
+      2. Spojíme hranami všechny dvojice vrcholů, které představují vzájemně konfliktní literály (např. vrchol $x$ a vrchol $\neg x$).
+      3. Požadovanou velikost nezávislé množiny položíme $k = m$.
+    * **Důkaz ekvivalence:**
+      * $(\implies)$ Je-li formule splnitelná, v každé klauzuli vybereme alespoň 1 pravdivý literál (celkem $m$ vrcholů). Mezi nimi nevede žádná hrana z trojúhelníků (z každého bereme 1) ani žádná konfliktní hrana (žádný literál není zároveň $x$ i $\neg x$) $\implies$ tvoří nezávislou množinu velikosti $m$.
+      * $(\impliedby)$ Z každého trojúhelníku $K_3$ může nezávislá množina obsahovat nejvýše 1 vrchol. Aby měla velikost $m$, musí obsahovat právě 1 vrchol z každého trojúhelníku. Protože v ní nevedou hrany, neobsahuje žádnou dvojici $x$ a $\neg x$. Nastavíme-li tyto vybrané literály na 1, získáme korektní splňující ohodnocení celé formule.
+
+#### Metoda rozděl a panuj a Master theorem:
+* **Princip paradigmatu Rozděl a panuj (Divide and Conquer):**
+  1. **Rozděl (Divide):** Původní problém velikosti $n$ rozložíme na $a \ge 1$ menších podproblémů stejného typu, každý o velikosti $n / b$ ($b > 1$).
+  2. **Panuj (Conquer):** Tyto podproblémy vyřešíme rekurzivním voláním algoritmu. (Dojdeme-li k bázovému případu konstantní velikosti, např. $n \le 1$, vyřešíme jej triviálně přímo v čase $\Theta(1)$).
+  3. **Spoj (Combine):** Výsledky podproblémů sloučíme do celkového řešení původního problému.
+  * **Sestavení rekurentní rovnice pro čas $T(n)$:**
+    $$T(n) = a \cdot T\left(\frac{n}{b}\right) + f(n)$$
+    kde $f(n) = \Theta(n^c)$ je režie na rozdělení a následné sloučení podproblémů v kořeni rekurze.
+
+* **Master theorem (Kuchařková věta pro rekurence – bez důkazu):**
+  * **Znění věty:** Mějme rekurentní rovnici $T(n) = a \cdot T(n/b) + \Theta(n^c)$, kde konstanty splňují $a \ge 1, b > 1, c \ge 0$. Porovnáme poměr $\frac{a}{b^c}$ (nebo ekvivalentně $c$ vůči $\log_b a$):
+    1. **Případ 1 (Rovnováha, $\frac{a}{b^c} = 1 \iff c = \log_b a$):**
+       $$T(n) = \Theta(n^c \log n) = \Theta(n^{\log_b a} \log n)$$
+    2. **Případ 2 (Převládá kořen, $\frac{a}{b^c} < 1 \iff c > \log_b a$):**
+       $$T(n) = \Theta(n^c)$$
+    3. **Případ 3 (Převládají listy, $\frac{a}{b^c} > 1 \iff c < \log_b a$):**
+       $$T(n) = \Theta(n^{\log_b a})$$
+
+* **Kanonické aplikace Master Theoremu:**
+  * **1. Mergesort (Třídění sléváním):**
+    * Pole rozdělíme na 2 poloviny ($a=2, b=2$), po setřídění je slijeme v lineárním čase ($c=1$):
+      $$T(n) = 2 T(n/2) + \Theta(n) \implies a=2, b=2, c=1 \implies \frac{a}{b^c} = \frac{2}{2^1} = 1 \implies T(n) = \Theta(n \log n)$$
+  * **2. Karacubovo násobení dlouhých čísel:**
+    * Chceme vynásobit dvě $n$-ciferná čísla $X, Y$. Rozdělíme je na poloviny o $n/2$ cifrách:
+      $$X = A \cdot z^{n/2} + B, \quad Y = C \cdot z^{n/2} + D$$
+      $$X \cdot Y = AC \cdot z^n + (AD + BC) \cdot z^{n/2} + BD$$
+    * *Naivní přístup:* Vyžaduje 4 násobení ($AC, AD, BC, BD$) polovičních čísel $\implies T(n) = 4 T(n/2) + \Theta(n) \implies \Theta(n^{\log_2 4}) = \Theta(n^2)$.
+    * *Karacubův trik:* Střední člen spočteme pomocí jednoho součinového členu a odečtení již známých $AC$ a $BD$:
+      $$AD + BC = (A + B)(C + D) - AC - BD$$
+    * Stačí **pouze 3 násobení** čísel poloviční délky ($AC, BD, (A+B)(C+D)$) a několik lineárních sčítání/posunů:
+      $$T(n) = 3 T(n/2) + \Theta(n) \implies a=3, b=2, c=1$$
+      $$\frac{a}{b^c} = \frac{3}{2^1} = 1.5 > 1 \implies T(n) = \Theta(n^{\log_2 3}) \approx \Theta(n^{1.585}) \quad (\text{výrazně rychlejší než } \mathcal{O}(n^2)!)$$
+  * **3. Binární vyhledávání:**
+    * Jeden podproblém poloviční velikosti, porovnání v čase $\mathcal{O}(1)$:
+      $$T(n) = T(n/2) + \Theta(1) \implies a=1, b=2, c=0 \implies \frac{a}{b^c} = \frac{1}{1} = 1 \implies T(n) = \Theta(\log n)$$
+  * **4. Strassenovo násobení matic:**
+    * Matice $n \times n$ rozdělíme na bloky $n/2 \times n/2$. Namísto 8 násobení bloků použijeme důmyslnou algebraickou kombinaci se 7 násobeními:
+      $$T(n) = 7 T(n/2) + \Theta(n^2) \implies a=7, b=2, c=2 \implies \frac{a}{b^c} = \frac{7}{4} > 1 \implies T(n) = \Theta(n^{\log_2 7}) \approx \Theta(n^{2.807})$$
+
+#### Binární vyhledávací stromy (BVS) a AVL stromy:
+* **Definice Binárního vyhledávacího stromu (BVS / BST):**
+  * Zakořeněný binární strom, kde každý uzel $v$ nese unikátní klíč $k(v)$ z uspořádané množiny.
+  * **Invariant BVS:** Pro každý uzel $v$ platí:
+    * $\forall u \in L(v): k(u) < k(v)$ (všechny klíče v levém podstromu jsou menší),
+    * $\forall w \in R(v): k(w) > k(v)$ (všechny klíče v pravém podstromu jsou větší).
+  * *Vlastnost In-order průchodu:* Průchod stromem v pořadí (Levý podstrom, Kořen, Pravý podstrom) navštíví prvky v **přísně vzestupném seřazeném pořadí v čase $\Theta(n)$**.
+* **Operace s nevyvažovaným BVS:**
+  * **Find(x):** Porovnáme $x$ s $k(v)$. Pokud $x = k(v)$, uzel je nalezen; pokud $x < k(v)$, pokračujeme rekurzivně vlevo, jinak vpravo. Složitost: $\mathcal{O}(h)$, kde $h$ je hloubka stromu.
+  * **Insert(x):** Provedeme vyhledání $x$. Skončíme-li v prázdném ukazateli (listu), připojíme sem nový uzel s klíčem $x$. Složitost: $\mathcal{O}(h)$.
+  * **Delete(x):** Vyhledáme uzel $v$ s klíčem $x$. Rozlišujeme 3 případy podle počtu synů:
+    1. *Uzel $v$ je list (0 synů):* Prostě jej smažeme a u jeho rodiče vynulujeme ukazatel.
+    2. *Uzel $v$ má právě 1 syna:* Uzel $v$ vyjmeme a jeho jediného syna připojíme přímo na rodiče uzlu $v$.
+    3. *Uzel $v$ má 2 syny:* V pravém podstromu $R(v)$ nalezneme **symetrického následníka** $s$ (nejlevější uzel v $R(v)$, tj. minimum z $R(v)$). Hodnotu $k(s)$ zkopírujeme do $v$ a uzel $s$ smažeme ze stromu (uzel $s$ má z definice nejvýše 1 pravého syna $\implies$ redukce na případ 1 nebo 2).
+  * *Zásadní slabina nevyvažovaného BVS:* Závislost tvaru stromu na pořadí vkládání. Při vkládání již seřazených dat ($1, 2, 3, \dots, n$) strom zdegraduje na dlouhý jednostranný řetízek (spojový seznam) s hloubkou $h = \Theta(n)$ a operace trvají $\Theta(n)$!
+* **AVL stromy (definice):**
+  * **Definice AVL stromu:** Binární vyhledávací strom splňující **invariant hloubkového vyvážení**:
+    Pro každý jeho vrchol $v$ platí, že hloubka (výška) levého a pravého podstromu se liší nejvýše o jedna:
+    $$|h(L(v)) - h(R(v))| \le 1$$
+  * **Věta o hloubce:** AVL strom na $n$ vrcholech má hloubku $\Theta(\log n)$ (přesněji $h < 1.44 \log_2(n+2)$).
+  * *Poznámka k rotacím:* Invariant se při vkládání/mazání obnovuje lokálními rotacemi ukazatelů v čase $\mathcal{O}(1)$ (proto operace `Find`, `Insert`, `Delete` trvají $\mathcal{O}(\log n)$). **Jednoduchá rotace (L/R)** řeší přímé přetížení (LL/RR) povýšením syna na místo otce, zatímco **dvojitá rotace (LR/RL)** řeší zalomené přetížení „cik-cak“ vytažením prostřední hodnoty z nevyvážené trojice uzlů na pozici nového lokálního kořene.
+
+#### Třídění (primitivní algoritmy, Quicksort a dolní mez):
+* **Pojem inverze a dolní mez pro lokální výměny:**
+  * **Inverze v poli $A$:** Dvojice indexů $(i, j)$ taková, že $i < j$ a zároveň $A[i] > A[j]$.
+  * Počet inverzí udává míru „nesetříděnosti“ pole. Setříděné pole má 0 inverzí, reverzně setříděné pole má maximum $\binom{n}{2} = \frac{n(n-1)}{2}$ inverzí.
+  * *Klíčový fakt:* Prohozením dvou sousedních prvků v poli se počet inverzí změní **nejvýše o 1**. Každý algoritmus prohazující pouze sousední prvky (Bubblesort, Insertsort) proto musí v nejhorším případě provést $\Omega(n^2)$ operací!
+* **Primitivní třídicí algoritmy:**
+  * **Bubblesort (Probublávání):**
+    * Opakovaně prochází pole zleva doprava a porovnává sousedy $A[i], A[i+1]$. Jsou-li ve špatném pořadí, prohodí je. V každém průchodu největší zbývající prvek „probublá“ na svou finální pozici na konci.
+    * Vlastnosti: In-place, stabilní.
+    * Složitost: Nejhorší i průměrná $\Theta(n^2)$ ($\frac{n(n-1)}{2}$ porovnání/výměn). S bool příznakem (zda došlo k výměně) je nejlepší případ $\Theta(n)$ (již setříděné pole).
+  * **Insertsort (Třídění vkládáním):**
+    * Udržuje setříděný prefix $A[1 \dots i-1]$. V $i$-tém kroku vezme prvek $A[i]$ a zatřídí jej na správné místo v prefixu posunem větších prvků doprava.
+    * Vlastnosti: In-place, stabilní, velmi nízká režie.
+    * Složitost:
+      * Nejhorší případ: $\Theta(n^2)$ (reverzně seřazené pole).
+      * Nejlepší případ: $\Theta(n)$ (již seřazené pole – pro každý prvek provede jediné porovnání a žádný posun!).
+      * Využití: Ideální pro malá pole ($n \le 16$, kde překonává Quicksort i Mergesort) a pro téměř setříděná data s malým počtem inverzí ($T(n) = \mathcal{O}(n + I)$).
+* **Quicksort:**
+  * **Princip algoritmu:**
+    1. Zvolíme prvek $p$ (pivot).
+    2. **Partition (Rozdělení pole):** Přeskládáme pole v čase $\mathcal{O}(n)$ na 3 úseky: prvky menší než $p$, prvky rovné $p$, prvky větší než $p$.
+    3. Rekurzivně zavoláme Quicksort na levý a pravý úsek.
+    4. Spojení je triviální $\mathcal{O}(1)$ – pole je setříděné přímo na místě (in-place).
+  * **Složitost Quicksortu:**
+    * **Nejhorší případ: $\Theta(n^2)$**
+      Nastává při nejhorším možném dělení (např. pivot je pokaždé minimem nebo maximem, takže jeden podproblém má velikost $0$ a druhý $n-1$). Rekurence: $T(n) = T(n-1) + \Theta(n) \implies \Theta(n^2)$.
+    * **Průměrný případ: $\Theta(n \log n)$**
+      *Zdůvodnění přes skoromedián a lemma o džbánu:*
+      * Náhodně zvolený pivot padne s pravděpodobností $p = \frac{1}{2}$ do prostředních 50 % prvků (mezi 25. a 75. percentil) – tzv. **skoromedián**.
+      * Když zvolíme skoromedián, oba podproblémy mají velikost nejvýše $\frac{3}{4} n$.
+      * Podle lemmatu o džbánu (střední doba čekání na úspěch v geometrickém rozdělení) potřebujeme v průměru $\frac{1}{p} = 2$ pokusy, než trefíme skoromedián.
+      * Hloubka stromu „dobrých“ dělení je $\log_{4/3} n = \mathcal{O}(\log n)$. Na každé hladině odvedeme celkem $\mathcal{O}(n)$ práce $\implies$ celkový očekávaný čas je $\mathcal{O}(n \log n)$.
+* **Dolní odhad složitosti porovnávacích třídicích algoritmů ($\Omega(n \log n)$):**
+  * **Model rozhodovacího stromu (Decision Tree):**
+    * Libovolný deterministický třídicí algoritmus založený na vzájemném porovnávání prvků lze reprezentovat jako binární rozhodovací strom:
+      * *Vnitřní uzly:* Odpovídají dotazům na porovnání $A[i] \le A[j]$ se 2 výstupy (ANO / NE).
+      * *Listy:* Reprezentují výsledné permutace prvků pole.
+      * *Délka cesty od kořene k listu:* Počet porovnání provedených algoritmem pro daný vstup.
+      * *Výška stromu $h$:* Počet porovnání v **nejhorším případě**.
+  * **Matematické odvození meze:**
+    1. Vstup o $n$ prvcích může mít $n!$ různých uspořádání (permutací).
+    2. Aby algoritmus fungoval korektně pro každý možný vstup, musí mít rozhodovací strom alespoň $n!$ různých listů (jinak by dvě různé permutace skončily ve stejném listu, což by pro jednu z nich znamenalo chybné setřídění):
+       $$\text{Počet listů } L \ge n!$$
+    3. Binární strom s výškou $h$ má nejvýše $2^h$ listů ($L \le 2^h$).
+    4. Z toho plyne dolní odhad na výšku stromu $h$:
+       $$h \ge \lceil \log_2(n!) \rceil$$
+    5. Odhad hodnoty $\log_2(n!)$:
+       $$\log_2(n!) = \sum_{i=1}^n \log_2 i \ge \sum_{i=\lceil n/2 \rceil}^n \log_2 i \ge \frac{n}{2} \log_2\left(\frac{n}{2}\right) = \frac{n}{2} (\log_2 n - 1) = \Omega(n \log n)$$
+#### Grafové algoritmy:
+* **Prohledávání grafu do šířky (BFS) a do hloubky (DFS):**
+  * **Prohledávání do šířky (BFS – Breadth-First Search):**
+    * *Datová struktura:* Fronta (FIFO).
+    * *Stavy vrcholů:* Nenavštívený (neviděný), Otevřený (vložený do fronty), Zavřený (vyjmutý a zpracovaný).
+    * *Průběh:* Začíná v počátečním vrcholu $s$, vloží jej do fronty. Dokud fronta není prázdná, vyjme vrchol $v$, prohlédne všechny jeho sousedy; pokud je soused $w$ neviděný, označí jej jako otevřený a vloží do fronty. Po prohlédnutí všech sousedů se $v$ označí jako zavřený.
+    * *Vlastnost:* Prochází graf po soustředných vlnách (hladinách) vzdálenosti od $s$. Nalezne cestu s **minimálním počtem hran** $\implies$ slouží k hledání nejkratších cest v neohodnocených grafech (resp. s jednotkovými délkami hran).
+    * *Složitost:* $\Theta(n + m)$.
+  * **Prohledávání do hloubky (DFS – Depth-First Search):**
+    * *Datová struktura:* Zásobník (LIFO, typicky implicitně přes rekurzi).
+    * *Časové známky:* `in[v]` (čas objevení / otevření) a `out[v]` (čas dokončení / opuštění / zavření).
+    * *Průběh:* Funkce $DFS(v)$ označí $v$ jako otevřený (`in[v] = ++time`), pro každou hranu $vw \in E$ rekurzivně zavolá $DFS(w)$, pokud je $w$ neviděný. Po prozkoumání všech sousedů vrchol uzavře (`out[v] = ++time`).
+    * *Opakované DFS:* Spustí se pro každý dosud neviděný vrchol $\implies$ projde všechny komponenty souvislosti.
+    * *Klasifikace hran v orientovaném grafu:*
+      * *Stromové:* hrany použité při prvním vstupu do neviděného vrcholu.
+      * *Zpětné:* hrany vedoucí k otevřenému předkovi $\implies$ **orientovaný graf obsahuje cyklus $\iff$ DFS najde zpětnou hranu**!
+      * *Dopředné:* hrany k zavřenému potomkovi mimo strom.
+      * *Příčné:* hrany mezi větvemi stromu (vedou zprava doleva).
+    * *Složitost:* $\Theta(n + m)$.
+
+* **Topologické třídění orientovaných grafů:**
+  * **Definice topologického uspořádání:**
+    Lineární uspořádání $\le$ na množině vrcholů $V$ orientovaného grafu $G = (V, E)$ takové, že pro každou hranu $(u, v) \in E$ platí:
+    $$u \le v \quad (\text{všechny hrany směřují zleva doprava})$$
+  * **Věta o existenci:** Orientovaný graf má topologické uspořádání právě tehdy, když je **acyklický (DAG – Directed Acyclic Graph)**. (Může jich existovat více).
+  * **Algoritmy konstrukce topologického uspořádání:**
+    1. *Odtrháváním zdrojů (Kahnův algoritmus):*
+       * Spočteme vstupní stupně `in-deg(v)` všech vrcholů. Vrcholy s `in-deg = 0` (zdroje) vložíme do fronty.
+       * Opakovaně vyjmeme vrchol $u$, zařadíme jej do výstupního pořadí a pro všechny hrany $(u, w)$ snížíme `in-deg(w)--`. Pokud `in-deg(w)` klesne na 0, přidáme $w$ do fronty.
+       * Složitost: $\Theta(n + m)$. Pokud na konci neobsahuje všechny vrcholy, graf má cyklus.
+    2. *Pomocí DFS (zavírací časy):*
+       * Spustíme opakované DFS. Vrcholy se zavírají v **přesně opačném pořadí**, než je topologické (uzel, z nějž už nevede žádná hrana, se zavře jako první).
+       * Seřazením vrcholů podle **klesajícího času opuštění `out[v]`** (nebo vkládáním zavřených vrcholů na začátek spojového seznamu) získáme platné topologické uspořádání v čase $\Theta(n + m)$.
+
+* **Nejkratší cesty v ohodnocených grafech (Dijkstra a Bellman-Ford):**
+  * **Dijkstrův algoritmus:**
+    * *Použití:* Nejkratší cesty z jednoho startovního vrcholu $s$ do všech ostatních v grafech s **nezápornými vahami hran ($w(e) \ge 0$)**.
+    * *Princip (Hladový výběr + prioritní fronta):*
+      * Nastavíme $h(s) = 0$, pro ostatní $h(v) = +\infty$.
+      * Dokud existují otevřené vrcholy, vybereme otevřený vrchol $u$ s **minimálním $h(u)$**, označíme jej za zavřený (trvalý) a pro všechny jeho následníky $v$ provedeme relaxaci:
+        $$\text{pokud } h(v) > h(u) + w(u, v) \implies h(v) = h(u) + w(u, v), \ P(v) = u$$
+      * *Klíčová vlastnost:* Díky nezáporným vahám je každý vrchol vybrán a zavřen **právě jednou** (jeho vzdálenost se už nikdy nezmenší).
+      * *Proč nefunguje pro záporné hrany:* Hladový předpoklad selže – do již zavřeného vrcholu by mohla vést ještě kratší cesta přes zápornou hranu objevenou později.
+    * *Složitost podle datové struktury prioritní fronty:*
+      * Pole (hledání minima průchodem): $\Theta(n^2)$ (vhodné pro velmi husté grafy $m \approx n^2$).
+      * Binární halda: $n \times \text{ExtractMin} + m \times \text{DecreaseKey} \implies \mathcal{O}((n + m) \log n)$.
+      * Fibonacciho halda: $\mathcal{O}(m + n \log n)$.
+  * **Bellmanův-Fordův algoritmus:**
+    * *Použití:* Grafy s libovolnými vahami hran (i zápornými), **bez záporných cyklů**. Dokáže detekovat záporný cyklus dosažitelný ze zdroje!
+    * *Princip (Relaxace fázováním):*
+      * Nejkratší jednoduchá cesta v grafu s $n$ vrcholy má nejvýše $n-1$ hran.
+      * Algoritmus pracuje v $n-1$ fázích. V každé fázi provede relaxaci přes **všechny hrany grafu**:
+        $$\forall (u, v) \in E: \text{pokud } h(v) > h(u) + w(u, v) \implies h(v) = h(u) + w(u, v), \ P(v) = u$$
+      * *Invariant:* Na konci $i$-té fáze odpovídá $h(v)$ délce nejkratšího sledu z $s$ do $v$ o nejvýše $i$ hranách.
+      * *Detekce záporného cyklu:* Provedeme $n$-tou fázi. Pokud se ještě v $n$-té fázi nějaké $h(v)$ zmenší, graf obsahuje záporný cyklus!
+    * *Složitost:* $\mathcal{O}(n \cdot m)$ ($n$ fází, v každé projdeme $m$ hran).
+
+* **Minimální kostra grafu (Jarník a Borůvka):**
+  * **Zadání úlohy:** V neorientovaném souvislém grafu $G = (V, E, w)$ najít kostru $T \subseteq E$ s minimálním celkovým součtem vah $\sum_{e \in T} w(e)$.
+  * **Řezové lemma (Cut lemma – základní kámen kostrových algoritmů):**
+    Nechť $R$ je libovolný řez v grafu (množina hran mezi $S$ a $V \setminus S$, kde $\emptyset \subsetneq S \subsetneq V$). Nechť $e$ je **nejlehčí hrana tohoto řezu**. Pak hrana $e$ **leží v nějaké minimální kostře** (jsou-li váhy hran unikátní, leží v každé minimální kostře).
+  * **Jarníkův algoritmus (Prim-Jarník):**
+    * *Princip (Hladový růst jednoho stromu):* Začneme s libovolným vrcholem $v_0$ jako stromem $T$. V každém kroku uvažujeme řez mezi stromem $T$ a zbytkem grafu $V \setminus V(T)$, nalezneme nejlehčí hranu tohoto řezu a přidáme ji i s novým vrcholem do stromu $T$.
+    * *Implementace:* Pomocí prioritní fronty (haldy) analogicky jako u Dijkstry. V haldě udržujeme aktivní hrany vedoucí ze stromu $T$ do jednotlivých vrcholů mimo $T$.
+    * *Složitost:* $\mathcal{O}(m \log n)$ s binární haldou (případně $\mathcal{O}(m + n \log n)$ s Fibonacciho haldou).
+  * **Borůvkův algoritmus:**
+    * *Princip (Paralelní růst lesa):* Na začátku tvoří každý vrchol samostatnou komponentu (les izolovaných vrcholů).
+    * V každé fázi: **pro každou komponentu** souvislosti nalezneme její nejlehčí incidentní hranu (spojující ji s jinou komponentou). Všechny tyto vybrané hrany naráz přidáme do kostry a komponenty sloučíme.
+    * *Počet fází a složitost:*
+      * V každé fázi se počet komponent zmenší alespoň na polovinu $\implies$ algoritmus provede **nejvýše $\lceil \log_2 n \rceil$ fází**.
+      * V jedné fázi trvá nalezení nejlehčích hran pro všechny komponenty $\mathcal{O}(m)$ (pomocí BFS/DFS na komponentách).
+      * Celková složitost: $\mathcal{O}(m \log n)$. (Pro rovinné grafy dokonce lineární $\mathcal{O}(n)$).
+
+* **Toky v sítích (Ford-Fulkersonův algoritmus):**
+  * **Definice sítě a toku:**
+    * Síť: Orientovaný graf $G = (V, E)$, zdroj $s \in V$, stok $t \in V$, nezáporné kapacity hran $c: E \to \mathbb{R}_0^+$.
+    * **Tok $f: E \to \mathbb{R}$** splňuje:
+      1. *Kapacitní omezení:* $0 \le f(e) \le c(e)$ pro každou hranu $e \in E$.
+      2. *Kirchhoffův zákon (zachování toku):* Pro každý vnitřní uzel $v \in V \setminus \{s, t\}$ platí:
+         $$\sum_{e \in in(v)} f(e) = \sum_{e \in out(v)} f(e)$$
+    * *Velikost toku $|f|$:* Čistý odtok ze zdroje $\sum_{e \in out(s)} f(e) - \sum_{e \in in(s)} f(e)$.
+  * **Reziduální síť $G_f$ a zlepšující (nenasycená) cesta:**
+    * Pro každou hranu $e = (u, v)$ evidujeme:
+      * *Dopřednou hranu $(u, v)$* s reziduální kapacitou $r(u, v) = c(e) - f(e)$ (prostor pro navýšení toku).
+      * *Zpětnou hranu $(v, u)$* s reziduální kapacitou $r(v, u) = f(e)$ (možnost vrátit / přesměrovat již poslaný tok).
+    * **Zlepšující cesta (Augmenting path):** Orientovaná cesta z $s$ do $t$ v reziduální síti $G_f$, na které mají všechny hrany kladnou reziduální kapacitu ($r > 0$).
+  * **Ford-Fulkersonův algoritmus:**
+    1. Začneme s nulovým tokem $f(e) = 0$ pro všechna $e \in E$.
+    2. Dokud v reziduální síti $G_f$ existuje zlepšující cesta $P$ z $s$ do $t$:
+       * Spočteme rezervu celé cesty: $\varepsilon = \min_{e \in P} r(e) > 0$.
+       * Podél cesty $P$ upravíme tok:
+         - pro dopředné hrany: $f(e) \gets f(e) + \varepsilon$,
+         - pro zpětné hrany: $f(e) \gets f(e) - \varepsilon$.
+    3. Jakmile žádná zlepšující cesta z $s$ do $t$ neexistuje, tok $f$ je **maximální**.
+  * **Konvergence a složitost:**
+    * *Celočíselné kapacity:* V každém kroku vzroste velikost toku alespoň o celočíselnou $1 \implies$ algoritmus garantovaně skončí v čase $\mathcal{O}(m \cdot |f_{max}|)$ a vrátí celočíselný maximální tok.
+    * *Racionální kapacity:* Vynásobením společným jmenovatelem převedeme na celočíselné $\implies$ algoritmus zastaví.
+    * *Iracionální kapacity:* Obecný Ford-Fulkerson se může zacyklit a konvergovat k nesprávné hodnotě!
+    * *Edmonds-Karpův algoritmus (polynomiální varianta):* Zlepšující cestu hledá pomocí **BFS (nejkratší podle počtu hran)**. Garantuje polynomiální čas $\mathcal{O}(n \cdot m^2)$ pro libovolné kapacity.
+  * **Věta o maximálním toku a minimálním řezu (Max-Flow Min-Cut Theorem):**
+    $$\text{Velikost maximálního toku } |f_{max}| = \text{Kapacita minimálního } s\text{-}t \text{ řezu } c(A, B)$$
+    *(Minimální řez tvoří množina vrcholů $A$ dosažitelných ze zdroje $s$ v reziduální síti $G_f$ po skončení algoritmu a $B = V \setminus A$).*
+
 ### Architektury
 
 ### Programko

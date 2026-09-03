@@ -259,6 +259,157 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * **Složitost:** Maximálně $|V|$ zvětšení, každé BFS v $O(|E|) \implies$ celková složitost **$O(|V| \cdot |E|)$** (Hopcroft-Karp: $O(|E|\sqrt{|V|})$).
 
 ### Logika
+#### Syntaxe výrokové a predikátové logiky:
+* **Jazyk:**
+  * **Výroková logika (VL):** Množina prvovýroků $\mathbb{P}$, logické spojky $(\neg, \wedge, \vee, \to, \leftrightarrow)$ a závorky.
+  * **Predikátová logika (PL):** Množina proměnných $Var$, funkční symboly $f$ s aritou (0-ární jsou konstanty), predikátové/relační symboly $P$ s aritou, kvantifikátory $(\forall, \exists)$, logické spojky, případně rovnost $=$.
+* **Termy (v PL):** Každá proměnná i konstanta je term. Jsou-li $t_1, \dots, t_n$ termy a $f$ je $n$-ární funkční symbol, pak $f(t_1, \dots, t_n)$ je term.
+* **Výrok (Výroková formule ve VL, množina $VF_\mathbb{P}$):** Nejmenší množina formulí splňující induktivní definici:
+  1. Každý prvovýrok $p \in \mathbb{P}$ je výrok ($p \in VF_\mathbb{P}$).
+  2. Jsou-li $\varphi, \psi \in VF_\mathbb{P}$, pak i $(\neg\varphi), (\varphi \wedge \psi), (\varphi \vee \psi), (\varphi \to \psi), (\varphi \leftrightarrow \psi) \in VF_\mathbb{P}$.
+* **Formule v predikátové logice (PL):**
+  * **Atomická formule:** $P(t_1, \dots, t_n)$ nebo rovnost $t_1 = t_2$ (kde $t_i$ jsou termy).
+  * **Složená formule:** Vzniká induktivně z atomických formulí pomocí logických spojek a kvantifikátorů $((\forall x)\varphi, (\exists x)\varphi)$.
+* **Proměnné ve formuli (PL):**
+  * **Vázaný výskyt proměnné:** Leží v podformuli tvaru $(\forall x)\psi$ nebo $(\exists x)\psi$.
+  * **Volný výskyt proměnné:** Není vázaný žádným odpovídajícím kvantifikátorem.
+  * **Otevřená formule:** Neobsahuje **žádný kvantifikátor** ($\forall, \exists$).
+  * **Uzavřená formule (Sentence):** Nemá **žádnou volnou proměnnou** (všechny výskyty proměnných jsou vázané).
+  * **Instance formule $\varphi(x/t)$:** Vznikne nahrazením všech volných výskytů proměnné $x$ termem $t$ (term $t$ musí být za $x$ *substituovatelný*, tj. žádná proměnná v $t$ se po dosazení nesmí stát vázanou).
+
+#### Normální tvary formulí (CNF, DNF, PNF) a algoritmy:
+* **Normální tvary výrokových formulí:**
+  * **Literál $\ell$:** Prvovýrok $p$ (pozitivní) nebo jeho negace $\neg p$ (negativní). Značení: $p^1 = p$, $p^0 = \neg p$.
+  * **Klauzule:** Disjunkce literálů $C = \ell_1 \vee \ell_2 \vee \dots \vee \ell_k$. Prázdná klauzule $\square$ je $\bot$.
+  * **CNF (Konjunktivní normální forma):** Konjunkce klauzulí: $\bigwedge_i C_i = \bigwedge_i \bigvee_j \ell_{i, j}$. Prázdná CNF je $\top$.
+  * **Elementární konjunkce:** Konjunkce literálů $E = \ell_1 \wedge \ell_2 \wedge \dots \wedge \ell_k$. Prázdná je $\top$.
+  * **DNF (Disjunktivní normální forma):** Disjunkce elementárních konjunkcí: $\bigvee_i E_i = \bigvee_i \bigwedge_j \ell_{i, j}$. Prázdná DNF je $\bot$.
+* **Sémantický převod přes tabulku modelů:**
+  * **Do DNF:** Sjednocení modelů (řádků s hodnotou 1): $\varphi_{DNF} = \bigvee_{v \models \varphi} \bigwedge_{p \in \mathbb{P}} p^{v(p)}$.
+  * **Do CNF:** Zakázání nemodelů (řádků s hodnotou 0): $\varphi_{CNF} = \bigwedge_{v \not\models \varphi} \bigvee_{p \in \mathbb{P}} p^{1 - v(p)}$.
+* **Prenexní normální forma (PNF v PL):**
+  * Formule je v PNF, má-li tvar:
+    $$(Q_1 x_1)(Q_2 x_2)\dots(Q_n x_n)\,\varphi'$$
+    kde $Q_i \in \{\forall, \exists\}$ je **kvantifikátorový prefix** a $\varphi'$ je **otevřená formule** (otevřené jádro).
+  * **Pravidla převodu do PNF (vytýkání):**
+    1. Přejmenovat vázané proměnné, aby byly navzájem různé a disjunktní s volnými.
+    2. Odstranit spojky $\to, \leftrightarrow$ (převést na $\neg, \wedge, \vee$).
+    3. Posunout negace dovnitř: $\neg(\forall x)\varphi \sim (\exists x)\neg\varphi$ a $\neg(\exists x)\varphi \sim (\forall x)\neg\varphi$.
+    4. Vytknout kvantifikátory ven (pro $x$ nevolnou ve $\psi$):
+       * $((Q x)\varphi \wedge \psi) \sim (Q x)(\varphi \wedge \psi)$, $\quad ((Q x)\varphi \vee \psi) \sim (Q x)(\varphi \vee \psi)$
+       * $((Q x)\varphi \to \psi) \sim (\overline{Q} x)(\varphi \to \psi)$ *(pozor: v předpokladu implikace se kvantifikátor obrací $\forall \leftrightarrow \exists$!)*
+       * $(\psi \to (Q x)\varphi) \sim (Q x)(\psi \to \varphi)$
+* **Použití pro algoritmy (SAT a Rezoluce):**
+  * **SAT:** Rozhodnout splnitelnost CNF formule. $k$-SAT má v každé klauzuli $\le k$ literálů (2-SAT je polynomiální v P, 3-SAT je NP-úplný).
+  * **Výroková rezoluce:** Zamítací procedura na množině klauzulí $S$ v CNF.
+    * **Rezoluční pravidlo:** Z klauzulí $C_1 \vee \ell$ a $C_2 \vee \overline{\ell}$ odvoď **rezolventu** $C_1 \vee C_2$.
+    * **Rezoluční zamítnutí:** Odvození prázdné klauzule $\square$ (spor). Platí: $S \vdash_R \square \iff S$ je nesplnitelná.
+
+#### Sémantika výrokové a predikátové logiky:
+* **Model a teorie ve výrokové logice (VL):**
+  * **Model formule:** Pravdivostní ohodnocení $v: \mathbb{P} \to \{0, 1\}$. Platnost: $v \models \varphi \iff$ hodnota formule $\varphi$ při ohodnocení $v$ je 1. Množina modelů formule je $M(\varphi)$.
+  * **Model teorie $T$ ve VL:** Ohodnocení $v$, ve kterém platí všechny axiomy teorie $T$. Množina všech modelů teorie je $M(T) = \bigcap_{\alpha \in T} M(\alpha)$.
+* **Model a teorie v predikátové logice (PL):**
+* **Struktura jazyka $L$ (v predikátové logice):** Trojice $\mathcal{A} = \langle A, \mathcal{R}^\mathcal{A}, \mathcal{F}^\mathcal{A} \rangle$, kde:
+  * $A$ je neprázdná množina (**doména / univerzum**).
+  * $\mathcal{R}^\mathcal{A}$ je soubor realizací relačních symbolů (realizací $n$-árního relačního symbolu $R$ je nějaká $n$-ární relace $R^\mathcal{A} \subseteq A^n$).
+  * $\mathcal{F}^\mathcal{A}$ je soubor realizací funkčních symbolů (realizací $n$-árního funkčního symbolu $f$ je nějaká $n$-ární funkce $f^\mathcal{A}: A^n \to A$, přičemž realizací konstantního symbolu $c$ je přímo prvek $c^\mathcal{A} \in A$).
+  * **Model teorie $T$ v PL:** Struktura $\mathcal{A}$ jazyka $L$, ve které platí všechny axiomy teorie $T$ (značíme $\mathcal{A} \models T$).
+* **Základní sémantické vztahy (vzhledem k teorii $T$):**
+  * **Pravdivá v $T$ (důsledek $T$, tautologie v $T$):** $T \models \varphi \iff \varphi$ platí v každém modelu $T$ ($M(T) \subseteq M(\varphi)$).
+  * **Lživá v $T$ (sporná v $T$):** $T \models \neg\varphi \iff \varphi$ neplatí v žádném modelu $T$ ($M(T) \cap M(\varphi) = \emptyset$).
+  * **Nezávislá v $T$:** Platí v nějakém modelu $T$ a v jiném neplatí ($\emptyset \subsetneq M(T) \cap M(\varphi) \subsetneq M(T)$).
+  * **Splnitelná (konzistentní) v $T$:** Platí alespoň v jednom modelu $T$ ($M(T) \cap M(\varphi) \ne \emptyset$).
+  * **Bezesporná (splnitelná) teorie:** Má alespoň jeden model ($M(T) \ne \emptyset$).
+  * **Sporná teorie:** Nemá žádný model ($M(T) = \emptyset \implies T \models \bot$, vyplývá z ní vše).
+  * **Kompletní teorie:** Je bezesporná a každá sentence je v ní buď pravdivá, nebo lživá (nemá žádné nezávislé sentence).
+* **Analýza výrokových teorií nad $n$ prvovýroky ($|\mathbb{P}| = n$):**
+  * Jazyk má právě $2^n$ modelů (ohodnocení).
+  * Počet neekvivalentních teorií odpovídá počtu podmnožin modelů: $2^{2^n}$.
+  * Počet neekvivalentních kompletních teorií je roven počtu modelů: $2^n$ (kompletní teorie má právě 1 model).
+
+#### Extenze teorií a Skolemizace:
+* **Extenze teorie:** Mějme teorii $T$ v jazyce $L$ a teorii $T'$ v jazyce $L'$:
+  * **Extenze ($T \subseteq T'$ sémanticky):** $L \subseteq L'$ a každý důsledek $T$ je důsledkem $T'$ ($Csq_L(T) \subseteq Csq_{L'}(T')$).
+  * **Jednoduchá extenze:** $L' = L$ (nerozšiřuje jazyk, pouze přidává axiomy v původním jazyce).
+  * **Konzervativní extenze:** $T'$ nedokazuje v původním jazyce $L$ žádné nové formule:
+    $$Csq_L(T) = Csq_{L'}(T') \cap VF_L \quad (\forall \varphi \in VF_L: T' \models \varphi \iff T \models \varphi)$$
+    * *Sémantické kritérium:* Každý model $\mathcal{M} \models T$ lze expandovat na model $\mathcal{M}' \models T'$ (přidáním interpretace nových symbolů bez změny univerza a starých relací).
+* **Skolemizace (převod na otevřenou teorii):**
+  * Odstranění existenčních kvantifikátorů $\exists$ ze sentence v PNF při zachování splnitelnosti (vzniklá teorie je ekvisplnitelná a je konzervativní extenzí):
+  * **Pravidlo pro existenční kvantifikátor $(\exists y)$:**
+    * Pokud mu v prefixu **nepředchází žádné $\forall$:** nahradíme $y$ novou **Skolemovou konstantou** $c_0$.
+    * Pokud mu v prefixu **předchází $(\forall x_1)\dots(\forall x_k)$:** nahradíme $y$ novou **Skolemovou funkcí** $f(x_1, \dots, x_k)$ arity $k$.
+  * Po odstranění všech $\exists$ a zahození zbylých $\forall$ získáme **otevřenou formuli (Skolemovu variantu)**.
+
+#### Dokazatelnost a formální systémy:
+* **Pojem formálního důkazu:** Syntaktický proces odvozování z axiomů pomocí odvozovacích pravidel. Značení: $T \vdash \varphi$ ($\varphi$ je dokazatelná z $T$).
+  * **Korektnost (Soundness):** $T \vdash \varphi \implies T \models \varphi$ (dokazatelné je pravdivé).
+  * **Úplnost (Completeness):** $T \models \varphi \implies T \vdash \varphi$ (pravdivé je dokazatelné).
+  * **Zamítnutí (Refutace):** Důkaz sporu $T \cup \{\neg\varphi\} \vdash \bot$.
+* **1. Tablo metoda (Důkaz sporem s označkovanými formulemi $T\psi, F\psi$):**
+  * **Začátek důkazu formule $\varphi$ z teorie $T$:** Kořen stromu tvoří sporný předpoklad **$F\varphi$**. Kdykoliv lze na konec větve připojit axiom teorie jako **$T\alpha$** ($\alpha \in T$).
+  * **Pravidla rozvoje (Atomická tabla pro spojky):**
+    * **Konjunkce ($\wedge$):** $T(\varphi \wedge \psi) \implies$ pod sebe $T\varphi, T\psi$; $\quad F(\varphi \wedge \psi) \implies$ větví na $F\varphi \mid F\psi$.
+    * **Disjunkce ($\vee$):** $T(\varphi \vee \psi) \implies$ větví na $T\varphi \mid T\psi$; $\quad F(\varphi \vee \psi) \implies$ pod sebe $F\varphi, F\psi$.
+    * **Implikace ($\to$):** $T(\varphi \to \psi) \implies$ větví na $F\varphi \mid T\psi$; $\quad F(\varphi \to \psi) \implies$ pod sebe $T\varphi, F\psi$.
+    * **Negace ($\neg$):** $T(\neg\varphi) \implies F\varphi$; $\quad F(\neg\varphi) \implies T\varphi$.
+    * **Ekvivalence ($\leftrightarrow$):** $T(\varphi \leftrightarrow \psi) \implies (T\varphi, T\psi) \mid (F\varphi, F\psi)$; $\quad F(\varphi \leftrightarrow \psi) \implies (T\varphi, F\psi) \mid (F\varphi, T\psi)$.
+  * **Pravidla pro kvantifikátory (PL):**
+    * **Svědek ($T(\exists x)\psi$ nebo $F(\forall x)\psi$):** Dosadíme **nový** konstantní symbol $c_0$, který se dosud na dané větvi nevyskytuje.
+    * **Všichni ($T(\forall x)\psi$ nebo $F(\exists x)\psi$):** Dosadíme **libovolný již zavedený** term $t$.
+  * **Sporná větev:** Obsahuje položku $T\psi$ i $F\psi$ pro stejnou formuli $\psi$.
+  * **Tablo důkaz:** Konečné tablo, jehož **každá větev je sporná** (uzavřená) $\implies T \vdash \varphi$.
+* **2. Rezoluce (v PL):**
+  * Formule převedeme do Skolemovy normální formy (otevřené klauzule).
+  * Při rezoluci se pro vyhledání odpovídajícího literálu $\ell$ a $\overline{\ell}$ aplikuje **nejobecnější unifikátor (MGU)** termů.
+* **3. Hilbertovský kalkul:**
+  * Přímý deduktivní systém s axiomy tautologií a odvozovacím pravidlem **Modus Ponens**:
+    $$\frac{\varphi, \quad \varphi \to \psi}{\psi}$$
+
+#### Věty o kompaktnosti a úplnosti (Význam a důsledky):
+* **Gödelova věta o úplnosti (pro VL i PL):**
+  Pro každou teorii $T$ a sentenci $\varphi$ platí:
+  $$T \models \varphi \iff T \vdash \varphi$$
+  * *Význam:* Sémantická pravdivost v modelech je ekvivalentní syntaktické dokazatelnosti formálním kalkulem (např. tablem).
+  * *Důsledek:* Teorie $T$ má model ($T \not\models \bot$) $\iff$ teorie $T$ je syntakticky bezesporná ($T \not\vdash \bot$).
+* **Věta o kompaktnosti (pro VL i PL):**
+  Teorie $T$ má model právě tehdy, když **každá její konečná podmnožina $T' \subseteq_{fin} T$ má model**:
+  $$T \text{ má model} \iff \forall T' \subseteq_{fin} T: T' \text{ má model}$$
+  * *Alternativní znění přes důsledek:* $T \models \varphi \iff \exists T' \subseteq_{fin} T: T' \models \varphi$.
+  * *Význam:* Umožňuje převádět tvrzení o nekonečných objektech a nekonečných teoriích na vlastnosti jejich konečných částí.
+* **Aplikace a příklady použití věty o kompaktnosti:**
+  1. **Barevnost a bipartitnost nekonečných grafů (De Bruijn-Erdős):** Spočetně nekonečný graf $G$ je $k$-obarvitelný (resp. bipartitní) $\iff$ každý jeho konečný podgraf je $k$-obarvitelný (resp. bipartitní).
+  2. **Nestandardní modely aritmetiky:** K teorii přirozených čísel $\text{Th}(\mathbb{N})$ přidáme novou konstantu $c$ a nekonečnou sadu axiomů $\{c > \underline{0}, c > \underline{1}, c > \underline{2}, \dots\}$. Každá konečná podmnožina má model v $\mathbb{N}$ (stačí zvolit $c$ větší než maximum čísel v ní). Dle kompaktnosti má celá teorie model $\implies$ existuje nestandardní model aritmetiky obsahující „nekonečně velké přirozené číslo $c$“.
+  3. **Existence nekonečných modelů:** Pokud má teorie $T$ libovolně velké konečné modely (tj. pro každé $n \in \mathbb{N}$ má model s alespoň $n$ prvky), potom má $T$ i **nekonečný model**.
+
+#### Rozhodnutelnost a kompletnost teorií:
+* **Kompletní teorie:**
+  * **Definice:** Bezesporná teorie $T$, ve které je každá sentence buď dokazatelná, nebo vyvratitelná ($T \vdash \varphi$ nebo $T \vdash \neg\varphi$, nemá žádné nezávislé sentence).
+  * **Sémantická kritéria kompletnosti:**
+    * Ve VL: Má právě jeden model ($|M(T)| = 1$).
+    * V PL: Má právě jeden model až na **elementární ekvivalenci** ($\mathcal{A} \equiv \mathcal{B} \iff$ v obou strukturách platí přesně tytéž sentence). Teorie každé struktury $\text{Th}(\mathcal{A})$ je vždy kompletní.
+  * **Łoś-Vaughtovo kritérium (test kompletnosti):** Je-li $T$ bezesporná teorie bez konečných modelů v spočetném jazyce a je $\kappa$-kategorická pro nějaké nespočetné $\kappa$ (všechny její modely velikosti $\kappa$ jsou izomorfní), pak $T$ je **kompletní**.
+* **Pojmy rozhodnutelnosti:**
+  * **Rekurzivně axiomatizovaná teorie:** Existuje algoritmus, který pro libovolnou formuli $\varphi$ rozhodne, zda $\varphi \in T$ (vstupní axiomy lze algoritmicky rozpoznat; každá konečně axiomatizovaná teorie je rekurzivní).
+  * **Rozhodnutelná teorie:** Existuje algoritmus, který pro libovolnou sentenci $\varphi$ rozhodne, zda $T \models \varphi$.
+  * **Částečně rozhodnutelná teorie:** Algoritmus odpoví „ano“, pokud $T \models \varphi$ (pro $T \not\models \varphi$ nemusí zastavit).
+* **Vztah kompletnosti a rozhodnutelnosti (Zlatá věta):**
+  * Každá rekurzivně axiomatizovaná teorie je **částečně rozhodnutelná** (lze systematicky prohledávat strom formálních důkazů).
+  * Je-li rekurzivně axiomatizovaná teorie navíc **kompletní**, potom je **ROZHODNUTELNÁ**.
+    * *Algoritmus:* Současně prohledáváme důkazy pro $\varphi$ a důkazy pro $\neg\varphi$. Protože $T$ je kompletní, právě jeden z důkazů $T \vdash \varphi$ nebo $T \vdash \neg\varphi$ existuje $\implies$ algoritmus vždy v konečném čase zastaví a odpoví.
+* **Příklady rozhodnutelných a nerozhodnutelných teorií:**
+  * **Rozhodnutelné teorie:**
+    * $\text{Th}(\mathbb{Q}, \le)$ – DeLO (hustá lineární uspořádání bez koncových bodů; je $\aleph_0$-kategorická $\implies$ kompletní i rozhodnutelná).
+    * $\text{Th}(\mathbb{Z}, \le)$ (diskrétní lineární uspořádání bez koncových bodů).
+    * $\text{Th}(\mathbb{N}, S, 0)$ (teorie následníka s nulou).
+    * $\text{Th}(\mathbb{N}, +, 0)$ (Presburgerova aritmetika – pouze sčítání bez násobení).
+    * $\text{Th}(\mathbb{R}, +, \cdot, 0, 1, \le)$ (Tarského aritmetika reálných čísel – reálně uzavřená tělesa).
+    * $\text{Th}(\mathbb{C}, +, \cdot, 0, 1)$ (algebraicky uzavřená tělesa charakteristiky 0).
+  * **Nerozhodnutelné teorie:**
+    * **Predikátová logika 1. řádu (Church-Turing):** Množina všech tautologií PL v jazyce s alespoň jedním binárním predikátem je nerozhodnutelná (je pouze částečně rozhodnutelná).
+    * **Peanova aritmetika (PA) $\text{Th}(\mathbb{N}, +, \cdot, 0, S, \le)$:** Aritmetika se sčítáním i násobením je **nekompletní i nerozhodnutelná** (1. Gödelova věta o neúplnosti: v každé bezesporné rekurzivně axiomatizované teorii obsahující aritmetiku existuje nerozhodnutelné tvrzení).
+    * Teorie grup, teorie těles.
 
 ### Past
 #### Pravděpodobnostní prostor:

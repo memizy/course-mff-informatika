@@ -1723,6 +1723,7 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * Říká kompilátoru: *„Tato paměťová buňka se může změnit zásahem hardwaru nebo jiného vlákna bez vědomí tohoto kódu.“*
     * Kompilátor **nesmí hodnotu kešovat v registru procesoru** a při každém čtení i zápisu musí provést skutečnou instrukci na paměťovou sběrnici!
     * Typické použití u registrů zařízení: `typedef volatile struct { uint32_t status; ... } disk_regs_t;`. Bez `volatile` by smyčka `while (regs->status & BUSY);` skončila nekonečným cyklem, protože by si kompilátor načetl stav do registru jen jednou!
+    * **Vícevláknové aplikace (kdy netřeba a co neřeší):** Není potřeba uvnitř `lock`u (ten sám tvoří plnou paměťovou bariéru) ani pro samotný objekt zámku (`readonly`). Zásadně **neřeší atomicitu** složených operací (`counter++` stále vyžaduje `lock` nebo `Interlocked`, jinak hrozí race condition / lost update!).
 
 #### 2. Procesor, registry, instrukční sada RISC a běhové režimy:
 * **Klíčové registry procesoru:**
@@ -2267,6 +2268,32 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * **Dekompozice relací:** Rozdělení původní tabulky na menší. Musí být:
     1. **Bezeztrátová (Lossless-join):** Přirozené spojení dekomponovaných tabulek $R_1 \bowtie R_2$ musí přesně zrekonstruovat původní $R$ (platí právě tehdy, když $R_1 \cap R_2 \to R_1$ nebo $R_1 \cap R_2 \to R_2$).
     2. **Se zachováním funkčních závislostí:** Všechny původní závislosti lze ověřit v rámci jednotlivých tabulek bez nutnosti provádět JOIN. *(3NF vždy zaručuje obojí, BCNF zaručuje bezeztrátovost, ale nemusí zachovat všechny závislosti).*
+  * **Názorný postupný příklad normalizace (1NF $\to$ 2NF $\to$ 3NF $\to$ BCNF na jednom scénáři):**
+    1. **Ne-1NF $\to$ 1NF (Atomické hodnoty):**
+       * *Výchozí stav:* `Student(StudentID, Jmeno, Fakulta, MestoFakulty, Predmety[Kod, Nazev])` $\implies$ atribut `Predmety` je pole/seznam (neatomický).
+       * *Převod do 1NF:* Rozbalení do atomických řádků se složeným klíčem:  
+         `R(`$\underline{\mathbf{StudentID, Kod}}$, `Jmeno, Fakulta, MestoFakulty, Nazev)`.
+    2. **1NF $\to$ 2NF (Odstranění částečných závislostí na složeném klíči):**
+       * *Problém v 1NF:* Neklíčové atributy závisí jen na *části* klíče: `Kod -> Nazev` a `StudentID -> (Jmeno, Fakulta, MestoFakulty)`.
+       * *Dekompozice do 2NF:* Vyčlenění tabulek s plnou závislostí na celém svém klíči:
+         * `Predmet(`$\underline{\mathbf{Kod}}$, `Nazev)`
+         * `Zapis(`$\underline{\mathbf{StudentID, Kod}}$)
+         * `Student(`$\underline{\mathbf{StudentID}}$, `Jmeno, Fakulta, MestoFakulty)`
+    3. **2NF $\to$ 3NF (Odstranění tranzitivních závislostí neklíčových atributů):**
+       * *Problém v `Student`:* Platí tranzitivní závislost `StudentID -> Fakulta -> MestoFakulty` (`MestoFakulty` závisí na `Fakulta`, což není klíč/nadklíč).
+       * *Dekompozice do 3NF:*
+         * `Student(`$\underline{\mathbf{StudentID}}$, `Jmeno, Fakulta)`
+         * `Fakulta(`$\underline{\mathbf{Fakulta}}$, `MestoFakulty)`
+    4. **3NF $\to$ BCNF (Každý determinant musí být nadklíčem):**
+       * *Mějme tabulku cvičení:* `Cviceni(`$\underline{\mathbf{Student, Predmet}}$, `Cvicici)` s pravidly:
+         * `(Student, Predmet) -> Cvicici` (student má pro předmět 1 cvičícího)
+         * `Cvicici -> Predmet` (cvičící učí pouze 1 předmět)
+       * *Kandidátní klíče:* `(Student, Predmet)` i `(Student, Cvicici)`. Všechny atributy jsou primární (součástí klíče) $\implies$ **relace je ve 3NF!**
+       * *Problém (porušení BCNF):* V závislosti `Cvicici -> Predmet` není determinant `Cvicici` nadklíčem.
+       * *Dekompozice do BCNF:*
+         * `Uvazek(`$\underline{\mathbf{Cvicici}}$, `Predmet)`
+         * `ZapisCviceni(`$\underline{\mathbf{Student, Cvicici}}$)
+         * *(Důležitý postřeh: Dekompozice je bezeztrátová, ale ztratila se funkční závislost $(Student, Predmet) \to Cvicici$ – nelze ji hlídat bez JOINu tabulek, proto se v praxi často zůstává u 3NF).*
 * **Převod konceptuálního modelu (ER/UML) na relační model:**
   * **Entita $\implies$ Relační tabulka** (atributy se stanou sloupci, identifikátor primárním klíčem `PK`).
   * **Vztah 1:N $\implies$ Cizí klíč (`FK`):** Primární klíč strany 1 se vloží jako cizí klíč do tabulky na straně N.
@@ -2338,6 +2365,28 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
       * $\implies$ V relačním modelu se "rozbalí" na samostatné atomické sloupce: `Ulice, Mesto, PSC` (splnění 1NF).
     * **Odvozený (Derived):** **Čárkovaná elipsa**, v UML se značí lomítkem `/vek`.
       * $\implies$ V relační databázi se standardně neukládá (porušení redundance), počítá se ve `VIEW` nebo `GENERATED ALWAYS AS (...)`.
+  * **9. Výčtový typ (Enum / Číselník) v ER, UML a SQL (Zkouškové standardy):**
+    * **V UML:** Samostatný obdélník se stereotypem `«enumeration»`:
+      ```text
+      +--------------------+
+      |   «enumeration»    |
+      |        Stav        |
+      +--------------------+
+      | NOVY               |
+      | ZAPLACENO          |
+      | STORNO             |
+      +--------------------+
+      ```
+      Použití ve třídě: `- stav: Stav` (nebo zkráceně přímo v atributu: `- stav: {NOVY, ZAPLACENO, STORNO}`).
+    * **V ER diagramu:** Běžná elipsa atributu s vypsanou doménou povolených hodnot: `Stav {NOVY, ZAPLACENO, STORNO}`. (Pokud má stav nést další údaje jako popis či sazbu, modeluje se jako plnohodnotná entita spojená vztahem 1:N).
+    * **Převod do SQL (3 přístupy):**
+      1. *Omezení `CHECK` (univerzální standardní SQL):*  
+         `stav VARCHAR(20) NOT NULL CHECK (stav IN ('NOVY', 'ZAPLACENO', 'STORNO'))`
+      2. *Nativní `ENUM` typ (PostgreSQL / MySQL):*  
+         `CREATE TYPE stav_t AS ENUM ('NOVY', 'ZAPLACENO', 'STORNO');` a sloupec `stav stav_t NOT NULL;`
+      3. *Číselníková tabulka (Lookup Table – pro dynamické výčty):*  
+         `StavCiselnik(`$\underline{\mathbf{Kod}}$, `Popis)` + cizí klíč v cílové tabulce `StavKod REFERENCES StavCiselnik(Kod)`.
+
 
 
 * **Vzorový zápis relačního schématu (Formální MFF notace na zkoušce):**

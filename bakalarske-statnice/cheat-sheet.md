@@ -1873,6 +1873,9 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
 * **Stavy vlákna a preemptivní multitasking:**
   * **Stavy vlákna:** *Running* (vykonává se na CPU), *Ready* (čeká ve frontě na přidělení CPU), *Blocked / Waiting* (čeká na I/O, zámek nebo časovač).
   * **Preemptivní přepínání kontextu:** Periodické přerušení od hardwarového časovače (timer tick) předá řízení OS $\implies$ jádro vyčerpalo-li vlákno časové kvantum, uloží jeho registry do TCB (přepne do Ready) a obnoví registry jiného vlákna (přepne do Running).
+* **Soubor jako abstrakce úložného prostoru (analogie s adresovým prostorem):**
+  * Soubor je z pohledu aplikace lineární pole bajtů indexované offsetem $0$ až $N-1$, což je přímá analogie k virtuálnímu adresovému prostoru ($0$ až $2^k-1$).
+  * Obě abstrakce překládají logický offset na fyzická data (stránkovací tabulka mapuje virtuální stránku na rámec v RAM; i-node mapuje offset souboru na diskové bloky). Systémové volání `mmap` tyto dva světy přímo propojuje.
 * **Soubory, deskriptor a i-node:**
   * **Souborový deskriptor (File Descriptor / Handle):** Malé celé číslo (0 = stdin, 1 = stdout, 2 = stderr), index do per-proces tabulky otevřených souborů.
   * **i-node na disku:** Datová struktura reprezentující soubor. Obsahuje metadata (velikost, vlastník, přístupová práva, časová razítka) a ukazatele na datové bloky na disku (přímé ukazatele + nepřímé bloky pro velké soubory).
@@ -3097,9 +3100,14 @@ SELECT ?osoba ?osobaLabel ?datumNarozeni WHERE {
 ```
 
 #### Procesy zpracování dat, kvalita a typologie metadat:
-* **Data Lifting vs. Data Lowering:**
+* **Základní datové operace (Data Operations):**
+  * **Data Selection:** Horizontální filtrace záznamů podle podmínky (SQL `WHERE`, např. výběr studentů z Prahy).
+  * **Data Projection:** Vertikální výběr konkrétních sloupců/atributů (SQL `SELECT col1, col2`, např. zahození rodného čísla).
+  * **Data Summarization:** Agregace a souhrnné statistiky přes skupiny (SQL `GROUP BY` + `AVG`, `SUM`, např. průměrný plat na katedře).
+  * **Data Reduction:** Zmenšení fyzického objemu dat při zachování podstaty (vzorkování / *sampling*, clustering, PCA, vyhlazení křivek GPS).
   * **Data Lifting (Zvedání dat):** Transformace nestrukturovaných / relačních dat (CSV, JSON, SQL) do sémantického RDF grafu obohacením o ontologie (CSVW, RML, Tarql). Umožňuje SPARQL dotazování a globální propojitelnost.
   * **Data Lowering (Srážení dat):** Transformace sémantických RDF grafů zpět do plochých formátů (CSV, JSON) pro klasické nástroje (BI, Pandas, ML matice), typicky přes `SPARQL SELECT`.
+* **Problém datových sil (Data Silos):** Izolovaná data uvnitř jednotlivých oddělení/aplikací bez možnosti propojení. *Řešení:* Otevřená data, Linked Data, kontrolované slovníky, ontologie a DCAT katalogy.
 * **Dimenze datové kvality ("Fitness for use", princip GIGO – Garbage In, Garbage Out):**
   * **Přesnost (Accuracy):** Míra shody dat s reálným stavem (např. rodné číslo neprochází modulo 11, chybná krevní skupina).
   * **Úplnost (Completeness):** Absence chybějících (NULL) hodnot v povinných atributech ($\frac{\text{vyplněné}}{\text{celkem}} \cdot 100\,\%$).
@@ -3121,6 +3129,11 @@ SELECT ?osoba ?osobaLabel ?datumNarozeni WHERE {
 * **ASCII-art syntaxe:** Uzly v `()`, hrany v `[]` se šipkou `-->` (nebo bez šipky pro obousměrný průchod).
 * **Klauzule:** `MATCH` (vzor grafu), `WHERE` (filtry a negace `NOT ()--()`), `RETURN` (výpis), `CREATE` / `MERGE` (vložení/upsert).
 * **Variable-Length Path:** `*5` (přesně 5 skoků), `*1..3` (1 až 3 skoky), `*` (tranzitivní uzávěr 1 až $\infty$).
+* **Třídy grafových dotazů:**
+  1. *Bodové dotazy / Filtry vlastností:* Hledání uzlů/hran splňujících konkrétní hodnoty atributů (`WHERE u.vek > 30`).
+  2. *Dotazy na okolí a vzory (Pattern / Subgraph matching):* Vyhledání konkrétní struktury/podgrafu (`MATCH (u)-[:FRIEND]->(v)`).
+  3. *Dosažitelnost a cesty (Reachability / Path queries):* Nejkratší cesta mezi dvěma uzly (`shortestPath`), tranzitivní uzávěr (`[:PRITEL*1..3]`).
+  4. *Globální analytické dotazy:* Výpočty nad celým grafem – centrálnost (PageRank, Betweenness), detekce komunit (Louvain), komponenty souvislosti.
 
 ```cypher
 // 1. Vyhledání spoluautorů Dana Browna s vyloučením přátel (negace vztahu)
@@ -3229,6 +3242,10 @@ SELECT ?feature WHERE {
 * **Co se používá v moderní praxi (2 hlavní tábory):**
   * **Tábor A – Heap File + B+ strom indexy (PostgreSQL, Oracle):** Data tabulky jsou v hromadě, každý řádek má diskovou adresu **TID (Tuple ID: blok + slot)**. Všechny indexy jsou samostatné **husté sekundární B+ stromy** ukazující na toto TID.
   * **Tábor B – Klusterovaný B+ strom (MySQL InnoDB, SQLite, MS SQL):** Samotná tabulka **JE** fyzicky jedním velkým B+ stromem (Index-Organized Table). Celá data řádků leží přímo v **listech B+ stromu** seřazená podle primárního klíče.
+* **Indexování – Primární vs. Sekundární, Přímé vs. Nepřímé:**
+  * **Primární index:** Vytvořený nad uspořádávacím klíčem souboru (může být řídký / *sparse*). **Sekundární index:** Nad jiným sloupcem (musí být hustý / *dense*).
+  * **Přímé indexování (Direct):** Listový záznam indexu obsahuje přímo fyzickou adresu řádku na disku (`TID = blok + slot`, např. PostgreSQL). Rychlý skok na data, ale reorganizace tabulky nutí přepsat všechny indexy.
+  * **Nepřímé indexování (Indirect):** List sekundárního indexu obsahuje hodnotu primárního klíče `PK` (např. MySQL InnoDB). Přesun řádku na disku nerozbije sekundární indexy, ale vyžaduje dohledání v primárním B+ stromu (*Bookmark Lookup*).
 
 #### Dynamické hashování na vnější paměti (Fagin, Cormack, Larson & Kalja):
 * **Faginovo rozšiřitelné hashování (Extendible Hashing – doporučená volba na papír):**
@@ -3638,6 +3655,11 @@ query {
 * **Average Precision pro 1 dotaz:** $AP@K = \frac{1}{|R|} \sum_{k=1}^K P@k \cdot rel(k)$
   * **Klíčový princip:** $P@k$ se počítá **pouze na pozicích $k$, kde je skutečně relevantní položka** ($rel(k)=1$). Tyto dílčí přesnosti se sečtou a vydělí počtem všech relevantních položek $|R|$ v databázi pro daný dotaz.
 * **Mean AP přes celou sadu dotazů:** $MAP@K = \frac{1}{|Q|} \sum_{q \in Q} AP@K(q)$
+
+#### Hodnocení interaktivních vyhledávacích systémů:
+* **Task-based metriky:** *Time to Task Completion* (čas do vyřešení úlohy), *Success Rate* (úspěšnost nalezení cíle).
+* **Uživatelská interakce:** Počet dotazů/reformulací dotazu (*query reformulations*), počet kliknutí, *Dwell time* (doba prohlížení výsledku).
+* **Relevance Feedback:** Implicitní (prokliky CTR) vs. explicitní (označení relevantních položek $\to$ Rocchio algoritmus úpravy vektoru dotazu). Subjektivní dotazníky použitelnosti (*SUS – System Usability Scale*).
 
 #### PageRank (nenormalizovaný tvar):
 $$PR^{(k+1)}(A) = (1 - d) + d \sum_{T_i \to A} \frac{PR^{(k)}(T_i)}{C(T_i)}$$

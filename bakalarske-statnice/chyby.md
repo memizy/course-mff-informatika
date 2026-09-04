@@ -146,6 +146,7 @@ Přidat Map Combine Reduce postup k MapReduce
 U Graph traversal by asi mělo být spíš O logN + F na 3
 
 ### Data
+Třídy grafových dotazů chybí
 U Hashování jsou tam všechny tři ve finálním souhrnu ale stačí jen 1
 
 ### Web

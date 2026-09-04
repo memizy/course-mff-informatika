@@ -2232,10 +2232,100 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * **Entita $\implies$ Relační tabulka** (atributy se stanou sloupci, identifikátor primárním klíčem `PK`).
   * **Vztah 1:N $\implies$ Cizí klíč (`FK`):** Primární klíč strany 1 se vloží jako cizí klíč do tabulky na straně N.
   * **Vztah M:N $\implies$ Samostatná asociační (vazební) tabulka:** Obsahuje cizí klíče na obě zúčastněné tabulky, jejichž kombinace tvoří složený primární klíč asociační tabulky.
-  * **Dědičnost (ISA hierarchie – 3 strategie):**
-    1. *Table-per-Hierarchy (Single Table):* Jediná tabulka se všemi atributy všech podtříd + sloupec diskriminátoru (rychlé, ale hodně `NULL` hodnot).
-    2. *Table-per-Type (Class Table):* Tabulka pro bázovou třídu a samostatná tabulka pro každou podtřídu se stejným `PK/FK` (čisté, ale vyžaduje `JOIN`).
-    3. *Table-per-Concrete-Class:* Samostatná tabulka pro každou konkrétní třídu se všemi zděděnými sloupci (žádné `NULL` ani `JOIN`, ale duplikace definic schématu).
+* **Konceptuální modelování (UML / ER) – Zkouškový vzor kreslení na papír:**
+  * **Entity:** Obdélník se jménem nahoře, pod čarou atributy se znaménky (např. `- Cislo`, `- Jmeno`, `- Typ`).
+  * **Vztahy (Asociace):** Spojnice se jménem vztahu a kardinalitami na obou koncích ve formátu $(min, max)$, např. $(0, 1)$, $(0, *)$, $1$ (což znamená $(1, 1)$).
+  * **Zkouškový vzor: Učitel a Student v jedné entitě `Osoba` a vztahy k `DiplomovaPrace`:**
+    ```text
+    +---------------+                  +------------------+
+    | Osoba         |                  | DiplomovaPrace   |
+    +---------------+ (0,1) Resi (0,1) +------------------+
+    | - Cislo       |------------------| - Nazev          |
+    | - Jmeno       |                  | - StudijniObor   |
+    | - Prijmeni    | 1    Vede (0,*)  | - NazevFakulty   |
+    | - Typ         |------------------|                  |
+    +---------------+                  +------------------+
+    ```
+    * *Vysvětlení kardinalit:*
+      * `Resi (0,1) ... (0,1)`: Student může řešit nejvýše 1 práci (nebo 0); práce má nejvýše 1 řešitele (nebo 0 = volné téma).
+      * `Vede 1 ... (0,*)`: Práce musí mít právě 1 vedoucího; učitel může vést libovolně mnoho prací $(0, *)$.
+    * *Alternativa přes ISA dědičnost:* Nadtřída `Osoba` $\to$ trojúhelník (generalizace) $\to$ podtřídy `Student` (vstupuje do `Resi`) a `Ucitel` (vstupuje do `Vede`).
+
+* **Co znamená „Vlnka“ ($\sim\sim$) a jak kreslit netriviální prvky v ER a UML (Zkouškový přehled):**
+  * **1. Co znamená vlnka / podtržení vlnovkou:**
+    * **V konceptuálním ER diagramu (Chen / MFF):** Značí **částečný klíč / diskriminátor slabé entity** ($\underline{\sim\text{CisloPolozky}\sim}$). Atribut je v elipse podtržen vlnovkou. Sám o sobě nestačí k jednoznačné identifikaci v celém systému, je unikátní pouze v rámci nadřazené silné entity (vlastníka).
+    * **V relačním schématu (prof. Pokorný):** Plná čára značí primární klíč ($\underline{\mathbf{ID}}$), zatímco **vlnovka pod názvem sloupce** ($\underset{\sim}{\text{VlastnikID}}$) značí **cizí klíč (FK)**.
+  * **2. Slabá entita & Identifikační vztah vs. Kompozice:**
+    * **ER:** Slabá entita = **dvojitý obdélník**, identifikační vztah = **dvojitý kosočtverec**, diskriminátor = elipsa s **vlnovkou**.
+    * **UML:** Modeluje se jako **Kompozice** – **plný černý kosočtverec** ($\blacklozenge$) na straně vlastníka (`Faktura` $1 \blacklozenge$--- $1..*$ `PolozkaFaktury`). Kardinalita na straně vlastníka je povinně $1$ ($1..1$). Životní cyklus komponenty je vázán na vlastník.
+    * **Převod do SQL:** Složený PK = PK vlastníka + diskriminátor. Cizí klíč má kaskádní integritu:
+      `PRIMARY KEY (FakturaID, CisloPolozky)`, `FOREIGN KEY (FakturaID) REFERENCES Faktura(ID) ON DELETE CASCADE`.
+  * **3. Agregace vs. Kompozice v UML:**
+    * **Agregace ($\lozenge$ prázdný kosočtverec):** Vztah „celek - část“ s nezávislým životním cyklem. Komponenta může existovat bez celku a být sdílena (např. `Univerzita` $\lozenge$--- `Profesor`).
+    * **Kompozice ($\blacklozenge$ plný černý kosočtverec):** Výhradní vlastnictví se sdíleným životním cyklem. Zánik celku znamená zánik komponenty (např. `Dokument` $\blacklozenge$--- `Odstavec`).
+  * **4. Asociační třída (UML) vs. Atributy vztahu (ER):**
+    * **Situace:** Vztah M:N nese vlastní atributy (např. vztah mezi `Student` a `Predmet` nese `Znamka`, `DatumZkousky`, `Termin`).
+    * **ER:** Elipsy s atributy vedou přímo z kosočtverce vztahu.
+    * **UML:** **Asociační třída** – samostatný obdélník třídy spojený **čárkovanou spojnicí** přímo s asociační čárou mezi třídami.
+    * **Převod do SQL:** Vždy samostatná propojovací tabulka s vlastními sloupci:
+      `Zapis(`$\underline{\mathbf{StudentID, PredmetID}}$, `Datum, Znamka)`.
+  * **5. N-ární (Ternární) vztahy a určení klíčů:**
+    * **Příklad:** Lékař předepisuje Lék Pacientovi (`Lekar`, `Pacient`, `Lek`).
+    * **ER:** Kosočtverec spojující 3 (či více) entit. **UML:** Kosočtverec/diamant $\lozenge$ na křižovatce spojnic mezi 3 třídami.
+    * **Pravidlo pro určení PK v relačním modelu (Kritická zkoušková past!):**
+      * Pokud je vazba obecná $M:N:P$: Primárním klíčem je trojice všech klíčů $\underline{\mathbf{(LekarID, PacientID, LekID)}}$.
+      * Pokud platí omezení kardinality $1$ (např. pro danou dvojici Pacient a Lék existuje právě jeden ošetřující Lékař, tj. $Pacient \times Lek \to Lekar$): PK tvoří **pouze** dvojice $\underline{\mathbf{(PacientID, LekID)}}$ a `LekarID` je v tabulce pouze běžným cizím klíčem!
+  * **6. Rekurzivní (unární) vztahy a ROLE:**
+    * Vztah entity sama se sebou (např. `Zamestnanec` řídí jiné `Zamestnance`, nebo `Dil` se skládá z jiných `Dilu`).
+    * **Povinnost u zkoušky:** U obou konců smyčky **musí být explicitně uvedena jména rolí** (např. role `vedouci (0,1)` vs role `podrizeny (0,*)`). Bez rolí je diagram chybný!
+    * **Převod do SQL:** Cizí klíč v téže tabulce: `NadrizenyID INT REFERENCES Zamestnanec(ZamestnanecID)`.
+  * **7. ISA hierarchie (Dědičnost / Specializace) a integritní omezení:**
+    * **ER:** Trojúhelník `ISA` (špička k nadtypu). **UML:** Prázdná trojúhelníková šipka $\vartriangle$ směřující k nadtřídě.
+    * **Dvě ortogonální dimenze omezení (Zkouškový standard):**
+      1. **Disjunktnost podtříd:**
+         * `{disjoint}` (disjunktní): Instance může patřit nejvýše do jednoho podtypu (např. `Auto` vs. `Nakladak`).
+         * `{overlapping}` (překrývající se): Instance může patřit do více podtypů současně (např. `Student` i `Zamestnanec`).
+      2. **Úplnost pokrytí:**
+         * `{complete / total}` (úplná): Každá instance nadtypu musí patřit alespoň do jednoho podtypu (nadtřída je abstraktní).
+         * `{incomplete / partial}` (částečná): Mohou existovat instance nadtypu nepatřící do žádné podtřídy.
+    * **3 přístupy k mapování ISA do SQL tabulek:**
+      * *A. Single Table (Jedna tabulka pro celou hierarchii):* `Osoba(ID, Typ, Jmeno, Obor, Plat)` + diskriminátor `Typ`. Sloupce specifické pro podtřídy musí povolit `NULL`. Žádný JOIN, ale plýtvá místem.
+      * *B. Joined Table / Class Table Inheritance (Tabulka pro nadtřídu i každou podtřídu):* `Osoba(`$\underline{\mathbf{ID}}$, `Jmeno)`, `Student(`$\underline{\mathbf{ID}}$, `Obor)`, `Ucitel(`$\underline{\mathbf{ID}}$, `Katedra)`. Klíč podtřídy je současně PK i FK odkazující do `Osoba(ID)`. Čistá normalizace, ale vyžaduje JOIN.
+      * *C. Concrete Table per Class (Tabulky pouze pro listové podtřídy):* `Student(`$\underline{\mathbf{ID}}$, `Jmeno, Obor)`, `Ucitel(`$\underline{\mathbf{ID}}$, `Jmeno, Katedra)`. Tabulka `Osoba` neexistuje. Vhodné pouze pro `{disjoint, complete}`.
+  * **8. Speciální atributy v ER:**
+    * **Vícehodnotový (Multivalued):** **Dvojitá elipsa** (např. `TelefonniCisla`). V UML jako atribut s kardinalitou `telefon: string[0..*]`.
+      * $\implies$ V SQL relačním modelu se **musí** vyčlenit do samostatné tabulky se složeným klíčem: `Telefon(`$\underline{\mathbf{OsobaID, Cislo}}$`)`.
+    * **Složený (Composite):** Strom elips větvící se z elipsy (např. `Adresa` $\to$ `Ulice`, `Mesto`, `PSC`).
+      * $\implies$ V relačním modelu se "rozbalí" na samostatné atomické sloupce: `Ulice, Mesto, PSC` (splnění 1NF).
+    * **Odvozený (Derived):** **Čárkovaná elipsa**, v UML se značí lomítkem `/vek`.
+      * $\implies$ V relační databázi se standardně neukládá (porušení redundance), počítá se ve `VIEW` nebo `GENERATED ALWAYS AS (...)`.
+
+
+* **Vzorový zápis relačního schématu (Formální MFF notace na zkoušce):**
+  * **Zápis relace:** `NazevRelace(Atribut1, Atribut2, ...)`
+  * **Primární klíč (`PK`):** **Tučně a podtrženě** $\underline{\mathbf{OsobaID}}$.
+  * **Kandidátní klíč (alternativní unikátní identifikátor):** Podtrženě $\underline{Cislo}$.
+  * **Cizí klíč (`FK`) a referenční integrita:** Zapisuje se jako **inkluze množin**:
+    $$\text{AtributFK} \subseteq \text{CilovaTabulka}.\text{CilovyAtributPK}$$
+  * **Pravidla pro klíče vztahových tabulek (Zlaté pravidlo MFF):**
+    * *„Kardinalita vztahů se projeví v rozdílné definici klíčů vztahových tabulek.“*
+    * **Vztah 1:N (`Vede`):** Cizí klíč se vloží přímo do tabulky na straně N:
+      `DiplomovaPrace(`$\underline{\mathbf{DiplomovaPraceID}}$, `Nazev, StudijniObor, NazevFakulty, VedouciID)`
+      `VedouciID` $\subseteq$ `Osoba.OsobaID`
+    * **Vztah (0,1) : (0,1) (`Resi`):** Samostatná vztahová tabulka (nebo cizí klíč s `UNIQUE`):
+      `Resi(`$\underline{\mathbf{OsobaID}}$, `DiplomovaPraceID)`  *(klíčem může být buď OsobaID nebo DiplomovaPraceID – oba jsou kandidátní klíče!)*
+      `OsobaID` $\subseteq$ `Osoba.OsobaID`
+      `DiplomovaPraceID` $\subseteq$ `DiplomovaPrace.DiplomovaPraceID`
+    * **Vztah M:N (např. kniha a více autorů):** Klíčem je složený klíč obou $\underline{\mathbf{(AutorID, KnihaID)}}$.
+
+* **Příklad na dekompozici a převod do 3NF (Zkouškový vzor ze zadání):**
+  * *Původní tabulka:* `DiplomovaPrace(`$\underline{\mathbf{DiplomovaPraceID}}$, `Nazev, StudijniObor, NazevFakulty)`
+  * *Tranzitivní funkční závislost:* $DiplomovaPraceID \to StudijniObor \to NazevFakulty$.
+  * *Proč porušuje 3NF:* Pro závislost $StudijniObor \to NazevFakulty$ platí, že $StudijniObor$ **není nadklíč** a $NazevFakulty$ **není součástí žádného kandidátního klíče**.
+  * *Oprava (Dekompozice podle $StudijniObor \to NazevFakulty$):*
+    * `Obor(`$\underline{\mathbf{StudijniObor}}$, `NazevFakulty)`
+    * `DiplomovaPrace(`$\underline{\mathbf{DiplomovaPraceID}}$, `Nazev, StudijniObor)`
+      `StudijniObor` $\subseteq$ `Obor.StudijniObor`
 
 ---
 
@@ -2250,14 +2340,29 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * *Non-repeatable Read (Neopakovatelné čtení):* $T_1$ přečte řádek, $T_2$ ho přepíše a potvrdí, $T_1$ ho přečte znovu a vidí jinou hodnotu.
   * *Phantom Read (Fantomové čtení):* $T_1$ provede dotaz s podmínkou (např. věk $> 18$), $T_2$ vloží nový řádek splňující podmínku, $T_1$ dotaz zopakuje a vidí řádek navíc.
 * **Rozvrhy (Schedules) a Konfliktová uspořádatelnost (Conflict Serializability):**
-  * **Konfliktní operace:** Dvě operace jsou v konfliktu $\iff$ patří různým transakcím, přistupují ke stejné položce $x$ a alespoň jedna z nich je zápis ($r_1(x) - w_2(x)$, $w_1(x) - r_2(x)$, $w_1(x) - w_2(x)$). Dvě čtení $r_1(x) - r_2(x)$ v konfliktu nejsou!
-  * **Graf předcházení (Graf konfliktů / Precedence Graph):**
-    * Uzly: jednotlivé transakce $T_1, T_2, \dots$
-    * Orientovaná hrana $T_i \to T_j$: existuje operace v $T_i$, která předchází konfliktní operaci v $T_j$.
-  * **Věta o uspořádatelnosti:** Rozvrh je **konfliktově uspořádatelný** (ekvivalentní nějakému sériovému rozvrhu) $\iff$ jeho graf předcházení je **acyklický (DAG)**. Ekvivalentní sériové pořadí určí **topologické uspořádání** grafu.
-* **Zotavitelnost rozvrhů (Recoverability):**
-  * **Zotavitelný rozvrh (Recoverable):** Pokud transakce $T_j$ čte data zapsaná transakcí $T_i$, musí $T_i$ potvrdit (`COMMIT`) **dříve**, než potvrdí $T_j$ ($c_i < c_j$). Zabraňuje situaci, kdy $T_j$ potvrdí špinavá data z transakce, která vzápětí zhavaruje.
-  * **Rozvrh bez kaskádových rollbacků (ACA – Avoids Cascading Aborts):** Transakce smí číst data **pouze od transakcí, které již potvrdily** ($w_i(x) \dots c_i \dots r_j(x)$). Žádná transakce nečte neuložená data. Platí: $ACA \implies \text{Zotavitelný}$.
+  * **Konfliktní operace:** Dvě operace jsou v konfliktu $\iff$ patří různým transakcím ($i \neq j$), přistupují ke **stejné položce $x$** a alespoň jedna z nich je zápis ($w$). Konfliktní dvojice: $r_i(x) - w_j(x)$, $w_i(x) - r_j(x)$, $w_i(x) - w_j(x)$. Dvě čtení $r_i(x) - r_j(x)$ v konfliktu **nejsou**!
+  * **Postup vyšetření konfliktové uspořádatelnosti (Krok za krokem na zkoušce):**
+    1. *Nakresli uzly:* Pro každou transakci $T_1, T_2, \dots, T_k$ v rozvrhu vytvoř uzel grafu.
+    2. *Hledej konfliktní hrany (zleva doprava v čase):* Projdi rozvrh a pro každou položku (např. $A, B$) najdi operace přistupující ke stejné položce:
+       * Kdykoliv předchází $o_i(x)$ před $o_j(x)$ (kde $i \neq j$) a jsou v konfliktu, přidej orientovanou hranu $T_i \to T_j$.
+    3. *Vyhodnocení grafu předcházení (Precedence Graph / Konfliktový graf):*
+       * **Graf je acyklický (DAG):** Rozvrh **JE konfliktově uspořádatelný**. Ekvivalentní sériové pořadí určíš **topologickým uspořádáním** grafu (např. $T_1 \to T_3 \to T_2$).
+       * **Graf obsahuje cyklus (např. $T_1 \to T_2$ i $T_2 \to T_1$):** Rozvrh **NENÍ konfliktově uspořádatelný** (nelze jej sériově seřadit).
+
+* **Zotavitelnost (REC) a Vyvarování se kaskádních rollbacků (ACA) – Postup vyšetření:**
+  * **1. Krok: Najdi všechny relace „kdo od koho čte“ (Read-From):**
+    * $T_j$ čte od $T_i$ ($T_i \xrightarrow{\text{čte}} T_j$), pokud $T_i$ zapsala do položky $x$ ($w_i(x)$), následně $T_j$ přečetla tutéž položku $x$ ($r_j(x)$) a mezitím žádná jiná transakce do $x$ nezapsala.
+  * **2. Krok: Test na Zotavitelnost (REC – Recoverable):**
+    * *Pravidlo:* Pro každou dvojici, kde $T_j$ čte od $T_i$, musí platit, že $T_i$ potvrdí **dříve** než $T_j$:
+      $$c_i < c_j$$
+    * *Zdůvodnění:* Pokud by $T_j$ potvrdila dříve než $T_i$ ($c_j < c_i$), a $T_i$ by následně zhavarovala (`ROLLBACK`), databáze by obsahovala potvrzená neplatná data, která již nelze vzít zpět $\implies$ **NEZOTAVITELNÝ rozvrh**.
+  * **3. Krok: Test na Vyvarování se kaskádních rollbacků (ACA – Avoids Cascading Aborts):**
+    * *Pravidlo (Přísnější):* Každá transakce smí číst data **pouze od transakcí, které již potvrdily**!
+      $$w_i(x) \dots c_i \dots r_j(x)$$
+    * *Zdůvodnění:* Pokud $T_j$ čte data zapsaná $T_i$ ještě předtím, než se $T_i$ commitne ($w_i(x) \dots r_j(x) \dots c_i$), pak při abortu $T_i$ musí systém kaskádově abortovat i $T_j$ $\implies$ **NENÍ ACA** (i kdyby rozvrh byl zotavitelný díky $c_i < c_j$).
+  * **4. Shrnutí hierarchie rozvrhů:**
+    $$\text{Sériový} \subset \text{Striktní (ST)} \subset \text{Bez kaskádových rollbacků (ACA)} \subset \text{Zotavitelný (REC)}$$
+    *(Platí: Každý ACA rozvrh je automaticky zotavitelný! Striktní rozvrh navíc zakazuje přepis $w_j(x)$ před $c_i$).*
 * **Zamykací protokoly (Locking Protocols):**
   * Zámky: **Sdílený $S$** (pro čtení – více transakcí může držet $S$ současně), **Výhradní $X$** (pro zápis – drží pouze jediná transakce, vylučuje $S$ i $X$).
   * **Dvoufázové zamykání (2PL – Two-Phase Locking):**
@@ -2300,9 +2405,103 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * *Nekorelovaný poddotaz:* Nezávislý na vnějším dotazu, vyhodnotí se pouze jednou (např. `WHERE plat > (SELECT AVG(plat) FROM zamestnanci)`).
   * *Korelovaný poddotaz:* Odkazuje na sloupce vnějšího dotazu, vyhodnocuje se znovu pro každý řádek vnějšího dotazu (např. s operátorem `EXISTS (SELECT 1 FROM objednavky WHERE zakaznik_id = z.id)`).
   * *Operátory:* `IN`, `NOT IN` *(pozor: pokud poddotaz v `NOT IN` vrátí jediný `NULL`, celý výraz je `UNKNOWN` a nevrátí nic!)*, `ANY / SOME`, `ALL`.
-* *Komplexní zkouškový příklad SQL dotazu:*
+* **Tvorba tabulek (DDL `CREATE TABLE` s integritními omezeními) a vkládání (DML `INSERT`):**
   ```sql
-  -- Pro každého studenta spočti průměrnou známku z předmětů, které absolvoval,
+  -- 1. Tvorba tabulek s PRIMARY KEY, UNIQUE, FOREIGN KEY, CHECK a NOT NULL:
+  CREATE TABLE Osoba (
+      OsobaID INT PRIMARY KEY,
+      Cislo VARCHAR(20) UNIQUE NOT NULL,      -- kandidátní klíč
+      Jmeno VARCHAR(50) NOT NULL,
+      Prijmeni VARCHAR(50) NOT NULL,
+      Typ VARCHAR(10) NOT NULL CHECK (Typ IN ('student', 'ucitel'))
+  );
+
+  CREATE TABLE Obor (
+      StudijniObor VARCHAR(50) PRIMARY KEY,
+      NazevFakulty VARCHAR(100) NOT NULL
+  );
+
+  CREATE TABLE DiplomovaPrace (
+      DiplomovaPraceID INT PRIMARY KEY,
+      Nazev VARCHAR(200) NOT NULL,
+      StudijniObor VARCHAR(50) NOT NULL REFERENCES Obor(StudijniObor),
+      VedouciID INT NOT NULL,
+      FOREIGN KEY (VedouciID) REFERENCES Osoba(OsobaID) ON DELETE RESTRICT
+  );
+
+  CREATE TABLE Resi (
+      OsobaID INT PRIMARY KEY REFERENCES Osoba(OsobaID),
+      DiplomovaPraceID INT UNIQUE NOT NULL REFERENCES DiplomovaPrace(DiplomovaPraceID)
+  );
+
+  -- 2. Vkládání dat (INSERT INTO ... VALUES a INSERT INTO ... SELECT):
+  INSERT INTO Osoba (OsobaID, Cislo, Jmeno, Prijmeni, Typ)
+  VALUES (1, 's101', 'Jan', 'Novák', 'student'),
+         (2, 'u202', 'Petr', 'Profesor', 'ucitel');
+
+  INSERT INTO Obor VALUES ('Informatika', 'MFF'), ('Matematika', 'MFF');
+
+  -- Vložení výsledků jiného dotazu (archivace):
+  INSERT INTO ArchivPraci (ID, Nazev)
+  SELECT DiplomovaPraceID, Nazev FROM DiplomovaPrace WHERE obhajeno = TRUE;
+  ```
+
+* **Zkouškové vzory dotazů (JOINy, Anti-Join, Vícenásobné reference a NOT EXISTS):**
+
+  **1. Vícenásobný JOIN se dvěma aliasy na tutéž tabulku `Osoba` (Student i Vedoucí):**
+  ```sql
+  -- Vypiš název práce, fakultu, jméno studenta a jméno vedoucího:
+  SELECT dp.Nazev, o.NazevFakulty,
+         s.Jmeno || ' ' || s.Prijmeni AS Student,
+         v.Jmeno || ' ' || v.Prijmeni AS Vedouci
+  FROM DiplomovaPrace dp
+  INNER JOIN Obor o ON dp.StudijniObor = o.StudijniObor
+  INNER JOIN Osoba v ON dp.VedouciID = v.OsobaID               -- 1. odkaz na Osoba: Vedoucí (učitel)
+  LEFT JOIN Resi r ON dp.DiplomovaPraceID = r.DiplomovaPraceID -- Volné téma nemusí mít řešitele!
+  LEFT JOIN Osoba s ON r.OsobaID = s.OsobaID;                  -- 2. odkaz na Osoba: Student
+  ```
+
+  **2. `LEFT OUTER JOIN` – Vyhledání „prázdných“ vazeb (Anti-Join vzor `IS NULL`):**
+  ```sql
+  -- Najdi všechny učitele, kteří aktuálně NEVEDOU žádnou diplomovou práci:
+  SELECT u.OsobaID, u.Jmeno, u.Prijmeni
+  FROM Osoba u
+  LEFT JOIN DiplomovaPrace dp ON u.OsobaID = dp.VedouciID
+  WHERE u.Typ = 'ucitel' AND dp.DiplomovaPraceID IS NULL;
+  ```
+
+  **3. `FULL OUTER JOIN` (Zobrazení obou stran včetně nespárovaných):**
+  ```sql
+  -- Vypiš všechny studenty i všechny práce (včetně studentů bez práce a volných prací bez studenta):
+  SELECT s.Jmeno, s.Prijmeni, dp.Nazev
+  FROM Osoba s
+  FULL OUTER JOIN Resi r ON s.OsobaID = r.OsobaID
+  FULL OUTER JOIN DiplomovaPrace dp ON r.DiplomovaPraceID = dp.DiplomovaPraceID
+  WHERE s.Typ = 'student' OR s.Typ IS NULL;
+  ```
+
+  **4. Zkouškový dotaz z minulých zadání (Knihy a vyloučení přátel přes `NOT EXISTS`):**
+  ```sql
+  -- „Které knihy napsal Dan Brown s někým, kdo nepatří do jeho přátel?“
+  -- Tabulky: Autor(id, jmeno), Kniha(id, nazev), Napsal(id_autor, id_kniha), Pritel(id_autor1, id_autor2)
+  SELECT DISTINCT k.nazev
+  FROM Autor dan
+  JOIN Napsal n1 ON dan.id = n1.id_autor
+  JOIN Kniha k   ON n1.id_kniha = k.id
+  JOIN Napsal n2 ON k.id = n2.id_kniha
+  JOIN Autor spoluautor ON n2.id_autor = spoluautor.id
+  WHERE dan.jmeno = 'Dan Brown'
+    AND spoluautor.id <> dan.id
+    AND NOT EXISTS (
+        SELECT 1 FROM Pritel p
+        WHERE (p.id_autor1 = dan.id AND p.id_autor2 = spoluautor.id)
+           OR (p.id_autor2 = dan.id AND p.id_autor1 = spoluautor.id)
+    );
+  ```
+
+  **5. Agregace s podmínkou nad skupinami (`HAVING` a `WHERE` současně):**
+  ```sql
+  -- Pro každého studenta spočti průměrnou známku ze zkoušek,
   -- ale uvažuj jen studenty, kteří mají alespoň 3 zkoušky a jejich průměr je lepší než 2.0:
   SELECT s.id, s.jmeno, COUNT(z.predmet_id) AS pocet_zkousek, AVG(z.znamka) AS prumer
   FROM Studenti s
@@ -2311,6 +2510,64 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   GROUP BY s.id, s.jmeno
   HAVING COUNT(z.predmet_id) >= 3 AND AVG(z.znamka) < 2.0
   ORDER BY prumer ASC;
+  ```
+
+  **6. Skalární korelovaný poddotaz v `SELECT`:**
+  ```sql
+  -- Vypiš učitele a ke každému počet prací, které vede (bez nutnosti globálního GROUP BY a JOINu):
+  SELECT u.OsobaID, u.Jmeno, u.Prijmeni,
+         (SELECT COUNT(*) FROM DiplomovaPrace dp WHERE dp.VedouciID = u.OsobaID) AS PocetVedenychPraci
+  FROM Osoba u
+  WHERE u.Typ = 'ucitel';
+  ```
+
+  **7. Nekorelovaný poddotaz v klauzuli `HAVING` (Porovnání s globální hodnotou):**
+  ```sql
+  -- Najdi studenty, jejichž průměrná známka je lepší (menší) než celkový průměr všech studentů:
+  SELECT s.OsobaID, s.Jmeno, s.Prijmeni, AVG(z.Znamka) AS PrumerStudenta
+  FROM Osoba s
+  JOIN Zapis z ON s.OsobaID = z.StudentID
+  GROUP BY s.OsobaID, s.Jmeno, s.Prijmeni
+  HAVING AVG(z.Znamka) < (
+      SELECT AVG(Znamka) FROM Zapis  -- Jednorázově spočtený celkový průměr
+  );
+  ```
+
+  **8. Relační dělení pomocí dvojitého `NOT EXISTS` (Klasická MFF otázka: „Kdo splnil VŠECHNY...“):**
+  ```sql
+  -- „Kteří studenti mají zapsané VŠECHNY povinné předměty?“
+  -- Logika: Hledáme studenty, pro které NEEXISTUJE povinný předmět, který by si NEZAPSALI:
+  SELECT s.OsobaID, s.Jmeno, s.Prijmeni
+  FROM Osoba s
+  WHERE s.Typ = 'student'
+    AND NOT EXISTS (
+        -- 1. Vyber všechny povinné předměty:
+        SELECT p.PredmetID
+        FROM Predmet p
+        WHERE p.JePovinny = TRUE
+          AND NOT EXISTS (
+              -- 2. Ověř, zda si daný student tento předmět zapsal:
+              SELECT 1
+              FROM Zapis z
+              WHERE z.StudentID = s.OsobaID AND z.PredmetID = p.PredmetID
+          )
+    );
+  ```
+
+  **9. Vnořený poddotaz s operátorem `> ALL`:**
+  ```sql
+  -- Najdi učitele, který vede VÍCE prací než KAŽDÝ (libovolný) učitel z Katedry softwaru:
+  SELECT u.Jmeno, u.Prijmeni, COUNT(*) AS Pocet
+  FROM Osoba u
+  JOIN DiplomovaPrace dp ON u.OsobaID = dp.VedouciID
+  GROUP BY u.OsobaID, u.Jmeno, u.Prijmeni
+  HAVING COUNT(*) > ALL (
+      SELECT COUNT(*)
+      FROM DiplomovaPrace dp2
+      JOIN Osoba u2 ON dp2.VedouciID = u2.OsobaID
+      WHERE u2.Katedra = 'Katedra softwaru'
+      GROUP BY u2.OsobaID
+  );
   ```
 
 ---
@@ -2382,6 +2639,8 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * *Princip:* Zastřešující middleware vrstva nad několika samostatnými, fyzicky oddělenými heterogenními databázemi (např. systém BigDAWG – relační data v PostgreSQL, grafy v Neo4j, masivní matice ve SciDB).
     * *Výhody:* Každý dílčí dotaz běží na enginu, který je pro daný typ dat hardwarově i algoritmicky nejlépe optimalizovaný.
     * *Nevýhody / Problémy:* Chybí globální transakční podpora (distribuovaný 2-fázový commit je extrémně drahý), vysoká latence při síťovém přenosu a propojování mezivýsledků z různých databází, složitá optimalizace dotazů.
+
+### Datový management
 * **Datový model vs. Datový formát vs. Datové schéma:** *Model* = konceptuální rámec (relační, grafový LPG/RDF, hierarchický); *Formát* = syntax/serializace (JSON, XML, CSV, Turtle); *Schéma* = formální integrita a pravidla (XSD, JSON Schema, CSVW, SQL DDL).
 * **W3C** – HTML, CSS, XML (XSD, XSLT), RDF, SPARQL, JSON-LD, CSVW, SKOS, DCAT, OWL | **IETF** – TCP/IP, HTTP, URI/URL, JSON (RFC 8259), CSV (RFC 4180) | **OGC** – WKT, GML, GeoSPARQL (prostorová data)
 

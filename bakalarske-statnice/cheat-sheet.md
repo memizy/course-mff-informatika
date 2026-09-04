@@ -2207,7 +2207,181 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
 
 ### Databáze
 
-### Data
+#### 1. Architektury databázových systémů a Návrh relací:
+* **Tříúrovňová architektura ANSI/SPARC:**
+  1. **Konceptuální úroveň:** Logická struktura celé databáze nezávislá na konkrétním DBMS (např. konceptuální ER diagram nebo UML diagram tříd – entity, atributy, vztahy, kardinality).
+  2. **Logická (implementační) úroveň:** Transformace konceptuálního modelu do konkrétního datového modelu (např. relační schéma – tabulky, primární klíče `PK`, cizí klíče `FK`, datové typy sloupců).
+  3. **Fyzická (interní) úroveň:** Fyzické uložení dat na paměťových médiích (soubory na disku, stránky paměti, diskové bloky, uspořádání záznamů, B-stromové a hash indexy).
+* **Funkční závislosti a klíče:**
+  * **Funkční závislost ($X \to Y$):** V relaci $R$ platí, že pokud se dva řádky shodují v atributech $X$, musí se nutně shodovat i v atributech $Y$.
+  * **Uzávěr atributů ($X^+$):** Množina všech atributů, které jsou funkčně závislé na $X$.
+  * **Klíč relace (Kandidátní klíč):** Minimální množina atributů $K$, pro kterou platí $K^+ = R$ (žádná vlastní podmnožina $K$ není klíčem). **Nadklíč:** Libovolná nadmnožina klíče.
+* **Normalizace relací (Normální formy – proč normalizujeme):**
+  * **Cíl:** Odstranění redundance (duplicitních dat) a eliminace **anomálií** při manipulaci s daty:
+    * *Anomálie při vkládání (Insertion anomaly):* Nelze vložit informaci o jedné entitě bez existence druhé entity.
+    * *Anomálie při mazání (Deletion anomaly):* Smazáním jednoho faktu nechtěně smažeme i jiný nesouvisející fakt.
+    * *Anomálie při aktualizaci (Update anomaly):* Změna jednoho údaje vyžaduje přepis mnoha řádků (riziko nekonzistence).
+  * **1. Normální forma (1NF):** Všechny atributy obsahují pouze **atomické (nedělitelné)** hodnoty (žádná pole, vnořené relace, seznamy).
+  * **2. Normální forma (2NF):** Je v 1NF a žádný neklíčový atribut není **částečně závislý** na složeném primárním klíči (všechny neklíčové atributy jsou plně funkčně závislé na celém primárním klíči).
+  * **3. Normální forma (3NF):** Je ve 2NF a žádný neklíčový atribut není **tranzitivně závislý** na primárním klíči (neexistuje závislost $Klíč \to X \to Nezklicovy$). Formálně: pro každou netriviální $X \to Y$ je $X$ nadklíč nebo $Y$ je součástí nějakého kandidátního klíče.
+  * **Boyce-Coddova normální forma (BCNF):** Zpřísnění 3NF: Pro **každou** netriviální funkční závislost $X \to Y$ musí být množina atributů $X$ **nadklíčem**.
+  * **Dekompozice relací:** Rozdělení původní tabulky na menší. Musí být:
+    1. **Bezeztrátová (Lossless-join):** Přirozené spojení dekomponovaných tabulek $R_1 \bowtie R_2$ musí přesně zrekonstruovat původní $R$ (platí právě tehdy, když $R_1 \cap R_2 \to R_1$ nebo $R_1 \cap R_2 \to R_2$).
+    2. **Se zachováním funkčních závislostí:** Všechny původní závislosti lze ověřit v rámci jednotlivých tabulek bez nutnosti provádět JOIN. *(3NF vždy zaručuje obojí, BCNF zaručuje bezeztrátovost, ale nemusí zachovat všechny závislosti).*
+* **Převod konceptuálního modelu (ER/UML) na relační model:**
+  * **Entita $\implies$ Relační tabulka** (atributy se stanou sloupci, identifikátor primárním klíčem `PK`).
+  * **Vztah 1:N $\implies$ Cizí klíč (`FK`):** Primární klíč strany 1 se vloží jako cizí klíč do tabulky na straně N.
+  * **Vztah M:N $\implies$ Samostatná asociační (vazební) tabulka:** Obsahuje cizí klíče na obě zúčastněné tabulky, jejichž kombinace tvoří složený primární klíč asociační tabulky.
+  * **Dědičnost (ISA hierarchie – 3 strategie):**
+    1. *Table-per-Hierarchy (Single Table):* Jediná tabulka se všemi atributy všech podtříd + sloupec diskriminátoru (rychlé, ale hodně `NULL` hodnot).
+    2. *Table-per-Type (Class Table):* Tabulka pro bázovou třídu a samostatná tabulka pro každou podtřídu se stejným `PK/FK` (čisté, ale vyžaduje `JOIN`).
+    3. *Table-per-Concrete-Class:* Samostatná tabulka pro každou konkrétní třídu se všemi zděděnými sloupci (žádné `NULL` ani `JOIN`, ale duplikace definic schématu).
+
+---
+
+#### 2. Transakční zpracování, ACID, Rozvrhy a Zamykání:
+* **Vlastnosti transakcí (ACID):**
+  * **A (Atomicity – Nedělitelnost):** Všechno nebo nic. Transakce proběhne celá (úspěšný `COMMIT`), nebo se při chybě/pádu vrátí do výchozího stavu (`ROLLBACK`).
+  * **C (Consistency – Konzistence):** Transakce převádí databázi z jednoho konzistentního stavu do jiného (narušení integrity $\implies$ zrušení transakce).
+  * **I (Isolation – Izolovanost):** Souběžně běžící transakce se navzájem neovlivňují; mezistavy neuložené transakce nejsou viditelné pro ostatní.
+  * **D (Durability – Trvalost):** Změny potvrzené transakce (`COMMIT`) jsou trvalé a přežijí i výpadek napájení a restart systému (zajištěno transakčním deníkem **WAL – Write-Ahead Logging**, kde se log zapíše na disk před samotným zápisem dat).
+* **Anomálie při souběhu transakcí:**
+  * *Dirty Read (Čtení špinavých dat):* $T_2$ přečte neuložená data zapsaná $T_1$, která následně provede `ROLLBACK`.
+  * *Non-repeatable Read (Neopakovatelné čtení):* $T_1$ přečte řádek, $T_2$ ho přepíše a potvrdí, $T_1$ ho přečte znovu a vidí jinou hodnotu.
+  * *Phantom Read (Fantomové čtení):* $T_1$ provede dotaz s podmínkou (např. věk $> 18$), $T_2$ vloží nový řádek splňující podmínku, $T_1$ dotaz zopakuje a vidí řádek navíc.
+* **Rozvrhy (Schedules) a Konfliktová uspořádatelnost (Conflict Serializability):**
+  * **Konfliktní operace:** Dvě operace jsou v konfliktu $\iff$ patří různým transakcím, přistupují ke stejné položce $x$ a alespoň jedna z nich je zápis ($r_1(x) - w_2(x)$, $w_1(x) - r_2(x)$, $w_1(x) - w_2(x)$). Dvě čtení $r_1(x) - r_2(x)$ v konfliktu nejsou!
+  * **Graf předcházení (Graf konfliktů / Precedence Graph):**
+    * Uzly: jednotlivé transakce $T_1, T_2, \dots$
+    * Orientovaná hrana $T_i \to T_j$: existuje operace v $T_i$, která předchází konfliktní operaci v $T_j$.
+  * **Věta o uspořádatelnosti:** Rozvrh je **konfliktově uspořádatelný** (ekvivalentní nějakému sériovému rozvrhu) $\iff$ jeho graf předcházení je **acyklický (DAG)**. Ekvivalentní sériové pořadí určí **topologické uspořádání** grafu.
+* **Zotavitelnost rozvrhů (Recoverability):**
+  * **Zotavitelný rozvrh (Recoverable):** Pokud transakce $T_j$ čte data zapsaná transakcí $T_i$, musí $T_i$ potvrdit (`COMMIT`) **dříve**, než potvrdí $T_j$ ($c_i < c_j$). Zabraňuje situaci, kdy $T_j$ potvrdí špinavá data z transakce, která vzápětí zhavaruje.
+  * **Rozvrh bez kaskádových rollbacků (ACA – Avoids Cascading Aborts):** Transakce smí číst data **pouze od transakcí, které již potvrdily** ($w_i(x) \dots c_i \dots r_j(x)$). Žádná transakce nečte neuložená data. Platí: $ACA \implies \text{Zotavitelný}$.
+* **Zamykací protokoly (Locking Protocols):**
+  * Zámky: **Sdílený $S$** (pro čtení – více transakcí může držet $S$ současně), **Výhradní $X$** (pro zápis – drží pouze jediná transakce, vylučuje $S$ i $X$).
+  * **Dvoufázové zamykání (2PL – Two-Phase Locking):**
+    1. *Fáze růstu:* Transakce zámky pouze získává, žádný neuvolňuje.
+    2. *Fáze smršťování:* Jakmile transakce uvolní první zámek, nesmí už žádný nový zámek získat.
+    * *Vlastnost:* **2PL zaručuje konfliktovou uspořádatelnost!** Nezabraňuje však deadlocku ani kaskádovým rollbackům.
+  * **Striktní 2PL (Strict 2PL / S2PL):** Všechny **výhradní zámky $X$** se drží až do konce transakce (až po `COMMIT` / `ROLLBACK`).
+    * *Vlastnost:* **Garantuje uspořádatelnost + zamezuje kaskádovým rollbackům (je ACA i zotavitelný)!** Nejčastěji používaný v komerčních RDBMS.
+  * **Rigidní (Silné) 2PL (SS2PL):** Všechny zámky ($S$ i $X$) se drží až do konce transakce.
+* **Zablokování (Deadlock):**
+  * Situace cyklického čekání, kdy $T_1$ čeká na zámek držený $T_2$ a $T_2$ čeká na zámek držený $T_1$.
+  * **Detekce deadlocku:** Údržba grafu čekání (**Wait-for Graph**). Pravidelně se hledají cykly $\implies$ při detekci se vybere „oběť“ (victim), která se přeruší (`ROLLBACK`) a zámky se uvolní.
+  * **Prevence pomocí časových razítek (Timestamp ordering – transakce má čas vzniku $TS(T)$):**
+    * *WAIT-DIE (ne-preemptivní):* Starší transakce smí čekat na mladší ($TS(T_i) < TS(T_j)$). Pokud mladší transakce žádá o zámek držený starší, mladší okamžitě „zemře“ (abort + restart se stejným timestampem).
+    * *WOUND-WAIT (preemptivní):* Starší transakce okamžitě „zraní“ (abortne) mladší transakci držící zámek a zámek jí sebere. Mladší transakce na starší smí čekat.
+
+---
+
+#### 3. Přehled jazyka SQL a Pokročilé dotazování:
+* **Logické pořadí vyhodnocování SQL dotazu:**
+  $$\text{FROM} \to \text{ON} \to \text{JOIN} \to \text{WHERE} \to \text{GROUP BY} \to \text{HAVING} \to \text{SELECT} \to \text{DISTINCT} \to \text{ORDER BY} \to \text{LIMIT}$$
+  *(Důležité: Aliasy definované v `SELECT` nelze použít ve `WHERE`, protože `WHERE` se vyhodnocuje dříve!).*
+* **Typy spojení tabulek (JOIN):**
+  * `INNER JOIN`: Vrátí pouze řádky, které mají shodu v obou tabulkách.
+  * `LEFT (OUTER) JOIN`: Vrátí všechny řádky z levé tabulky; pokud v pravé není shoda, doplní hodnoty `NULL`.
+  * `FULL (OUTER) JOIN`: Vrátí všechny řádky z obou tabulek, chybějící protějšky doplní `NULL`.
+  * `CROSS JOIN`: Kartézský součin (každý řádek s každým).
+* **Agregace a rozdíl `WHERE` vs. `HAVING`:**
+  * `WHERE`: Filtruje **jednotlivé řádky ještě před seskupením** (nesmí obsahovat agregační funkce jako `SUM`, `AVG`).
+  * `GROUP BY`: Seskupí řádky se stejnou hodnotou klíče do jedné skupiny.
+  * `HAVING`: Filtruje **celé agregované skupiny po seskupení** (používá podmínky na agregační funkce, např. `HAVING COUNT(*) > 5`).
+  * Agregační funkce: `COUNT(*)`, `COUNT(sloupec)` (spočte pouze **nenulové** hodnoty!), `SUM`, `AVG`, `MIN`, `MAX`.
+* **Tříhodnotová logika (3VL) a `NULL` hodnoty:**
+  * `NULL` reprezentuje chybějící nebo neznámou hodnotu.
+  * Libovolné porovnání s `NULL` dává hodnotu **`UNKNOWN`** (např. `x = NULL` nebo `x <> NULL` je `UNKNOWN`, nikoliv `TRUE` ani `FALSE`!).
+  * Klauzule `WHERE` propustí pouze řádky s výsledkem `TRUE` (řádky s `FALSE` i `UNKNOWN` jsou zahozeny).
+  * **Správný test na NULL:** `sloupec IS NULL` nebo `sloupec IS NOT NULL`.
+  * Ošetření v dotazech: `COALESCE(sloupec, výchozí_hodnota)` vrátí první nenulový argument.
+* **Vnořené dotazy (Subqueries):**
+  * *Nekorelovaný poddotaz:* Nezávislý na vnějším dotazu, vyhodnotí se pouze jednou (např. `WHERE plat > (SELECT AVG(plat) FROM zamestnanci)`).
+  * *Korelovaný poddotaz:* Odkazuje na sloupce vnějšího dotazu, vyhodnocuje se znovu pro každý řádek vnějšího dotazu (např. s operátorem `EXISTS (SELECT 1 FROM objednavky WHERE zakaznik_id = z.id)`).
+  * *Operátory:* `IN`, `NOT IN` *(pozor: pokud poddotaz v `NOT IN` vrátí jediný `NULL`, celý výraz je `UNKNOWN` a nevrátí nic!)*, `ANY / SOME`, `ALL`.
+* *Komplexní zkouškový příklad SQL dotazu:*
+  ```sql
+  -- Pro každého studenta spočti průměrnou známku z předmětů, které absolvoval,
+  -- ale uvažuj jen studenty, kteří mají alespoň 3 zkoušky a jejich průměr je lepší než 2.0:
+  SELECT s.id, s.jmeno, COUNT(z.predmet_id) AS pocet_zkousek, AVG(z.znamka) AS prumer
+  FROM Studenti s
+  INNER JOIN Zkousky z ON s.id = z.student_id
+  WHERE z.znamka IS NOT NULL
+  GROUP BY s.id, s.jmeno
+  HAVING COUNT(z.predmet_id) >= 3 AND AVG(z.znamka) < 2.0
+  ORDER BY prumer ASC;
+  ```
+
+---
+
+#### 4. Moderní databázové systémy, NoSQL a Big Data:
+* **Pojem Big Data a princip 4V:**
+  1. **Volume (Objem):** Obrovské množství dat (terabyty až petabyty), které nelze efektivně uložit ani zpracovat na jednom serveru.
+  2. **Velocity (Rychlost):** Vysoká frekvence generování a potřeba real-time zpracování (proudová data / streaming, senzory, logy).
+  3. **Variety (Různorodost):** Heterogenní formáty – strukturovaná (tabulky), polostrukturovaná (JSON, XML) i nestrukturovaná (texty, audio, video).
+  4. **Veracity (Věrohodnost/Kvalita):** Šum v datech, neúplnost, nejistota a potřeba čištění dat před analýzou.
+  * *Výzvy pro tradiční RDBMS:* Špatná horizontální škálovatelnost (scale-out), nutnost fixního relačního schématu, režie ACID transakcí.
+* **CAP teorém (Brewerova věta):**
+  * V distribuovaném datovém úložišti lze současně zaručit **pouze 2 ze 3** následujících vlastností:
+    * **C (Consistency – Silná konzistence):** Každé čtení vrátí nejnovější zapsanou hodnotu (všechny uzly vidí tatáž data současně).
+    * **A (Availability – Dostupnost):** Každý nezhavarovaný uzel vrátí na libovolný požadavek platnou odpověď (bez chyby či timeoutu).
+    * **P (Partition Tolerance – Odolnost proti rozpadu sítě):** Systém funguje dál i při ztrátě nebo zpoždění zpráv mezi uzly sítě.
+  * *Důsledek pro distribuované systémy:* Síťové výpadky v reálném světě nastávají vždy $\implies$ **Partition tolerance je povinná**. Distribuované systémy proto volí kompromis:
+    * **CP systémy (Konzistence + Partition tolerance):** Při výpadku sítě odmítnou obsloužit část požadavků, aby neporušily konzistenci (např. MongoDB, HBase).
+    * **AP systémy (Dostupnost + Partition tolerance):** Při výpadku sítě odpoví všechny uzly, ale mohou vrátit zastaralá data (např. Apache Cassandra, CouchDB). Využívají model **BASE**: *Basically Available* (dostupný), *Soft state* (stav se může měnit i bez vstupu), *Eventual consistency* (data se nakonec sesynchronizují).
+* **Základní třídy NoSQL databází (4 typy):**
+  1. **Klíč – hodnota (Key-Value):**
+     * *Příklady:* Redis, Memcached, Amazon DynamoDB.
+     * *Model:* Asociativní pole; přístup výhradně přes unikátní klíč v čase $O(1)$. Hodnota je pro databázi netransparentní binární blob/string.
+     * *Využití:* Session store, cache, nákupní košíky, bleskové čtení.
+  2. **Dokumentové (Document Stores):**
+     * *Příklady:* MongoDB, CouchDB.
+     * *Model:* Ukládají polostrukturované dokumenty (typicky JSON / BSON). Každý dokument má unikátní `_id`, podporují sekundární indexy na libovolná vnitřní pole dokumentu a bohaté dotazy.
+     * *Využití:* Uživatelské profily, katalogy produktů, CMS systémy s proměnlivým schématem.
+  3. **Sloupcově orientované (Column-family / Wide-column):**
+     * *Příklady:* Apache Cassandra, Google Bigtable, Apache HBase.
+     * *Model:* Tabulka se skládá z řádků identifikovaných řádkovým klíčem, data jsou na disku fyzicky uspořádána po **rodinách sloupců (column families)**.
+     * *Využití:* Analytika velkých objemů dat, časové řady (IoT metriky), logování, masivní škálovatelný zápis.
+  4. **Grafové databáze (Graph Databases):**
+     * *Příklady:* Neo4j.
+     * *Model:* Labeled Property Graph (LPG) – uzly (nodes), orientované hrany (relationships) a vlastnosti (properties v klíč-hodnota).
+     * *Index-free adjacency:* Každý uzel drží přímé paměťové ukazatele na sousední hrany $\implies$ průchod grafem je $O(1)$ na hranu bez drahých tabulkových spojení (JOINů).
+     * *Využití:* Sociální sítě, doporučovací systémy, detekce finančních podvodů, znalostní grafy. Dotazovací jazyk **Cypher** (`MATCH (u:User)-[:FRIEND]->(f) WHERE ... RETURN f`).
+* **Princip MapReduce (Distribuované paralelní zpracování):**
+  * Programovací model pro paralelní dávkové zpracování masivních dat na klastru (Hadoop MapReduce).
+  * **3 základní fáze:**
+    1. **Map:** Čte vstupní záznamy a generuje množinu mezilehlých dvojic `(klíč, hodnota)`.
+    2. **Shuffle & Sort:** Framework automaticky seskupí a seřadí všechny hodnoty se stejným mezilehlým klíčem a rozešle je na příslušné uzly.
+    3. **Reduce:** Zpracuje klíč a iterátor všech hodnot příslušejících k tomuto klíči a zapíše finální výsledek do distribuovaného filesystému (HDFS).
+  * *Příklad: Počítání slov (WordCount) v pseudokódu:*
+    ```text
+    // 1. Fáze Map (spouští se paralelně pro každý blok textu):
+    function map(document_id, text_content):
+        for each word in tokenize(text_content):
+            emit_intermediate(word.toLower(), 1)
+
+    // 2. Fáze Shuffle (automaticky zajistí framework):
+    // seskupí výstupy do dvojic: (word, [1, 1, 1, 1, ...])
+
+    // 3. Fáze Reduce (spouští se pro každý unikátní klíč):
+    function reduce(word, list_of_counts):
+        int total_sum = 0
+        for each count in list_of_counts:
+            total_sum += count
+        emit(word, total_sum)
+    ```
+  * *Výhody:* Automatické rozdělení práce, odolnost proti výpadku uzlu (fault-tolerance – při pádu uzlu se daný Map/Reduce spustí jinde).
+  * *Nevýhody:* Zápis mezivýsledků na disk (vysoká I/O režie), nevhodné pro iterativní algoritmy (nahrazeno Apache Sparkem, který drží data v RAM).
+* **Multi-model databáze vs. Polystore architektura:**
+  * **Multi-model databáze:**
+    * *Princip:* Jediný integrovaný databázový stroj nativně podporuje více různých datových modelů současně (např. relační tabulky + JSON dokumenty + grafové vazby).
+    * *Příklady:* PostgreSQL (relační tabulky, `JSONB` dokumenty, prostorová data PostGIS), ArangoDB (dokumenty, grafy, klíč-hodnota).
+    * *Výhody:* Jednotná správa, společné transakční záruky (ACID napříč modely), žádná duplikace dat, nulová režie na synchronizaci.
+  * **Polystore architektura:**
+    * *Princip:* Zastřešující middleware vrstva nad několika samostatnými, fyzicky oddělenými heterogenními databázemi (např. systém BigDAWG – relační data v PostgreSQL, grafy v Neo4j, masivní matice ve SciDB).
+    * *Výhody:* Každý dílčí dotaz běží na enginu, který je pro daný typ dat hardwarově i algoritmicky nejlépe optimalizovaný.
+    * *Nevýhody / Problémy:* Chybí globální transakční podpora (distribuovaný 2-fázový commit je extrémně drahý), vysoká latence při síťovém přenosu a propojování mezivýsledků z různých databází, složitá optimalizace dotazů.
 * **W3C** – HTML, CSS, XML (XSD, XSLT), RDF, SPARQL, JSON-LD, CSVW, SKOS, DCAT, OWL | **IETF** – TCP/IP, HTTP, URI/URL, JSON (RFC 8259), CSV (RFC 4180) | **OGC** – WKT, GML, GeoSPARQL (prostorová data)
 
 #### XML – Datový dokument (Well-formed a validní vůči schématu níže):
@@ -3028,6 +3202,290 @@ query {
   }
 }
 ```
+
+#### CSS – Syntaxe, Specificita selektorů a Responzivní layout (Flexbox / Grid):
+* **Syntaxe a způsoby vložení do stránky:**
+  * Syntaxe: `selektor { vlastnost: hodnota; }`
+  * *Externí stylopis (`<link rel="stylesheet" href="style.css">`):* Nejlepší praxe (kešování v prohlížeči, znovupoužitelnost).
+  * *Interní stylopis (`<style>...</style>` v `<head>`):* Vhodné pro kritické CSS pro první vykreslení (Critical CSS).
+  * *Inline styl (`style="..."` přímo v tagu):* Nejvyšší specificita, obtížná údržba, porušuje oddělení obsahu a prezentace.
+* **Specificita selektorů (Váha pravidla – čtveřice `(a, b, c, d)`):**
+  1. **$a$ (Inline styly):** `style="..."` (váha 1000).
+  2. **$b$ (ID selektory):** `#hlavicka`, `#navigace` (váha 100).
+  3. **$c$ (Třídy, atributy, pseudotřídy):** `.tlacitko`, `[type="text"]`, `:hover`, `:nth-child()` (váha 10).
+  4. **$d$ (Elementy a pseudoelementy):** `div`, `p`, `h1`, `::before`, `::after` (váha 1).
+  * *Kaskáda a kolize:* Při rovnosti specificity vyhrává pravidlo zapsané v CSS souboru **později**. `!important` přebíjí běžnou specificitu (používat jen v krajní nouzi). Univerzální selektor `*` a kombinátory (`+`, `>`, `~`) mají nulovou specificitu.
+* **Responzivní layout stránky (Menu, Sloupcový obsah, Patička) pomocí CSS Grid a Flexbox:**
+  ```css
+  /* 1. Základní mřížka pro desktop (CSS Grid) */
+  .layout-grid {
+    display: grid;
+    grid-template-areas:
+      "header  header"
+      "sidebar main"
+      "footer  footer";
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    gap: 16px;
+  }
+  .site-header  { grid-area: header; }
+  .site-sidebar { grid-area: sidebar; }
+  .site-main    { grid-area: main; }
+  .site-footer  { grid-area: footer; }
+
+  /* 2. Responzivní jedno-sloupcový layout pro mobilní zařízení (Media Query) */
+  @media (max-width: 768px) {
+    .layout-grid {
+      grid-template-areas:
+        "header"
+        "sidebar"
+        "main"
+        "footer";
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* 3. Horizontální responzivní menu (Flexbox) */
+  .nav-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+  }
+  ```
+
+---
+
+#### Architektury webových aplikací – Front Controller, MVC, MVP a MVVM:
+* **Front Controller:**
+  * Jediný centrální vstupní bod pro veškeré požadavky aplikace (typicky `index.php`).
+  * *Odpovědnost:* Centralizuje společné netriviální úkoly (Routing URL adres na konkrétní kontrolery/akce, spuštění session, ověření autentizace a oprávnění, globální odchytávání výjimek, inicializace DI kontejneru).
+* **MVC (Model-View-Controller – základ serverových webových aplikací):**
+  * **Model:** Zapouzdřuje doménovou logiku, aplikační stav a přístup k datům (databázové entity, validace, business pravidla). Je zcela nezávislý na prezentační vrstvě.
+  * **View (Pohled):** Prezentace dat uživateli (šablony HTML, JSON odpovědi API). V klasickém serverovém webu dostává připravená data z Controlleru a vykresluje je.
+  * **Controller:** Reaguje na uživatelské HTTP požadavky, volá příslušné metody Modelu a předává výsledek View k zobrazení.
+* **MVP (Model-View-Presenter):**
+  * View je zcela pasivní rozhraní (**Passive View**).
+  * **Presenter:** Zprostředkovává veškerou interakci; View a Model se navzájem vůbec neznají. Presenter naslouchá událostem z View, manipuluje s Modelem a explicitně aktualizuje View voláním jeho metod $\implies$ vynikající testovatelnost prezentační logiky pomocí unit testů a mockování View.
+* **MVVM (Model-View-ViewModel – základ klientských SPA jako Vue, Angular, React):**
+  * **ViewModel:** Abstrakce View vystavující veřejné vlastnosti a příkazy (Commands). Drží klientský stav specifický pro UI.
+  * **Data Binding (Obousměrné provázání dat):** Klíčový mechanizmus. Změna v modelu/ViewModelu se automaticky promítne do DOM stromu View a změna ve formulářovém poli View ihned aktualizuje ViewModel bez nutnosti psát manuální obsluhu DOM událostí.
+
+---
+
+#### Klientský JavaScript – Standardní Web API v prohlížeči:
+* **DOM API:** `document.querySelector()`, `addEventListener()`, `createElement()`, `appendChild()`, `element.closest()`, `element.dataset`.
+* **Fetch API:** Moderní rozhraní pro asynchronní HTTP síťové požadavky s Promise rozhraním (`fetch(url, options)`), nahrazuje zastaralé `XMLHttpRequest`.
+* **Web Storage API:**
+  * `localStorage`: Klíč-hodnota úložiště v prohlížeči, data přetrvávají i po zavření okna/restartu počítače (kapacita ~5–10 MB, vázáno na origin: protokol + doména + port).
+  * `sessionStorage`: Platí pouze po dobu otevření daného tabu prohlížeče (smaže se po zavření okna).
+  * *Bezpečnostní varování:* Úložiště je plně čitelné pro JavaScript $\implies$ **zranitelné vůči XSS útoku** (nikdy do Web Storage neukládat citlivé přístupové tokeny, pokud aplikace nemá dokonalé ošetření XSS!).
+* **History API:** Umožňuje klientskou navigaci v SPA bez znovunačtení stránky (`history.pushState(state, title, url)`, `history.replaceState()`, odchycení události `window.onpopstate`).
+* **Další standardní Web API:**
+  * *Geolocation API:* `navigator.geolocation.getCurrentPosition()` (přístup k GPS souřadnicím uživatele se souhlasem).
+  * *Canvas API & WebGL:* Nízkoúrovňové kreslení 2D/3D rastrové grafiky v elementu `<canvas>`.
+  * *Web Workers API:* Spouštění náročných výpočetních skriptů na pozadí v oddělených vláknech bez blokování UI smyčky (komunikace přes `postMessage()`).
+
+---
+
+#### Asynchronní JavaScript a Event Loop:
+* **Princip Event Loopu (Architektura jednovláknového JavaScriptu):**
+  * JavaScript běží v **jediném hlavním vlákně** (má pouze 1 Call Stack).
+  * **1. Call Stack (Zásobník volání):** Zde se synchronně vykonávají jednotlivé rámce funkcí.
+  * **2. Web APIs:** Časovače (`setTimeout`), síťové dotazy (`fetch`), DOM události běží v asynchronních vláknech webového prohlížeče mimo JavaScript engine. Po dokončení vloží své callbacky do fronty úloh.
+  * **3. Microtask Queue (Prioritní fronta mikroúloh):**
+    * Obsahuje: `.then()`, `.catch()`, `.finally()` u **Promises**, těla po `await` v **async/await**, `queueMicrotask()`, `MutationObserver`.
+    * **Zpracovává se OKAMŽITĚ po vyprázdnění Call Stacku a vyčerpá se CELÁ do nuly**, než se sáhne do Macrotask Queue nebo než proběhne překreslení obrazovky (UI Render)!
+  * **4. Macrotask Queue / Task Queue (Fronta makroúloh):**
+    * Obsahuje: `setTimeout`, `setInterval`, I/O callbacky, obsluhy uživatelských událostí (kliknutí, stisk klávesy).
+    * Event Loop vezme v každém cyklu **vždy pouze 1 makroúlohu**, spustí ji, poté **kompletně odbaví všechny nově vzniklé mikroúlohy**, provede případný render layoutu v prohlížeči a teprve pak sahá pro další makroúlohu.
+* **Evoluce asynchronního kódu:**
+  * *1. Callbacky:* Předávání funkcí jako parametrů $\implies$ nebezpečí *Callback Hell* (nepřehledné pyramidální zanoření a komplikovaný error-handling).
+  * *2. Promises:* Objekty reprezentující budoucí výsledek asynchronní operace. 3 stavy: `Pending` (čeká), `Fulfilled` (úspěšně splněno $\to$ `.then()`), `Rejected` (chyba $\to$ `.catch()`). Umožňují řetězení a paralelní běh (`Promise.all()`, `Promise.allSettled()`).
+  * *3. Async / Await:* Syntaktický cukr nad Promises; klíčové slovo `await` pozastaví vykonávání dané funkce (uvolní Call Stack pro další kód) a zbytek těla funkce zařadí jako mikroúlohu po vyřešení Promise.
+
+---
+
+#### REST API a Richardsonův model zralosti (Levels 0–3):
+* **6 základních architektonických omezení RESTu (Roy Fielding):**
+  1. **Client-Server:** Striktní oddělení uživatelského rozhraní (klient) od datového úložiště a logiky (server).
+  2. **Stateless (Bezstavovost):** Server neukládá žádný stav o relaci klienta mezi dotazy. Každý HTTP požadavek musí obsahovat veškeré informace potřebné k jeho vyřízení (včetně autentizace).
+  3. **Cacheable:** Odpovědi musí explicitně deklarovat, zda mohou být kešovány (klientem nebo proxy) pomocí HTTP hlaviček `Cache-Control`, `ETag`, `Last-Modified`.
+  4. **Uniform Interface (Jednotné rozhraní):** Klíčový pilíř: identifikace zdrojů pomocí URI, manipulace se zdroji skrze reprezentace (JSON/XML), samopopisné zprávy s MIME typy (`Content-Type`), HATEOAS.
+  5. **Layered System (Vrstvený systém):** Klient neví (a nepotřebuje vědět), zda komunikuje přímo s koncovým serverem nebo s mezilehlou proxy, CDN či Load Balancerem.
+  6. **Code on Demand (volitelné):** Server může dočasně rozšířit schopnosti klienta zasláním spustitelného kódu (např. JavaScript skripty).
+* **Richardsonův model zralosti (Richardson Maturity Model – 4 úrovně zralosti REST API):**
+  * **Level 0 – The Swamp of POX (Bažina čistého XML/JSON):**
+    * Jediný koncový bod (URI) a jediná HTTP metoda (typicky `POST /api`). HTTP protokol slouží pouze jako přenosový tunel pro vzdálené volání procedur (RPC, XML-RPC, SOAP).
+  * **Level 1 – Resources (Zdroje):**
+    * Zavedení samostatných URI identifikujících konkrétní zdroje (`/api/users`, `/api/users/42`, `/api/orders`). Operace se však stále volají přes parametry v URL nebo v těle požadavku stále stejnou metodou `POST`.
+  * **Level 2 – HTTP Verbs & Status Codes (Standardní HTTP slovesa a stavové kódy):**
+    * Plné a sémanticky správné využití HTTP metod a návratových kódů:
+      * `GET`: Čtení zdroje (bezpečné a **idempotentní** – opakované volání nemění stav).
+      * `POST`: Vytvoření nového zdroje pod zadanou kolekcí (není idempotentní, návrat `201 Created` s hlavičkou `Location`).
+      * `PUT`: Kompletní přepis / vytvoření zdroje na přesné URI (**idempotentní**).
+      * `PATCH`: Částečná aktualizace specifických atributů zdroje.
+      * `DELETE`: Smazání zdroje (**idempotentní**, návrat `204 No Content`).
+      * *HTTP stavové kódy:* `2xx` (Úspěch: 200 OK, 201 Created, 204 No Content), `4xx` (Klientská chyba: 400 Bad Request, 401 Unauthorized – chybí přihlášení, 403 Forbidden – nedostatečná práva, 404 Not Found), `5xx` (Serverová chyba: 500 Internal Server Error, 503 Service Unavailable).
+  * **Level 3 – HATEOAS (Hypermedia As The Engine Of Application State):**
+    * Vrcholný stav RESTu. Odpověď serveru obsahuje kromě samotných dat také navigační hypertextové odkazy (`_links` v HAL JSON formátu) na všechny další akce, které může klient v aktuálním stavu se zdrojem provést (např. platba, zrušení, úprava objednávky). Klient nepotřebuje znát předem žádná hardcodovaná URL kromě kořenového endpointu.
+
+---
+
+#### Single-Page Aplikace (SPA), Klientský routing a Správa stavu:
+* **Princip Single-Page Aplikace (SPA):**
+  * Webový server odešle klientovi při prvním načtení jediný statický soubor `index.html` a zkompilovaný JavaScript bundle (např. React, Vue, Angular).
+  * Veškerá další navigace po webu a změna obrazovek probíhá **výhradně na straně klienta v JavaScriptu dynamickým přepisováním DOM stromu** bez znovunačítání celé HTML stránky.
+  * Server funguje pouze jako bezstavové REST / GraphQL datové API poskytující data v JSON formátu.
+* **Klientský routing a Fallback routing na serveru:**
+  * *HTML5 History API:* Klientský router zachytává kliknutí na odkazy a mění URL v adresním řádku pomocí `history.pushState(null, '', '/detail/42')` bez reloadu stránky.
+  * *Problém s obnovením (F5 refresh) a řešení:* Pokud uživatel přímo v prohlížeči otevře URL `https://domena.cz/detail/42`, webový server by vrátil `404 Not Found`, protože soubor na disku neexistuje!
+  * *Pravidlo Fallback routingu:* Webový server (Nginx, Apache) musí být nakonfigurován tak, aby **pro každý požadavek na neexistující fyzický soubor vrátil právě `index.html`** (`try_files $uri $uri/ /index.html;`), který následně spustí JS router a ten vykreslí správnou klientskou komponentu.
+* **Možnosti udržování stavu (State Management) v SPA:**
+  * *In-Memory stav komponent:* Stav v paměti JS frameworku (např. Redux, Pinia, Context API). Rychlý, ale resetuje se při každém F5 obnovení stránky.
+  * *URL parametry (Query String / Hash):* Uložení stavu filtrů, stránkování či hledání přímo do URL adresy (`?page=2&sort=price`). Umožňuje sdílení odkazů a podporuje tlačítka Zpět/Vpřed.
+  * *Web Storage (`localStorage` / `sessionStorage`):* Klientské úložiště pro perzistenci uživatelských preferencí (např. tmavý režim).
+  * *HTTP Cookies s příznaky:* Tradiční přenos identifikátoru relace (Session ID). Příznak `HttpOnly` chrání před krádeží JavaScriptem (XSS) a `SameSite=Strict/Lax` chrání před CSRF.
+  * *Autentizace pomocí JWT Bearer tokenu:* Token je uložen v paměti aplikace nebo zabezpečené cookie a posílá se v HTTP hlavičce `Authorization: Bearer <token>`.
+
+---
+
+#### CGI a CGI-like architektury (FastCGI, PHP-FPM):
+* **Tradiční CGI (Common Gateway Interface):**
+  * Nejstarší standard pro spouštění dynamických serverových skriptů webovým serverem.
+  * *Mechanizmus běhu:*
+    1. Příchozí HTTP požadavek zachytí webový server (např. Apache).
+    2. Pro **každý jednotlivý požadavek** operační systém vytvoří **zcela nový proces** (`fork()` + `exec()`).
+    3. Parametry požadavku server předá skriptu přes **Proměnné prostředí OS (Environment Variables)** jako `QUERY_STRING`, `REQUEST_METHOD`, `HTTP_COOKIE`.
+    4. Tělo HTTP požadavku (POST data) se skriptu pošle na standardní vstup **`stdin`**.
+    5. Skript provede výpočet, zapíše HTTP hlavičky a HTML tělo na standardní výstup **`stdout`** a **proces se ukončí (`exit()`)**.
+  * *Nevýhoda CGI:* Obrovská režie operačního systému na neustálé vytváření a ničení procesů, pomalé načítání interpretu (např. start PHP enginu při každém kliknutí), neschopnost obsloužit vyšší návštěvnost.
+* **CGI-like architektury (FastCGI a PHP-FPM):**
+  * *Princip:* Eliminuje režii neustálého forkování. Na pozadí běží **trvalý pool předalokovaných procesů (workerů)** spravovaných správcem procesů (**PHP-FPM** – FastCGI Process Manager).
+  * Webový server komunikuje s procesy FPM pomocí binárního protokolu FastCGI přes lokální **Unix Domain Socket** (`/var/run/php-fpm.sock`) nebo TCP/IP soket (`127.0.0.1:9000`).
+  * Po dokončení požadavku proces **neumírá**, ale okamžitě přechází do stavu čekání na další HTTP požadavek.
+  * *Výhody:* Nulová režie na spouštění procesů, sdílení mezipaměti předkompilovaného bajtkódu v RAM (**OPcache**), schopnost škálovat a zpracovat tisíce požadavků za sekundu.
+
+---
+
+#### Bezpečnost webových aplikací – HTTPS, JWT Tokeny a OWASP Top 10:
+* **HTTPS a TLS Handshake:**
+  * HTTPS je aplikační protokol HTTP běžící nad šifrovanou transportní vrstvou **TLS (Transport Layer Security)** na portu 443.
+  * *Tři bezpečnostní pilíře:*
+    1. **Důvěrnost (Confidentiality):** Šifrování dat zabraňuje odposlechu (Eavesdropping / Man-in-the-Middle útokům na Wi-Fi či u poskytovatele).
+    2. **Integrita (Integrity):** Žádný mezilehlý síťový prvek nemůže data cestou pozměnit nebo podstrčit škodlivý kód bez okamžité detekce.
+    3. **Autentičnost (Authenticity):** Prohlížeč si ověří identitu serveru pomocí kryptografického certifikátu podepsaného důvěryhodnou **Certifikační autoritou (CA)**.
+  * *Průběh TLS Handshake (Kombinace asymetrického a symetrického šifrování):*
+    * *1. Fáze (Asymetrická – drahá na CPU, ale bezpečná):* Klient a server se pozdraví (`ClientHello`, `ServerHello`). Server pošle svůj digitální certifikát s **veřejným klíčem**. Klient ověří podpis certifikátu vůči CA v systému. Pomocí veřejného klíče serveru (nebo mechanismu Diffie-Hellman) si obě strany bezpečně předají náhodné tajemství (Premaster Secret).
+    * *2. Fáze (Symetrická – hardwarově blesková):* Z tajemství obě strany nezávisle odvodí shodné **symetrické relační klíče** (např. AES-GCM 128/256 bitů). Veškerý další přenos HTTP dat probíhá výhradně tímto symetrickým šifrováním.
+* **Autentizační tokeny a struktura JWT (JSON Web Token – RFC 7519):**
+  * Kompaktní textový řetězec bezpečný pro přenos v URL či HTTP hlavičce `Authorization: Bearer <token>`.
+  * Skládá se ze **3 částí kódovaných v Base64Url**, oddělených tečkami:
+    $$\mathbf{Header} . \mathbf{Payload} . \mathbf{Signature}$$
+    1. **Header:** Metadata o tokenu v JSONu – typ a použitý algoritmus podpisu (např. `{"alg": "HS256", "typ": "JWT"}`).
+    2. **Payload (Tvrzení – Claims):** Samotná data uživatele v JSONu (např. `{"sub": "42", "name": "Jan", "role": "admin", "exp": 1757000000}`).
+    3. **Signature (Kryptografický podpis):** Vypočítá se ze spojení Base64 hlavičky a payloadu pomocí tajného klíče serveru:
+       $$\text{Signature} = \operatorname{HMAC-SHA256}(\text{Base64Url}(\text{Header}) + "." + \text{Base64Url}(\text{Payload}), \text{TajnýKlíčServeru})$$
+  * *Kritický zkouškový princip:* **Payload v JWT NENÍ šifrovaný!** Kdokoliv na síti si jej může dekódovat z Base64 a přečíst. Podpis pouze garantuje **integritu** (pokud útočník změní např. `role: admin`, podpis přestane souhlasit a server token okamžitě odmítne).
+* **Základní bezpečnostní rizika (OWASP Top 10):**
+  1. **SQL Injection (SQLi):** Útočník vloží SQL kód do neošetřeného uživatelského vstupu, čímž změní logiku databázového dotazu (např. `' OR '1'='1`). *Obrana:* Striktní používání **Prepared Statements / Parametrizovaných dotazů** (PDO v PHP, Entity Framework). Nikdy neslepovat řetězce!
+  2. **Cross-Site Scripting (XSS):** Podstrčení a spuštění škodlivého JavaScriptu v prohlížeči nicnetušícího uživatele:
+     * *Stored (Perzistentní) XSS:* Útočník uloží skript do databáze (např. do diskuzního fóra), skript se pak spustí každému, kdo stránku navštíví.
+     * *Reflected (Odražené) XSS:* Škodlivý kód je součástí odkazu v URL (`?search=<script>...`) a server jej bez ošetření vypíše do HTML odpovědi.
+     * *DOM-based XSS:* Zranitelnost přímo v klientském JS, který nebezpečně zapíše vstup uživatele do DOMu (např. přes `innerHTML`).
+     * *Obrana:* Kontextové escapování výstupu (`htmlspecialchars()` v PHP, bezpečné vlastnosti `textContent` v JS místo `innerHTML`), nastavení bezpečnostní hlavičky **Content Security Policy (CSP)** a ukládání přihlašovacích sessions do **`HttpOnly` cookies** (aby k nim JS neměl přístup).
+  3. **Cross-Site Request Forgery (CSRF):** Útočník přiměje prohlížeč přihlášené oběti odeslat nechtěný škodlivý požadavek na jiný web (např. odeslání peněz přes skrytý formulář), přičemž prohlížeč k požadavku automaticky přibalí autentizační cookies daného webu. *Obrana:* Náhodné jednorázové **Anti-CSRF tokeny** vkládané do skrytých polí formulářů ověřované na serveru a nastavení příznaku **`SameSite=Lax` nebo `SameSite=Strict`** na autentizačních cookies.
+  4. **Server-Side Request Forgery (SSRF):** Útočník donutí aplikační server provést HTTP dotaz na vnitřní / privátní síť za firewallem (např. na adresu cloudových metadat `http://169.254.169.254`). *Obrana:* Validace a whitelisting cílových URL adres, zákaz dotazů na privátní IP rozsahy (RFC 1918).
+  5. **Broken Access Control (IDOR – Insecure Direct Object References):** Aplikace vystaví přímý odkaz na databázový záznam (např. `/faktura?id=105`), ale neověří, zda přihlášený uživatel má právo tuto fakturu vidět. *Obrana:* Pokaždé v databázovém dotazu explicitně vynucovat vlastnictví záznamu (`WHERE id = :id AND user_id = :currentUser`).
+
+---
+
+#### Doporučovací systémy – Workflow, Dynamičnost a Typy algoritmů:
+* **Workflow a data doporučovacích systémů (RecSys):**
+  * *Vstupy:* Množina uživatelů $U$, množina položek $I$, interakční data – **Matice hodnocení (Rating Matrix)** $R \in \mathbb{R}^{|U| \times |I|}$.
+  * *Povaha matice:* Matice $R$ je **extrémně řídká (Sparse)** – v reálných e-shopech bývá zaplněno méně než $0.1\,\% \text{ až } 1\,\%$ hodnot!
+  * *Typy zpětné vazby:*
+    * **Explicitní zpětná vazba:** Uživatel sám přímo vyjádří svůj názor (1–5 hvězdiček, číselné skóre, Like / Dislike). Velmi přesná, ale vzácná (většina uživatelů nic nehodnotí).
+    * **Implicitní zpětná vazba:** Odvozená automaticky z chování uživatele (kliky, zhlédnutí stránky, přidání do košíku, doba přehrávání videa, nákup). Masivní objem dat, ale hlučná data (kliknutí nemusí znamenat spokojenost).
+  * *Výstupy:* Predikce přesné hodnoty hodnocení $\hat{r}_{u,i}$ (Rating Prediction) nebo vytvoření uspořádaného seznamu **Top-$K$ doporučených položek** (Item Ranking).
+* **Problémy dynamičnosti doporučovacího procesu:**
+  * **Problém studeného startu (Cold Start Problem):**
+    * *Nový uživatel:* Nemá žádnou historii interakcí $\implies$ kolaborativní filtrování pro něj nedokáže najít sousedy. *Řešení:* Onboarding dotazník při registraci, doporučování globálně nejpopulárnějších položek (Most Popular), geolokační/kontextové doporučování.
+    * *Nová položka:* Nikdo ji dosud neohodnotil $\implies$ kolaborativní filtrování ji nikomu nenabídne. *Řešení:* Obsahové doporučování (Content-based) na základě metadat, textového popisu a kategorie položky, případně řízené náhodné prozkoumávání (Exploration vs. Exploitation).
+  * **Nový item problem a online aktualizace modelů:**
+    * Výpočetně náročné modely (maticová faktorizace, hluboké neuronové sítě) se trénují offline v dávkách (trvá hodiny či dny). V reálném čase je však nutné okamžitě reagovat na aktuální kliky uživatele v probíhající relaci.
+    * *Dvoustupňová architektura v praxi:*
+      1. *Offline fáze (Candidate Retrieval):* Rychlý hrubý filtr zredukuje miliony položek na několik set kandidátů.
+      2. *Online fáze (Real-time Ranking):* Lehký model přerankuje těchto 100 kandidátů podle okamžitého kontextu aktuální session uživatele.
+* **Tři základní paradigmaty doporučování:**
+  1. **Kolaborativní filtrování (Collaborative Filtering – CF):**
+     * Založeno výhradně na vzorcích chování komunity (*„lidé, kterým se líbily podobné věci jako vám, si také koupili X“*). Zcela ignoruje obsah a vlastnosti položek.
+     * *User-based KNN:* Hledá $K$ uživatelů s nejpodobnějším profilem hodnocení k aktivnímu uživateli $u$ (pomocí Pearsonovy korelace nebo Kosinovy podobnosti) a spočte vážený průměr jejich hodnocení.
+     * *Item-based KNN:* Hledá položky, které ostatní uživatelé hodnotili podobně jako položku $i$. Výpočetně stabilnější, protože relace mezi položkami se mění pomaleji než chutě uživatelů.
+     * *Maticová faktorizace (Matrix Factorization / SVD):*
+       * Rozloží řídkou matici $R \approx P \cdot Q^T$, kde $P \in \mathbb{R}^{|U| \times k}$ představuje latentní profily uživatelů a $Q \in \mathbb{R}^{|I| \times k}$ latentní profily položek v nízkodimenzionálním prostoru ($k \ll \min(|U|, |I|)$, např. $k=50$).
+       * Predikce hodnocení je pak pouhý skalární součin latentních vektorů:
+         $$\hat{r}_{u,i} = \vec{p}_u \cdot \vec{q}_i^T$$
+  2. **Obsahové doporučování (Content-Based):**
+     * Doporučuje položky, které mají podobný obsah a atributy jako položky, které uživatel kladně ohodnotil v minulosti.
+     * Každá položka je reprezentována příznakovým vektorem (např. TF-IDF vektorem slov z popisu, žánry, herci). Profil uživatele je váženým průměrem vektorů položek, které zkonzumoval.
+  3. **Znalostní doporučování (Knowledge-Based):**
+     * Založeno na explicitních pravidlech, ontologiích a dotazování uživatele na jeho specifické požadavky (např. konfigurátor automobilu, výběr hypotéky, koupě nemovitosti). Ideální pro domény, kde se položky nakupují zřídka (žádná historie).
+* **Evaluace doporučovacích systémů (3 úrovně):**
+  1. **Offline evaluace:** Výpočet na historickém datasetu (rozdělení na trénovací a testovací množinu – Train/Test Split, křížová validace, časové rozdělení Time-aware split). Rychlá a levná, měří přesnost predikce (RMSE, MAE) a kvalitu pořadí (nDCG@K, MAP, Precision@K, Recall@K). *Omezení:* Netestuje reálnou změnu chování lidí ani novost doporučení.
+  2. **Online evaluace (A/B testing):** Zlatý standard v produkci. Reální uživatelé jsou náhodně rozděleni do skupiny A (kontrolní – původní algoritmus) a B (experimentální – nový model). Měří se reálné byznysové metriky: proklikovost (CTR), konverzní poměr, průměrná hodnota objednávky, retence uživatelů.
+  3. **Uživatelské studie (User Studies):** Testování s vybranou skupinou dobrovolníků v laboratoři, vyplňování dotazníků a rozhovory. Měří subjektivní aspekty: srozumitelnost doporučení (Explainability), pestrost (Diversity), nečekanost (Serendipity) a důvěru uživatele v systém.
+
+---
+
+#### Vyhledávání a Multimédia – Modely, Word2Vec, CLIP a Komprese videa:
+* **Modely vyhledávání v textu (Information Retrieval):**
+  * **Booleovský model:** Dokumenty i dotazy jsou reprezentovány jako množiny slov. Dotaz je logická formule se spojkami `AND`, `OR`, `NOT`. Odpověď je striktně binární (dokument buď přesně vyhovuje, nebo nevyhovuje). *Nevýhoda:* Žádné váhování relevance, chybí uspořádání výsledků (ranking), vrací buď moc málo, nebo moc mnoho výsledků.
+  * **Vektorový model (Vector Space Model – VSM):** Dokumenty i dotaz jsou reprezentovány jako body/vektory ve vícedimenzionálním prostoru, kde každá dimenze odpovídá jednomu slovu ze slovníku korpusu. Souřadnice vektorů jsou váhovány pomocí **TF-IDF**. Míra relevance se počítá jako **Kosinová podobnost (Cosine Similarity)** úhlu mezi vektorem dotazu $\vec{q}$ a vektorem dokumentu $\vec{d}$:
+    $$\operatorname{sim}(\vec{q}, \vec{d}) = \cos(\theta) = \frac{\vec{q} \cdot \vec{d}}{\|\vec{q}\| \|\vec{d}\|}$$
+  * **Word2Vec (Distribuované sémantické embeddingy slov):**
+    * Dvouvrstvá neuronová síť mapující každé slovo na hustý vektor reálných čísel (typicky $\mathbb{R}^{100} \text{ až } \mathbb{R}^{300}$).
+    * Geometrická vzdálenost a směr vektorů zachycuje sémantické vztahy (např. vektorová analogie $\vec{v}_{\text{král}} - \vec{v}_{\text{muž}} + \vec{v}_{\text{žena}} \approx \vec{v}_{\text{královna}}$).
+    * *Dvě trénovací architektury:*
+      * **CBOW (Continuous Bag-of-Words):** Ze zadaných okolních slov v posuvném kontextovém okně predikuje jedno středové cílové slovo (rychlejší trénink, přesnější pro běžná frekventovaná slova).
+      * **Skip-Gram:** Ze zadaného středového slova predikuje pravděpodobnost výskytu okolních kontextových slov (pomalejší, ale výrazně lépe reprezentuje méně častá a vzácná slova).
+* **Vyhledávání a klasifikace v obrázkové databázi na základě textu – Síť CLIP (OpenAI):**
+  * **Architektura CLIP (Contrastive Language-Image Pre-training):**
+    * Model se skládá ze **dvou samostatných enkodérů**:
+      1. *Image Encoder:* Zpracovává obrázek na vektor v multimodálním prostoru (Vision Transformer – ViT nebo hluboký ResNet).
+      2. *Text Encoder:* Zpracovává textový popis na vektor v témže multimodálním prostoru (Standardní Transformer).
+    * Výstupem obou enkodérů jsou normalizované embeddingy stejné dimenze $d$.
+  * **Princip trénování (Kontrastivní učení):**
+    * Trénováno na masivním datasetu 400 milionů dvojic `(obrázek, textový popisek)`.
+    * V trénovací dávce (batch) o velikosti $N$ dvojic model maximalizuje kosinovou podobnost (skalární součin) $N$ skutečných odpovídajících párů a zároveň minimalizuje podobnost všech $N^2 - N$ nesprávných párů.
+  * **Inference a vyhledávání textem (Zero-Shot Text-to-Image Retrieval):**
+    * 1. Obrázky v databázi jsou předem offline převedeny Image Encodérem na příznakové vektory $\vec{v}_i$ a uloženy ve vektorové databázi / metrickém indexu.
+    * 2. Uživatel zadá volný textový dotaz (např. *"červené sportovní auto na pláži"*). Textový dotaz je online zakódován Text Encodérem na vektor $\vec{q}$.
+    * 3. Prohledá se databáze a vrátí se obrázky s nejvyšší **kosinovou podobností** $\vec{q} \cdot \vec{v}_i$. Nevyžaduje žádné ruční štítkování ani trénování specifického klasifikátoru!
+* **Principy komprese videa (Formát MP4, HEVC a P/B snímky):**
+  * Video vykazuje obrovskou **časovou redundanci (Temporal Redundancy)** – po sobě jdoucí snímky se liší pouze nepatrným posunem objektů či kamery.
+  * **Tři základní typy snímků v kompresní skupině GOP (Group of Pictures):**
+    1. **I-snímky (Intra-coded / Klíčové snímky):** Komprimovány zcela samostatně jako statické obrázky (obdoba JPEG) bez odkazu na ostatní snímky. Nezbytné pro náhodný posun ve videu (Seek) a zotavení po chybě v přenosu. Mají největší datový objem.
+    2. **P-snímky (Predicted):** Kódují se jako rozdíl vůči **předchozímu** I nebo P snímku. Pohyb v obraze je popsán **vektory pohybu (Motion Vectors)** a ukládá se pouze reziduální rozdílová chyba $\implies$ poloviční až třetinový datový objem oproti I-snímku.
+    3. **B-snímky (Bi-directional Predicted):** Využívají obousměrnou časovou predikci – interpolují data z **předchozího I/P snímku I z budoucího referenčního snímku** $\implies$ dosahují nejvyšší možné komprese (dokáží efektivně predikovat i objekty, které byly dočasně zakryty).
+  * **Kódovací strom u standardu HEVC / H.265 (Coding Tree Unit – CTU):**
+    * Starší standard H.264 používal fixní rozměr makrobloků $16 \times 16$ pixelů.
+    * HEVC zavádí dynamickou strukturu **CTU (Coding Tree Unit)** s velikostí až $64 \times 64$ pixelů.
+    * CTU se rekurzivně čtvrtí pomocí **čtyřkového stromu (Quad-tree)** na menší kódovací jednotky (CU) od $64 \times 64$ až po $8 \times 8$:
+      * Vizuálně homogenní plochy (např. modrá obloha, stěna) zůstávají nerozdělené ve velkém bloku $64 \times 64 \implies$ ušetří obrovské množství bitů.
+      * Složité detaily s vysokou texturou a pohybem se adaptivně rozpadnou na jemné bloky $8 \times 8 \implies$ vysoká ostrost hran.
+* **Detekce střihů ve videu (Shot Boundary Detection):**
+  * *Ostrý střih (Hard Cut):* Skoková změna scény mezi dvěma bezprostředně sousedícími snímky $t-1$ a $t$:
+    * *Metoda barevného histogramu:* Spočte se barevný histogram pro každý snímek a vyhodnotí se jejich rozdíl (např. pomocí Manhattan nebo Euklidovské vzdálenosti):
+      $$D(t, t-1) = \sum_{b=1}^B |H_t(b) - H_{t-1}(b)|$$
+      Pokud vzdálenost $D$ překročí stanovený práh $\tau$, detekuje se střih scény. Výhodou je robustnost vůči plynulému pohybu objektů v záběru.
+    * *Detekce pomocí konvolučních neuronových sítí (CNN Inference):* Dvojice snímků projde lehkou CNN sítí, která se dívá na globální vizuální rysy a provede klasifikaci střih / nestřih. Odolná vůči zábleskům světla i prudkému pohybu kamery.
+  * *Pozvolný přechod (Gradual Transition – prolínačka, stmívačka, roztmívačka):* Scéna se mění v průběhu několika desítek snímků. Detekuje se pomocí akumulovaného rozdílu histogramů v posuvném časovém okně nebo sledováním variance intenzity pixelů.
+
+---
 
 #### Pearsonův korelační koeficient (User Bias v UB-KNN):
 * **Vzorec:** $sim(u, v) = \frac{\sum_{i \in I_{uv}} (r_{u,i} - \bar{r}_u)(r_{v,i} - \bar{r}_v)}{\sqrt{\sum_{i \in I_{uv}} (r_{u,i} - \bar{r}_u)^2} \cdot \sqrt{\sum_{i \in I_{uv}} (r_{v,i} - \bar{r}_v)^2}}$

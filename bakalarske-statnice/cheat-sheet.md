@@ -2661,6 +2661,19 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   );
   ```
 
+  **10. Zkouškový chyták: Selhání `NOT IN` při výskytu `NULL` (proč vždy raději `NOT EXISTS`):**
+  ```sql
+  -- CHYBA: Pokud poddotaz vrátí byť jediný NULL, dotaz nevrátí ŽÁDNÝ řádek (prázdný výsledek)!
+  SELECT * FROM Student 
+  WHERE StudentID NOT IN (SELECT StudentID FROM Zapis);
+  -- Důvod: x NOT IN (1, 2, NULL) se v SQL přeloží na (x <> 1 AND x <> 2 AND x <> NULL).
+  -- Porovnání s NULL je vždy UNKNOWN -> TRUE AND UNKNOWN je UNKNOWN -> WHERE podmínka NIKDY není splněna!
+  
+  -- SPRÁVNĚ (dvouhodnotová logika existence, NULL ji nerozhodí):
+  SELECT * FROM Student s 
+  WHERE NOT EXISTS (SELECT 1 FROM Zapis z WHERE z.StudentID = s.StudentID);
+  ```
+
 ---
 
 #### 4. Moderní databázové systémy, NoSQL a Big Data:
@@ -2698,10 +2711,11 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
      * *Využití:* Sociální sítě, doporučovací systémy, detekce finančních podvodů, znalostní grafy. Dotazovací jazyk **Cypher** (`MATCH (u:User)-[:FRIEND]->(f) WHERE ... RETURN f`).
 * **Princip MapReduce (Distribuované paralelní zpracování):**
   * Programovací model pro paralelní dávkové zpracování masivních dat na klastru (Hadoop MapReduce).
-  * **3 základní fáze:**
+  * **3 základní fáze (plus volitelný Combiner):**
     1. **Map:** Čte vstupní záznamy a generuje množinu mezilehlých dvojic `(klíč, hodnota)`.
     2. **Shuffle & Sort:** Framework automaticky seskupí a seřadí všechny hodnoty se stejným mezilehlým klíčem a rozešle je na příslušné uzly.
     3. **Reduce:** Zpracuje klíč a iterátor všech hodnot příslušejících k tomuto klíči a zapíše finální výsledek do distribuovaného filesystému (HDFS).
+    * *(Volitelný krok Combiner):* Lokální „Mini-Reducer“ běžící přímo na mapovacím stroji, který mezivýsledky agreguje ještě před odesláním po síti (např. lokální mezisoučet slov), čímž dramaticky šetří síťové pásmo.
   * *Příklad: Počítání slov (WordCount) v pseudokódu:*
     ```text
     // 1. Fáze Map (spouští se paralelně pro každý blok textu):

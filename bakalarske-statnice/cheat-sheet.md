@@ -1738,7 +1738,7 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     2. **Hardwarové přerušení (Interrupt):** Asynchronní událost z vnějšího hardwaru (řadič disku, časovač).
     3. **Výjimka procesoru (Exception):** Chyba při vykonání instrukce (dělení nulou, Page Fault).
 * **RISC architektura a překlad konstrukcí (Load/Store model):**
-  * Žádná instrukce neoperuje přímo s RAM – data se musí nejdřív načíst do registru (`LOAD`), spočítat a zapsat zpět (`STORE`).
+  * Žádná instrukce neoperuje přímo s RAM – data se musí nejdřív načíst do registru (`LOAD`), spočítat a zapsat zpět (`STORE`), může být např. po `LOAD` přerušena a++ tedy není atomické.
   * **Ukázka překladu cyklu `while (a < b) a += 2;` do RISC instrukcí:**
     ```text
     loop_start:
@@ -2062,6 +2062,15 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
   * **`class` vs. `struct`:**
     * *`class` (Referenční typ):* Alokace na haldě, spravováno GC, předává se referencí, výchozí hodnota `null`.
     * *`struct` (Hodnotový typ):* Alokace na zásobníku (nebo inline v objektu), předává se kopií hodnoty, výchozí hodnota je paměť s nulami, nepodporuje dědičnost.
+  * **Boxing a Unboxing:**
+    * *Boxing:* Zabalení hodnotového typu (`int`, `struct`) do referenčního typu (`object` na haldě). Vytvoří se nová instance s hlavičkou objektu $\implies$ alokace na haldě, režie a zátěž pro GC.
+    * *Unboxing:* Explicitní vybalení hodnoty z objektu zpět na zásobník `int x = (int)obj;` (při neshodě typu vyhodí `InvalidCastException`).
+    * *Výhoda generik:* `List<int>` ukládá prvky přímo v poli primitiv bez boxingu (oproti starému `ArrayList`).
+  * **Interní reprezentace objektu na haldě (.NET Object Header):**
+    * Každý objekt na haldě zabírá navíc 8 B (na 32b) / 16 B (na 64b) pro pevnou hlavičku:
+      1. **SyncBlockIndex (4/8 B):** Index pro zamykání (`lock (obj)`), hash code a interní příznaky GC.
+      2. **MethodTable pointer (4/8 B):** Ukazatel na metadata typu a tabulku virtuálních metod (`vtable`) pro dynamický polymorfismus.
+      3. **Datová pole instance:** Samotné proměnné třídy zarovnané na hranice slov.
   * **Předávání parametrů funkcí:**
     * *`ref`:* Obousměrná reference. Proměnná **musí být inicializována** před voláním. Umožňuje přepsat proměnnou volajícího.
     * *`out`:* Výstupní reference. Proměnná nemusí být inicializována, ale metoda do ní **musí zapsat** před návratem.
@@ -2110,14 +2119,21 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * `override` přepisuje virtuální metodu v `vtable` $\implies$ volá se i přes referenci bázové třídy.
     * `new` pouze skryje bázovou metodu $\implies$ při volání přes bázovou referenci se zavolá původní kód!
     * `base`: Explicitní vyvolání implementace bázové třídy (`base.Vypocet()`).
+  * **Jednoduchá dědičnost vs. Vícenásobná a Diamantový problém (Diamond Problem):**
+    * *Diamantový problém:* Pokud třída $D$ dědí z $B$ i $C$ a obě dědí z $A$, vzniká konflikt (dvojí instance datových polí z $A$, nejednoznačnost při volání metod).
+    * *Řešení v C#:* U tříd je povolena **pouze jednoduchá dědičnost** (žádný diamantový problém u stavu). Je však povolena **vícenásobná implementace rozhraní** (interfaces), kde ke konfliktu datového stavu nedochází.
   * **Rozhraní a Explicitní implementace rozhraní (`void IFoo.Metoda()`):**
     * Metoda je přístupná **výhradně po přetypování na dané rozhraní** `((IFoo)obj).Metoda()`.
     * *Využití:* Řeší kolizi, pokud dvě různá rozhraní vyžadují metodu se stejným názvem a signaturou.
-    * *Defaultní metody rozhraní (C# 8+):* Rozhraní může mít vlastní výchozí tělo metody.
-  * *Propojená ukázka: Polymorfismus, vtable, Shadowing, Base a Explicitní Interface:*
+    * *Defaultní metody rozhraní (C# 8+):* Rozhraní smí mít výchozí tělo metody. Třída ji však nezdědí do svého veřejného API – lze ji zavolat VÝHRADNĚ po přetypování na dané rozhraní `((ILogger)obj).LogInfo(...)`.
+  * *Propojená ukázka: Polymorfismus, vtable, Shadowing, Base, Explicitní Interface a Defaultní metoda:*
     ```csharp
     public interface IPrinter { void Print(); }
-    public interface ILogger  { void Print(); } // kolize se stejným názvem!
+    public interface ILogger {
+        void Print(); // kolize se stejným názvem!
+        // Defaultní metoda rozhraní s tělem (C# 8+):
+        void LogInfo(string msg) => Console.WriteLine($"[INFO] {msg}");
+    }
 
     public class BaseDocument {
         public virtual void Render() => Console.WriteLine("Bázový render");
@@ -2133,17 +2149,27 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
         // 2. Explicitní implementace rozhraní (vyřešení kolize dvou metod Print):
         void IPrinter.Print() => Console.WriteLine("Tisk na tiskárnu");
         void ILogger.Print()  => Console.WriteLine("Zápis do logu");
+
+        // 3. Defaultní metodu LogInfo() třída implementovat NEMUSÍ, použije se tělo z rozhraní.
     }
 
     public class SealedReport : Report {
-        // 3. Stínění (shadowing) přes new - NEMĚNÍ vtable polymorfismu:
+        // 4. Stínění (shadowing) přes new - NEMĚNÍ vtable polymorfismu:
         public new void Render() => Console.WriteLine("Skrytý render");
     }
+
+    // --- POUŽITÍ: Zkouškový chyták na volání defaultní metody ---
+    // Report r = new Report();
+    // r.LogInfo("Ahoj");            // CHYBA PŘEKLADU! Třída defaultní metodu nezdědila do svého API.
+    // ((ILogger)r).LogInfo("Ahoj"); // SPRÁVNĚ: Volání defaultní metody VÝHRADNĚ přes referenci rozhraní!
     ```
 
 * **Pattern Matching, Generika (`where`), Výjimky (`throw;`) a Přetížení operátorů:**
   * **Generika a omezení (`where` constraints):**
     * Typová bezpečnost bez nutnosti boxingu a přetypovávání: `where T : class, struct, new(), IComparable<T>, notnull`.
+  * **Operátory přetypování `is` a `as`:**
+    * `as`: Bezpečné přetypování referenčního/nullable typu (`var s = obj as string;`). Pokud objekt neodpovídá typu, **vrátí `null`** (nevyhodí výjimku `InvalidCastException`).
+    * `is`: Test na typ a pattern matching deklarace (`if (obj is Circle c && c.Radius > 0)`).
   * **Pattern Matching a `switch`:**
     * Moderní přepínač s testem na typ (`Kruh k`), dekonstrukci vlastností a dodatečné podmínky `when`.
   * **Obsluha výjimek a zkouškový chyták (`throw;` vs. `throw ex;`):**
@@ -2201,6 +2227,19 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * Běhové prostředí **CLR (Common Language Runtime)** obsahuje virtuální stroj, který CIL spouští a spravuje paměť (Garbage Collector).
     * **JIT (Just-In-Time) kompilátor:** Překládá jednotlivé CIL metody do nativního strojového kódu procesoru **až za běhu aplikace při jejich prvním zavolání**.
     * **AOT (Ahead-Of-Time) kompilace:** Překládá C# kód do nativního strojového kódu procesoru **předem ještě před spuštěním** $\implies$ bleskový start programu bez zahřívání JITu a menší nároky na RAM.
+  * **Správa paměti a Generační Garbage Collector (.NET GC):**
+    * *Generační hypotéza:* Většina objektů zaniká krátce po svém vytvoření. Paměť haldy je rozdělena na:
+      * **Gen 0:** Nové krátce žijící objekty (alokace je pouhý posun pointeru, sbírá se nejčastěji a bleskově).
+      * **Gen 1:** Přeživší z Gen 0 (nárazníkové pásmo).
+      * **Gen 2:** Dlouho žijící objekty (plný sběr Full GC, nejdražší fáze).
+      * **LOH (Large Object Heap):** Objekty $> 85\text{ KB}$ (např. velká pole); nedefragmentují se, aby se nekopírovaly obří bloky RAM.
+  * **Běhové prostředí a vazba na operační systém (Co to reálně je):**
+    * Aplikace v C# neběží izolovaně, CLR přímo mapuje své abstrakce na funkce a jádro OS:
+      1. *Vlákna:* Každý `new Thread()` v C# je přímo **1:1 mapované nativní vlákno jádra OS** (Kernel thread).
+      2. *Systémová volání (Syscalls):* Třídy pro I/O (`FileStream`, `Socket`) interně volají systémová volání OS (`read`, `write`, `epoll`, resp. Win32 `CreateFile`, `IOCP`).
+      3. *P/Invoke (`[DllImport]`):* Umožňuje z C# volat nativní C funkce z OS knihoven (`kernel32.dll`, `libc.so`).
+      4. *Správa OS handlů (`SafeHandle`, `IDisposable`):* Objekty drží nativní deskriptory OS; jejich uzavření garantuje `using` a `Dispose()`.
+      5. *Meziprocesní synchronizace:* Třídy `Mutex` a `Semaphore` s prefixem `"Global\\..."` vytvářejí reálné pojmenované objekty v jádře OS (*Kernel Objects*).
 
 ## Web
 

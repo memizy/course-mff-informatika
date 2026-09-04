@@ -9,7 +9,7 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
 | # | Datum | Předmět / Téma | Čas učení | Pauza | Čas testu | Skóre / Hodnocení | Hlavní zjištění a mezery |
 |---|---|---|:---:|:---:|:---:|:---:|---|
 | 1 | 4. 9. 2026 | Lineární algebra (Lingebra) | 75 min | 24 min | 47 min | **7,7 / 10 (77 %)** | Pozor na nenulovost ($v \ne 0, x \ne 0$), absolutní hodnotu u Cauchy-Schwarze, $\langle u \mid u \rangle \ge 0$ a numeriku dimenzí ($6-3=3$). |
-| 2 | 4. 9. 2026 | Matematická analýza | 120 min | *probíhá* | *čeká se* | – | *Probíhá pauza před testem* |
+| 2 | 4. 9. 2026 | Matematická analýza | 120 min | 44 min | 90 min | **6,85 / 10 (69 %)** *(přísně)* | Rozdíl limita vs. spojitost ($L$ vs. $f(x_0)$), 2× l'Hospital za sebou pro $0/0$, per partes člen $[uv]_a^b$. |
 
 ---
 
@@ -32,8 +32,15 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
   6. **Diagonála pozitivně definitní matice:** Důkaz, že $a_{ii} > 0$, se provádí dosazením kanonického vektoru $e_i \ne 0$: $e_i^T A e_i = a_{ii} > 0$.
 
 ### 2. Matematická analýza (4. 9. 2026)
-* **Předmět:** Matematická analýza (posloupnosti, řady, limity funkcí, spojitost, derivace a věty o střední hodnotě, l'Hospital & průběh, Taylorův polynom, integrály a aplikace).
+* **Předmět:** Matematická analýza (posloupnosti, řady, limity funkcí, spojitost, derivace, l'Hospital & průběh, Taylorův polynom, integrály a aplikace).
 * **Čas učení:** **120 minut** (dokončeno v ~18:00)
-* **Doporučená pauza:** **25–30 minut** (do ~18:30)
+* **Pauza:** **44 minut** (18:00 – 18:44)
 * **Režim testu:** **Režim A (Matematika)** – psaní na papír bez nahlížení do taháku.
-* **Test:** *(Bude připraven v testy/)*
+* **Test:** [test-02-analyza.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-02-analyza.md) – 10 otázek (18:45 – 20:15, celkem **90 minut**).
+* **Rozbor a řešení:** [test-02-analyza-rozbor.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-02-analyza-rozbor.md)
+* **Výsledek:** **6,85 / 10 bodů (69 % – známka 2- až 3 / Dobře)** *(při mírnějším hodnocení 78 %)*
+* **Klíčová zjištění a zkouškové chytáky k zafixování:**
+  1. **Definice limity vs. spojitost:** U limity je v cíli vždy hodnota limity $L$, nikoli funkční hodnota $f(x_0)$, a vyšetřuje se prstencové okolí: $0 < |x - x_0| < \delta \implies |f(x) - L| < \varepsilon$. Zápis s $f(x_0)$ je definice spojitosti!
+  2. **Dvojitý l'Hospital:** Pokud po prvním zderivování podílu typu $0/0$ vyjde v čitateli i jmenovateli opět 0, aplikuje se l'Hospital podruhé za sebou. Nikdy nerozdělovat na rozdíl limit, pokud nevíme, že existují konečné.
+  3. **Základní Taylorovy rozvoje:** $\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \dots$
+  4. **Per partes u určitého integrálu:** Vzorec je $\int_a^b u' v = [uv]_a^b - \int_a^b uv'$. Nezapomínat na první integrovaný člen $[uv]_a^b$.

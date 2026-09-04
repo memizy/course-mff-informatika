@@ -272,6 +272,10 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 * **Permutace a symetrická grupa $S_n$:** Permutace množiny $[n]$ je bijekce $p: [n] \to [n]$.
   * **Inverze v permutaci:** Dvojice indexů $(i, j)$ taková, že $i < j$, ale $p(i) > p(j)$.
   * **Znaménko permutace:** $\operatorname{sgn}(p) = (-1)^{\#\text{inverzí}} \in \{+1, -1\}$ (sudá vs. lichá permutace; pro transpozici je $-1$).
+  * **Rychlý výpočet znaménka z počtu cyklů:** Každou permutaci $p \in S_n$ lze jednoznačně rozložit na disjunktní cykly. Znaménko se bleskově spočte jako:
+    $$\operatorname{sgn}(p) = (-1)^{n - c}$$
+    kde $n$ je celkový počet prvků a $c$ je celkový počet cyklů (včetně cyklů délky 1 = pevných bodů!).
+    * *Princip / Parita:* Cyklus délky $k$ odpovídá $k - 1$ transpozicím $\implies$ jeho znaménko je $(-1)^{k-1}$ (cyklus sudé délky je lichá permutace, cyklus liché délky je sudá).
 * **Těleso $(\mathbb{K}, +, \cdot)$:** Množina $\mathbb{K}$ se dvěma operacemi:
   1. $(\mathbb{K}, +)$ tvoří Abelovskou grupu s neutrálním prvkem $0$.
   2. $(\mathbb{K} \setminus \{0\}, \cdot)$ tvoří Abelovskou grupu s neutrálním prvkem $1$.
@@ -435,8 +439,6 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * **Rozvoj podle $i$-tého řádku:** $\det(A) = \sum_{j=1}^n a_{ij} (-1)^{i+j} \det(A^{ij})$.
   * **Rozvoj podle $j$-tého sloupce:** $\det(A) = \sum_{i=1}^n a_{ij} (-1)^{i+j} \det(A^{ij})$,
     kde $A^{ij}$ je podmatice vzniklá z $A$ vyškrtnutím $i$-tého řádku a $j$-tého sloupce (člen $(-1)^{i+j} \det(A^{ij})$ je tzv. **algebraický doplněk**).
-  * **Adjungovaná matice $\operatorname{adj}(A)$:** Transponovaná matice algebraických doplňků: $(\operatorname{adj}(A))_{j, i} = (-1)^{i+j} \det(A^{ij})$.
-    Pro regulární matici platí: $A^{-1} = \frac{1}{\det(A)} \operatorname{adj}(A)$.
 * **Geometrická interpretace determinantu:**
   * **Objem rovnoběžnostěnu:** Absolutní hodnota $|\det(A)|$ se přesně rovná objemu $n$-rozměrného rovnoběžnostěnu určeného sloupcovými (či řádkovými) vektory matice $A$ (v $\mathbb{R}^2$ plocha rovnoběžníku, v $\mathbb{R}^3$ objem rovnoběžnostěnu).
   * **Znaménko $\operatorname{sgn}(\det(A))$:** Udává, zda transformace zachovává orientaci prostoru ($\det > 0$: zachovává pravotočivost báze, $\det < 0$: mění orientaci / zrcadlí).
@@ -1917,7 +1919,7 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * **Funguje POUZE uvnitř 1 procesu** (procesy mají oddělené virtuální paměti, nemohou sdílet C# objekt).
   * **`System.Threading.Mutex` a `Semaphore` (Cross-Process / Kernel Objects):**
     * **Garantuje je přímo jádro operačního systému (Kernel Objects)!**
-    * **Doba trvání:** Jsou pomalejší (~1–2 $\mu$s), protože každé volání `WaitOne()` a `Release()` vyžaduje přechod do jádra OS (*syscall*). Naproti tomu odlehčený in-process `SemaphoreSlim` trvá jen desítky nanosekund (~20–50 ns).
+    * **Doba trvání:** Jsou pomalejší (~1–2 mikrosekundy), protože každé volání `WaitOne()` a `Release()` vyžaduje přechod do jádra OS (*syscall*). Naproti tomu odlehčený in-process `SemaphoreSlim` trvá jen desítky nanosekund (~20–50 nanosekund).
     * **Jak se v C# udělá synchronizace mezi procesy?** Předáním systémového jména s prefixem `Global\`:
     ```csharp
     // 1. Pojmenovaný Mutex (Typické použití: Single-Instance aplikace):
@@ -1927,13 +1929,13 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
         return; // ukončit druhou instanci
     }
     // Běžná vzájemně vylučující kritická sekce mezi procesy:
-    mutex.WaitOne(); // čeká v jádře OS (~1-2 us)
+    mutex.WaitOne(); // čeká v jádře OS (~1-2 mikrosekundy)
     try { /* zápis do sdíleného souboru */ }
     finally { mutex.ReleaseMutex(); }
 
     // 2. Pojmenovaný Semafor (Omezení na max 3 procesy současně přistupující ke zdroji):
     using var sem = new Semaphore(initialCount: 3, maximumCount: 3, "Global\\MujSdilenySemafor");
-    sem.WaitOne(); // sníží čítač v jádře OS (~1-2 us), při 0 uspí proces
+    sem.WaitOne(); // sníží čítač v jádře OS (~1-2 mikrosekundy), při 0 uspí proces
     try { /* práce se sdíleným hardwarem/databází */ }
     finally { sem.Release(); } // zvýší čítač v jádře OS
     ```
@@ -1943,15 +1945,43 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * Drží celočíselný čítač volných zdrojů $S \ge 0$.
     * `Wait()` / `P()`: pokud $S > 0$, sníží $S \gets S - 1$; pokud $S == 0$, vlákno se zablokuje.
     * `Signal()` / `Release()`: zvýší $S \gets S + 1$ a probudí jedno čekající vlákno (může ho zavolat libovolné jiné vlákno!).
-    * **Využití:** Signalizace mezi vlákny/procesy a problém Producent-Konzument (často se používají 2 semafory: `volno` o kapacitě $N$ a `obsazeno` s počátkem 0). V C# existuje rychlý in-process `SemaphoreSlim` (~20–50 ns) a meziprocesový `Semaphore("Global\\...")` garantovaný OS (~1–2 $\mu$s).
+    * **Využití:** Signalizace mezi vlákny/procesy a problém Producent-Konzument (často se používají 2 semafory: `volno` o kapacitě $N$ a `obsazeno` s počátkem 0). V C# existuje rychlý in-process `SemaphoreSlim` (~20–50 nanosekund) a meziprocesový `Semaphore("Global\\...")` garantovaný OS (~1–2 mikrosekundy).
 * **Monitor v C# (`lock`, `Monitor.Wait` a `Monitor.Pulse`):**
   * Klíčové slovo `lock (lockObj)` je v C# syntaktický cukr pro `Monitor.Enter(lockObj)` a `Monitor.Exit(lockObj)` v bloku `try-finally`.
-  * **Podmínková proměnná (Condition Variable) přes `Wait` a `Pulse`:**
-    * `Monitor.Wait(lockObj)`: Atomicky uvolní zámek a uspí vlákno. Po probuzení zámek automaticky znovu získá.
-    * `Monitor.Pulse(lockObj)` / `PulseAll`: Probudí jedno / všechna čekající vlákna.
-    * **Zkouškový chyták:** **`Monitor.Wait` se VŽDY musí volat v cyklu `while (!podminka)`**, NIKDY v pouhém `if`!
-      *(Důvody: 1. Falešné probuzení / Spurious wakeup ze strany OS; 2. Než se probuzené vlákno dostane k běhu a znovu získá zámek, jiné vlákno mohlo podmínku opět zneplatnit!).*
-  * *Vzorová blokující fronta (Producent-Konzument v C#):*
+  * **Zkouškový chyták – Zamykání je KOOPERATIVNÍ (Advisory):**
+    * Samotná data (proměnná, pole, list) **nejsou hardwarem v paměti RAM nijak zamknutá!**
+    * Zámek `lock (syncRoot)` je pouze „dohoda mezi ukázněnými vlákny“, která se před sáhnutím na data zeptají.
+    * *Co se stane, když vlákno `lock` NEZAVOLÁ?* **VŮBEC SE NEUSPÍ!** Operační systém ani CPU o žádném zámku neví, procesor provede zápis do paměti i v okamžiku, kdy jiné vlákno zrovna uvnitř svého locku manipuluje s daty $\implies$ paměťová korupce.
+    ```csharp
+    public class SharedCounter {
+        private int count = 0;
+        private readonly object syncRoot = new object(); // vyhrazený zámek
+
+        // SPRÁVNĚ (kooperativní volání):
+        public void SafeIncrement() {
+            lock (syncRoot) { 
+                // Pokud jiný drží syncRoot, OS toto vlákno ZASTAVÍ a USPÍ (stav Blocked -> 0 % CPU).
+                count++; 
+            }
+        }
+
+        // ŠPATNĚ (zkouškový chyták - chybějící lock):
+        public void RogueIncrement() {
+            // ZDE CHYBÍ lock(syncRoot)! Vlákno se VŮBEC NEUSPÍ!
+            // CPU natvrdo zapíše do RAM uprostřed běhu cizího locku -> Race Condition / Lost Update!
+            count++; 
+        }
+    }
+    ```
+  * **Klíčový rozdíl: `Monitor.Enter` (`lock`) vs. `Monitor.Wait`:**
+    * **`Monitor.Enter` (vstup do `lock`):** Slouží k **získání zámku**. Pokud je obsazený, vlákno čeká před vchodem. Když projde, **zámek drží**.
+    * **`Monitor.Wait`:** Volá se **uvnitř** kritické sekce, když vlákno zjistí, že nemůže pokračovat (např. prázdná fronta). Udělá atomický trojkrok:
+      1. **DOČASNĚ UVOLNÍ zámek `lockObj`** (aby producent mohl vstoupit a data doplnit – kdyby zámek neuvolnil, nastane okamžitý Deadlock!).
+      2. **Uspí toto vlákno** do stavu `Blocked` (0 % CPU).
+      3. Až producent zavolá `Monitor.Pulse`, vlákno se probudí, ale **nejprve si automaticky znovu ZÍSKÁ zámek `lockObj`**, než pokračuje dál!
+  * **Zkouškový chyták:** **`Monitor.Wait` se VŽDY musí volat v cyklu `while (!podminka)`**, NIKDY v pouhém `if`!
+    *(Důvody: 1. Falešné probuzení / Spurious wakeup ze strany OS; 2. Než se probuzené vlákno dostane k běhu a znovu získá zámek, jiné vlákno mohlo podmínku opět zneplatnit!).*
+  * *Vzorová blokující fronta s vyznačením `Enter`, `Wait` a `Exit`:*
     ```csharp
     public class BlockingQueue<T> {
         private readonly Queue<T> q = new Queue<T>();
@@ -1961,32 +1991,216 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
         public BlockingQueue(int cap) => capacity = cap;
 
         public void Enqueue(T item) {
-            lock (lockObj) {
+            lock (lockObj) { // 1. Monitor.Enter: získám zámek (nebo čekám před vchodem)
                 while (q.Count >= capacity) // VŽDY while!
-                    Monitor.Wait(lockObj);
+                    Monitor.Wait(lockObj);  // 2. Monitor.Wait: DOČASNĚ uvolním zámek a usnu
                 q.Enqueue(item);
-                Monitor.PulseAll(lockObj); // probuď čekající konzumenty
-            }
+                Monitor.PulseAll(lockObj);  // probuď čekající konzumenty
+            } // 3. Monitor.Exit: definitivně uvolním zámek
         }
 
         public T Dequeue() {
-            lock (lockObj) {
-                while (q.Count == 0) // VŽDY while!
-                    Monitor.Wait(lockObj);
+            lock (lockObj) { // 1. Monitor.Enter: získám zámek
+                while (q.Count == 0)        // VŽDY while!
+                    Monitor.Wait(lockObj);  // 2. Monitor.Wait: DOČASNĚ uvolním zámek, aby producent mohl vložit data!
                 T item = q.Dequeue();
-                Monitor.PulseAll(lockObj); // probuď čekající producenty
+                Monitor.PulseAll(lockObj);  // probuď čekající producenty
                 return item;
-            }
+            } // 3. Monitor.Exit: definitivně uvolním zámek
         }
     }
     ```
 * **Čtenářsko-písařský zámek (Reader-Writer Lock):**
   * Povoluje souběžné čtení více čtenářům (`EnterReadLock`), ale zápis je striktně exkluzivní (`EnterWriteLock`).
   * V C# realizováno třídou `ReaderWriterLockSlim`.
-* **Práce s vlákny a asynchronie v C#:**
-  * `Thread`: Těžké vlákno OS (`t = new Thread(Metoda); t.Start(); t.Join();`).
-  * `ThreadPool`: Fond předvytvořených vláken jádra pro krátké operace (`ThreadPool.QueueUserWorkItem(...)`).
-  * `Task` a `async / await`: Abstrakce nad ThreadPoolem. `Task.Run(...)` naplánuje delegáta do ThreadPoolu. Klíčové slovo `await` uvolní aktuální vlákno a zbytek metody se dokončí jako pokračování po dokončení asynchronní operace.
+* **Vlákna, Tasky, Delegáti, Lambdy a Asynchronie (C# Concurrency Stack):**
+  * **Delegát:** Typově bezpečný objektový ukazatel na metodu:
+    * `Action<T1, T2>`: Delegát pro metodu nevracející hodnotu (`void`).
+    * `Func<T1, T2, TResult>`: Delegát pro metodu vracející hodnotu (poslední typ v závorkách je návratový typ!).
+  * **Lambda výraz a uzávěr (Closure):** `(x) => x * 2` (anonymní funkce schopná zachytit proměnné z okolního kontextu).
+  * **`Thread` vs. `ThreadPool` vs. `Task`:**
+    * *`Thread`:* Těžké vlákno OS s vlastním 1MB zásobníkem (drahý vznik, `Start()`, blokující `Join()`).
+    * *`ThreadPool`:* Fond předvytvořených systémových vláken pro krátké úlohy bez režie alokace nového vlákna.
+    * *`Task` / `Task<T>`:* Slib budoucího výsledku běžící na ThreadPoolu (`Task.Run`).
+  * **Blokující vs. Neblokující čekání na Task:**
+    * **Blokující čekání (`task.Result` / `task.Wait()` / `thread.Join()`):** Volající vlákno se **fyzicky zastaví a zamrzne** (OS ho uspí do stavu Blocked). Vlákno nemůže dělat nic jiného (v UI zamrzne okno, na serveru hrozí vyčerpání vláken ThreadPoolu nebo Deadlock).
+    * **Neblokující čekání (`await task`):** Vlákno se **VŮBEC NEBLOKUJE**. Metoda se pozastaví, ale aktuální vlákno se **ihned uvolní zpět do ThreadPoolu** a může obsluhovat jiné požadavky. Po dokončení Tasku se pokračování metody naplánuje na libovolné volné vlákno přes generovaný stavový automat (*State Machine*).
+  * *Propojená ukázka: Delegáti, Lambdy, Thread, Task a async/await v akci:*
+    ```csharp
+    public class ConcurrencyDemo {
+        // 1. Delegát Func s lambdou a uzávěrem (closure):
+        private Func<int, int> multiplier = (x) => x * 2;
+
+        public async Task RunDemoAsync() {
+            // 2. Thread (těžké OS vlákno) s delegátem Action:
+            Thread t = new Thread(() => Console.WriteLine("Běží na dedikovaném OS vlákně"));
+            t.Start();
+            t.Join(); // BLOKUJÍCÍ čekání: volající vlákno zamrzne a čeká na konec t
+
+            // 3. Task naplánovaný na ThreadPool s delegátem Func:
+            Task<int> task = Task.Run(() => multiplier(21));
+
+            // --- ROZDÍL: BLOKUJÍCÍ vs. NEBLOKUJÍCÍ ČEKÁNÍ ---
+            // A) BLOKUJÍCÍ: int r = task.Result; (vlákno spí, nic jiného nemůže dělat)
+            // B) NEBLOKUJÍCÍ (asynchronní):
+            int result = await task; // Vlákno se IHNED uvolní! Kód dál pokračuje až po dokončení.
+        }
+
+        // 4. Asynchronní I/O metoda (neblokující síťový požadavek):
+        public async Task<string> FetchUrlAsync(string url) {
+            using var client = new HttpClient();
+            // await UVOLNÍ aktuální vlákno do ThreadPoolu po celou dobu čekání na síťový paket!
+            string html = await client.GetStringAsync(url);
+            return html.Trim(); // po příchodu paketu se dokončí na libovolném volném vlákně
+        }
+    }
+    ```
+
+#### 7. Programovací jazyk C# a Objektově orientované koncepty:
+
+* **Typový systém, Paměť, Pole a Předávání parametrů (`ref`, `out`, `in`, `Span<T>`):**
+  * **`class` vs. `struct`:**
+    * *`class` (Referenční typ):* Alokace na haldě, spravováno GC, předává se referencí, výchozí hodnota `null`.
+    * *`struct` (Hodnotový typ):* Alokace na zásobníku (nebo inline v objektu), předává se kopií hodnoty, výchozí hodnota je paměť s nulami, nepodporuje dědičnost.
+  * **Předávání parametrů funkcí:**
+    * *`ref`:* Obousměrná reference. Proměnná **musí být inicializována** před voláním. Umožňuje přepsat proměnnou volajícího.
+    * *`out`:* Výstupní reference. Proměnná nemusí být inicializována, ale metoda do ní **musí zapsat** před návratem.
+    * *`in`:* Reference **jen pro čtení**. Zabraňuje kopírování velkých structů, kompilátor zakazuje změnu.
+  * **Pole v C# (3 různé druhy!):**
+    * 1D pole: `int[] a = new int[5];` (souvislý blok paměti).
+    * 2D obdélníkové: `int[,] m = new int[3, 4];` (jediný souvislý blok paměti alokovaný na haldě).
+    * Zubaté (Jagged): `int[][] j = new int[3][];` (pole referencí na samostatná 1D pole různých délek).
+  * **`Span<T>` a `ref struct` (Zkouškový hit pro zero-allocation kód):**
+    * `Span<T>` je typově bezpečný pohled na libovolnou souvislou paměť (pole, stack, nativní paměť) **zcela bez alokace paměti na haldě**.
+    * Je definován jako **`ref struct`** $\implies$ **smí existovat VÝHRADNĚ NA STACKU**! Nesmí být polem běžné třídy ani boxován $\implies$ GC o něm nemusí vědět.
+    * *Využití:* Substring bez alokace (`str.AsSpan(0, 5)` nealokuje nový string, drží jen ukazatel a délku).
+  * *Propojená ukázka: Struct, Parametry in/ref/out, Pole a Span<T>:*
+    ```csharp
+    public readonly struct BigPoint { // immutable hodnotový typ na stacku
+        public readonly double X, Y;
+        public BigPoint(double x, double y) => (X, Y) = (x, y);
+    }
+
+    public class MemoryAndParametersDemo {
+        // in: reference bez kopírování paměti; ref: obousměrná; out: povinný zápis
+        public void Transform(in BigPoint pt, ref double scale, out double length) {
+            scale *= 2;
+            length = Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y) * scale;
+        }
+
+        public void ArraysAndSpan() {
+            int[] arr1D = new int[5];                 // 1D pole
+            int[,] rect2D = new int[2, 3];            // 2D obdélníkové (1 blok v RAM)
+            int[][] jagged = new int[2][] { new int[2], new int[4] }; // zubaté pole
+
+            // Zero-allocation parsing pomocí ReadOnlySpan<char>:
+            string text = "12345,67890";
+            ReadOnlySpan<char> span = text.AsSpan();
+            ReadOnlySpan<char> firstNum = span.Slice(0, 5); // ŽÁDNÁ ALOKACE nového stringu!
+            int parsed = int.Parse(firstNum);
+        }
+    }
+    ```
+
+* **Dědičnost, Polymorfismus, `vtable`, Rozhraní a Explicitní implementace:**
+  * **Dynamický vs. Statický polymorfismus:**
+    * *Dynamický:* Řešen za běhu přes virtuální tabulku metod (**`vtable` / MethodTable**). Každý objekt na haldě má v hlavičce ukazatel na MethodTable; volání virtuální metody je skok přes fixní index v tabulce (1 paměťová dereference navíc).
+    * *Statický:* Řešen v době kompilace (přetěžování metod a operátorů).
+  * **`virtual` / `override` vs. `new` (shadowing):**
+    * `override` přepisuje virtuální metodu v `vtable` $\implies$ volá se i přes referenci bázové třídy.
+    * `new` pouze skryje bázovou metodu $\implies$ při volání přes bázovou referenci se zavolá původní kód!
+    * `base`: Explicitní vyvolání implementace bázové třídy (`base.Vypocet()`).
+  * **Rozhraní a Explicitní implementace rozhraní (`void IFoo.Metoda()`):**
+    * Metoda je přístupná **výhradně po přetypování na dané rozhraní** `((IFoo)obj).Metoda()`.
+    * *Využití:* Řeší kolizi, pokud dvě různá rozhraní vyžadují metodu se stejným názvem a signaturou.
+    * *Defaultní metody rozhraní (C# 8+):* Rozhraní může mít vlastní výchozí tělo metody.
+  * *Propojená ukázka: Polymorfismus, vtable, Shadowing, Base a Explicitní Interface:*
+    ```csharp
+    public interface IPrinter { void Print(); }
+    public interface ILogger  { void Print(); } // kolize se stejným názvem!
+
+    public class BaseDocument {
+        public virtual void Render() => Console.WriteLine("Bázový render");
+    }
+
+    public class Report : BaseDocument, IPrinter, ILogger {
+        // 1. Dynamický polymorfismus přes override (přepíše záznam ve vtable):
+        public override void Render() {
+            base.Render(); // explicitní volání bázové metody
+            Console.WriteLine("Rozšířený render reportu");
+        }
+
+        // 2. Explicitní implementace rozhraní (vyřešení kolize dvou metod Print):
+        void IPrinter.Print() => Console.WriteLine("Tisk na tiskárnu");
+        void ILogger.Print()  => Console.WriteLine("Zápis do logu");
+    }
+
+    public class SealedReport : Report {
+        // 3. Stínění (shadowing) přes new - NEMĚNÍ vtable polymorfismu:
+        public new void Render() => Console.WriteLine("Skrytý render");
+    }
+    ```
+
+* **Pattern Matching, Generika (`where`), Výjimky (`throw;`) a Přetížení operátorů:**
+  * **Generika a omezení (`where` constraints):**
+    * Typová bezpečnost bez nutnosti boxingu a přetypovávání: `where T : class, struct, new(), IComparable<T>, notnull`.
+  * **Pattern Matching a `switch`:**
+    * Moderní přepínač s testem na typ (`Kruh k`), dekonstrukci vlastností a dodatečné podmínky `when`.
+  * **Obsluha výjimek a zkouškový chyták (`throw;` vs. `throw ex;`):**
+    * `finally` se provede **vždy** (i při `return` uvnitř `try`).
+    * **`throw;`** $\implies$ **Správně.** Přepošle výjimku dál a **zcela zachová původní Stack Trace**.
+    * **`throw ex;`** $\implies$ **Chyba!** Přepíše Stack Trace na aktuální řádek $\implies$ ztratí se místo, kde chyba reálně vznikla!
+  * **Statický polymorfismus (Přetížení operátorů):** Deklarován jako `public static operator +(...)`.
+  * *Propojená ukázka: Generika where, Switch Pattern Matching, korektní throw a Operátory:*
+    ```csharp
+    public record Shape;
+    public record Circle(double Radius) : Shape;
+    public record Rectangle(double Width, double Height) : Shape;
+
+    public struct Complex {
+        public double Re, Im;
+        // Přetížení operátoru + (statický polymorfismus):
+        public static Complex operator +(Complex a, Complex b) =>
+            new Complex { Re = a.Re + b.Re, Im = a.Im + b.Im };
+    }
+
+    public class GenericProcessor<T> where T : class, new() {
+        // Pattern matching switch výraz:
+        public string DescribeShape(Shape shape) => shape switch {
+            Circle c when c.Radius > 10 => $"Velký kruh r={c.Radius}",
+            Circle c                    => $"Malý kruh r={c.Radius}",
+            Rectangle { Width: var w, Height: var h } => $"Obdélník {w}x{h}",
+            null                        => "Null hodnota",
+            _                           => "Neznámý tvar"
+        };
+
+        public void SafeExecute() {
+            try {
+                // riziková operace
+            }
+            catch (Exception ex) {
+                // Logování...
+                throw; // SPRÁVNĚ: Zachová původní stack trace! (throw ex; by ho přemazal)
+            }
+            finally {
+                // Provede se VŽDY, i při chybě i při returnu!
+            }
+        }
+    }
+    ```
+
+* **Běhové prostředí, kompilace a linkování:**
+  * **Compiler (Kompilátor) vs. Linker:**
+    * *Compiler:* Překládá zdrojový text v C/C++ do binárních objektových souborů (`.obj`).
+    * *Linker:* Propojí objektové soubory a knihovny do výsledného spustitelného souboru (`.exe`, `.so`), vyřeší externí symboly a adresy skoků.
+  * **Statické vs. Dynamické knihovny:**
+    * *Statická knihovna (`.lib`, `.a`):* Kód knihovny se v době linkování celý nakopíruje do výsledné binárky $\implies$ samostatný soubor, ale větší velikost na disku i v RAM.
+    * *Dynamická knihovna (`.dll`, `.so`):* Kód zůstává v externím souboru. Načte se do RAM až při spuštění programu $\implies$ menší binárka, kód knihovny může sdílet více procesů v RAM současně.
+  * **Reprezentace programu v .NET (CIL, JIT a AOT):**
+    * C# kompilátor (`csc`) nepřekládá do strojového kódu CPU, ale do mezikódu **CIL (Common Intermediate Language)** / Bytecode uloženého v `.dll` sestavení.
+    * Běhové prostředí **CLR (Common Language Runtime)** obsahuje virtuální stroj, který CIL spouští a spravuje paměť (Garbage Collector).
+    * **JIT (Just-In-Time) kompilátor:** Překládá jednotlivé CIL metody do nativního strojového kódu procesoru **až za běhu aplikace při jejich prvním zavolání**.
+    * **AOT (Ahead-Of-Time) kompilace:** Překládá C# kód do nativního strojového kódu procesoru **předem ještě před spuštěním** $\implies$ bleskový start programu bez zahřívání JITu a menší nároky na RAM.
 
 ## Web
 

@@ -1540,11 +1540,15 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     * **Nejhorší případ: $\Theta(n^2)$**
       Nastává při nejhorším možném dělení (např. pivot je pokaždé minimem nebo maximem, takže jeden podproblém má velikost $0$ a druhý $n-1$). Rekurence: $T(n) = T(n-1) + \Theta(n) \implies \Theta(n^2)$.
     * **Průměrný případ: $\Theta(n \log n)$**
-      *Zdůvodnění přes skoromedián a lemma o džbánu:*
-      * Náhodně zvolený pivot padne s pravděpodobností $p = \frac{1}{2}$ do prostředních 50 % prvků (mezi 25. a 75. percentil) – tzv. **skoromedián**.
-      * Když zvolíme skoromedián, oba podproblémy mají velikost nejvýše $\frac{3}{4} n$.
-      * Podle lemmatu o džbánu (střední doba čekání na úspěch v geometrickém rozdělení) potřebujeme v průměru $\frac{1}{p} = 2$ pokusy, než trefíme skoromedián.
-      * Hloubka stromu „dobrých“ dělení je $\log_{4/3} n = \mathcal{O}(\log n)$. Na každé hladině odvedeme celkem $\mathcal{O}(n)$ práce $\implies$ celkový očekávaný čas je $\mathcal{O}(n \log n)$.
+      * **Zdůvodnění přes skoromedián a lemma o džbánu:**
+        * Náhodně zvolený pivot padne s pravděpodobností $p = \frac{1}{2}$ do prostředních 50 % prvků (mezi 25. a 75. percentil) – tzv. **skoromedián**.
+        * Když zvolíme skoromedián, oba podproblémy mají velikost nejvýše $\frac{3}{4} n$.
+        * **Lemma o džbánu** (střední doba čekání na 1. úspěch v geometrickém rozdělení s $p = \frac{1}{2}$): v průměru potřebujeme $\frac{1}{p} = 2$ pokusy (kroky dělení), než trefíme skoromedián.
+        * Hloubka stromu „úspěšných“ dělení je nejvýše $\log_{4/3} n = \mathcal{O}(\log n)$. Se započtením neúspěšných pokusů je očekávaná hloubka nejvýše $2 \log_{4/3} n = \mathcal{O}(\log n)$.
+        * Na každé hladině stromu rekurze je součet velikostí podproblémů $\le n$ (prvky se nekopírují), takže práce na hladinu je $\mathcal{O}(n)$. Celkový očekávaný čas: $\mathcal{O}(n) \times \mathcal{O}(\log n) = \mathbf{\Theta(n \log n)}$.
+      * **Lze použít Kuchařkovou větu (Master Theorem)?**
+        * **Přímo pro průměrný případ NE:** Master Theorem striktně vyžaduje symetrické dělení na $a$ podproblémů **stejné** velikosti $n/b$ ($T(n) = a \cdot T(n/b) + f(n)$). Quicksort dělí pole asymetricky a náhodně: $T(n) = T(k) + T(n-1-k) + \Theta(n)$.
+        * *(Master Theorem lze použít pouze v nejlepším případě dokonalého půlení mediánem: $T(n) = 2T(n/2) + \Theta(n) \implies a=2, b=2, c=1 \implies \frac{a}{b^c} = 1 \implies \Theta(n \log n)$).*
 * **Dolní odhad složitosti porovnávacích třídicích algoritmů ($\Omega(n \log n)$):**
   * **Model rozhodovacího stromu (Decision Tree):**
     * Libovolný deterministický třídicí algoritmus založený na vzájemném porovnávání prvků lze reprezentovat jako binární rozhodovací strom:

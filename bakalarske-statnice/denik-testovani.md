@@ -11,6 +11,7 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
 | 1 | 4. 9. 2026 | Lineární algebra (Lingebra) | 75 min | 24 min | 47 min | **7,7 / 10 (77 %)** | Pozor na nenulovost ($v \ne 0, x \ne 0$), absolutní hodnotu u Cauchy-Schwarze, $\langle u \mid u \rangle \ge 0$ a numeriku dimenzí ($6-3=3$). |
 | 2 | 4. 9. 2026 | Matematická analýza | 120 min | 44 min | 90 min | **6,85 / 10 (69 %)** *(přísně)* | Rozdíl limita vs. spojitost ($L$ vs. $f(x_0)$), 2× l'Hospital za sebou pro $0/0$, per partes člen $[uv]_a^b$. |
 | 3 | 5. 9. 2026 | Matematická logika | 90 min | 35 min | 70 min | **7,5 / 10 (75 %)** *(přísně 75 %, mírně 81 %)* | Ekvisplnitelnost $\ne$ stejné modely, kompaktnost (platí v *nějaké* konečné, ne v každé), Łoś-Vaught (nemá konečné modely), PNF implikace. |
+| 4 | 5. 9. 2026 | Algoritmy a datové struktury (ADS) | 105 min | 38 min | 120 min | **7,65 / 10 (77 %)** *(přísně 77 %, mírně 83 %)* | Counting Sort neporušuje dolní mez, protože neporovnává; Kruskal a Union-Find; Jarník polem $\mathcal{O}(n^2)$ pro husté grafy; In-order průchod BVS. |
 
 ---
 
@@ -58,6 +59,25 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
   1. **Ekvisplnitelnost $\ne$ stejné modely:** $\varphi$ a $\varphi_{sk}$ jsou ekvisplnitelné ($\varphi$ má model $\iff \varphi_{sk}$ má model), ale **nemají stejné modely**! Skolemovská varianta má bohatší jazyk (obsahuje novou funkci či konstantu), pro původní jazyk model neexistuje. Každý model lze na model Skolemovy varianty pouze *expandovat*.
   2. **Věta o kompaktnosti – kvantifikátory:** $T \models \varphi \iff$ existuje **alespoň jedna konečná podmnožina** $T' \subseteq_{fin} T$, pro kterou $T' \models \varphi$. (Nikoliv v každé!).
   3. **Łoś-Vaughtovo kritérium:** Podmínkou je, že teorie **nemá žádné konečné modely** (všechny modely jsou nekonečné množiny), nikoli že teorie má nekonečně mnoho axiomů. Termín je **kategorická** (má izomorfní modely dané mohutnosti).
-  4. **Převod implikace do PNF:** $A \to B \equiv \neg A \lor B$. Při vytýkání kvantifikátoru z předpokladu: $(\forall z P(z) \to Q) \sim \exists z (P(z) \to Q)$ (obrací se $\forall \leftrightarrow \exists$). Kvantifikátor musí být v PNF vytažen před celou formuli.
+  4. **Převod implikace do PNF a generální uzávěr:** $A \to B \equiv \neg A \lor B$. Při vytýkání kvantifikátoru z předpokladu: $(\forall z P(z) \to Q) \sim \exists z (P(z) \to Q)$ (obrací se $\forall \leftrightarrow \exists$). Kvantifikátor musí být v PNF vytažen před celou formuli. U generálního uzávěru nezapomínat na vnitřní kvantifikátory u podformulí: $(\forall x)(\forall y)\big((\forall x)P(x) \to Q(x, y)\big)$.
   5. **Tablo v PL (Všichni vs. Svědek):** Obě položky $T(\forall x)\varphi$ i $F(\exists x)\varphi$ jsou typu **Všichni** (lze dosadit libovolný zavedený term nebo novou konstantu).
+  6. **Důkaz nemožnosti vyjádřit konečnost (Kompaktnost):** Důkaz sporem se provádí přidáním spočetné množiny axiomů $\alpha_n$ („existuje alespoň $n$ různých prvků“). Každá konečná podmnožina má konečný model, ale celá teorie by pak musela mít model $\implies$ nekonečný model $\implies$ spor.
+
+### 4. Algoritmy a datové struktury (5. 9. 2026)
+* **Předmět:** Algoritmy a datové struktury (RAM model a složitost, Master Theorem, BVS a operace, vyvažované AVL stromy, Quicksort a skoromedián, dolní odhad porovnávání a Counting Sort, grafové průchody BFS/DFS a hrany, nejkratší cesty Dijkstra vs. Bellman-Ford, minimální kostry Jarník vs. Kruskal, P vs. NP a NP-úplnost).
+* **Čas učení:** **105 minut** (dokončeno v 16:15)
+* **Pauza:** **38 minut** (16:15 – 16:53)
+* **Režim testu:** **Režim A (Matematika & Teorie)** – psaní na papír bez nahlížení do taháku.
+* **Test:** [test-04-ads.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-04-ads.md) – 10 otázek (16:53 – 18:53, celkem **120 minut**).
+* **Rozbor a řešení:** [test-04-ads-rozbor.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-04-ads-rozbor.md)
+* **Výsledek:** **7,65 / 10 bodů (77 % – známka 2 / Velmi dobře)** *(při mírnějším hodnocení 8,25 / 10 bodů – 83 %)*
+* **Klíčová zjištění a zkouškové chytáky k zafixování:**
+  1. **Counting Sort vs. Dolní mez:** Counting Sort $\mathcal{O}(n + K)$ neporušuje dolní mez $\Omega(n \log n)$, protože **není porovnávacím algoritmem**! Vůbec neprovádí porovnávání prvků navzájem, ale využívá přímé adresování do indexů pole paměti RAM.
+  2. **Kruskal a detekce cyklů:** Kruskalův algoritmus používá k detekci cyklů datovou strukturu **Union-Find (Disjoint-Set Union)** s kompresí cest a váhovým sjednocováním v celkovém čase $\mathcal{O}(m \cdot \alpha(n))$, nikoli procházení komponent lesa.
+  3. **Husté grafy a Jarník:** Pro husté grafy s $m = \Theta(n^2)$ se Jarníkův algoritmus implementuje **obyčejným polem** (bez haldy), čímž dosáhne času $\mathcal{O}(n^2) = \mathcal{O}(m)$ – je lineární v počtu hran a o faktor $\log n$ rychlejší než Kruskal (který musí hrany třídit v čase $\mathcal{O}(m \log n)$).
+  4. **Master Theorem (rovnovážný případ):** Pokud $\frac{a}{b^c} = 1$, složitost je $T(n) = \Theta(n^c \log n) = \Theta(n^{\log_b a} \log n)$ (pozor na zápis $n^c \cdot n^{\log_b a}$, což by bylo $n^{2c}$!).
+  5. **BVS výpis a průchod:** Vzestupně seřazenou posloupnost klíčů v čase $\Theta(n)$ získáme **In-order průchodem** (Levý podstrom $\to$ Kořen $\to$ Pravý podstrom).
+  6. **4 typy hran v DFS a topologie:** Stromové (Tree), Dopředné (Forward), Zpětné (Back – detekují cykly!) a Příčné (Cross). Topologické uspořádání odpovídá **obrácenému (sestupnému)** pořadí časů opuštění $out(v)$ z DFS (první vypsaný je vrchol s nejvyšším $out$).
+  7. **Dijkstra složitost s binární haldou:** Časová složitost je $\mathcal{O}((V + E) \log V)$ resp. $\mathcal{O}(m \log n)$. Vyžaduje nezáporné hrany.
+  8. **Nejhorší případ Quicksortu:** Nastává při systematické volbě extrémního pivota (minimum/maximum v každém kroku), např. na setříděném poli při volbě prvního prvku $\implies \Theta(n^2)$.
 

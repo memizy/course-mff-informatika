@@ -10,6 +10,7 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
 |---|---|---|:---:|:---:|:---:|:---:|---|
 | 1 | 4. 9. 2026 | Lineární algebra (Lingebra) | 75 min | 24 min | 47 min | **7,7 / 10 (77 %)** | Pozor na nenulovost ($v \ne 0, x \ne 0$), absolutní hodnotu u Cauchy-Schwarze, $\langle u \mid u \rangle \ge 0$ a numeriku dimenzí ($6-3=3$). |
 | 2 | 4. 9. 2026 | Matematická analýza | 120 min | 44 min | 90 min | **6,85 / 10 (69 %)** *(přísně)* | Rozdíl limita vs. spojitost ($L$ vs. $f(x_0)$), 2× l'Hospital za sebou pro $0/0$, per partes člen $[uv]_a^b$. |
+| 3 | 5. 9. 2026 | Matematická logika | 90 min | 35 min | 70 min | **7,5 / 10 (75 %)** *(přísně 75 %, mírně 81 %)* | Ekvisplnitelnost $\ne$ stejné modely, kompaktnost (platí v *nějaké* konečné, ne v každé), Łoś-Vaught (nemá konečné modely), PNF implikace. |
 
 ---
 
@@ -44,3 +45,19 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
   2. **Dvojitý l'Hospital:** Pokud po prvním zderivování podílu typu $0/0$ vyjde v čitateli i jmenovateli opět 0, aplikuje se l'Hospital podruhé za sebou. Nikdy nerozdělovat na rozdíl limit, pokud nevíme, že existují konečné.
   3. **Základní Taylorovy rozvoje:** $\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \dots$
   4. **Per partes u určitého integrálu:** Vzorec je $\int_a^b u' v = [uv]_a^b - \int_a^b uv'$. Nezapomínat na první integrovaný člen $[uv]_a^b$.
+
+### 3. Matematická logika (5. 9. 2026)
+* **Předmět:** Matematická logika (syntaxe a sémantika VL a PL, PNF a generální uzávěr, analýza teorií, tablo metoda pro VL a PL, Skolemizace a extenze, věta o kompaktnosti, Łoś-Vaught, rozhodnutelnost).
+* **Čas učení:** **90 minut** (08:05 – 09:35)
+* **Pauza:** **35 minut** (09:35 – 10:10)
+* **Režim testu:** **Režim A (Matematika)** – psaní na papír bez nahlížení do taháku.
+* **Test:** [test-03-logika.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-03-logika.md) – 10 otázek (10:10 – 11:20, celkem **~70 minut**).
+* **Rozbor a řešení:** [test-03-logika-rozbor.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-03-logika-rozbor.md)
+* **Výsledek:** **7,5 / 10 bodů (75 % – známka Velmi dobře / 2)** *(při mírnějším hodnocení 81 %)*
+* **Klíčová zjištění a zkouškové chytáky k zafixování:**
+  1. **Ekvisplnitelnost $\ne$ stejné modely:** $\varphi$ a $\varphi_{sk}$ jsou ekvisplnitelné ($\varphi$ má model $\iff \varphi_{sk}$ má model), ale **nemají stejné modely**! Skolemovská varianta má bohatší jazyk (obsahuje novou funkci či konstantu), pro původní jazyk model neexistuje. Každý model lze na model Skolemovy varianty pouze *expandovat*.
+  2. **Věta o kompaktnosti – kvantifikátory:** $T \models \varphi \iff$ existuje **alespoň jedna konečná podmnožina** $T' \subseteq_{fin} T$, pro kterou $T' \models \varphi$. (Nikoliv v každé!).
+  3. **Łoś-Vaughtovo kritérium:** Podmínkou je, že teorie **nemá žádné konečné modely** (všechny modely jsou nekonečné množiny), nikoli že teorie má nekonečně mnoho axiomů. Termín je **kategorická** (má izomorfní modely dané mohutnosti).
+  4. **Převod implikace do PNF:** $A \to B \equiv \neg A \lor B$. Při vytýkání kvantifikátoru z předpokladu: $(\forall z P(z) \to Q) \sim \exists z (P(z) \to Q)$ (obrací se $\forall \leftrightarrow \exists$). Kvantifikátor musí být v PNF vytažen před celou formuli.
+  5. **Tablo v PL (Všichni vs. Svědek):** Obě položky $T(\forall x)\varphi$ i $F(\exists x)\varphi$ jsou typu **Všichni** (lze dosadit libovolný zavedený term nebo novou konstantu).
+

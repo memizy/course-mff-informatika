@@ -767,10 +767,14 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * **Složená formule:** Vzniká induktivně z atomických formulí pomocí logických spojek a kvantifikátorů $((\forall x)\varphi, (\exists x)\varphi)$.
 * **Proměnné ve formuli (PL):**
   * **Vázaný výskyt proměnné:** Leží v podformuli tvaru $(\forall x)\psi$ nebo $(\exists x)\psi$.
-  * **Volný výskyt proměnné:** Není vázaný žádným odpovídajícím kvantifikátorem.
+  * **Volný výskyt proměnné:** Není vázaný žádným kvantifikátorem. Všechny volné výskyty téže proměnné $x$ v téže formuli (např. $P(x) \wedge Q(x)$) označují **vždy tentýž prvek** (daný týmž ohodnocením $e(x)$).
   * **Otevřená formule:** Neobsahuje **žádný kvantifikátor** ($\forall, \exists$).
   * **Uzavřená formule (Sentence):** Nemá **žádnou volnou proměnnou** (všechny výskyty proměnných jsou vázané).
   * **Instance formule $\varphi(x/t)$:** Vznikne nahrazením všech volných výskytů proměnné $x$ termem $t$ (term $t$ musí být za $x$ *substituovatelný*, tj. žádná proměnná v $t$ se po dosazení nesmí stát vázanou).
+* **Sémantika volných vs. vázaných proměnných (Generální uzávěr):**
+  * **Volná proměnná (libovolné dosazení):** Za volné $x$ lze ohodnocením $e(x)$ dosadit libovolný prvek univerza, ale dosadí se do **všech volných výskytů $x$ naráz** (v $P(x) \wedge Q(x)$ mají obě $x$ tutéž hodnotu $e(x)$).
+  * **Platnost otevřené formule = „pro všechna“ (Generální uzávěr):** Otevřená formule $\varphi(x)$ platí ve struktuře $\mathcal{A}$ ($\mathcal{A} \models \varphi$), právě když platí pro **každé** ohodnocení $e$ $\iff \mathcal{A} \models (\forall x)\varphi(x)$. Proto se u vět v matematice i při Skolemizaci univerzální kvantifikátory vynechávají (volné proměnné automaticky znamenají „pro jakékoliv $x$“).
+  * **Vázaná proměnná (zamčená v dosahu):** Ve formuli $(\forall x)\big(P(x) \wedge Q(x)\big)$ řídí obě $x$ přímo kvantifikátor, který pro každý prvek domény testuje $P(d) \wedge Q(d)$. Z vnějšku za $x$ nelze nic dosadit — formule je uzavřená (sentence) s pevnou hodnotou 0/1.
 
 #### Normální tvary formulí (CNF, DNF, PNF) a algoritmy:
 * **Normální tvary výrokových formulí:**
@@ -787,7 +791,10 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
     $$(Q_1 x_1)(Q_2 x_2)\dots(Q_n x_n)\,\varphi'$$
     kde $Q_i \in \{\forall, \exists\}$ je **kvantifikátorový prefix** a $\varphi'$ je **otevřená formule** (otevřené jádro).
   * **Pravidla převodu do PNF (vytýkání):**
-    1. Přejmenovat vázané proměnné, aby byly navzájem různé a disjunktní s volnými.
+    1. **Dosah kvantifikátoru a přejmenování vázaných proměnných (substituce):**
+       * *Dosah (Scope):* Kvantifikátor má vyšší prioritu než $\wedge, \vee, \to$. Ve formuli $(\forall x)P(x, y) \wedge Q(x)$ končí dosah $\forall x$ na $P(x, y)$, tj. $\big((\forall x)P(x, y)\big) \wedge Q(x)$. Proměnná $x$ v $Q(x)$ je proto **volná**.
+       * *Zápis substituce s lomítkem:* V podformuli $(\forall x)P(x, y)$ nahradíme $x$ novou proměnnou $z$ formálním zápisem **$(\forall z) P(x/z, y)$**:
+         $$(\forall x) P(x, y) \wedge Q(x) \ \sim \ (\forall z) P(x/z, y) \wedge Q(x) \ = \ (\forall z) P(z, y) \wedge Q(x) \ \sim \ (\forall z)\big(P(z, y) \wedge Q(x)\big)$$
     2. Odstranit spojky $\to, \leftrightarrow$ (převést na $\neg, \wedge, \vee$).
     3. Posunout negace dovnitř: $\neg(\forall x)\varphi \sim (\exists x)\neg\varphi$ a $\neg(\exists x)\varphi \sim (\forall x)\neg\varphi$.
     4. Vytknout kvantifikátory ven (pro $x$ nevolnou ve $\psi$):
@@ -851,8 +858,12 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
     * **Negace ($\neg$):** $T(\neg\varphi) \implies F\varphi$; $\quad F(\neg\varphi) \implies T\varphi$.
     * **Ekvivalence ($\leftrightarrow$):** $T(\varphi \leftrightarrow \psi) \implies (T\varphi, T\psi) \mid (F\varphi, F\psi)$; $\quad F(\varphi \leftrightarrow \psi) \implies (T\varphi, F\psi) \mid (F\varphi, T\psi)$.
   * **Pravidla pro kvantifikátory (PL):**
-    * **Svědek ($T(\exists x)\psi$ nebo $F(\forall x)\psi$):** Dosadíme **nový** konstantní symbol $c_0$, který se dosud na dané větvi nevyskytuje.
-    * **Všichni ($T(\forall x)\psi$ nebo $F(\exists x)\psi$):** Dosadíme **libovolný již zavedený** term $t$.
+    * **Typ Svědek ($T(\exists x)\psi, F(\forall x)\psi$):** Zavedeme **nový** konstantní symbol $c$, který na dané větvi dosud není. *Aplikujeme VŽDY jako první*, abychom si vyrobili konstanty!
+    * **Typ Všichni ($T(\forall x)\psi, F(\exists x)\psi$):** Dosadíme **libovolný již zavedený** term/konstantu z větve (pokud žádná není, vymyslíme si libovolnou $c_0$). *Aplikujeme až poté*, do již existujících konstant.
+    * **Zanořené kvantifikátory (loupání cibule vs. volba pořadí):**
+      * *Různé formule na větvi:* Lze volit pořadí $\implies$ vždy nejdřív Svědek, až pak Všichni.
+      * *Zanořené v sobě (např. $T(\forall x)(\exists y)R(x, y)$):* Vnitřní kvantifikátor je zamčený — musíme jít od vnějšího k vnitřnímu: nejprve $\forall x$ (Všichni pro $c$) $\implies T(\exists y)R(c, y)$, a až poté $\exists y$ (Svědek zavede nové $d$) $\implies TR(c, d)$.
+      * *Důvod nerozhodnutelnosti PL:* Střídání $\forall\exists$ může do nekonečna plodit nové konstanty ($c \to d \to e \dots$), takže větev tabla nikdy neskončí.
   * **Sporná větev:** Obsahuje položku $T\psi$ i $F\psi$ pro stejnou formuli $\psi$.
   * **Tablo důkaz:** Konečné tablo, jehož **každá větev je sporná** (uzavřená) $\implies T \vdash \varphi$.
 * **2. Rezoluce (v PL):**
@@ -894,17 +905,17 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
   * Je-li rekurzivně axiomatizovaná teorie navíc **kompletní**, potom je **ROZHODNUTELNÁ**.
     * *Algoritmus:* Současně prohledáváme důkazy pro $\varphi$ a důkazy pro $\neg\varphi$. Protože $T$ je kompletní, právě jeden z důkazů $T \vdash \varphi$ nebo $T \vdash \neg\varphi$ existuje $\implies$ algoritmus vždy v konečném čase zastaví a odpoví.
 * **Příklady rozhodnutelných a nerozhodnutelných teorií:**
-  * **Rozhodnutelné teorie:**
-    * $\text{Th}(\mathbb{Q}, \le)$ – DeLO (hustá lineární uspořádání bez koncových bodů; je $\aleph_0$-kategorická $\implies$ kompletní i rozhodnutelná).
-    * $\text{Th}(\mathbb{Z}, \le)$ (diskrétní lineární uspořádání bez koncových bodů).
-    * $\text{Th}(\mathbb{N}, S, 0)$ (teorie následníka s nulou).
-    * $\text{Th}(\mathbb{N}, +, 0)$ (Presburgerova aritmetika – pouze sčítání bez násobení).
-    * $\text{Th}(\mathbb{R}, +, \cdot, 0, 1, \le)$ (Tarského aritmetika reálných čísel – reálně uzavřená tělesa).
-    * $\text{Th}(\mathbb{C}, +, \cdot, 0, 1)$ (algebraicky uzavřená tělesa charakteristiky 0).
-  * **Nerozhodnutelné teorie:**
-    * **Predikátová logika 1. řádu (Church-Turing):** Množina všech tautologií PL v jazyce s alespoň jedním binárním predikátem je nerozhodnutelná (je pouze částečně rozhodnutelná).
-    * **Peanova aritmetika (PA) $\text{Th}(\mathbb{N}, +, \cdot, 0, S, \le)$:** Aritmetika se sčítáním i násobením je **nekompletní i nerozhodnutelná** (1. Gödelova věta o neúplnosti: v každé bezesporné rekurzivně axiomatizované teorii obsahující aritmetiku existuje nerozhodnutelné tvrzení).
-    * Teorie grup, teorie těles.
+  * *Hranice rozhodnutelnosti:* Leží přesně tam, kde je jazyk natolik silný, že v něm lze zakódovat chod počítačového programu (Turingův stroj). Jakmile to jde, narážíme na paradoxy (Gödelova věta) a neřešitelný problém zastavení programů – teorie se stává nerozhodnutelnou (neexistuje univerzální algoritmus na ověření pravdy).
+  * **Rozhodnutelné teorie (Bezpečné zóny):** Algoritmus na ověření pravdivosti výroků zde existuje, protože prostředí neumožňuje vznik paradoxů (ani simulaci počítače):
+    * **Presburgerova aritmetika $\text{Th}(\mathbb{N}, +, 0)$:** Obsahuje pouze sčítání. Je příliš „hloupá“ – nedá se v ní vyjádřit násobení, a tedy v ní neexistují prvočísla ani dělitelnost. Bez prvočísel nelze kódovat programy.
+    * **Algebraicky uzavřená tělesa (např. $\text{Th}(\mathbb{C}, +, \cdot, 0, 1)$):** Přestože mají násobení, jsou bezpečná. Jde o prostředí, kde lze vše (kromě 0) beze zbytku vydělit a každý polynom má kořen. Ztrácí se zde diskrétní kroky a prvočísla. Nůž násobení tu nemá co řezat, nelze tu postavit mechanismus počítače (logika zde umí řešit jen vlastnosti rovnic).
+    * **Teorie lineárních uspořádání:**
+      * $\text{Th}(\mathbb{Q}, \le)$ – DeLO (husté uspořádání bez konců): Mezi dvěma body je vždy další bod, nedají se definovat oddělené diskrétní kroky.
+      * $\text{Th}(\mathbb{Z}, \le)$ – diskrétní uspořádání bez konců: Obyčejný nekonečný řetízek bez dalších operací.
+  * **Nerozhodnutelné teorie (Turingovsky úplné):** Tyto systémy jsou tak mocné, že dokážou simulovat samy sebe / běh algoritmů, čímž vznikají neřešitelné paradoxy:
+    * **Predikátová logika 1. řádu s alespoň 1 binárním predikátem (Church-Turing):** Jakmile umíte popsat vztah mezi dvěma objekty (např. binární relací si uděláte „šipku z uzlu A do uzlu B“), dokážete z těchto šipek postavit strukturu jakéhokoliv algoritmu (Turingův stroj). Logika s pouhými unárními predikáty (jen izolované vlastnosti věcí) by naproti tomu rozhodnutelná byla.
+    * **Peanova aritmetika $\text{Th}(\mathbb{N}, +, \cdot, 0, S, \le)$:** Přidáním násobení do prostředí přirozených čísel vzniká průšvih. Objevují se prvočísla, díky nimž lze (přes tzv. Gödelovo číslování) zakódovat jakoukoliv větu do jednoho obrovského čísla. Systém pak dokáže formulovat lhářské věty typu „Tato věta se zde nedá dokázat“ (1. Gödelova věta o neúplnosti). Systém se zavaří a je algoritmicky nerozhodnutelný.
+    * *(Pozn.: Teorie grup a obecná teorie těles jsou rovněž nerozhodnutelné).*
 
 ### Past
 #### Pravděpodobnostní prostor:

@@ -8,6 +8,8 @@ U C# i dalších věcí když nevim přesnou syntaxi ale vim že to existuje ně
 
 Architektury rádi dělaj zadání složitější než opravdu je
 
+Když vidím že je 3 úloha moc těžká a trvala by dlouho tak si jí nechat na konec ať to hlavně stihnu a nejsem v časovym presu
+
 ### Hodnocení
 Za drobné numerické chyby komise strhává třeba čtvrtbodu
 Zaokorouhluje dolů ale poznačí si plus například 1,75 je tedy 1+ za úlohu, jak přesně funguje vyhodnocení plusů zatím není známo

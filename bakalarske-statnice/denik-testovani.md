@@ -55,13 +55,26 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
 * **Test:** [test-03-logika.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-03-logika.md) – 10 otázek (10:10 – 11:20, celkem **~70 minut**).
 * **Rozbor a řešení:** [test-03-logika-rozbor.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-03-logika-rozbor.md)
 * **Výsledek:** **7,5 / 10 bodů (75 % – známka Velmi dobře / 2)** *(při mírnějším hodnocení 81 %)*
-* **Klíčová zjištění a zkouškové chytáky k zafixování:**
-  1. **Ekvisplnitelnost $\ne$ stejné modely:** $\varphi$ a $\varphi_{sk}$ jsou ekvisplnitelné ($\varphi$ má model $\iff \varphi_{sk}$ má model), ale **nemají stejné modely**! Skolemovská varianta má bohatší jazyk (obsahuje novou funkci či konstantu), pro původní jazyk model neexistuje. Každý model lze na model Skolemovy varianty pouze *expandovat*.
-  2. **Věta o kompaktnosti – kvantifikátory:** $T \models \varphi \iff$ existuje **alespoň jedna konečná podmnožina** $T' \subseteq_{fin} T$, pro kterou $T' \models \varphi$. (Nikoliv v každé!).
-  3. **Łoś-Vaughtovo kritérium:** Podmínkou je, že teorie **nemá žádné konečné modely** (všechny modely jsou nekonečné množiny), nikoli že teorie má nekonečně mnoho axiomů. Termín je **kategorická** (má izomorfní modely dané mohutnosti).
-  4. **Převod implikace do PNF a generální uzávěr:** $A \to B \equiv \neg A \lor B$. Při vytýkání kvantifikátoru z předpokladu: $(\forall z P(z) \to Q) \sim \exists z (P(z) \to Q)$ (obrací se $\forall \leftrightarrow \exists$). Kvantifikátor musí být v PNF vytažen před celou formuli. U generálního uzávěru nezapomínat na vnitřní kvantifikátory u podformulí: $(\forall x)(\forall y)\big((\forall x)P(x) \to Q(x, y)\big)$.
-  5. **Tablo v PL (Všichni vs. Svědek):** Obě položky $T(\forall x)\varphi$ i $F(\exists x)\varphi$ jsou typu **Všichni** (lze dosadit libovolný zavedený term nebo novou konstantu).
-  6. **Důkaz nemožnosti vyjádřit konečnost (Kompaktnost):** Důkaz sporem se provádí přidáním spočetné množiny axiomů $\alpha_n$ („existuje alespoň $n$ různých prvků“). Každá konečná podmnožina má konečný model, ale celá teorie by pak musela mít model $\implies$ nekonečný model $\implies$ spor.
+* **Detailní rozbor chyb a zkouškových chytáků k zafixování:**
+  1. **Ekvisplnitelnost $\ne$ stejné modely (Otázka 5):**
+     * *Chyba studenta:* Zapsáno *„je ekvisplnitelná neboli platí ve stejných modelech“*.
+     * *Zkouškový chyták:* Kdyby platily ve stejných modelech, šlo by o *sémantickou ekvivalenci*. Skolemovská varianta $\varphi_{sk}$ má bohatší jazyk (obsahuje novou funkci či konstantu), pro původní jazyk model $\varphi_{sk}$ vůbec neexistuje.
+     * *Správné znění:* Formule jsou pouze **ekvisplnitelné** ($\varphi \text{ má model} \iff \varphi_{sk} \text{ má model}$). Každý model $\mathcal{M} \models \varphi$ lze na model $\mathcal{M}^* \models \varphi_{sk}$ pouze **expandovat** vhodnou volbou realizací Skolemových funkcí (přes axiom výběru).
+  2. **Věta o kompaktnosti – kvantifikátory a důkaz konečnosti (Otázka 7):**
+     * *Chyba studenta:* Napsáno *„platí v každé konečné podmnožině“*. Kdyby platila v každé, platila by i v prázdné $\emptyset$, tedy by musela být tautologií.
+     * *Správné znění:* $T \models \varphi \iff$ existuje **alespoň jedna konečná podmnožina** $T' \subseteq_{fin} T$, pro kterou $T' \models \varphi$. (Pro splnitelnost: $T$ má model $\iff$ každá konečná $T' \subseteq_{fin} T$ má model).
+     * *Důkaz nemožnosti vyjádřit konečnost:* Sporem. Nechť $T$ axiomatizuje konečnost. Zavedeme spočetnou řadu axiomů $\alpha_n$ („existuje alespoň $n$ různých prvků“). Každá konečná podmnožina $T \cup \{\alpha_n\}$ má konečný model (velikosti max indexu $N+1$). Dle věty o kompaktnosti by pak měla model i celá nekonečná teorie $T \cup \{\alpha_n\} \implies$ nekonečný model splňující $T$, což je spor.
+  3. **Łoś-Vaughtovo kritérium (Otázka 8):**
+     * *Chyba studenta:* Záměna za *„nekonečná teorie“* a překlep v pojmu *„charakteristická“*.
+     * *Správné znění:* Podmínkou kritéria je, že teorie **nemá žádné konečné modely** (všechny její modely jsou nekonečné množiny), jazyk $L$ je nejvýše spočetný, teorie je bezesporná a **$\kappa$-kategorická** (má až na izomorfismus jediný model mohutnosti $\kappa \ge |L|$). Pak je teorie **kompletní**.
+  4. **Převod implikace do PNF a generální uzávěr (Otázka 1):**
+     * *Chyba studenta:* Napsáno $\neg A \lor \neg B$ místo $\neg A \lor B$, a kvantifikátor nevytknut do prefixu. U generálního uzávěru vynechán vnitřní kvantifikátor podformule.
+     * *Správné znění:* Implikace je $A \to B \equiv \neg A \lor B$. Vytýkání kvantifikátoru z předpokladu obrací kvantifikátor ($\forall \leftrightarrow \exists$): $(\forall z P(z) \to Q(x, y)) \sim (\exists z)\big(P(z) \to Q(x, y)\big)$. Kvantifikátor musí stát na samém začátku (v prefixu). Generální uzávěr pro $\varphi: (\forall x)P(x) \to Q(x,y)$ je $(\forall x)(\forall y)\big((\forall x)P(x) \to Q(x, y)\big)$.
+  5. **Tablo v PL – pravidla Všichni vs. Svědek a označení (Otázka 4):**
+     * *Poznatek:* Položky $T(\forall x)\varphi$ i $F(\exists x)\varphi$ jsou obě typu **Všichni** (lze dosadit libovolný zavedený term nebo novou konstantu).
+     * *Chyba zápisu:* Do položek označeného tabla se nevpisuje negace $\neg P(c)$. Větve se vedou striktně formulemi $TP(c)$ a $FP(c)$, jejichž souběh na jedné větvi tvoří uzavření sporem $\times$.
+  6. **Zlatá věta o rozhodnutelnosti (Otázka 9):**
+     * Rekurzivně axiomatizovaná a kompletní teorie je rozhodnutelná. Algoritmus systematicky prochází a generuje formální důkazy. Jelikož je teorie kompletní, v konečném čase narazí buď na důkaz $\varphi$, nebo na důkaz $\neg\varphi$.
 
 ### 4. Algoritmy a datové struktury (5. 9. 2026)
 * **Předmět:** Algoritmy a datové struktury (RAM model a složitost, Master Theorem, BVS a operace, vyvažované AVL stromy, Quicksort a skoromedián, dolní odhad porovnávání a Counting Sort, grafové průchody BFS/DFS a hrany, nejkratší cesty Dijkstra vs. Bellman-Ford, minimální kostry Jarník vs. Kruskal, P vs. NP a NP-úplnost).
@@ -71,13 +84,38 @@ Tento soubor slouží k trackování časů strávených opakováním v `cheat-s
 * **Test:** [test-04-ads.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-04-ads.md) – 10 otázek (16:53 – 18:53, celkem **120 minut**).
 * **Rozbor a řešení:** [test-04-ads-rozbor.md](file:///c:/Users/nagyl/Projects/memizy/code/courses/course-mff-informatika/bakalarske-statnice/testy/test-04-ads-rozbor.md)
 * **Výsledek:** **7,65 / 10 bodů (77 % – známka 2 / Velmi dobře)** *(při mírnějším hodnocení 8,25 / 10 bodů – 83 %)*
-* **Klíčová zjištění a zkouškové chytáky k zafixování:**
-  1. **Counting Sort vs. Dolní mez:** Counting Sort $\mathcal{O}(n + K)$ neporušuje dolní mez $\Omega(n \log n)$, protože **není porovnávacím algoritmem**! Vůbec neprovádí porovnávání prvků navzájem, ale využívá přímé adresování do indexů pole paměti RAM.
-  2. **Kruskal a detekce cyklů:** Kruskalův algoritmus používá k detekci cyklů datovou strukturu **Union-Find (Disjoint-Set Union)** s kompresí cest a váhovým sjednocováním v celkovém čase $\mathcal{O}(m \cdot \alpha(n))$, nikoli procházení komponent lesa.
-  3. **Husté grafy a Jarník:** Pro husté grafy s $m = \Theta(n^2)$ se Jarníkův algoritmus implementuje **obyčejným polem** (bez haldy), čímž dosáhne času $\mathcal{O}(n^2) = \mathcal{O}(m)$ – je lineární v počtu hran a o faktor $\log n$ rychlejší než Kruskal (který musí hrany třídit v čase $\mathcal{O}(m \log n)$).
-  4. **Master Theorem (rovnovážný případ):** Pokud $\frac{a}{b^c} = 1$, složitost je $T(n) = \Theta(n^c \log n) = \Theta(n^{\log_b a} \log n)$ (pozor na zápis $n^c \cdot n^{\log_b a}$, což by bylo $n^{2c}$!).
-  5. **BVS výpis a průchod:** Vzestupně seřazenou posloupnost klíčů v čase $\Theta(n)$ získáme **In-order průchodem** (Levý podstrom $\to$ Kořen $\to$ Pravý podstrom).
-  6. **4 typy hran v DFS a topologie:** Stromové (Tree), Dopředné (Forward), Zpětné (Back – detekují cykly!) a Příčné (Cross). Topologické uspořádání odpovídá **obrácenému (sestupnému)** pořadí časů opuštění $out(v)$ z DFS (první vypsaný je vrchol s nejvyšším $out$).
-  7. **Dijkstra složitost s binární haldou:** Časová složitost je $\mathcal{O}((V + E) \log V)$ resp. $\mathcal{O}(m \log n)$. Vyžaduje nezáporné hrany.
-  8. **Nejhorší případ Quicksortu:** Nastává při systematické volbě extrémního pivota (minimum/maximum v každém kroku), např. na setříděném poli při volbě prvního prvku $\implies \Theta(n^2)$.
+* **Detailní rozbor chyb a zkouškových chytáků k zafixování:**
+  1. **Counting Sort vs. Dolní mez $\Omega(n \log n)$ (Otázka 6):**
+     * *Chyba studenta:* Zapsáno *„Protože $K$ není omezené a může být v nejhorším případě libovolně velké např. $\Omega(n^2)$“*.
+     * *Zkouškový chyták:* I kdyby bylo $K = \mathcal{O}(n)$ (třídíme čísla $1 \dots n$), Counting Sort seřadí pole v čase $\mathcal{O}(n)$, což je asymptoticky rychlejší než $\Omega(n \log n)$.
+     * *Správné znění:* Counting Sort **neporušuje dolní mez**, protože **není porovnávacím algoritmem**! Vůbec neprovádí porovnávání prvků navzájem ($A[i] \le A[j]$), ale používá hodnoty prvků přímo jako **adresy / indexy do pomocného pole paměti RAM**. Dolní mez $\Omega(n \log n)$ z modelu rozhodovacího stromu platí výhradně pro třídění porovnáváním.
+  2. **Kruskalův algoritmus a detekce cyklů (Otázka 9):**
+     * *Chyba studenta:* Zapsáno *„detekuje cykly procházením vrcholů stromů lesa“*.
+     * *Zkouškový chyták:* Procházení lesa DFS/BFS by trvalo $\mathcal{O}(V)$ na hranu, celkem $\mathcal{O}(V \cdot E)$, což by algoritmus zbytečně degradovalo.
+     * *Správné znění:* Kruskal striktně vyžaduje datovou strukturu **Union-Find (Disjoint-Set Union)** s operacemi `Find` a `Union` (s kompresí cest a sjednocením podle hodnosti). Test na cyklus a spojení komponent trvá amortizovaně téměř konstantně: celkem pro všechny hrany $\mathcal{O}(m \cdot \alpha(n))$.
+  3. **Husté grafy $m = \Theta(n^2)$ a Jarník vs. Kruskal (Otázka 9):**
+     * *Chyba studenta:* Zapsána u obou složitost $m \log n$ a zmíněna Fibonacciho halda, čímž nebyla vysvětlena podstata výhody pro husté grafy.
+     * *Správné znění:*
+       * **Kruskal:** Musí nejprve setřídit všechny hrany $\implies \mathcal{O}(m \log m) = \mathcal{O}(m \log n)$. Pro hustý graf je to $\mathcal{O}(n^2 \log n)$.
+       * **Jarník:** Pro husté grafy **nepoužívá žádnou haldu, ale obyčejné pole** vzdáleností! V každém kroku najde minimum prostým projitím pole za $\mathcal{O}(n)$. Celkový čas je $V \times \mathcal{O}(n) + E \times \mathcal{O}(1) = \mathbf{\mathcal{O}(n^2) = \mathcal{O}(m)}$. Běží tedy v **lineárním čase vzhledem k počtu hran** a poráží Kruskalovo třídění o faktor $\log n$.
+  4. **Master Theorem – 1. případ rovnováhy (Otázka 2):**
+     * *Chyba studenta:* Pro rovnovážný případ zapsáno $T(n) = \mathcal{O}(n^c \cdot n^{\log_b a})$ (což by dalo $n^{2c}$!).
+     * *Správné znění:* Pro $\frac{a}{b^c} = 1 \iff c = \log_b a$ platí $T(n) = \mathbf{\Theta(n^c \log n)} = \mathbf{\Theta(n^{\log_b a} \log n)}$. Master Theorem dává těsnou mez $\Theta$, nikoli jen $\mathcal{O}$.
+  5. **Binární vyhledávací strom – seřazený výpis (Otázka 3):**
+     * *Chyba studenta:* Zapsáno pouze obecné *DFS*.
+     * *Správné znění:* Zkoušející striktně vyžaduje název **In-order průchod** (Levý podstrom $\to$ Kořen $\to$ Pravý podstrom), který jediný vypíše klíče v čase $\Theta(n)$ vzestupně seřazené.
+  6. **4 typy hran v DFS a topologické uspořádání (Otázka 7):**
+     * *Chyba studenta:* Vynechány *stromové hrany* (uvedeny jen dopředné, zpětné a příčné). U topologie nebylo explicitně uvedeno, že jde o *obrácené* pořadí.
+     * *Správné znění:* V orientovaném DFS existují 4 typy hran:
+       1. **Stromové** (vedou do dosud nenavštíveného vrcholu),
+       2. **Dopředné** (vedou do potomka v DFS stromu),
+       3. **Zpětné** (vedou do předka – **detekují orientovaný cyklus**!),
+       4. **Příčné** (mezi různými větvemi).
+       Topologické uspořádání orientovaného acyklického grafu odpovídá **obrácenému (sestupnému)** pořadí časů dokončení/opuštění $out(v)$ z DFS (první vypsaný je vrchol s nejvyšším $out$).
+  7. **Dijkstra složitost s binární haldou (Otázka 8):**
+     * *Chyba studenta:* Zapomenuto uvést složitost Dijkstry.
+     * *Správné znění:* Dijkstra s binární haldou má časovou složitost $\mathbf{\mathcal{O}((V + E) \log V) = \mathcal{O}(m \log n)}$ a vyžaduje striktně nezáporné váhy hran. Bellman-Ford má $\mathcal{O}(V \cdot E) = \mathcal{O}(n \cdot m)$ a v $n$-tém ($|V|$-tém) kroku relaxace odhalí záporný cyklus, pokud se ještě zkrátí vzdálenost.
+  8. **Podmínka nejhoršího případu Quicksortu (Otázka 5):**
+     * *Chyba studenta:* Neuvedeno explicitně, kdy nastává nejhorší případ $\mathcal{O}(n^2)$.
+     * *Správné znění:* Nejhorší případ nastává při soustavně **extrémní volbě pivota** (pivot je v každém kroku minimem nebo maximem aktuálního úseku). Příklad: již vzestupně setříděné pole při fixní volbě prvního prvku jako pivota $\implies$ dělení na $0$ a $n-1$ prvků $\implies \sum_{i=1}^n i = \Theta(n^2)$.
 

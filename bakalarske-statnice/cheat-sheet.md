@@ -2130,6 +2130,81 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     }
     ```
 
+* **Vlastnosti (Properties), Zapouzdření a Neměnnost (`get`, `set`, `init`, `required`):**
+  * **Princip vlastností:** Slouží k **zapouzdření dat** (*encapsulation*). Navenek se chovají jako proměnné (`obj.X = 10;`), ale kompilátor je pod kapotou překládá na volání metod (`get_X()`, `set_X(value)`).
+  * **Plná vlastnost vs. Automatická:**
+    * *Plná vlastnost:* Má explicitní privátní proměnnou (**backing field**), používá se při potřebě logiky/validace při čtení či zápisu (`value` je klíčové slovo pro přiřazovanou hodnotu).
+    * *Automatická vlastnost (`{ get; set; }`):* Backing field vygeneruje kompilátor pod kapotou sám.
+  * **Omezení zápisu (`private set`):** Čtení je veřejné, ale měnit hodnotu smí pouze samotná třída zevnitř (zapouzdření stavu).
+  * **Vlastnosti pouze pro čtení (`{ get; }`) vs. `readonly` pole:**
+    * Klíčové slovo **`readonly`** se v C# píše před **pole** (proměnné): `private readonly int _id;`.
+    * U **vlastností** se pro neměnnost vynechá `set`: `public int Id { get; }`. Kompilátor pro ni vygeneruje privátní `readonly` backing field $\implies$ lze nastavit pouze při deklaraci nebo v konstruktoru třídy, poté již nikdy (ani samotná třída ji nemůže změnit).
+  * **`init` (C# 9+) – Neměnnost + Objektový inicializátor:**
+    * Get-only (`get;`) vyžaduje konstruktor se všemi parametry a neumožňuje objektový inicializátor (`new Uzivatel { Jmeno = "Petr" }`).
+    * **`init` (Init-only setter):** Umožňuje nastavení v konstruktoru **nebo v objektovém inicializátoru při vytváření instance**. Jakmile je objekt vytvořen, hodnota je trvale neměnná (*immutable* – základní stavební kámen např. pro `record`).
+  * **`required` (C# 11+) – Povinná inicializace:**
+    * Vynucuje, aby vlastnost v objektovém inicializátoru **musela** být vyplněna (zabraňuje vytvoření neúplného objektu `new Uzivatel()`).
+  * **Počítané vlastnosti (`=>`):**
+    * Výrazový zápis (*expression-bodied property*): nemá žádný uložený stav (žádný backing field), hodnotu dynamicky počítá při každém čtení.
+  * *Jedna propojená ukázka (všechny formy vlastností v praxi):*
+    ```csharp
+    public class BankovniUcet {
+        // 1. Plná vlastnost s privátním backing fieldem a validační logikou:
+        private decimal _zustatek;
+        public decimal Zustatek {
+            get => _zustatek;
+            set {
+                if (value < 0) throw new ArgumentException("Zůstatek nesmí být záporný!");
+                _zustatek = value; // 'value' je klíčové slovo představující přiřazovanou hodnotu
+            }
+        }
+
+        // 2. Automatická vlastnost (kompilátor vygeneruje privátní pole sám):
+        public string Poznamka { get; set; } = "Bez poznámky";
+
+        // 3. Omezení zápisu: čtení je public, zápis smí provést jen třída zevnitř:
+        public int PocetTransakci { get; private set; }
+
+        // 4. Get-only vlastnost (pod kapotou readonly) - nastavitelná jen při definici či v konstruktoru:
+        public int CisloUctu { get; }
+
+        // 5. Init-only + required (C# 9/11+) - v inicializátoru povinné, po vytvoření neměnné (immutable):
+        public required string Majitel { get; init; }
+
+        // 6. Počítaná vlastnost (expression-bodied) - nemá žádné uložené pole, jen getter:
+        public bool JeAktivni => Zustatek > 0;
+
+        public BankovniUcet(int cisloUctu) {
+            CisloUctu = cisloUctu; // OK - v konstruktoru lze get-only nastavit
+        }
+
+        public void PripisUrok(decimal urok) {
+            Zustatek += urok;
+            PocetTransakci++; // OK - jsme uvnitř třídy, private set povolen
+        }
+    }
+
+    // --- Použití v kódu a chování kompilátoru ---
+    var ucet = new BankovniUcet(123456) {
+        Majitel = "Jan Novák", // OK: required + init v objektovém inicializátoru
+        Zustatek = 1500        // OK: projde validačním setterem
+    };
+
+    // ucet.Majitel = "Karel";    // CHYBA KOMPILACE! 'init' nelze po vytvoření instance měnit.
+    // ucet.CisloUctu = 999;      // CHYBA KOMPILACE! get-only vlastnost nemá setter.
+    // ucet.PocetTransakci = 10;  // CHYBA KOMPILACE! setter je 'private'.
+    // var chybny = new BankovniUcet(1); // CHYBA KOMPILACE! 'Majitel' je 'required' a chybí v inicializátoru.
+    ```
+  * *Přehledové shrnutí (Cheat Sheet vlastností):*
+    | Zápis | Kdy a odkud lze nastavit / změnit? | Účel a chování |
+    | :--- | :--- | :--- |
+    | `get; set;` | Kdykoliv a odkudkoliv | Plně modifikovatelná automatická vlastnost. |
+    | `get; private set;` | Číst kdokoliv, měnit jen kód dané třídy | Zapouzdření interního stavu. |
+    | `get; }` | Jen při deklaraci nebo v konstruktoru třídy | Neměnná (get-only) vlastnost (kompilátor vygeneruje `readonly` pole). |
+    | `get; init;` | V konstruktoru **nebo** v objektovém inicializátoru `{ Prop = x }` | Neměnnost (*immutability*) vhodná pro inicializátory a recordy (C# 9+). |
+    | `required ... get; init;` | Povinně v objektovém inicializátoru | Vynucená inicializace při vytváření instance (C# 11+). |
+    | `=> hodnota;` | Pouze getter (čtení za běhu) | Čistě počítaná hodnota bez vlastního backing fieldu (*expression-bodied*). |
+
 * **Dědičnost, Polymorfismus, `vtable`, Rozhraní a Explicitní implementace:**
   * **Dynamický vs. Statický polymorfismus:**
     * *Dynamický:* Řešen za běhu přes virtuální tabulku metod (**`vtable` / MethodTable**). Každý objekt na haldě má v hlavičce ukazatel na MethodTable; volání virtuální metody je skok přes fixní index v tabulce (1 paměťová dereference navíc).

@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MFF UK Státnice – Rychlý čtenář a tahák</title>
+  <meta name="description" content="Čtečka materiálů a taháků na státnice MFF UK s plnou podporou celých URL, Markdownu a LaTeXu.">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+  <!-- Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Highlight.js for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+
+  <style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --header-h: 155px;
+      
+      /* Dark theme (default) */
+      --bg-main: #0b0f19;
+      --bg-card: #131b2e;
+      --bg-header: rgba(11, 15, 25, 0.9);
+      --bg-hover: #1e293b;
+      --bg-accent: #1e1b4b;
+      --border-color: #1e293b;
+      --border-focus: #6366f1;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-light: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --code-bg: #161f38;
+    }
+
+    html.light {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.9);
+      --bg-hover: #f1f5f9;
+      --bg-accent: #e0e7ff;
+      --border-color: #e2e8f0;
+      --border-focus: #4f46e5;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-light: #6366f1;
+      --success: #059669;
+      --warning: #d97706;
+      --code-bg: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Top Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-header);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Mobile Hamburger Menu Button */
+    .btn-hamburger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg-hover);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      height: 34px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-hamburger:hover {
+      background: var(--bg-accent);
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    @media (min-width: 1024px) {
+      .btn-hamburger {
+        display: none !important;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+
+    /* URL Input Bar */
+    .url-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.35rem 0.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .url-bar-container:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .prefix-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .url-bar-container input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.25rem 0.4rem;
+      min-width: 140px;
+    }
+
+    .url-bar-container input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-refresh {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-refresh:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* Shortcuts Navigation */
+    .shortcuts-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.15rem;
+      scrollbar-width: thin;
+    }
+
+    .shortcuts-wrapper::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .shortcuts-wrapper::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.28rem 0.7rem;
+      border-radius: 20px;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .pill:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+
+    .pill.active {
+      background: var(--bg-accent);
+      border-color: var(--accent);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .pill-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .pill-dropdown .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-width: 280px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      padding: 0.4rem;
+      margin-top: 0.3rem;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .pill-dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: var(--text-main);
+      padding: 0.45rem 0.75rem;
+      text-decoration: none;
+      display: block;
+      font-size: 0.82rem;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .dropdown-content a:hover {
+      background: var(--bg-hover);
+      color: var(--accent-light);
+    }
+
+    /* Main Container & TOC Sidebar Layout */
+    .app-body {
+      max-width: 1200px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.25rem;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2rem;
+      min-width: 0;
+    }
+
+    /* TOC Sidebar */
+    .toc-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      display: none;
+      align-self: stretch; /* crucial for position: sticky to span document height */
+    }
+
+    @media (min-width: 1024px) {
+      .toc-sidebar {
+        display: block;
+      }
+    }
+
+    .toc-sticky {
+      position: sticky;
+      top: calc(var(--header-h, 155px) + 1.25rem);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.2rem;
+      max-height: calc(100vh - var(--header-h, 155px) - 2.5rem);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toc-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .toc-list a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      display: block;
+      padding: 0.25rem 0.45rem;
+      border-radius: 5px;
+      line-height: 1.4;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toc-list a:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+    }
+
+    .toc-list a.toc-active {
+      color: var(--accent-light) !important;
+      background: rgba(99, 102, 241, 0.18);
+      font-weight: 700;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.55rem;
+    }
+
+    .toc-h1 { font-weight: 700; color: var(--text-main) !important; }
+    .toc-h2 { margin-left: 0.6rem; font-weight: 500; }
+    .toc-h3 { margin-left: 1.2rem; font-size: 0.78rem !important; }
+    .toc-h4 { margin-left: 1.8rem; font-size: 0.75rem !important; opacity: 0.8; }
+
+    /* Content Area - Focused Reading Column */
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      max-width: 840px; /* optimal reading width on PC */
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 2.5rem 3rem;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 1.75rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    .status-dot.loading {
+      background: var(--warning);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 0.3; transform: scale(0.9); }
+    }
+
+    #loaded-file-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--bg-hover);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      color: var(--accent-light);
+      word-break: break-all;
+    }
+
+    /* Markdown Rendered Typography */
+    .markdown-body {
+      color: var(--text-main);
+      font-size: 1.05rem;
+      line-height: 1.75;
+      max-width: 740px;
+      margin: 0 auto;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3,
+    .markdown-body h4 {
+      color: var(--text-main);
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.85rem;
+      line-height: 1.3;
+      scroll-margin-top: calc(var(--header-h, 155px) + 1.25rem);
+    }
+
+    .markdown-body h1 {
+      font-size: 1.85rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+
+    .markdown-body h2 {
+      font-size: 1.45rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.35rem;
+    }
+
+    .markdown-body h3 {
+      font-size: 1.2rem;
+    }
+
+    .markdown-body h4 {
+      font-size: 1.05rem;
+    }
+
+    .markdown-body p {
+      margin-bottom: 1.1rem;
+    }
+
+    .markdown-body ul,
+    .markdown-body ol {
+      margin-bottom: 1.2rem;
+      padding-left: 1.6rem;
+    }
+
+    .markdown-body li {
+      margin-bottom: 0.35rem;
+    }
+
+    .markdown-body hr {
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin: 2rem 0;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--accent);
+      background: var(--bg-hover);
+      padding: 0.85rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.2rem 0;
+      color: var(--text-main);
+    }
+
+    .markdown-body pre {
+      background: var(--code-bg) !important;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+      margin: 1.2rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    .markdown-body code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: var(--code-bg);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .markdown-body pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2rem 0;
+      font-size: 0.95rem;
+      overflow-x: auto;
+      display: block;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+    }
+
+    .markdown-body th,
+    .markdown-body td {
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 0.9rem;
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background: var(--bg-hover);
+      font-weight: 600;
+    }
+
+    .markdown-body tr:nth-child(even) {
+      background: rgba(30, 41, 59, 0.25);
+    }
+
+    .markdown-body a {
+      color: var(--accent-light);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .markdown-body a:hover {
+      color: var(--text-main);
+    }
+
+    .markdown-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      margin: 1.2rem auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      display: block;
+    }
+
+    .markdown-body details {
+      background: var(--bg-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      margin: 1rem 0;
+    }
+
+    .markdown-body summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent-light);
+      outline: none;
+    }
+
+    .katex-display {
+      margin: 1.2rem 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.4rem 0;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+    }
+
+    /* Mobile Drawer */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: flex-start;
+    }
+
+    .mobile-drawer.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .mobile-drawer-content {
+      background: var(--bg-card);
+      width: 85%;
+      max-width: 320px;
+      height: 100%;
+      overflow-y: auto;
+      padding: 1.25rem 1.1rem;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 10px 0 30px rgba(0,0,0,0.6);
+      animation: slideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideRight {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    /* Responsive adjustments for Tablet and Mobile */
+    @media (max-width: 1023px) {
+      .app-body {
+        margin: 1.2rem auto;
+        padding: 0 1rem;
+        gap: 1.2rem;
+      }
+      .content-area {
+        max-width: 820px;
+        padding: 2rem 2.25rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 15px;
+      }
+
+      header {
+        padding: 0.6rem 0.75rem;
+      }
+
+      .header-container {
+        gap: 0.5rem;
+      }
+
+      .top-bar {
+        gap: 0.5rem;
+      }
+
+      .brand {
+        font-size: 0.98rem;
+        gap: 0.4rem;
+      }
+
+      .brand-badge {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.4rem;
+      }
+
+      .url-bar-container {
+        padding: 0.25rem 0.35rem;
+        gap: 0.25rem;
+      }
+
+      .prefix-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+      }
+
+      .url-bar-container input {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.3rem;
+        min-width: 60px;
+      }
+
+      /* Compact icon buttons on mobile */
+      .btn-copy span,
+      .btn-primary span,
+      .btn-refresh span {
+        display: none;
+      }
+
+      .btn-copy,
+      .btn-primary,
+      .btn-refresh {
+        padding: 0.35rem 0.55rem;
+        font-size: 0.82rem;
+      }
+
+      .pill {
+        font-size: 0.75rem;
+        padding: 0.22rem 0.6rem;
+      }
+
+      .app-body {
+        margin: 0.5rem auto 2rem auto;
+        padding: 0 0.5rem;
+      }
+
+      .content-area {
+        padding: 1.35rem 1rem;
+        border-radius: 12px;
+        max-width: 100%;
+        box-shadow: none;
+      }
+
+      .status-bar {
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.75rem;
+        font-size: 0.78rem;
+      }
+
+      #loaded-file-badge {
+        font-size: 0.72rem;
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .markdown-body {
+        font-size: 0.98rem;
+        line-height: 1.68;
+      }
+
+      .markdown-body h1 {
+        font-size: 1.45rem;
+        margin-top: 1.2rem;
+        padding-bottom: 0.35rem;
+      }
+
+      .markdown-body h2 {
+        font-size: 1.25rem;
+        margin-top: 1.4rem;
+        padding-bottom: 0.25rem;
+      }
+
+      .markdown-body h3 {
+        font-size: 1.1rem;
+        margin-top: 1.1rem;
+      }
+
+      .markdown-body h4 {
+        font-size: 0.98rem;
+      }
+
+      .markdown-body pre {
+        padding: 0.75rem 0.85rem;
+        font-size: 0.82rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .markdown-body blockquote {
+        padding: 0.65rem 0.9rem;
+        margin: 1rem 0;
+      }
+
+      .markdown-body ul,
+      .markdown-body ol {
+        padding-left: 1.3rem;
+        margin-bottom: 1rem;
+      }
+
+      .katex-display {
+        margin: 0.8rem 0;
+        padding: 0.2rem 0;
+      }
+    }
+
+    /* Error Message Card */
+    .error-card {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+    }
+
+    .error-card h3 {
+      color: #ef4444;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header>
+    <div class="header-container">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <!-- Mobile Hamburger Button -->
+          <button class="btn-hamburger" id="hamburger-btn" onclick="toggleMobileDrawer(true)" title="Zobrazit obsah dokumentu">
+            <span style="font-size: 1.15rem; line-height: 1;">☰</span>
+            <span>Obsah</span>
+          </button>
+
+          <a href="#" class="brand" onclick="loadDocument(DEFAULT_DOC_URL); return false;">
+            <span class="brand-badge">MFF UK</span>
+            <span>Státnice Prohlížeč</span>
+          </a>
+        </div>
+
+        <div class="controls-right">
+          <button class="icon-btn" id="font-decrease" title="Zmenšit písmo">A-</button>
+          <button class="icon-btn" id="font-increase" title="Zvětšit písmo">A+</button>
+          <button class="icon-btn" id="theme-toggle" title="Přepnout motiv">🌓</button>
+        </div>
+      </div>
+
+      <!-- Full URL Input Bar -->
+      <form id="url-form" class="url-bar-container" onsubmit="handleFormSubmit(event)">
+        <span class="prefix-badge" title="Zadejte celou URL adresu souboru">URL</span>
+        <input 
+          type="url" 
+          id="file-input" 
+          placeholder="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/cheat-sheet.md" 
+          autocomplete="off" 
+          spellcheck="false"
+        >
+        <button type="button" class="btn-copy" onclick="copyCurrentUrl()" title="Kopírovat aktuální URL do schránky">
+          📋 <span>Kopírovat</span>
+        </button>
+        <button type="submit" class="btn-primary" title="Načíst zadanou URL adresu">
+          <span>Načíst</span> ➔
+        </button>
+        <button type="button" class="btn-refresh" onclick="refreshCurrentDocument()" title="Vynutit načtení nejnovější verze bez mezipaměti">
+          🔄 <span>Obnovit</span>
+        </button>
+      </form>
+
+      <!-- Quick Shortcuts Nav with FULL URLs -->
+      <div class="shortcuts-wrapper">
+        <a class="pill active" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/cheat-sheet.md" onclick="loadDocument(this.dataset.url); return false;">
+          🌟 <b>cheat-sheet.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/finish-plan.md" onclick="loadDocument(this.dataset.url); return false;">
+          🎯 <b>finish-plan.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/strategie-predmetu-a-chytaky.md" onclick="loadDocument(this.dataset.url); return false;">
+          ⚡ <b>strategie-predmetu-a-chytaky.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/strategie-na-pisemku.md" onclick="loadDocument(this.dataset.url); return false;">
+          📋 <b>strategie-na-pisemku.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/pozorovani-z-uceni.md" onclick="loadDocument(this.dataset.url); return false;">
+          🔍 <b>pozorovani-z-uceni.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/denik-testovani.md" onclick="loadDocument(this.dataset.url); return false;">
+          📓 <b>denik-testovani.md</b>
+        </a>
+        <a class="pill" data-url="https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/chyby.md" onclick="loadDocument(this.dataset.url); return false;">
+          ⚠️ <b>chyby.md</b>
+        </a>
+
+        <!-- Testy Dropdown with FULL URLs -->
+        <div class="pill-dropdown">
+          <span class="pill">📝 Testy ▾</span>
+          <div class="dropdown-content">
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-08-automaty-a-jazyky.md'); return false;">Test 8: Automaty a jazyky</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-09-programovani-a-csharp.md'); return false;">Test 9: Programování a C#</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-07-diskretka-a-grafy.md'); return false;">Test 7: Diskrétka a grafy</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-07-diskretka-a-grafy-rozbor.md'); return false;">Test 7: Rozbor</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-06-analyza-komplet.md'); return false;">Test 6: Analýza komplet</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-05-specializace-a-architektury.md'); return false;">Test 5: Specializace a Architektury</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-04-ads.md'); return false;">Test 4: Algoritmy (ADS)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-03-logika.md'); return false;">Test 3: Logika</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-02-analyza.md'); return false;">Test 2: Analýza</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/testy/test-01-lingebra.md'); return false;">Test 1: Lingebra</a>
+          </div>
+        </div>
+
+        <!-- Minulá zadání Dropdown with FULL URLs -->
+        <div class="pill-dropdown">
+          <span class="pill">📂 Minulá zadání ▾</span>
+          <div class="dropdown-content">
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/cetnost.md'); return false;">📊 Četnost otázek (všechny termíny)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/podzim-2024.md'); return false;">Podzim 2024 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/jaro-2025.md'); return false;">Jaro 2025 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/leto-2025.md'); return false;">Léto 2025 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/jaro-2026.md'); return false;">Jaro 2026 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/podzim-2023.md'); return false;">Podzim 2023 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/leto-2023.md'); return false;">Léto 2023 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/jaro-2024.md'); return false;">Jaro 2024 (společná část)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/minula-zadani/spolecna-cast/leto-2024.md'); return false;">Léto 2024 (společná část)</a>
+          </div>
+        </div>
+
+        <!-- Požadavky a přehledy Dropdown with FULL URLs -->
+        <div class="pill-dropdown">
+          <span class="pill">📚 Materiály ▾</span>
+          <div class="dropdown-content">
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/pozadavky.md'); return false;">📋 Požadavky ke státnicím (pozadavky.md)</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/sezonni-vzorce-terminu.md'); return false;">🗓️ Sezónní vzorce termínů</a>
+            <a href="#" onclick="loadDocument('https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/instrukce-pro-ai-zkouseni.md'); return false;">🤖 Instrukce pro AI zkoušení</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Body -->
+  <div class="app-body">
+    <!-- Desktop TOC Sidebar -->
+    <aside class="toc-sidebar">
+      <div class="toc-sticky">
+        <div class="toc-title">
+          <span>Obsah dokumentu</span>
+          <span id="toc-count"></span>
+        </div>
+        <ul class="toc-list" id="toc-list">
+          <li style="color: var(--text-muted); font-size: 0.8rem;">Načítám osnovu...</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <div class="status-bar">
+        <div class="status-indicator">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Připraven</span>
+        </div>
+        <div id="loaded-file-badge"></div>
+      </div>
+
+      <article class="markdown-body" id="rendered-content">
+        <div style="text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">⏳</div>
+          <p>Načítám výchozí tahák <code>cheat-sheet.md</code> z GitHubu...</p>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <!-- Mobile Drawer for TOC -->
+  <div class="mobile-drawer" id="mobile-drawer" onclick="if(event.target === this) toggleMobileDrawer(false)">
+    <div class="mobile-drawer-content">
+      <div class="drawer-header">
+        <h3 style="font-size: 1.05rem; font-weight: 700;">📑 Obsah dokumentu</h3>
+        <button class="icon-btn" onclick="toggleMobileDrawer(false)">✕</button>
+      </div>
+      <ul class="toc-list" id="mobile-toc-list">
+        <!-- populated dynamically -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Canonical Full URLs Configuration
+    const DEFAULT_BASE_URL = 'https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/';
+    const DEFAULT_DOC_URL = 'https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/cheat-sheet.md';
+
+    // Current State
+    let currentUrl = '';
+    let currentFontSize = 16;
+    let headingObserver = null;
+
+    // Elements
+    const fileInput = document.getElementById('file-input');
+    const contentEl = document.getElementById('rendered-content');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const loadedFileBadge = document.getElementById('loaded-file-badge');
+    const tocList = document.getElementById('toc-list');
+    const mobileTocList = document.getElementById('mobile-toc-list');
+    const tocCount = document.getElementById('toc-count');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+
+    // Dynamic header height helper
+    function updateHeaderHeight() {
+      const headerEl = document.querySelector('header');
+      if (headerEl) {
+        const h = headerEl.offsetHeight;
+        document.documentElement.style.setProperty('--header-h', `${h}px`);
+      }
+    }
+    window.addEventListener('resize', updateHeaderHeight);
+    window.addEventListener('DOMContentLoaded', updateHeaderHeight);
+
+    // Configure Marked options
+    marked.setOptions({
+      breaks: false,
+      gfm: true,
+      highlight: function(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          try {
+            return hljs.highlight(code, { language: lang }).value;
+          } catch (e) {}
+        }
+        return hljs.highlightAuto(code).value;
+      }
+    });
+
+    /**
+     * Resolves any input (full URL, relative path, github blob URL) into a complete raw URL
+     */
+    function normalizeToFullUrl(input) {
+      if (!input) return DEFAULT_DOC_URL;
+      let url = input.trim();
+
+      // Convert GitHub web viewer URLs (github.com/.../blob/...) to raw.githubusercontent.com
+      if (url.includes('github.com') && url.includes('/blob/')) {
+        url = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+      }
+
+      // If already a full HTTP/HTTPS URL
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+
+      // If relative path from bakalarske-statnice/
+      if (url.startsWith('bakalarske-statnice/')) {
+        url = url.replace(/^bakalarske-statnice\//, '');
+      }
+      if (url.startsWith('/')) {
+        url = url.slice(1);
+      }
+
+      return DEFAULT_BASE_URL + url;
+    }
+
+    /**
+     * Resolves links and images in Markdown to full raw GitHub URLs
+     */
+    function resolveMarkdownLink(target, baseUrl) {
+      if (!target) return '';
+      let url = target.trim();
+
+      // GitHub blob URL -> raw URL
+      if (url.includes('github.com') && url.includes('/blob/')) {
+        return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+      }
+
+      // Full HTTP/HTTPS URL
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+
+      // file:/// URL from local workspace or artifacts
+      if (url.startsWith('file:///')) {
+        if (url.includes('bakalarske-statnice/')) {
+          url = url.split('bakalarske-statnice/')[1];
+          return DEFAULT_BASE_URL + url;
+        } else {
+          const fileName = url.substring(url.lastIndexOf('/') + 1);
+          if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.svg') || fileName.endsWith('.webp')) {
+            return DEFAULT_BASE_URL + 'img/' + fileName;
+          }
+          return DEFAULT_BASE_URL + fileName;
+        }
+      }
+
+      // If starts with bakalarske-statnice/
+      if (url.startsWith('bakalarske-statnice/')) {
+        return DEFAULT_BASE_URL + url.replace(/^bakalarske-statnice\//, '');
+      }
+
+      // If target starts with top-level folder names in bakalarske-statnice
+      if (url.startsWith('testy/') || url.startsWith('minula-zadani/') || url.startsWith('poznamky-spolecna-cast/') || url.startsWith('poznamky-specializace-web/') || url.startsWith('img/')) {
+        return DEFAULT_BASE_URL + url;
+      }
+
+      // Standard URL resolution relative to current document URL
+      try {
+        return new URL(url, baseUrl || DEFAULT_DOC_URL).toString();
+      } catch (e) {
+        return normalizeToFullUrl(url);
+      }
+    }
+
+    /**
+     * Markdown + KaTeX parser protecting math formulas from Markdown mangling
+     */
+    function renderMarkdownWithKaTeX(markdownText) {
+      const displayMath = [];
+      const inlineMath = [];
+
+      // 1. Preserve code blocks
+      const codeBlocks = [];
+      let text = markdownText.replace(/```[\s\S]*?```|`[^`\n]*?`/g, (match) => {
+        codeBlocks.push(match);
+        return `%%%CODEBLOCK_${codeBlocks.length - 1}%%%`;
+      });
+
+      // 2. Extract and protect display math $$...$$
+      text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        displayMath.push(math);
+        return `%%%DISPLAYMATH_${displayMath.length - 1}%%%`;
+      });
+
+      // 3. Extract and protect inline math $...$
+      text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, math) => {
+        inlineMath.push(math);
+        return `%%%INLINEMATH_${inlineMath.length - 1}%%%`;
+      });
+
+      // 4. Restore code blocks before marked
+      text = text.replace(/%%%CODEBLOCK_(\d+)%%%/g, (match, id) => codeBlocks[parseInt(id)]);
+
+      // 5. Convert Markdown to HTML
+      let html = marked.parse(text);
+
+      // 6. Render KaTeX formulas
+      html = html.replace(/%%%DISPLAYMATH_(\d+)%%%/g, (match, id) => {
+        const math = displayMath[parseInt(id)];
+        try {
+          return katex.renderToString(math, { displayMode: true, throwOnError: false });
+        } catch (e) {
+          return `<div class="katex-error">$$${math}$$</div>`;
+        }
+      });
+
+      html = html.replace(/%%%INLINEMATH_(\d+)%%%/g, (match, id) => {
+        const math = inlineMath[parseInt(id)];
+        try {
+          return katex.renderToString(math, { displayMode: false, throwOnError: false });
+        } catch (e) {
+          return `<span class="katex-error">$${math}$</span>`;
+        }
+      });
+
+      return html;
+    }
+
+    /**
+     * Set up IntersectionObserver to highlight currently visible heading in TOC
+     */
+    function setupScrollSpy() {
+      if (headingObserver) {
+        headingObserver.disconnect();
+      }
+
+      const headings = Array.from(contentEl.querySelectorAll('h1, h2, h3, h4'));
+      if (headings.length === 0) return;
+
+      const headerHeight = document.querySelector('header')?.offsetHeight || 155;
+
+      headingObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll('.toc-list a').forEach(a => {
+              if (a.getAttribute('href') === `#${id}`) {
+                a.classList.add('toc-active');
+                a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+              } else {
+                a.classList.remove('toc-active');
+              }
+            });
+          }
+        });
+      }, {
+        rootMargin: `-${headerHeight + 20}px 0px -65% 0px`,
+        threshold: 0
+      });
+
+      headings.forEach(h => headingObserver.observe(h));
+    }
+
+    /**
+     * Build Table of Contents from rendered headings
+     */
+    function buildTableOfContents() {
+      const headings = contentEl.querySelectorAll('h1, h2, h3, h4');
+      tocList.innerHTML = '';
+      mobileTocList.innerHTML = '';
+
+      if (headings.length === 0) {
+        tocList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.8rem;">Žádné nadpisy</li>';
+        mobileTocList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.8rem;">Žádné nadpisy</li>';
+        tocCount.textContent = '';
+        return;
+      }
+
+      tocCount.textContent = `(${headings.length})`;
+
+      headings.forEach((h, idx) => {
+        const id = h.id || `heading-${idx}`;
+        h.id = id;
+
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${id}`;
+        a.textContent = h.textContent;
+        a.className = `toc-${h.tagName.toLowerCase()}`;
+
+        a.onclick = (e) => {
+          e.preventDefault();
+          h.scrollIntoView({ behavior: 'smooth' });
+          toggleMobileDrawer(false);
+        };
+
+        li.appendChild(a);
+        tocList.appendChild(li);
+
+        const mLi = li.cloneNode(true);
+        mLi.querySelector('a').onclick = (e) => {
+          e.preventDefault();
+          h.scrollIntoView({ behavior: 'smooth' });
+          toggleMobileDrawer(false);
+        };
+        mobileTocList.appendChild(mLi);
+      });
+
+      setupScrollSpy();
+      updateHeaderHeight();
+    }
+
+    /**
+     * Intercept relative markdown links & images, resolving them to full raw URLs
+     */
+    function attachLinkInterceptors() {
+      // 1. Links
+      const links = contentEl.querySelectorAll('a');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Skip in-page anchor links
+        if (href.startsWith('#')) return;
+
+        // External web links (not our repo): open in new tab
+        const isExternalWeb = (href.startsWith('http://') || href.startsWith('https://')) &&
+                              !href.includes('github.com/memizy/course-mff-informatika') &&
+                              !href.includes('raw.githubusercontent.com/memizy/course-mff-informatika');
+
+        if (isExternalWeb && !href.endsWith('.md')) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+          return;
+        }
+
+        // Markdown or internal repo document link: load in-app
+        link.onclick = (e) => {
+          e.preventDefault();
+          const resolvedUrl = resolveMarkdownLink(href, currentUrl);
+          loadDocument(resolvedUrl, true);
+        };
+      });
+
+      // 2. Images: rewrite relative src or file:/// to full GitHub raw URL
+      const images = contentEl.querySelectorAll('img');
+      images.forEach(img => {
+        const src = img.getAttribute('src');
+        if (!src) return;
+        if (!src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('data:')) {
+          img.src = resolveMarkdownLink(src, currentUrl);
+        } else if (src.startsWith('file:///')) {
+          img.src = resolveMarkdownLink(src, currentUrl);
+        }
+      });
+    }
+
+    /**
+     * Fetch document from full raw URL with automatic cache-busting
+     */
+    async function loadDocument(inputUrl, forceBust = true) {
+      if (!inputUrl) return;
+
+      const fullUrl = normalizeToFullUrl(inputUrl);
+      currentUrl = fullUrl;
+      fileInput.value = fullUrl;
+      localStorage.setItem('mff_last_url', fullUrl);
+
+      // Save full URL into window.location.hash for shareability
+      window.location.hash = encodeURIComponent(fullUrl);
+
+      // Update active state on shortcut pills
+      document.querySelectorAll('.pill').forEach(pill => {
+        if (pill.getAttribute('data-url') === fullUrl) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+
+      // Display filename in badge
+      const urlFileName = fullUrl.substring(fullUrl.lastIndexOf('/') + 1) || fullUrl;
+      loadedFileBadge.textContent = urlFileName;
+
+      // Update status indicator
+      statusDot.className = 'status-dot loading';
+      statusText.textContent = `Stahuji z ${urlFileName}...`;
+
+      // Build fetch URL with cache-busting timestamp
+      let fetchUrl = fullUrl;
+      if (forceBust) {
+        const separator = fullUrl.includes('?') ? '&' : '?';
+        fetchUrl = `${fullUrl}${separator}_nocache=${Date.now()}`;
+      }
+
+      try {
+        // Simple GET request without custom headers to avoid CORS preflight (OPTIONS 403)
+        let response;
+        try {
+          response = await fetch(fetchUrl);
+        } catch (fetchErr) {
+          // Fallback to jsdelivr CDN mirror if direct raw GitHub fetch fails
+          if (fullUrl.includes('raw.githubusercontent.com/memizy/course-mff-informatika/main/')) {
+            const cdnUrl = fullUrl.replace(
+              'raw.githubusercontent.com/memizy/course-mff-informatika/main/',
+              'cdn.jsdelivr.net/gh/memizy/course-mff-informatika@main/'
+            );
+            const cdnFetchUrl = `${cdnUrl}${cdnUrl.includes('?') ? '&' : '?'}_nocache=${Date.now()}`;
+            response = await fetch(cdnFetchUrl);
+          } else {
+            throw fetchErr;
+          }
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Soubor nebyl na zadané URL adrese nalezen (možná ještě nebyl pushnutý na GitHubu do větve main).`);
+        }
+
+        const markdown = await response.text();
+
+        statusText.textContent = `Renderuji Markdown & LaTeX...`;
+        
+        // Render markdown with math
+        contentEl.innerHTML = renderMarkdownWithKaTeX(markdown);
+        buildTableOfContents();
+        attachLinkInterceptors();
+
+        // Update status to success
+        statusDot.className = 'status-dot';
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('cs-CZ');
+        statusText.textContent = `Aktuální (načteno v ${timeStr})`;
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'instant' });
+
+      } catch (err) {
+        statusDot.className = 'status-dot';
+        statusDot.style.background = '#ef4444';
+        statusText.textContent = `Chyba při načítání`;
+
+        contentEl.innerHTML = `
+          <div class="error-card">
+            <h3>❌ Chyba při stahování souboru</h3>
+            <p><strong>Zadaná URL:</strong> <code style="word-break: break-all;">${fullUrl}</code></p>
+            <p style="margin-top: 0.5rem;">${err.message}</p>
+            <p style="margin-top: 0.8rem; font-size: 0.9rem; color: var(--text-muted);">
+              <strong>Tip:</strong> Zkontrolujte, zda je soubor veřejně přístupný na GitHubu v branchi <code>main</code>. Pokud jste soubor vytvořil lokálně, nezapomeňte jej commitnout a pushnout přes <code>git push</code>.
+              <br>Odkaz: <a href="${fullUrl}" target="_blank" rel="noopener" style="color: #818cf8;">Otevřít přímo v prohlížeči ↗</a>
+            </p>
+          </div>
+        `;
+        tocList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.8rem;">Chyba načtení</li>';
+        mobileTocList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.8rem;">Chyba načtení</li>';
+        tocCount.textContent = '';
+      }
+    }
+
+    function refreshCurrentDocument() {
+      if (currentUrl) {
+        loadDocument(currentUrl, true);
+      } else {
+        loadDocument(DEFAULT_DOC_URL, true);
+      }
+    }
+
+    function copyCurrentUrl() {
+      const urlToCopy = currentUrl || fileInput.value || DEFAULT_DOC_URL;
+      navigator.clipboard.writeText(urlToCopy).then(() => {
+        const btn = document.querySelector('.btn-copy span');
+        const orig = btn.textContent;
+        btn.textContent = 'Zkopírováno!';
+        setTimeout(() => { btn.textContent = orig; }, 1800);
+      });
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const val = fileInput.value.trim();
+      if (val) {
+        loadDocument(val, true);
+      }
+    }
+
+    function toggleMobileDrawer(show) {
+      if (show) {
+        mobileDrawer.classList.add('open');
+      } else {
+        mobileDrawer.classList.remove('open');
+      }
+    }
+
+    // Font size controls
+    document.getElementById('font-increase').onclick = () => {
+      if (currentFontSize < 24) {
+        currentFontSize += 1.5;
+        contentEl.style.fontSize = `${currentFontSize}px`;
+      }
+    };
+
+    document.getElementById('font-decrease').onclick = () => {
+      if (currentFontSize > 13) {
+        currentFontSize -= 1.5;
+        contentEl.style.fontSize = `${currentFontSize}px`;
+      }
+    };
+
+    // Dark / Light Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light', !isDark);
+      localStorage.setItem('mff_theme', isDark ? 'dark' : 'light');
+    };
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('mff_theme');
+    if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
+
+    // Initialize Document on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHeaderHeight();
+      let initialUrl = DEFAULT_DOC_URL;
+
+      // Check hash in URL (e.g. #https://raw.githubusercontent.com/...)
+      if (window.location.hash) {
+        const hashVal = decodeURIComponent(window.location.hash.substring(1));
+        if (hashVal) initialUrl = normalizeToFullUrl(hashVal);
+      } else {
+        // Or check query parameter (?url=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('url')) {
+          initialUrl = normalizeToFullUrl(urlParams.get('url'));
+        } else if (urlParams.has('file')) {
+          initialUrl = normalizeToFullUrl(urlParams.get('file'));
+        } else {
+          // Or last opened URL
+          const last = localStorage.getItem('mff_last_url');
+          if (last) initialUrl = normalizeToFullUrl(last);
+        }
+      }
+
+      loadDocument(initialUrl, true);
+    });
+
+    // Listen for back/forward browser navigation
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash) {
+        const hashVal = decodeURIComponent(window.location.hash.substring(1));
+        const normalized = normalizeToFullUrl(hashVal);
+        if (normalized && normalized !== currentUrl) {
+          loadDocument(normalized, true);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

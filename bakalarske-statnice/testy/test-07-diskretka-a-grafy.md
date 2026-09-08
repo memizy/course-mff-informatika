@@ -41,7 +41,7 @@ Jiné dvojice vrcholů spojeny nejsou.
 2. **(b)** Jaké platí omezení pro barevnosti rovinných grafů?
 3. **(c)** Určete barevnost grafu na obrázku níže.
 
-![Barevnost grafu](file:///C:/Users/nagyl/.gemini/antigravity-ide/brain/1c803353-10ab-4be8-afdd-ba161f4762a7/podzim-2024-graf-barevnost.png)
+![Barevnost grafu](https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/img/podzim-2024-graf-barevnost.png)
 
 *(Poznámka k topologii grafu na obrázku: Graf má 10 vrcholů $a, b, c, d, e, f, g, h, i, j$. Centrální uzel $a$ tvoří kolo s 5-cyklem $b-c-d-e-f-b$, tedy $a$ sousedí se všemi vrcholy $\{b, c, d, e, f\}$. Dále zespodu navazují vrcholy $g, h, i, j$: hrany $\{f, g\}, \{g, h\}, \{f, h\}, \{h, i\}, \{e, i\}, \{e, j\}, \{i, j\}$).*
 
@@ -62,7 +62,7 @@ Nechť $n$ je přirozené číslo větší než 1. Definujeme graf $G_n$ takto: 
 
 Například pro $n = 3$ dostaneme tento graf:
 
-![Eulerovský graf pro n=3](file:///C:/Users/nagyl/.gemini/antigravity-ide/brain/1c803353-10ab-4be8-afdd-ba161f4762a7/jaro-2025-graf-euler.png)
+![Eulerovský graf pro n=3](https://raw.githubusercontent.com/memizy/course-mff-informatika/main/bakalarske-statnice/img/jaro-2025-graf-euler.png)
 
 1. **(a)** Pro která $n > 1$ je graf $G_n$ souvislý?
 2. **(b)** Nechť $A \subset \{1, \dots, n\}$ je množina velikosti menší než $n$. Jaký je stupeň vrcholu, který odpovídá množině $A$? (Závisí nějak na velikosti množiny $A$, na $n$, nebo případně na něčem jiném)?

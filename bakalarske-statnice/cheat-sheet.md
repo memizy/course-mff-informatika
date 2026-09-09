@@ -2856,8 +2856,7 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     ```
   * *Výhody:* Automatické rozdělení práce, odolnost proti výpadku uzlu (fault-tolerance – při pádu uzlu se daný Map/Reduce spustí jinde), data locality (kód se posílá k datům).
   * *Nevýhody:* Zápis mezivýsledků na disk (vysoká I/O režie), nevhodné pro iterativní algoritmy (nahrazeno Apache Sparkem, který drží data v RAM).
-  * *Alternativy k MapReduce:* **Apache Spark** (In-Memory DAG, mezivýsledky v RAM přes RDD $\implies$ 10–100× rychlejší u iterací), **Apache Flink / Kafka Streams** (proudové real-time zpracování po událostech, okna), **Google Pregel / Apache Giraph** (grafový model BSP – *„Think like a vertex“*), **Trino / Presto** (rychlé distribuované SQL nad Data Lake).
-
+  * *Alternativy k MapReduce (Apache Spark):* Místo rigidních dvou fází organizuje výpočty do obecného acyklického grafu (DAG) a mezivýsledky uchovává přímo v operační paměti (RAM), což eliminuje pomalé diskové I/O a zrychluje iterativní výpočty (ML, PageRank) 10–100×. Využívá distribuovanou abstrakci **RDD** (*Resilient Distributed Datasets*) s líným vyhodnocováním – při selhání uzlu se ztracená data automaticky zrekonstruují z historie transformací (*Lineage graf*) bez nutnosti mezizápisů na disk.
 * **NoSQL – Vlastnosti, výhody/nevýhody a srovnání modelů na příkladu e-shopu:**
   * *Vlastnosti:* Horizontální škálovatelnost (scale-out, sharding), flexibilní schéma (*schema-on-read*), denormalizace (agregáty pospolu bez JOINů), model BASE místo ACID.
   * *Výhody:* Obrovská propustnost čtení/zápisu, snadné škálování na komoditním HW, agilní úpravy struktur.

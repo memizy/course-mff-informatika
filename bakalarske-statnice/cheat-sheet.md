@@ -2854,8 +2854,31 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
             total_sum += count
         emit(word, total_sum)
     ```
-  * *Výhody:* Automatické rozdělení práce, odolnost proti výpadku uzlu (fault-tolerance – při pádu uzlu se daný Map/Reduce spustí jinde).
+  * *Výhody:* Automatické rozdělení práce, odolnost proti výpadku uzlu (fault-tolerance – při pádu uzlu se daný Map/Reduce spustí jinde), data locality (kód se posílá k datům).
   * *Nevýhody:* Zápis mezivýsledků na disk (vysoká I/O režie), nevhodné pro iterativní algoritmy (nahrazeno Apache Sparkem, který drží data v RAM).
+  * *Alternativy k MapReduce:* **Apache Spark** (In-Memory DAG, mezivýsledky v RAM přes RDD $\implies$ 10–100× rychlejší u iterací), **Apache Flink / Kafka Streams** (proudové real-time zpracování po událostech, okna), **Google Pregel / Apache Giraph** (grafový model BSP – *„Think like a vertex“*), **Trino / Presto** (rychlé distribuované SQL nad Data Lake).
+
+* **NoSQL – Vlastnosti, výhody/nevýhody a srovnání modelů na příkladu e-shopu:**
+  * *Vlastnosti:* Horizontální škálovatelnost (scale-out, sharding), flexibilní schéma (*schema-on-read*), denormalizace (agregáty pospolu bez JOINů), model BASE místo ACID.
+  * *Výhody:* Obrovská propustnost čtení/zápisu, snadné škálování na komoditním HW, agilní úpravy struktur.
+  * *Nevýhody:* Ztráta plného ACID (transakce jen nad 1 dokumentem/klíčem), absence jednotného SQL, integrita dat se přenáší do aplikace, redundance dat.
+  * *Srovnání modelů (E-shop: Zákazník Jan, Objednávka 101, Položky: 2× Kniha Algoritmy):*
+    * **Relační (SQL):** 4 tabulky spojené cizími klíči $\implies$ detail objednávky vyžaduje **3× `JOIN`**.
+    * **Klíč – hodnota (Key-Value):** Klíč `order:101` $\to$ hodnota je serializovaný JSON blob v $O(1)$; nelze se ptát dovnitř na produkt bez skenu všech klíčů.
+    * **Dokumentové:** Jeden JSON dokument v `orders` s vnořeným polem položek $\implies$ **sekundární index na `items.product_id`** umožní bleskový dotaz na produkt v $O(\log N)$.
+    * **Sloupcové (Wide-Column):** RowKey = `CustomerID`, sloupce = `OrderID_101` $\implies$ historie zákazníka leží na disku souvisle, bleskové čtení.
+    * **Grafové:** Uzly `(:Customer)` a `(:Product)` propojené přes `(:Order)` hranami `[:ORDERED]` a `[:CONTAINS]` $\implies$ doporučovací dotazy bez JOINů.
+
+* **Grafové databáze – Datový model a 4 třídy grafových dotazů:**
+  * *Datový model LPG (Labeled Property Graph):* Uzly (entity se štítky), orientované typované hrany a vlastnosti (klíč-hodnota) na uzlech i hranách.
+  * *Index-free adjacency:* Každý uzel drží přímé paměťové pointery na sousední hrany $\implies$ průchod hranou je **$O(1)$** nezávisle na celkové velikosti grafu.
+  * *Příklad modelu:* `(:User {name: 'Alice'})-[:FRIEND]->(:User)-[:WATCHED {rating: 5}]->(:Movie {title: 'Matrix'})`.
+  * *4 třídy grafových dotazů:*
+    1. *Dotazy na sousedství (Neighborhood / k-hop):* `MATCH (u:User {name: 'Alice'})-[:FRIEND]->(f)-[:WATCHED]->(m) RETURN m.title`
+    2. *Vyhledávání vzorů (Pattern matching):* `MATCH (a:Account)-[:TRANSFER]->(b)-[:TRANSFER]->(c)-[:TRANSFER]->(a) RETURN a,b,c` (detekce cyklů a podvodů)
+    3. *Cestové dotazy (Reachability / Path finding):* `MATCH p = shortestPath((a:City {name:'Praha'})-[:ROAD*]-(b:City {name:'Brno'})) RETURN p`
+    4. *Globální analytické dotazy:* PageRank (autorita uzlů), detekce komunit (Louvain), Betweenness centrality (úzká hrdla sítě).
+
 * **Multi-model databáze vs. Polystore architektura:**
   * **Multi-model databáze:**
     * *Princip:* Jediný integrovaný databázový stroj nativně podporuje více různých datových modelů současně (např. relační tabulky + JSON dokumenty + grafové vazby).

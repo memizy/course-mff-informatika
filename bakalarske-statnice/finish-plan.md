@@ -119,7 +119,7 @@ Existuje deterministický !! algoritmus/verifikátor
 
 * **Pointery v C (`&` adresa vs `*` dereference):**
   * `int x = 42;`
-  * `int* ptr = &x;` $\implies$ `&` získá adresu buňky paměti, kde leží `x` (např. `0x7fff00`).
+  * `int* ptr = &x;` $\implies$ `&` získá adresu buňky paměti, kde leží `x` (např. `0x7fff00`) to samé jako `int *ptr = &x;`.
   * `*ptr = 100;` $\implies$ dereference `*`: zápis přímo do buňky na dané adrese $\implies$ hodnota `x` je nyní 100.
 
 
@@ -178,12 +178,63 @@ Ovladače a HW registry (MMIO v C):
     * Kdykoliv zadání žádá **„druh / typ / variantu“ z pevné sady hodnot** (např. druh typu: `enum TypeKind { Class, Struct, Interface, Enum }`, barva, stav).
     * Nevymýšlet na to další hierarchii tříd ani textové řetězce (`string`)! `enum` je v C# nejrychlejší, typově bezpečný a ideální pro switch/pattern matching.
 
-Nezapomínat u tříd na konstruktory a ten abstraktní dát protected, ten 4. příklad z testu to hezky ukazuje
+Nezapomínat u tříd na konstruktory a ten abstraktní dát protected, ten 4. příklad z testu to hezky ukazuje.
 
-Sčítání, odčítání, násobení APOD. znamená Použijte generiku!
+Matice a OOP syntaktické body:
+* **Indexer v C# (hranaté závorky `m[r, c]`):** Píše se přes klíčové slovo `this` (nikdy `static`):
+  `double this[int r, int c] { get; }`
+* **Aritmetické operace / operátory:**
+  * Nebo operátory (C# 11 v interface): `static abstract IMatrix operator +(IMatrix a, IMatrix b);`
+  * Ve třídě: `public static Matrix operator +(Matrix a, Matrix b) => ...;`
+* **Ve `struct` nezapomenout `public`:** Bez modifikátoru jsou pole privátní!
+* **C# Switch výraz:** `return matrixMetadata.matrixType switch { MatrixType.Dense => new DenseMatrix(...), MatrixType.Sparse => ... };`
+* **Velká vs. malá písmena:** Třídy, metody, properties, enumy = PascalCase (`Rows`, `Add`, `Dense`). Parametry a proměnné = camelCase (`rows`, `filePath`). Privátní pole = `_camelCase` (`_data`).
 
 I když je tam C# a nevím přesnou syntaxi nevadí nenechat se tim znervóznit důležitý je když umím používat ty koncepty a nejsou tam kritické chyby
+
+U těhle technických je tam spousta skrytých pastí na které člověk zapomene protože to zadání je dlouhé když je čas tak si to ještě projít a kontrolovat
+* Konstruktor heapu: u 1. volného bloku nastavit i `Next = 0xFFFF` (-1 konec seznamu), nejen `Size`!
+* `FindFirstFree`: potřebná velikost bloku je $\ge$ `2 + payloadSize` (hlavička Size má 2B)! Cyklus řídit `while (offset != 0xFFFF)`, ať nespadne čtení na neplatné adrese, když je to prázdný!
+* `Mark(offset, isFree)`: v C# nelze bitové `| bool`. Bacha na význam bitu: `isFree == true` $\implies$ bit 0 je **0**! Tedy: `isFree ? (size & ~1) : ((size & ~1) | 1)`.
+
+U hexdumpu nikdy nezapomínat na little endian
+
+U složitých implementací funkcí kde se například načítaj byty a offsety si nejdřív napsat vedle pseudokód klidě ho tam nechat neb to chtěj stejěn vysvětlený
+
+U hexdumpu pozor když hledám 0x900a tak to hledám na řádce kde už je 0x9000
+
+freq_t *head; znamená pointer na nějaký freq_t a ten pointer se jmenuje head zatímco freq_t head znamená freq_t proměná s názvem head
+
+Zase pozor na prázdný seznam nebo prostě prvotní stav aby to nespadlo
+
+U úloh typu officiální low level dokumentace skočit na to kde se začínají definovat třídy a kde jsou otázky číst to nejdřív odtamtud z toho je tomu většinou rozumět o dost lépe, napsat si krátce co má daná třída mít pod sebe, to pomůže nejvíc kreslení diagramu samotné dokumentace moc nepomáhá
+U tříd pak se často nevyplatí začínat fieldama ty vyplynou cestou nechat si na ně místo
+Začít psát uprostřed konstruktorem až pak dopsat později hlavní obal podle počtu atributů
+Koukat dobře na to co už mi tam připravili jako tady třeba enum a já ho přehlídl
+
+Zapomněl jsem pro file co jsem dostal ho zapsat jako privátní field a volat metodu readBytes na něm
+A fieldy delat private readonly neb se nemění
+
+Když je tqamněco co nevim v tom programování nenechat se tim rozhodit a nějak to dodělat aspoň
+Tu poslední věc často dávaj jen na bitové operace a přetypování
+To že chtěj konstatní čas znamená prostě zapsat si pozice každého atributu
+Dá se to zkrátit pomocí:
+public int attributes() => _types.Length;
+public AttrType getType(int i) => _types[i];
+public long getRoot() => _rootPos;
+
+Nedělat zbytečné validace které kontroluje sám C# jako přístup mimo pole pokud to není výslovně požadováno
+Soustředit se na to aby to fungovalo na začátku pro prázdný či první stav např. u whilů ale tyhle chyby neřešit neb je Cš vyhodí sám
+
+!!!!!! readonly když se něco nemění, sealed když už od toho nedědíme
+
+Kdybych hodně nestíhal napsat to pseudokódem
+
 
 ## Celkově
 Neškrtat dokud si nejsem stopro jistý škrtnutím někdy toho pak člověk lituje
 Raději dopsat celé hnusně a pak celé předělat než 2x protože jsem udělal půlku a pak to zas přeškrtal samozřejmě jen pokud je to rozumně čitelné
+
+Zhodnotit na začátku časovou složitost podle typu zadání
+
+Nechávat si na papíru všude hodně místa

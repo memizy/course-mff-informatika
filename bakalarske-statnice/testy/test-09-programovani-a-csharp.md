@@ -371,7 +371,7 @@ S využitím vhodného *návrhového vzoru* implementujte *prostředek*, který 
 public interface IMatrix {
     long Rows { get; }
     long Columns { get; }
-    static double [,] (long Row, long Column) { get; }
+    double this[long Row, long Column] { get; }
 
     IMatrix Operation(Func<IMatrix,IMatrix,IMatrix>, IMatrix matrix)
 }
@@ -385,14 +385,14 @@ public class SparseMatrix : IMatrix {
     long Rows { get; } // Počet řádků a sloupců inicializujeme jako properties které je potřeba nastavit při konstruktoru
     long Columns { get; }
     private LinkedList<DataCell>[] data; // Pro data použijeme pro každý řádek LinkedList a tyto Linked listy dáme do pole neb ty reference mají jen lineární prostorovou složitost O(Rows)
-    // Samotná data jsou pak v linked listech abychom neplýtvali místem, celková prostorová složitost je tedy O(Rows + Počet prvků v matici)
+    // Samotná data jsou pak v linked listech abychom neplýtvali místem, celková prostorová složitost je tedy O(Rows + Počet nenulových prvků v matici)
     public SparseMatrix(long Rows, long Columns) {
         this.Rows = Rows
         this.Columns = Columns
         this.data = new LinkedList[Rows];
     }
 
-    public static double [,] (long Row, long Column) {
+    public double this[long Row, long Column] {
         get => () {
             if (Row >= Rows || Column >= Colums) {
                 throw new IndexOutOfRangeException();
@@ -420,9 +420,9 @@ public struct MatrixMetadata {
 public class MatrixFactory {
     public IMatrix CreateMatrixFrom(string FilePath) {
         MatrixMetadata matrixMetadata = GetOptimalMatrixImplementation(string FilePath)
-        switch matrixMetadata.matrixType {
-            Dense => return new DenseMatrix(matrixMetadata.Rows, matrixMetadata.Columns)
-            Sparse => return new SparseMatrix(matrixMetadata.Rows, matrixMetadata.Columns)
+        return matrixMetadata.matrixType switch {
+            MatrixType.Dense => new DenseMatrix(matrixMetadata.Rows, matrixMetadata.Columns),
+            MatrixType.Sparse => new SparseMatrix(matrixMetadata.Rows, matrixMetadata.Columns),
         }
     }
 }
@@ -457,15 +457,23 @@ class Heap {
 
     public Heap(byte[] availableMemory) {
         _heap = availableMemory;
-        // TODO
+        SetUshort(0, (ushort)_heap.Length);A nemá to tvoje řešení náhodou díru
     }
 
     private ushort FindFirstFree(ushort payloadSize) {
-        // TODO
+        ushort currentOffset = _firstFreeOffset
+        while (GetUshort(currentOffset) < payloadSize) { // while current cell size < payloadSize
+            currentOffset = GetUshort(currentOffset + 2) // zvětši offset na další volný blok
+            if (currentOffset == 0xFFFF || currentOffset > _heap.Length) {
+                return 0xFFFF
+            }
+        }
+        return currentOffset;
+
     }
 
     private void Mark(ushort offset, bool isFree) {
-        // TODO
+        SetUshort(offset, (ushort)((GetUshort(offset) & ~1) | ~isFree))
     }
 
     public void SetUshort(ushort offset, ushort value) { ... }
@@ -536,7 +544,124 @@ Každá metoda čte $i$-tý atribut; je odpovědností volajícího zajistit, ž
 > **Tvé řešení:**
 > 
 > 
-> 
+
+<details>
+<summary><b>Vzorové řešení (C# – Práce s binárním formátem souboru, Big-Endian a O(1) indexace):</b></summary>
+
+### 1. Třída `Reader`
+```csharp
+public class Reader
+{
+    private readonly BinaryFile _file;
+    private readonly int _attrCount;
+    private readonly AttrType[] _types;
+    private readonly long _rootPos;
+
+    public Reader(BinaryFile file)
+    {
+        _file = file;
+
+        // 1. Načteme 2 bajty pro počet atributů (Big-Endian) z offsetu 0
+        byte[] countBuf = new byte[2];
+        _file.readBytes(0, countBuf, 2);
+        _attrCount = (countBuf[0] << 8) | countBuf[1];
+
+        // 2. Načteme typy atributů (každý typ má 1 bajt, začínají na offsetu 2)
+        byte[] typeBuf = new byte[_attrCount];
+        _file.readBytes(2, typeBuf, _attrCount);
+        _types = new AttrType[_attrCount];
+        for (int i = 0; i < _attrCount; i++)
+        {
+            _types[i] = (AttrType)typeBuf[i];
+        }
+
+        // 3. Kořenový uzel leží bezprostředně za hlavičkou souboru: 2B (počet) + N bajtů (typy)
+        _rootPos = 2 + _attrCount;
+    }
+
+    public int attributes() => _attrCount;
+
+    public AttrType getType(int i) => _types[i];
+
+    public long getRoot() => _rootPos;
+
+    public Node readNode(long filepos)
+    {
+        // Každý uzel začíná 2 bajty s délkou dat uzlu (Big-Endian)
+        byte[] lenBuf = new byte[2];
+        _file.readBytes(filepos, lenBuf, 2);
+        int dataLen = (lenBuf[0] << 8) | lenBuf[1];
+
+        // Načteme samotná data uzlu (leží hned za 2bajtovou délkou)
+        byte[] nodeData = new byte[dataLen];
+        _file.readBytes(filepos + 2, nodeData, dataLen);
+
+        return new Node(nodeData, _types);
+    }
+}
+```
+
+### 2. & 3. Třída `Node` (Předpočítané offsety pro $O(1)$ a čtení hodnot)
+```csharp
+public class Node
+{
+    // Ukládá data uzlu přesně tak, jak jsou v souboru (požadavek zadání)
+    private readonly byte[] _data;
+
+    // Struktura pro lokalizaci i-tého atributu v konstantním čase O(1):
+    // Pole počátečních offsetů jednotlivých atributů v rámci pole _data.
+    private readonly int[] _attrOffsets;
+
+    public Node(byte[] data, AttrType[] types)
+    {
+        _data = data;
+        _attrOffsets = new int[types.Length];
+
+        int currentPos = 0;
+        for (int i = 0; i < types.Length; i++)
+        {
+            _attrOffsets[i] = currentPos;
+
+            switch (types[i])
+            {
+                case AttrType.TUInt16:
+                case AttrType.TSInt16:
+                    currentPos += 2;
+                    break;
+
+                case AttrType.TLink:
+                    currentPos += 8;
+                    break;
+
+                case AttrType.TString:
+                    // 2 bajty délka řetězce (Big-Endian) + N bajtů znaků
+                    int strLen = (_data[currentPos] << 8) | _data[currentPos + 1];
+                    currentPos += 2 + strLen;
+                    break;
+            }
+        }
+    }
+
+    // Získání 16-bitové hodnoty bez znaménka (rozsah 0 až 65535)
+    public int getUInt16(int i)
+    {
+        int pos = _attrOffsets[i];
+        // Big-Endian: první bajt je vyšší (MSB), druhý bajt je nižší (LSB)
+        return (_data[pos] << 8) | _data[pos + 1];
+    }
+
+    // Získání 16-bitové hodnoty se znaménkem (rozsah -32768 až 32767)
+    public int getSInt16(int i)
+    {
+        int pos = _attrOffsets[i];
+        // Přetypování na (short) zajistí korektní znaménkové rozšíření (sign-extension)
+        // do typu int pro záporná čísla podle dvojkového doplňku.
+        return (short)((_data[pos] << 8) | _data[pos + 1]);
+    }
+}
+```
+
+</details>
 
 ---
 

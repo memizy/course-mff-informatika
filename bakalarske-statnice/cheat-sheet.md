@@ -2258,6 +2258,37 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
     // ((ILogger)r).LogInfo("Ahoj"); // SPRÁVNĚ: Volání defaultní metody VÝHRADNĚ přes referenci rozhraní!
     ```
 
+* **Rozhodovací pravidla pro OOP návrh u zkoušky (Interface vs. Abstraktní třída vs. Enum):**
+  * **Kdy `interface`:**
+    * Kontrakt o **chování a schopnostech** (role CAN-DO: `IComparable`, `IDisposable`), které implementují různé nesouvisející třídy.
+    * **V interface NIKDY nesmí být proměnné (*fields*)!** Interface definuje chování, ne paměťový stav (`string name;` je chyba), jsou tam jen properties u kterých se ten `{ get; či set; }` překládá na metodu get_NazevProperty.
+    * **Vlastnosti VŽDY jen s `{ get; }`** (`string Name { get; }`). Dává se pouze getter (read-only kontrakt); třída si pak sama určí implementaci (`init`, `private set`, get-only). Pokud napíšeme `{ get; set; }`, nutíme každou třídu mít veřejný setter!
+  * **Kdy `abstraktní třídu` (hierarchii tříd):**
+    * Vztah **„JE NĚČÍM“ (IS-A)** a sdílení **vnitřního stavu a kódu** (společný `Name`, bázový konstruktor `base(name)`).
+    * Stromové hierarchie a návrhový vzor **Composite** (např. prvky IDE: `abstract class IdeElement`, ze kterého dědí `FieldElement`, `MethodElement`, `TypeElement`).
+    * Disjunktní polymorfismus pro pattern matching (prvek je garantovaně právě jednoho konkrétního typu), používat `sealed`.
+    * *Ukázka: Disjunktní hierarchie se `sealed record` a switch výrazem:*
+      ```csharp
+      public abstract record StavPlatby;
+
+      public sealed record CekaSeNaPlatbu : StavPlatby;
+      public sealed record Zaplaceno(DateTime Kdy) : StavPlatby;
+      public sealed record Selhalo(string Duvod) : StavPlatby;
+
+      // Díky sealed:
+      // 1. Kompilátor ví, že větve jsou vzájemně výlučné (objekt nemůže být zároveň Zaplaceno i něco jiného).
+      // 2. Žádná cizí knihovna vám do této hierarchie nemůže podstrčit nečekaného potomka.
+      string zprava = stav switch
+      {
+          CekaSeNaPlatbu => "Čekáme...",
+          Zaplaceno z => $"Uhrazeno: {z.Kdy}",
+          Selhalo s => $"Chyba: {s.Duvod}"
+      };
+      ```
+  * **Kdy `enum` (Zkouškový reflex):**
+    * Kdykoliv zadání žádá **„druh / typ / variantu“ z pevné sady hodnot** (např. druh typu: `enum TypeKind { Class, Struct, Interface, Enum }`, barva, stav).
+    * Nevymýšlet na to další hierarchii tříd ani textové řetězce (`string`)! `enum` je v C# nejrychlejší, typově bezpečný a ideální pro switch/pattern matching.
+
 * **Pattern Matching, Generika (`where`), Výjimky (`throw;`) a Přetížení operátorů:**
   * **Generika a omezení (`where` constraints):**
     * Typová bezpečnost bez nutnosti boxingu a přetypovávání: `where T : class, struct, new(), IComparable<T>, notnull`.

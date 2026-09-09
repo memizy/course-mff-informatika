@@ -112,7 +112,77 @@ U převodu z NFA na DFA pozor vždy jít jedno písmenko po druhým nenechat se 
 Existuje deterministický !! algoritmus/verifikátor
 
 ## Programko
-vzorec pro reprezentaci reálných čísel
+* **Vzorec pro reálná čísla (IEEE 754):** $x = (-1)^s \cdot (1 + M) \cdot 2^{E - B}$
+  * $s$: znaménko ($1\text{b}$), $E$: exponent s biasem $B$, $M$: mantisa (implicitní jednička před čárkou $1.M$).
+  * `float` (32b): $s=1, E=8$ (bias $B=127$), $M=23$. `double` (64b): $s=1, E=11$ (bias $B=1023$), $M=52$.
+  * Exponent samé 1 a $M=0 \implies \pm\infty$; Exponent samé 1 a $M \ne 0 \implies \text{NaN}$.
+
+* **Pointery v C (`&` adresa vs `*` dereference):**
+  * `int x = 42;`
+  * `int* ptr = &x;` $\implies$ `&` získá adresu buňky paměti, kde leží `x` (např. `0x7fff00`).
+  * `*ptr = 100;` $\implies$ dereference `*`: zápis přímo do buňky na dané adrese $\implies$ hodnota `x` je nyní 100.
+
+
+Třída s registry tedy reference i lock musí být readonly a private věci musí být private jinak nám to někdo může změnit tedy bez baší funkce tedy bez locku
+Lock s Monitor Wait uvitř
+
+Definice Data Race:
+Kritická sekce se netýká jen zápisu, ale jakéhokoliv souběžného přístupu ke sdíleným datům, kde alespoň jeden z přístupů je zápis.
+
+OOP návrh (Interface vs Abstraktní třída vs Enum):
+* Interface: jen chování (CAN-DO). ❌ NIKDY v něm nesmí být proměnné (fields)! ✅ Vlastnosti VŽDY jen `{ get; }` (read-only kontrakt, ať nenutíš třídy k public setu).
+* Abstraktní třída: vztah IS-A, sdílený stav (`Name`, konstruktor) a stromy (vzor Composite: `TypeElement : IdeElement` obsahuje kolekci `IdeElement`).
+* Enum: kdykoliv zadání žádá „druh / typ / variantu“ z pevné sady (např. `enum TypeKind { Class, Struct... }`), nevymýšlet další třídy ani stringy!
+
+Když je tam zadání v C/C++ pseudokódu, typy proměnných v zadání ti radí, co přesně použít.
+
+Ovladače a HW registry (MMIO v C):
+* `volatile` dát na celou strukturu: `typedef volatile struct { uint32_t status, size, command, lba, dma; } disk_regs_t;`
+* Typy: vždy `uint32_t` (ne int ani uint_32) koukat na to co oni předávaj do metod.
+* Přetypování adresy: `disk->ctl = (disk_regs_t *) register_address;` a pak přistupovat přes šipku `ctl->lba`.
+*  `==` má přednost před `&`, VŽDY ZÁVORKOVAT: `(status & 2) == 0`!
+* Bity testovat maskou: `(status & 1) != 0` (ne natvrdo `== 1`), ať nenaletíš, když je v registru víc čísel/flagů.
+* V C/jádře nelze použít C# `lock`: procesy mají izolovanou paměť (lock funguje jen mezi vlákny 1 procesu)! Nutný jaderný `mutex_t` typ, `mutex_lock(&m)` a nezapomenout `mutex_unlock(&m)` před KAŽDÝM returnem (`&` je adresa/pointer na mutex – v C se jinak vše předává kopií a kopii zamknout nelze).
+* Počkat na připravenost PŘED i PO: ověřit `!BUSY` i `!ERR` (pokud naskočí chyba ERR, hned končit s false, ať nezapisujeme do chybového stavu).
+* Range check: hned na začátku ověřit `if (lba >= max_lba) return false;`.
+
+
+* **Rozhodovací pravidla pro OOP návrh u zkoušky (Interface vs. Abstraktní třída vs. Enum):**
+  * **Kdy `interface`:**
+    * Kontrakt o **chování a schopnostech** (role CAN-DO: `IComparable`, `IDisposable`), které implementují různé nesouvisející třídy.
+    * **V interface NIKDY nesmí být proměnné (*fields*)!** Interface definuje chování, ne paměťový stav (`string name;` je chyba), jsou tam jen properties u kterých se ten `{ get; či set; }` překládá na metodu get_NazevProperty.
+    * **Vlastnosti VŽDY jen s `{ get; }`** (`string Name { get; }`). Dává se pouze getter (read-only kontrakt); třída si pak sama určí implementaci (`init`, `private set`, get-only). Pokud napíšeme `{ get; set; }`, nutíme každou třídu mít veřejný setter!
+  * **Kdy `abstraktní třídu` (hierarchii tříd):**
+    * Vztah **„JE NĚČÍM“ (IS-A)** a sdílení **vnitřního stavu a kódu** (společný `Name`, bázový konstruktor `base(name)`).
+    * Stromové hierarchie a návrhový vzor **Composite** (např. prvky IDE: `abstract class IdeElement`, ze kterého dědí `FieldElement`, `MethodElement`, `TypeElement`).
+    * Disjunktní polymorfismus pro pattern matching (prvek je garantovaně právě jednoho konkrétního typu), používat `sealed`.
+    * *Ukázka: Disjunktní hierarchie se `sealed record` a switch výrazem:*
+      ```csharp
+      public abstract record StavPlatby;
+
+      public sealed record CekaSeNaPlatbu : StavPlatby;
+      public sealed record Zaplaceno(DateTime Kdy) : StavPlatby;
+      public sealed record Selhalo(string Duvod) : StavPlatby;
+
+      // Díky sealed:
+      // 1. Kompilátor ví, že větve jsou vzájemně výlučné (objekt nemůže být zároveň Zaplaceno i něco jiného).
+      // 2. Žádná cizí knihovna vám do této hierarchie nemůže podstrčit nečekaného potomka.
+      string zprava = stav switch
+      {
+          CekaSeNaPlatbu => "Čekáme...",
+          Zaplaceno z => $"Uhrazeno: {z.Kdy}",
+          Selhalo s => $"Chyba: {s.Duvod}"
+      };
+      ```
+  * **Kdy `enum` (Zkouškový reflex):**
+    * Kdykoliv zadání žádá **„druh / typ / variantu“ z pevné sady hodnot** (např. druh typu: `enum TypeKind { Class, Struct, Interface, Enum }`, barva, stav).
+    * Nevymýšlet na to další hierarchii tříd ani textové řetězce (`string`)! `enum` je v C# nejrychlejší, typově bezpečný a ideální pro switch/pattern matching.
+
+Nezapomínat u tříd na konstruktory a ten abstraktní dát protected, ten 4. příklad z testu to hezky ukazuje
+
+Sčítání, odčítání, násobení APOD. znamená Použijte generiku!
+
+I když je tam C# a nevím přesnou syntaxi nevadí nenechat se tim znervóznit důležitý je když umím používat ty koncepty a nejsou tam kritické chyby
 
 ## Celkově
 Neškrtat dokud si nejsem stopro jistý škrtnutím někdy toho pak člověk lituje

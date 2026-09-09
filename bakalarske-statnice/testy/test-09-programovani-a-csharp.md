@@ -49,9 +49,19 @@ Dále předpokládejme, že máme multiprocesorový systém a program si spustí
 Kde je to důležité, ve své odpovědi uvažujte jazyk C#, C++ nebo Java (a vaši volbu vyznačte).
 
 > **Tvé řešení:**
-> 
-> 
-> 
+1. Celý obsah funkce pushValue kromě samotného return nakonci je kritickou sekcí a obsah getDepth() 
+2. Ano je pokud první vlákno projde podmínkou if (currentDepth >= maxDepth) a pak je uspáno druhé vlákno může udělat celé push value tím se zvýší currentDepth následně první vlákno zapíše mimo alokované pole
+3. přidáme private readonly object _syncroot = new object()
+lock(_syncroot) {
+    return currentDepth
+}
+
+lock(_syncroot) {
+    if ...
+
+    currentDepth+
+}
+return true
 
 ---
 
@@ -80,14 +90,45 @@ Funkce `disk_init` je volána jednou při inicializaci daného zařízení, para
 Vaše implementace musí alespoň triviálním způsobem ošetřit možný současný přístup k disku z více procesů.
 
 ```c
-typedef struct { ... } disk_t;
+typedef struct {
+    volatile uint_32 status;
+    uint_32 size;
+    volatile uint_32 command;
+    volatile uint_32 lba;
+    volatile uint_32 dma;
+} disk_regs;
+
+
+typedef struct {
+    disk_regs* disk_regs;
+    readonly object _syncroot = new object();
+} disk_t;
 
 bool disk_init(disk_t *disk, uint32_t register_address) {
-    ...
+    try {
+        lock(_syncroot) {
+            disk->disk_regs = (disk_regs_t *) register_adress;
+            return true
+        }
+    } catch {
+        return false
+    }
 }
 
 bool disk_read_block_waiting(disk_t *disk, size_t lba, uint32_t data_phys_addr) {
-    ...
+    try {
+        lock(_syncroot) {
+            disk->disk_regs->lba = lba;
+            disk->disk_regs->dma = data_phys_addr;
+            disk->disk_regs->command = 1;
+
+            while ((disk->disk_regs->status & 2) == 2) {}
+            if ((disk->disk_regs->status & 1) == 1) { return false; }
+            return true;
+        }
+    } catch {
+        return false
+    }
 }
 ```
 
@@ -154,9 +195,20 @@ class Program
 (Jazyk C# je v této otázce použitý pouze jako generický zástupce běžných programovacích jazyků, otázka ani řešení s jazykem C# jako takovým nesouvisí.)
 
 > **Tvé řešení:**
-> 
-> 
-> 
+7,8,9,10,11,12,13 Vypsali jsme One Three Five a pak jsme se deadlocknuli
+Ano to by nijak nepomohlo jak vidíme na předchozím příkladu vlákno 1 proběhlo celé a vypsali jsme něco co jsme nechtěli a ještě došlo k deadlocku
+Zavoláme vždy na jednom semaforu 
+
+semafor s1 i s2 dáme na nulu
+
+1
+s2. Release
+s1. WaitOne
+
+s2. WaitOne
+2
+s1. Release
+
 
 ---
 
@@ -171,9 +223,126 @@ class Program
 3. Napište kód, který zavolá vaší metodu z předchozího bodu. Operace předaná metodě je: „vytiskne název elementu, ale pouze v případě, že element reprezentuje datovou položku nebo typ (včetně vnitřních/vnořených typů)“.
 
 > **Tvé řešení:**
-> 
-> 
-> 
+```csharp
+public interface IIdeElement { public string Name {get; set;} }
+
+public inteface IIdeMethod : IdeElement {
+    public List<
+    public string returnType;
+}
+
+public inteface IIdeField : IdeElement {
+    
+}
+
+public inteface IIdeType : IdeElement {
+    public List<IdeElements> elements;
+}
+
+public class IdeType : IIdeType {
+    public void ApplyOperation(type, Action<IIdeElement>) {
+        if (... is )
+    }
+}
+
+Pattern matching
+```
+
+<details>
+<summary><b>Vzorové řešení (C# – Návrhový vzor Composite + Pattern Matching):</b></summary>
+
+```csharp
+// ==========================================
+// 1. DEKLARACE STRUKTURY (Návrhový vzor Composite)
+// ==========================================
+
+public enum TypeKind { Class, Struct, Interface, Enum }
+
+public abstract class IdeElement
+{
+    public string Name { get; }
+    protected IdeElement(string name) => Name = name;
+}
+
+public class FieldElement : IdeElement
+{
+    public string TypeName { get; }
+    public FieldElement(string name, string typeName) : base(name) => TypeName = typeName;
+}
+
+public class MethodElement : IdeElement
+{
+    public string ReturnType { get; }
+    public IReadOnlyList<string> ParameterTypes { get; }
+
+    public MethodElement(string name, string returnType, IReadOnlyList<string> parameterTypes)
+        : base(name)
+    {
+        ReturnType = returnType;
+        ParameterTypes = parameterTypes;
+    }
+}
+
+public class TypeElement : IdeElement
+{
+    public TypeKind Kind { get; }
+    public IReadOnlyList<IdeElement> Elements { get; }
+
+    public TypeElement(string name, TypeKind kind, IReadOnlyList<IdeElement> elements)
+        : base(name)
+    {
+        Kind = kind;
+        Elements = elements;
+    }
+}
+
+// ==========================================
+// 2. METODA PRO PRŮCHOD STRUKTUROU (Rekurze + Composite)
+// ==========================================
+
+public static class IdeOperations
+{
+    // Řešení je založeno na průchodu stromovou strukturou návrhového vzoru Composite.
+    // Pro reprezentaci operace je použit funkcionální typ / delegát Action<IdeElement>.
+    public static void ApplyOperation(TypeElement type, Action<IdeElement> operation)
+    {
+        if (type == null || operation == null) return;
+
+        // Aplikujeme operaci na samotný typ
+        operation(type);
+
+        // Aplikujeme operaci na všechny podelementy
+        foreach (var element in type.Elements)
+        {
+            if (element is TypeElement nestedType)
+            {
+                // Vnořený typ: rekurzivně projdeme i jeho elementy
+                ApplyOperation(nestedType, operation);
+            }
+            else
+            {
+                operation(element);
+            }
+        }
+    }
+}
+
+// ==========================================
+// 3. VOLÁNÍ METODY S LAMBDA VÝRAZEM (Pattern matching)
+// ==========================================
+
+// Použijeme lambda výraz s C# pattern matchingem (is):
+IdeOperations.ApplyOperation(rootType, element =>
+{
+    // Vytisknout název, pouze pokud jde o FieldElement nebo TypeElement (vč. vnořených)
+    if (element is FieldElement or TypeElement)
+    {
+        Console.WriteLine(element.Name);
+    }
+});
+```
+
+</details>
 
 ---
 
@@ -199,9 +368,64 @@ Definujte prostorovou složitost své implementace ve stylu $O(something)$.
 S využitím vhodného *návrhového vzoru* implementujte *prostředek*, který dostane soubor a vrátí instanci kontraktu matice s ideální implementací.
 
 > **Tvé řešení:**
-> 
-> 
-> 
+public interface IMatrix {
+    long Rows { get; }
+    long Columns { get; }
+    static double [,] (long Row, long Column) { get; }
+
+    IMatrix Operation(Func<IMatrix,IMatrix,IMatrix>, IMatrix matrix)
+}
+
+public struct DataCell {
+    double value;
+    long column;
+}
+
+public class SparseMatrix : IMatrix {
+    long Rows { get; } // Počet řádků a sloupců inicializujeme jako properties které je potřeba nastavit při konstruktoru
+    long Columns { get; }
+    private LinkedList<DataCell>[] data; // Pro data použijeme pro každý řádek LinkedList a tyto Linked listy dáme do pole neb ty reference mají jen lineární prostorovou složitost O(Rows)
+    // Samotná data jsou pak v linked listech abychom neplýtvali místem, celková prostorová složitost je tedy O(Rows + Počet prvků v matici)
+    public SparseMatrix(long Rows, long Columns) {
+        this.Rows = Rows
+        this.Columns = Columns
+        this.data = new LinkedList[Rows];
+    }
+
+    public static double [,] (long Row, long Column) {
+        get => () {
+            if (Row >= Rows || Column >= Colums) {
+                throw new IndexOutOfRangeException();
+            }
+            foreach (cell in data[Row]) {
+                if (cell.column == Column) {
+                    return cell.value;
+                }
+            }
+            return 0;
+        }
+    }
+}
+
+public enum MatrixType {
+    Dense, Sparse
+}
+
+public struct MatrixMetadata {
+    public MatrixType matrixType;
+    public long Rows;
+    public long Columns;
+}
+
+public class MatrixFactory {
+    public IMatrix CreateMatrixFrom(string FilePath) {
+        MatrixMetadata matrixMetadata = GetOptimalMatrixImplementation(string FilePath)
+        switch matrixMetadata.matrixType {
+            Dense => return new DenseMatrix(matrixMetadata.Rows, matrixMetadata.Columns)
+            Sparse => return new SparseMatrix(matrixMetadata.Rows, matrixMetadata.Columns)
+        }
+    }
+}
 
 ---
 

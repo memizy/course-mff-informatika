@@ -1,33 +1,3 @@
-# 6.9.
-Logika reálný příklad
-Udělat zobrazení poznámek na mobilu co to načte z vloženýho linku souboru s nějakým stránkování či přeskakováním snadným
-Stanovit testovou strategii a projít poznámky z tamtěch testů
-
-# půl 7.9
-Automaty - projet definice, všechny zkouškové příklady udělat závěry z příkladů
-
-# půl 7.9. a půl 8.9
-C# a Architektury - všechny minulý příklady, vyvození závěrů pro test a chyb to napsat a poslední den si to přečtu, taky tam dát core syntaxi či tu co mi nejde
-
-# půl 8.9. a 9.9.
-Web - všechny příklady a projetí zbytku zapsat core co mi nepůjde z databází a PHP/Javascriptu případně vzorce, vyvození závěrů co si přečtu poslední den
-
-# půl 10.9.
-Lingebra - definice a minulé příklady zapsání poznatků
-
-# půl 10.9., ráno 11.9. Ads, Lingebra skim definic už ne příklady
-Past - definice jeden 2 příklady a minulý, Ads - definice, minulý příklady zapsání poznatků
-
-# zbytek 11.9
-Automaty - definice, Logika pár příkladů na tablo, extenzi, přepsání světa do logiky
-
-# 12.9
-Rano analýza zopakování definic a vět aktivní zapisování a strategie a chyby z příkladů, potom logika krátce podobně, potom dikrétka a grafy, zopakování strategie a chyb z příkladů
-
-
-# 13.9.
-Projetí těch zapsaných poznatk, chyb a nejdůležitějších věcí, rezerva nenechávat sem žádný příklady, cesta do Prahy
-
 ## Final
 Limita funkce v bodě to že nalevo implikace je 0 < a napravo je odečteno L
 U limit jsou důležité deklarce co je vlastní R nebo nevlastní R* z věcí ve vzorečcích
@@ -230,8 +200,90 @@ Soustředit se na to aby to fungovalo na začátku pro prázdný či první stav
 
 Kdybych hodně nestíhal napsat to pseudokódem
 
+## Lingebra
+Stenitzova věta o výměně vhodných vektorů mezi lineárně nezávislou a generující množinou (čili nikoli
+nutně bázemi).
+Matice jako lineární zobrazení, podobnost, diagonalizovatelnost, pozitivní definičnost vlastnosti
+Cauchy Schwarz, Gram-Schmidt
+
+U soustava zkontrolovat jednou aspoň že jsem správně opsal zadání není nic horšího než počítat ze špatnýho zadání nebo rovnou provést první úpravy z původního zadání, ale když beru jen nějaký vektory tak to moc nejde tady byl ještě trik že tam jednou byla jen jednička takže se dal tenhle vektor rovnou odečíst od výsledku a udělat si to lehčí
+Pak je dobré to zkontrolovat jestli opravdu lze vektor tak sestavit
+
+To že součet vlastních čísel je součet čísel na diagonále se může hodit když mi je jen zadaj ale neřeknou mi jejich násobnost
+
+U Cauchy schwarze když je tma nějaká nerovnost druhý vektor je většinou sqamé jedničky nebo jednotková matice
+
+Nebát se napsat si vzorce a klidně to pak přenásobit třeba A-1 na obou stranách a vyjádřit tu matici co mě zajímá.
+
+* **Sestavení matice zobrazení $[\varphi]_{A, B}$:**
+  * Do **sloupců** matice $[\varphi]_{A, B}$ dáváš obrazy vektorů z **VÝCHOZÍ báze $A$**, vyjádřené v souřadnicích vůči **CÍLOVÉ bázi $B$**:
+    $$[\varphi]_{A, B} = \Big( [\varphi(v_1)]_B \;\big|\; [\varphi(v_2)]_B \;\big|\; \dots \;\big|\; [\varphi(v_n)]_B \Big)$$
+  * *Mnemotechnická pomůcka:* $[\varphi(x)]_B = [\varphi]_{A, B} \cdot [x]_A$ (vektor $x$ z báze $A$ „vstupuje“ zprava a výsledkem je obraz v bázi $B$).
+
+Často jsou tam časové pasti nenechat se chytit
+Když mám A = BC, tak když to beru jako zobrazení nejdřív násobím tou maticí C ten vstupní vektor pak tou B, koukat na počty sloupců
+
+## Web
+
+R-strom chybělo mi že je výškově vyvážený a že v listech jsou odkazy na objekty
+Nebát se když je tam konkrétní příklad napsat co se stane v něm jako u MapReduce kde tam byl
+U rozvrhu jsem nenapsal jak je na tom původní stav což je pro řešení důležité, já jsem to věděl ale nenapsal
+Primární klíč tlustou čárou kandidátní tenkou foreign vlnovkou
+Pozor když je někde 0..1 tak je ve spojovací tabulce je primárním klíč pouze ten co má toho druhého 0..1 !!!!!
+Nevypisovat se tam s tak dlouhými názvy v tom UML prostě OdRoku nemusí tam být názvy obou tabulek
+Pozor fyzická úroveň jsou indexy, a optimalizace výkojnu a uložení dat a výstupem jsou fyzické ddl skripty a indexy, logický model dělá databázový návrhář - ten jakoby navrhne to převedení do relačního modelu jak píšeme
+V UML používat hvězdičku ne m a n 0..*
+Často chtějí jestli umíme atribut na relaci když se to nabízí dát to tam
+Pozor ministerstvo má právě jednoho ministra neznamená že ministr musí mít ministerstvo
+dá se psát UNIQUE NOT NULL třeba i do toho relačního zápisu když to má být 1 ku 0..1 tak tohle musí být v té co má druhého určitě, nemůže to být u té druhé protože pak bychom nezaručili že ta první někoho má
+Samotné UNIQUE je pro 0..1 na obou stranách nebo samostnatná tabulka kde je jedno z nich klíč a druhé alternativní klíč
+NOt_NULL když je to ten koho jiný může mít 0..n
+Pozor píše se 1..1 ne jen 1
+Dávat na to pozor spíš co tam asi chtějí např. když tam je určete, které vztahy mají vlastní atributy, tak tam asi nějaký chtěj
+
+Je potřeba psát document.getElementById ne jen getElementById
+Dávat věcem krátké názvy když to jde jako ul nebo li
+a document.createElement pak li.textContent a appendChild
+U posílání nezapomenout na hlavičku application JSON a na JSON.stringify
+Když používám await funkci musím deklarovat jako async
+
+Když je tam několik věcí v zadání třeba endpointů a některé jsem ještě nepoužil a je tam nějaká nejasná otázka zamyslet se jestli náhodou by nebylo chytré něco z toho nepoužitého použít
+
+U podobnosti je jednoduší použít eukleidovskou vzdálenost když si můžu vybrat
+
+Tu definici B stormu tam mají dost důkladně rozepsané ty podmínky, všechny listy se nacházejí na stejné úrovni to je důležité napsat prostě všechny podmínky které mě napadnou
+
+U CYPHERU mi chyběl return distinct s čím to chci
+
+Naznačte jak reprezentovat v relační databázi znamená převeďte to na logický model
+
+U toho grafu v konfliktové uspořadatelnosti to nepsat za sebe to se pak napíše pořadí neb to že T1->T2 a T2->T3 neznamená tranzitivně T1->T3 což z toho může jinak vyplynout
+
+CONSTRAINT fk_tahletabulka_tabulka FOREIGN KEY neco REFERENCES Tabulka(id) ON DELETE CASCADE
+nejdřív se píše název sloupce pak klíč id INT PRIMARY KEY;
+TIMESTAMP WITH TIME ZONE
+
+V BCNF to musí závuset na nadklíči tedy klíč a něco nesplést s částí klíče
+Často se tam psalo as v těch testech
+Pravidlo: Jakýkoliv sloupec, který uvedete v SELECT a není uvnitř agregační funkce (jako SUM, AVG, COUNT), musí být uveden v GROUP BY.
+CONSTRAINT FK_Diplomka_Vedouci FOREIGN KEY (VedouciID) REFERENCES Osoba(OsobaID)
+
+U JSON Schema je potřeba "$schema", "$id" je online primární identifikátor, "type": "object" a "required", "properties"
+Vše je v uvozovkách
+Když má dataset nadřazený catalog tak ho stejně můžu uvést stejně tak distribuce
+
+Zajistit že opakované stisknutí tlačítka to nepošle vícekrát
+Null ošetření a takový věci neřešit
+
+Aby db věděla odkuď hledat potřebuje label u:User a vlastnost v {name: "Alice"}
 
 ## Celkově
+Když budu mít čas zamyslet se jestli mi tam u Webů nechybí nějaká důležitá fakta co by bylo dobré zmínit
+
+Když si něčím nejsem jistý ze zadání zeptat se nebo to tam napsat co předpokládám
+
+Po dokončení úlohy vždy ještě projít a kouknout že jsem nezapomněl zodpovědět nic ze zadání
+
 Neškrtat dokud si nejsem stopro jistý škrtnutím někdy toho pak člověk lituje
 Raději dopsat celé hnusně a pak celé předělat než 2x protože jsem udělal půlku a pak to zas přeškrtal samozřejmě jen pokud je to rozumně čitelné
 

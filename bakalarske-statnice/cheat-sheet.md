@@ -2443,8 +2443,7 @@ Třída regulárních jazyků je **uzavřená** na všechny základní operace:
 
 * **Co znamená „Vlnka“ ($\sim\sim$) a jak kreslit netriviální prvky v ER a UML (Zkouškový přehled):**
   * **1. Co znamená vlnka / podtržení vlnovkou:**
-    * **V konceptuálním ER diagramu (Chen / MFF):** Značí **částečný klíč / diskriminátor slabé entity** ($\underline{\sim\text{CisloPolozky}\sim}$). Atribut je v elipse podtržen vlnovkou. Sám o sobě nestačí k jednoznačné identifikaci v celém systému, je unikátní pouze v rámci nadřazené silné entity (vlastníka).
-    * **V relačním schématu (prof. Pokorný):** Plná čára značí primární klíč ($\underline{\mathbf{ID}}$), zatímco **vlnovka pod názvem sloupce** ($\underset{\sim}{\text{VlastnikID}}$) značí **cizí klíč (FK)**.
+    * **V relačním schématu (prof. Pokorný):** Tlustá plná čára značí primární klíč ($\underline{\mathbf{ID}}$), lehká rovná čára značí kandidátní klíč, zatímco **vlnovka pod názvem sloupce** ($\underset{\sim}{\text{VlastnikID}}$) značí **cizí klíč (FK)**.
   * **2. Slabá entita & Identifikační vztah vs. Kompozice:**
     * **ER:** Slabá entita = **dvojitý obdélník**, identifikační vztah = **dvojitý kosočtverec**, diskriminátor = elipsa s **vlnovkou**.
     * **UML:** Modeluje se jako **Kompozice** – **plný černý kosočtverec** ($\blacklozenge$) na straně vlastníka (`Faktura` $1 \blacklozenge$--- $1..*$ `PolozkaFaktury`). Kardinalita na straně vlastníka je povinně $1$ ($1..1$). Životní cyklus komponenty je vázán na vlastník.

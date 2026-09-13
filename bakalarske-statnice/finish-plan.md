@@ -1,4 +1,4 @@
-## Final
+## Analýza
 Limita funkce v bodě to že nalevo implikace je 0 < a napravo je odečteno L
 U limit jsou důležité deklarce co je vlastní R nebo nevlastní R* z věcí ve vzorečcích
 Pozor na negaci definice často je to chyták ale další úlohy často napovídají
@@ -28,6 +28,11 @@ Vždycky se zamyslet jaký byly předpoklady jaký by tam dávaly smysl
 
 Hlavně u těch klíčových vět ty předpoklady
 
+U těch negací a tak se radši vyvarovat používaní toho značení lim něco lepší je vždycky to zapsat rovnou negací toho výroku jinak riskuju nějaké problémy
+Pozor u dúkazů tam nezapomínat na n menší než n0 např. u omezenosti
+
+Vzorec pro asymptotu
+
 ## Diskrétka
 Bacha že v těch relacích jsou i ty prvky samy se sebou a pro to taky musí platit ty věci
 
@@ -43,6 +48,15 @@ a ještě SSR je taky možný
 Rozhodněte pro která n něco platí musim dokázat např. konstrukcí že pro věechny pro který to tvrdim to platí
 Často jsem udělal chybu že jsem řekl že to jde jenom z toho že to splňovalo nerovnost ale neukázal jsem jak
 
+Barevnost defininuce
+Vrcholový řez a vrcholová souvislost
+Menger pozor na to že nesousední pro xy řez
+Velikost toku
+Nejmenší prvek
+Antiřetězec
+Binomická věta, součet podmnožin a alternující součet
+Hallova věta a SSR
+
 ## Automaty
 Na doplněk musí být funkce totální a automat deterministický změnim přímající a nepřímající stavy
 q0 se píše jen jako jeden stav ale F je množina
@@ -56,6 +70,8 @@ Znak odvoditelnosti s *
 Při převodu gramatiky na zásobníkovej automat přijímající prázdným zásobníkem tam nedávat Z protože pak bychom nepřijmuli prázdné slovo
 U psaní gramatiky je oddělovač | ne ,
 diagram nazýváme stavovým diagramem
+
+Přesné znění pumping lemmatu
 
 Někdy může bejt snažší udělat nejdřív gramatiku a prostě z ní přepsat zísobníkovej automat
 
@@ -78,132 +94,14 @@ Když je čas vyzkoušet si jestli to funguje třeba prázdný či nějaký zák
 
 U převodu z NFA na DFA pozor vždy jít jedno písmenko po druhým nenechat se zvyklat tim když jsou někde obě vždy si říct do jaký množiny stavů můžu s thle množiny stavů přejít timhle písmenkem jedno pod ruhym
 
-## Ads
-Existuje deterministický !! algoritmus/verifikátor
+Zopakovat konkrétně nejvíc definici gramatiky, zísobníkového automatu tvorbu gramatiky a převod gramatiky na zásobníkový automat
 
-## Programko
-* **Vzorec pro reálná čísla (IEEE 754):** $x = (-1)^s \cdot (1 + M) \cdot 2^{E - B}$
-  * $s$: znaménko ($1\text{b}$), $E$: exponent s biasem $B$, $M$: mantisa (implicitní jednička před čárkou $1.M$).
-  * `float` (32b): $s=1, E=8$ (bias $B=127$), $M=23$. `double` (64b): $s=1, E=11$ (bias $B=1023$), $M=52$.
-  * Exponent samé 1 a $M=0 \implies \pm\infty$; Exponent samé 1 a $M \ne 0 \implies \text{NaN}$.
-
-* **Pointery v C (`&` adresa vs `*` dereference):**
-  * `int x = 42;`
-  * `int* ptr = &x;` $\implies$ `&` získá adresu buňky paměti, kde leží `x` (např. `0x7fff00`) to samé jako `int *ptr = &x;`.
-  * `*ptr = 100;` $\implies$ dereference `*`: zápis přímo do buňky na dané adrese $\implies$ hodnota `x` je nyní 100.
-
-
-Třída s registry tedy reference i lock musí být readonly a private věci musí být private jinak nám to někdo může změnit tedy bez baší funkce tedy bez locku
-Lock s Monitor Wait uvitř
-
-Definice Data Race:
-Kritická sekce se netýká jen zápisu, ale jakéhokoliv souběžného přístupu ke sdíleným datům, kde alespoň jeden z přístupů je zápis.
-
-OOP návrh (Interface vs Abstraktní třída vs Enum):
-* Interface: jen chování (CAN-DO). ❌ NIKDY v něm nesmí být proměnné (fields)! ✅ Vlastnosti VŽDY jen `{ get; }` (read-only kontrakt, ať nenutíš třídy k public setu).
-* Abstraktní třída: vztah IS-A, sdílený stav (`Name`, konstruktor) a stromy (vzor Composite: `TypeElement : IdeElement` obsahuje kolekci `IdeElement`).
-* Enum: kdykoliv zadání žádá „druh / typ / variantu“ z pevné sady (např. `enum TypeKind { Class, Struct... }`), nevymýšlet další třídy ani stringy!
-
-Když je tam zadání v C/C++ pseudokódu, typy proměnných v zadání ti radí, co přesně použít.
-
-Ovladače a HW registry (MMIO v C):
-* `volatile` dát na celou strukturu: `typedef volatile struct { uint32_t status, size, command, lba, dma; } disk_regs_t;`
-* Typy: vždy `uint32_t` (ne int ani uint_32) koukat na to co oni předávaj do metod.
-* Přetypování adresy: `disk->ctl = (disk_regs_t *) register_address;` a pak přistupovat přes šipku `ctl->lba`.
-*  `==` má přednost před `&`, VŽDY ZÁVORKOVAT: `(status & 2) == 0`!
-* Bity testovat maskou: `(status & 1) != 0` (ne natvrdo `== 1`), ať nenaletíš, když je v registru víc čísel/flagů.
-* V C/jádře nelze použít C# `lock`: procesy mají izolovanou paměť (lock funguje jen mezi vlákny 1 procesu)! Nutný jaderný `mutex_t` typ, `mutex_lock(&m)` a nezapomenout `mutex_unlock(&m)` před KAŽDÝM returnem (`&` je adresa/pointer na mutex – v C se jinak vše předává kopií a kopii zamknout nelze).
-* Počkat na připravenost PŘED i PO: ověřit `!BUSY` i `!ERR` (pokud naskočí chyba ERR, hned končit s false, ať nezapisujeme do chybového stavu).
-* Range check: hned na začátku ověřit `if (lba >= max_lba) return false;`.
-
-
-* **Rozhodovací pravidla pro OOP návrh u zkoušky (Interface vs. Abstraktní třída vs. Enum):**
-  * **Kdy `interface`:**
-    * Kontrakt o **chování a schopnostech** (role CAN-DO: `IComparable`, `IDisposable`), které implementují různé nesouvisející třídy.
-    * **V interface NIKDY nesmí být proměnné (*fields*)!** Interface definuje chování, ne paměťový stav (`string name;` je chyba), jsou tam jen properties u kterých se ten `{ get; či set; }` překládá na metodu get_NazevProperty.
-    * **Vlastnosti VŽDY jen s `{ get; }`** (`string Name { get; }`). Dává se pouze getter (read-only kontrakt); třída si pak sama určí implementaci (`init`, `private set`, get-only). Pokud napíšeme `{ get; set; }`, nutíme každou třídu mít veřejný setter!
-  * **Kdy `abstraktní třídu` (hierarchii tříd):**
-    * Vztah **„JE NĚČÍM“ (IS-A)** a sdílení **vnitřního stavu a kódu** (společný `Name`, bázový konstruktor `base(name)`).
-    * Stromové hierarchie a návrhový vzor **Composite** (např. prvky IDE: `abstract class IdeElement`, ze kterého dědí `FieldElement`, `MethodElement`, `TypeElement`).
-    * Disjunktní polymorfismus pro pattern matching (prvek je garantovaně právě jednoho konkrétního typu), používat `sealed`.
-    * *Ukázka: Disjunktní hierarchie se `sealed record` a switch výrazem:*
-      ```csharp
-      public abstract record StavPlatby;
-
-      public sealed record CekaSeNaPlatbu : StavPlatby;
-      public sealed record Zaplaceno(DateTime Kdy) : StavPlatby;
-      public sealed record Selhalo(string Duvod) : StavPlatby;
-
-      // Díky sealed:
-      // 1. Kompilátor ví, že větve jsou vzájemně výlučné (objekt nemůže být zároveň Zaplaceno i něco jiného).
-      // 2. Žádná cizí knihovna vám do této hierarchie nemůže podstrčit nečekaného potomka.
-      string zprava = stav switch
-      {
-          CekaSeNaPlatbu => "Čekáme...",
-          Zaplaceno z => $"Uhrazeno: {z.Kdy}",
-          Selhalo s => $"Chyba: {s.Duvod}"
-      };
-      ```
-  * **Kdy `enum` (Zkouškový reflex):**
-    * Kdykoliv zadání žádá **„druh / typ / variantu“ z pevné sady hodnot** (např. druh typu: `enum TypeKind { Class, Struct, Interface, Enum }`, barva, stav).
-    * Nevymýšlet na to další hierarchii tříd ani textové řetězce (`string`)! `enum` je v C# nejrychlejší, typově bezpečný a ideální pro switch/pattern matching.
-
-Nezapomínat u tříd na konstruktory a ten abstraktní dát protected, ten 4. příklad z testu to hezky ukazuje.
-
-Matice a OOP syntaktické body:
-* **Indexer v C# (hranaté závorky `m[r, c]`):** Píše se přes klíčové slovo `this` (nikdy `static`):
-  `double this[int r, int c] { get; }`
-* **Aritmetické operace / operátory:**
-  * Nebo operátory (C# 11 v interface): `static abstract IMatrix operator +(IMatrix a, IMatrix b);`
-  * Ve třídě: `public static Matrix operator +(Matrix a, Matrix b) => ...;`
-* **Ve `struct` nezapomenout `public`:** Bez modifikátoru jsou pole privátní!
-* **C# Switch výraz:** `return matrixMetadata.matrixType switch { MatrixType.Dense => new DenseMatrix(...), MatrixType.Sparse => ... };`
-* **Velká vs. malá písmena:** Třídy, metody, properties, enumy = PascalCase (`Rows`, `Add`, `Dense`). Parametry a proměnné = camelCase (`rows`, `filePath`). Privátní pole = `_camelCase` (`_data`).
-
-I když je tam C# a nevím přesnou syntaxi nevadí nenechat se tim znervóznit důležitý je když umím používat ty koncepty a nejsou tam kritické chyby
-
-U těhle technických je tam spousta skrytých pastí na které člověk zapomene protože to zadání je dlouhé když je čas tak si to ještě projít a kontrolovat
-* Konstruktor heapu: u 1. volného bloku nastavit i `Next = 0xFFFF` (-1 konec seznamu), nejen `Size`!
-* `FindFirstFree`: potřebná velikost bloku je $\ge$ `2 + payloadSize` (hlavička Size má 2B)! Cyklus řídit `while (offset != 0xFFFF)`, ať nespadne čtení na neplatné adrese, když je to prázdný!
-* `Mark(offset, isFree)`: v C# nelze bitové `| bool`. Bacha na význam bitu: `isFree == true` $\implies$ bit 0 je **0**! Tedy: `isFree ? (size & ~1) : ((size & ~1) | 1)`.
-
-U hexdumpu nikdy nezapomínat na little endian
-
-U složitých implementací funkcí kde se například načítaj byty a offsety si nejdřív napsat vedle pseudokód klidě ho tam nechat neb to chtěj stejěn vysvětlený
-
-U hexdumpu pozor když hledám 0x900a tak to hledám na řádce kde už je 0x9000
-
-freq_t *head; znamená pointer na nějaký freq_t a ten pointer se jmenuje head zatímco freq_t head znamená freq_t proměná s názvem head
-
-Zase pozor na prázdný seznam nebo prostě prvotní stav aby to nespadlo
-
-U úloh typu officiální low level dokumentace skočit na to kde se začínají definovat třídy a kde jsou otázky číst to nejdřív odtamtud z toho je tomu většinou rozumět o dost lépe, napsat si krátce co má daná třída mít pod sebe, to pomůže nejvíc kreslení diagramu samotné dokumentace moc nepomáhá
-U tříd pak se často nevyplatí začínat fieldama ty vyplynou cestou nechat si na ně místo
-Začít psát uprostřed konstruktorem až pak dopsat později hlavní obal podle počtu atributů
-Koukat dobře na to co už mi tam připravili jako tady třeba enum a já ho přehlídl
-
-Zapomněl jsem pro file co jsem dostal ho zapsat jako privátní field a volat metodu readBytes na něm
-A fieldy delat private readonly neb se nemění
-
-Když je tqamněco co nevim v tom programování nenechat se tim rozhodit a nějak to dodělat aspoň
-Tu poslední věc často dávaj jen na bitové operace a přetypování
-To že chtěj konstatní čas znamená prostě zapsat si pozice každého atributu
-Dá se to zkrátit pomocí:
-public int attributes() => _types.Length;
-public AttrType getType(int i) => _types[i];
-public long getRoot() => _rootPos;
-
-Nedělat zbytečné validace které kontroluje sám C# jako přístup mimo pole pokud to není výslovně požadováno
-Soustředit se na to aby to fungovalo na začátku pro prázdný či první stav např. u whilů ale tyhle chyby neřešit neb je Cš vyhodí sám
-
-!!!!!! readonly když se něco nemění, sealed když už od toho nedědíme
-
-Kdybych hodně nestíhal napsat to pseudokódem
+Když je gramatika a nevim zkusit si to rozdlěi tna stejně velký části od okrajů dovnitř
 
 ## Lingebra
 Stenitzova věta o výměně vhodných vektorů mezi lineárně nezávislou a generující množinou (čili nikoli
 nutně bázemi).
-Matice jako lineární zobrazení, podobnost, diagonalizovatelnost, pozitivní definičnost vlastnosti
+Matice jako lineární zobrazení, podobnost, diagonalizovatelnost, pozitivní definičnost vlastnosti, regularita vlastnosti
 Cauchy Schwarz, Gram-Schmidt
 
 U soustava zkontrolovat jednou aspoň že jsem správně opsal zadání není nic horšího než počítat ze špatnýho zadání nebo rovnou provést první úpravy z původního zadání, ale když beru jen nějaký vektory tak to moc nejde tady byl ještě trik že tam jednou byla jen jednička takže se dal tenhle vektor rovnou odečíst od výsledku a udělat si to lehčí
@@ -223,70 +121,175 @@ Nebát se napsat si vzorce a klidně to pak přenásobit třeba A-1 na obou stra
 Často jsou tam časové pasti nenechat se chytit
 Když mám A = BC, tak když to beru jako zobrazení nejdřív násobím tou maticí C ten vstupní vektor pak tou B, koukat na počty sloupců
 
-## Web
+Jádro matice 
+Ker(M) není nic jiného než podprostor vlastních vektorů příslušných vlastnímu číslu λ = 0
 
-R-strom chybělo mi že je výškově vyvážený a že v listech jsou odkazy na objekty
-Nebát se když je tam konkrétní příklad napsat co se stane v něm jako u MapReduce kde tam byl
-U rozvrhu jsem nenapsal jak je na tom původní stav což je pro řešení důležité, já jsem to věděl ale nenapsal
-Primární klíč tlustou čárou kandidátní tenkou foreign vlnovkou
-Pozor když je někde 0..1 tak je ve spojovací tabulce je primárním klíč pouze ten co má toho druhého 0..1 !!!!!
-Nevypisovat se tam s tak dlouhými názvy v tom UML prostě OdRoku nemusí tam být názvy obou tabulek
-Pozor fyzická úroveň jsou indexy, a optimalizace výkojnu a uložení dat a výstupem jsou fyzické ddl skripty a indexy, logický model dělá databázový návrhář - ten jakoby navrhne to převedení do relačního modelu jak píšeme
-V UML používat hvězdičku ne m a n 0..*
-Často chtějí jestli umíme atribut na relaci když se to nabízí dát to tam
-Pozor ministerstvo má právě jednoho ministra neznamená že ministr musí mít ministerstvo
-dá se psát UNIQUE NOT NULL třeba i do toho relačního zápisu když to má být 1 ku 0..1 tak tohle musí být v té co má druhého určitě, nemůže to být u té druhé protože pak bychom nezaručili že ta první někoho má
-Samotné UNIQUE je pro 0..1 na obou stranách nebo samostnatná tabulka kde je jedno z nich klíč a druhé alternativní klíč
-NOt_NULL když je to ten koho jiný může mít 0..n
-Pozor píše se 1..1 ne jen 1
-Dávat na to pozor spíš co tam asi chtějí např. když tam je určete, které vztahy mají vlastní atributy, tak tam asi nějaký chtěj
+### Zkouškový rychlý tahák – Klíčové triky
 
-Je potřeba psát document.getElementById ne jen getElementById
-Dávat věcem krátké názvy když to jde jako ul nebo li
-a document.createElement pak li.textContent a appendChild
-U posílání nezapomenout na hlavičku application JSON a na JSON.stringify
-Když používám await funkci musím deklarovat jako async
+#### 1. Vlastní čísla a Diagonalizace
+* **Stopa a Determinant (blesková kontrola násobností):**
+  * $\sum \lambda_i = \operatorname{Tr}(A)$ *(součet diagonály)* $\quad\Big|\quad$ $\prod \lambda_i = \det(A)$.
+  * *Trik:* Znáš-li čísla $3$ a $1$ u matice $3 \times 3$ a $\operatorname{Tr}(A) = 5$, z rovnice $3 + 1 + \lambda_3 = 5$ je hned $\lambda_3 = 1$ (jednička je dvojnásobná bez počítání polynomu).
+* **Jádro je podprostor pro $\lambda = 0$:**
+  * $Ax = 0 \iff Ax = 0 \cdot x$. Dimenze jádra $\dim(\operatorname{Ker}(A))$ je přímo **geometrická násobnost čísla $\lambda = 0$**.
+* **Mocnění matice a spektrální trik ($A^2, A^k, \sqrt{A}$):**
+  * $Av = \lambda v \implies A^k v = \lambda^k v$. Vlastní vektory zůstávají, čísla se umocní.
+  * $B$ reálná symetrická regulární $\implies \lambda_i \in \mathbb{R} \setminus \{0\} \implies \lambda_i(B^2) = \lambda_i^2 > 0 \implies B^2$ je vždy pozitivně definitní.
+* **Princip nezávislých světů:**
+  * Vlastní vektor nemůže být lineární kombinací vektorů z různých vlastních podprostorů. Místo jedné obří soustavy testuj příslušnost k jednotlivým podprostorům zvlášť v malých soustavách.
 
-Když je tam několik věcí v zadání třeba endpointů a některé jsem ještě nepoužil a je tam nějaká nejasná otázka zamyslet se jestli náhodou by nebylo chytré něco z toho nepoužitého použít
+---
 
-U podobnosti je jednoduší použít eukleidovskou vzdálenost když si můžu vybrat
+#### 2. Matice, Báze a Zobrazení
+* **Úzké hrdlo $A = BC$ (NIKDY NENÁSOB!):**
+  * Pokud $B$ je $5 \times 2$ a $C$ je $2 \times 5$, pak $\operatorname{rank}(A) \le 2$. 
+  * Sloupcový prostor $\operatorname{Col}(BC) = \operatorname{Col}(B)$. Bázi $\operatorname{Col}(A)$ tvoří rovnou nezávislé sloupce matice $B$.
+* **Gaussovka na matici přechodu (od $\mathcal{A}$ k $\mathcal{B}$):**
+  * Sestav matici: **$\mathbf{(B \mid A) \sim \dots \sim (I \mid B^{-1}A)}$**.
+  * *Mnemotechnika:* **V čem** vyjadřuji ($B$), dám **vlevo**; **co** vyjadřuji ($A$), dám **vpravo**. Vpravo ti vyjde matice přechodu.
+* **Souřadnice obrazu a skládání:**
+  * Do sloupců matice zobrazení dáváš obrazy **vstupní** báze vyjádřené v souřadnicích **výstupní** báze.
+  * Skládání zobrazení $f \circ g$ odpovídá násobení matic $F \cdot G$. Vektor se násobí **zprava** ($Ax$).
 
-Tu definici B stormu tam mají dost důkladně rozepsané ty podmínky, všechny listy se nacházejí na stejné úrovni to je důležité napsat prostě všechny podmínky které mě napadnou
+---
 
-U CYPHERU mi chyběl return distinct s čím to chci
+#### 3. Geometrie, Skalární součin a Definitnost
+* **Kolmost vs. Rovnost:**
+  * Vektory jsou **kolmé** $\iff \langle Ax, Bx \rangle = 0 \iff x^T A^T B x = 0$. *(Pozor: $(A - B)x = 0$ znamená, že jsou rovnoběžné/stejné, nikoliv kolmé!).*
+* **Změna plochy / objemu:**
+  * Koeficient změny plochy je $|\det(M)|$. Pokud vyjde $|\det(M)| = 1$, zobrazení plochu **ani nezvětšuje, ani nezmenšuje (zachovává ji)**.
+* **Ortogonální vs. Ortonormální:**
+  * *Ortogonální:* $\langle u_i, u_j \rangle = 0$ pro $i \neq j$ (pouze kolmost, **délka nemusí být 1**, neděl odmocninami!).
+  * *Ortonormální:* navíc $\|u_i\| = 1$.
+* **Cauchyho–Schwarzova finta:**
+  * Tvar: $\langle u, v \rangle^2 \le \langle u, u \rangle \langle v, v \rangle$.
+  * V abstraktních maticových nerovnostech (se stopou a číslem $n$) bývá neznámým vektorem **jednotková matice $I_n$** (protože $\langle I, A \rangle = \operatorname{Tr}(A)$ a $\langle I, I \rangle = \operatorname{Tr}(I) = n$).
+* **Sylvestrovo kritérium (Pozitivní definitnost):**
+  * Determinanty čtverců v **LEVÉM HORNÍM ROHU** ($1 \times 1, 2 \times 2, \dots$) musí být ostře **$> 0$**.
+  * U matice $a_{ij} = \min(i,j)$ odečti sousední řádky $\to$ vznikne trojúhelníková matice se samými $1$ na diagonále $\to \det = 1 > 0 \implies$ je PD.
 
-Naznačte jak reprezentovat v relační databázi znamená převeďte to na logický model
+---
 
-U toho grafu v konfliktové uspořadatelnosti to nepsat za sebe to se pak napíše pořadí neb to že T1->T2 a T2->T3 neznamená tranzitivně T1->T3 což z toho může jinak vyplynout
+> **Zlaté pravidlo zkoušky:** Pokud by výpočet hrubou silou trval déle než 3 minuty, zastav se. Zkoušející tam schoval větu, která to zkrátí na jeden řádek.
 
-CONSTRAINT fk_tahletabulka_tabulka FOREIGN KEY neco REFERENCES Tabulka(id) ON DELETE CASCADE
-nejdřív se píše název sloupce pak klíč id INT PRIMARY KEY;
-TIMESTAMP WITH TIME ZONE
+## Ads
+Master theorem
+Pozor že tam je v něm theta pro to n na c
 
-V BCNF to musí závuset na nadklíči tedy klíč a něco nesplést s částí klíče
-Často se tam psalo as v těch testech
-Pravidlo: Jakýkoliv sloupec, který uvedete v SELECT a není uvnitř agregační funkce (jako SUM, AVG, COUNT), musí být uveden v GROUP BY.
-CONSTRAINT FK_Diplomka_Vedouci FOREIGN KEY (VedouciID) REFERENCES Osoba(OsobaID)
+Pozor nepředávat pole ale pointery na půlku a je dobré zmínit i prostorovou složitost zásobníku
+Min-heap je záchrana vkladání i vybírání v O(log n)
+Dopsat tam že pro nízké n dopočítáme medián v konstatním čase
+Nezapomínat na tuhle okrajovou podmínku
 
-U JSON Schema je potřeba "$schema", "$id" je online primární identifikátor, "type": "object" a "required", "properties"
-Vše je v uvozovkách
-Když má dataset nadřazený catalog tak ho stejně můžu uvést stejně tak distribuce
+Existuje deterministický !! algoritmus/verifikátor
 
-Zajistit že opakované stisknutí tlačítka to nepošle vícekrát
-Null ošetření a takový věci neřešit
+## Logika
+Logická ekvivalence (
+φ
+≡
+ψ
+φ≡ψ
+)
+Znamená: Formule mají úplně stejnou pravdivost v úplně každém modelu.
 
-Aby db věděla odkuď hledat potřebuje label u:User a vlastnost v {name: "Alice"}
+Znamená mnohem slabší věc:
+φ
+ je splniteln
+a
+ˊ
+ 
+⟺
+ψ
+ je splniteln
+a
+ˊ
+φ je splniteln 
+a
+ˊ
+  ⟺ψ je splniteln 
+a
+ˊ
+ 
+Lidsky řečeno: „Pokud existuje svět, kde platí 
+φ
+φ
+, tak existuje i nějaký svět, kde platí 
+ψ
+ψ
+. A pokud 
+φ
+φ
+ vede ke sporu (je nesplnitelná), tak 
+ψ
+ψ
+ vede ke sporu taky.
 
-## Celkově
-Když budu mít čas zamyslet se jestli mi tam u Webů nechybí nějaká důležitá fakta co by bylo dobré zmínit
+U zkoušky se často ptají: „Jak poznáte konzervativní extenzi přes modely?“
+Trik je v tom, že nezměníte univerzum, jen do něj domalujete nový symbol (tzv. expanze modelu):
+Máte model 
+A
+A
+ původní teorie 
+T
+T
+.
+Pokud se vám podaří vzít jeho stávající prvky a jenom jim přiřadit chování té nové funkce 
+f
+f
+ (nebo predikátu), aniž byste museli měnit univerzum nebo původní relace, vyrobíte model 
+A
+′
+A 
+′
+ 
+ nové teorie
 
-Když si něčím nejsem jistý ze zadání zeptat se nebo to tam napsat co předpokládám
+Otevřená formule 
+φ
+(
+x
+)
+φ(x) platí ve struktuře 
+A
+A (
+A
+⊨
+φ
+A⊨φ), právě když platí pro každé ohodnocení 
+e
+e 
+  
+⟺
+  
+A
+⊨
+(
+∀
+x
+)
+φ
+(
+x
+)
+⟺A⊨(∀x)φ(x). Proto se u vět v matematice i při Skolemizaci univerzální kvantifikátory vynechávají (volné proměnné automaticky znamenají „pro jakékoliv 
+x
+x“).
 
-Po dokončení úlohy vždy ještě projít a kouknout že jsem nezapomněl zodpovědět nic ze zadání
+Pointa je že nelze substituovat bez toho abych to změnil i ve kvantifikátoru proto se do uzavřených formulí nesmí substituovat
 
-Neškrtat dokud si nejsem stopro jistý škrtnutím někdy toho pak člověk lituje
-Raději dopsat celé hnusně a pak celé předělat než 2x protože jsem udělal půlku a pak to zas přeškrtal samozřejmě jen pokud je to rozumně čitelné
+Obraceni kvantifikátoru u implace pokud vaechno neco pak neco pro aspon jeden z tech vsech plati cela ta implikace
 
-Zhodnotit na začátku časovou složitost podle typu zadání
 
-Nechávat si na papíru všude hodně místa
+D8 tse m definici struktury a že univerzum je neprázdné
+A pak extenzi teoriea semanticke kriterium, konzervativní extenze nedokazuje v původním jazyce L žádné nové formule
+V tablu neodvozovat vždy používat pouze ty přesná pravidla
+Nejdřív svěděk tedy t existuje či false všichni vytvoříme si konstatny, pak až dosadíme libovolné do věichni 
+
+Vlatnšě struktura doručí doménu a pomocí těch realčních  afunkčních symbolů které už mohou mít význam v jazyce jako složil zkoušku Z(x) tak struktura řekne pro každý prvek z univerza zdali složilo zkoušku
+
+Když se přepisujou formule z lidského znění psát je už s rozdílnými písmeny pro každy kvantifikátor
+U tabla nejdřív rozmyslet jak chci spor najít ať nejdu zbytečně slepou uličkou
+Ta struktura se zpaisuje jako A = ⟨{0}, ZA = {0}, SA = P
+A = ∅⟩.
+
+Při extenzi musím ve struktuře dát ohodnocení nových věcí z jazyka, nemusí obsahovat c co přidáme stačí když ve starém jazyce použijeme existuje pro to cpro co jsme v novém dávali konstantu a to do staré teorie přidala

@@ -1,21 +1,4 @@
 ## Analýza
-Limita funkce v bodě to že nalevo implikace je 0 < a napravo je odečteno L
-U limit jsou důležité deklarce co je vlastní R nebo nevlastní R* z věcí ve vzorečcích
-Pozor na negaci definice často je to chyták ale další úlohy často napovídají
-Věta o nabývání extrémů - funkce je spojitá - nejde 1/x a interval je omezený a uzavřený - nejde do nekonečna a lze jít na okraj kdyby nešlo jít na okraj nenašli bychom maximum u f(x) = x
-
-Definice derivace nechť f je definovaná na okolí bodu b
-Má li funkce v bodě b vlastní derivaci pak je tam spojitá a ta vlastní derivace je potřeba i na všechny ty vzorce součtů atd.
-Zapsat součin s per partes, podíl a řetízkové pravidlo se substitucí
-
-L Hopital zase ty předpoklady
-Taylorův polynom
-
-Primitivní funkce je na otevřeném intevalu I
-Riemannův integrál
-Základní věta analýzy je li funkce Riemanovsky integrovatelná na a,b pak ..
-Délka grafu funkce bzorec a objemu rotačního tělesa a povrch
-
 * **Věta o limitě složené funkce (VOLSF):**
   Nechť $\lim_{x \to A} g(x) = B$ a $\lim_{y \to B} f(y) = C$. Potom:
   $$\lim_{x \to A} f(g(x)) = C$$

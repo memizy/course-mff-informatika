@@ -16,113 +16,98 @@ Riemannův integrál
 Základní věta analýzy je li funkce Riemanovsky integrovatelná na a,b pak ..
 Délka grafu funkce bzorec a objemu rotačního tělesa a povrch
 
-dx u integrálu !!!!!!!!!!!!!!!!!!!!!
+* **Věta o limitě složené funkce (VOLSF):**
+  Nechť $\lim_{x \to A} g(x) = B$ a $\lim_{y \to B} f(y) = C$. Potom:
+  $$\lim_{x \to A} f(g(x)) = C$$
+  pokud je splněna **alespoň jedna** z následujících podmínek:
+  * **(P1) Spojitost vnější funkce:** Funkce $f$ je spojitá v bodě $B$ (tj. $f(B) = C$).
+  * **(P2) Nenabývání limitní hodnoty:** Na nějakém prstencovém okolí $P(A, \eta)$ funkce $g$ nenabývá své limity $B$, tj. $\forall x \in P(A, \eta): g(x) \ne B$.
 
-Plochy je si dobré namalovat grafy někdy je to potřeba rozdělit a uvažovat
-U Hopitala je často problém že si myslím že nejde použít a přitom jde protože mi nedojde že e na 0 je 1
-A nesmím to trhat dokud je to nekonečno - nekonečno což je neurčitý výraz, maximálně 1 z těch dvou může být neurčitý
+* **l'Hospitalovo pravidlo:**
+  Nechť $a \in \mathbb{R}^*$, funkce $f, g$ mají na prstencovém okolí $P(a, \delta)$ vlastní derivaci a $g'(x) \ne 0$.
+  Jestliže platí jedna z podmínek:
+  1. $\lim_{x \to a} f(x) = \lim_{x \to a} g(x) = 0$ (typ $\frac{0}{0}$), **nebo**
+  2. $\lim_{x \to a} |g(x)| = +\infty$ (typ $\frac{\text{cokoliv}}{\pm\infty}$),
+  potom platí:
+  $$\lim_{x \to a} \frac{f'(x)}{g'(x)} = A \in \mathbb{R}^* \implies \lim_{x \to a} \frac{f(x)}{g(x)} = A$$
 
-U substituce hledej poflakující se derivaci vedle něčho hnusného čeho je to derivací
-
-Vždycky se zamyslet jaký byly předpoklady jaký by tam dávaly smysl
-
-Hlavně u těch klíčových vět ty předpoklady
-
-U těch negací a tak se radši vyvarovat používaní toho značení lim něco lepší je vždycky to zapsat rovnou negací toho výroku jinak riskuju nějaké problémy
-Pozor u dúkazů tam nezapomínat na n menší než n0 např. u omezenosti
-
-Vzorec pro asymptotu
+* **Weierstrassova věta:** Nechť $f: [a, b] \to \mathbb{R}$ je spojitá funkce na **uzavřeném a omezeném (kompaktním)** intervalu $[a, b]$. Potom:
+1. Funkce $f$ je na $[a, b]$ **omezená**.
+2. Funkce $f$ na $[a, b]$ **nabývá svého maxima i minima**, tj. existují body $x_{min}, x_{max} \in [a, b]$ takové, že:
+    $$\forall x \in [a, b]: f(x_{min}) \le f(x) \le f(x_{max})$$
+*(Odtud plyne, že obrazem uzavřeného intervalu $[a, b]$ spojitou funkcí je opět uzavřený omezený interval $[f(x_{min}), f(x_{max})]$).*
 
 ## Diskrétka
-Bacha že v těch relacích jsou i ty prvky samy se sebou a pro to taky musí platit ty věci
 
-Barevnost nejmenší k počet barev i hranová a vrcholová souvislost jsou nejmenší k pro které graf neobsahuje řez velikosti k
-U vrcholové musí mít alespoň k+1 vrcholů
-Vrcholová souvislost je největší k takové že graf je k vrcholově souvislý
+#### Hallova věta o SRR a párování v bipartitním grafu:
+* **Systém různých reprezentantů (SRR):** Pro systém množin $\mathcal{M} = \{M_1, \dots, M_n\}$ je SRR výběr $n$ navzájem různých prvků $x_1 \in M_1, \dots, x_n \in M_n$ ($x_i \ne x_j$ pro $i \ne j$).
+**párování nasycujícímu celou partitu $A$** ($|M| = n$).
+* **Hallova věta (podmínka pro existenci SRR):** SRR existuje $\iff$ platí **Hallova podmínka**:
+  $$\forall I \subseteq \{1, \dots, n\}: \left|\bigcup_{i \in I} M_i\right| \ge |I| \quad (\text{grafově } \forall S \subseteq A: |N(S)| \ge |S|)$$
 
-Když je tam něco s množinama bacha že i prázdná množina je množina!!!!!!!
 
-Určitě umět barevnost a vrcholové a hranové souvislosti a mengery pozor vrcholy v mengerovi musí být nesousední
-a ještě SSR je taky možný
-
-Rozhodněte pro která n něco platí musim dokázat např. konstrukcí že pro věechny pro který to tvrdim to platí
-Často jsem udělal chybu že jsem řekl že to jde jenom z toho že to splňovalo nerovnost ale neukázal jsem jak
-
-Barevnost defininuce
-Vrcholový řez a vrcholová souvislost
-Menger pozor na to že nesousední pro xy řez
-Velikost toku
-Nejmenší prvek
-Antiřetězec
-Binomická věta, součet podmnožin a alternující součet
-Hallova věta a SSR
-
-## Automaty
-Na doplněk musí být funkce totální a automat deterministický změnim přímající a nepřímající stavy
-q0 se píše jen jako jeden stav ale F je množina
-P u gramatiky je konečná množina a v sjednoceno s T na hvězdičku
-U zásobníkovýho automatu pozor vstupní abeceda a abych u gamma v deltě nezapomněl hvězdičku a že to je Pfin
-A také nezapomenout u q, Z0, a F definovat z čeho jsou
-Automat namalovat vymyslet stranou pokud je složitý pak přemalovat a k tomu přemalovaným napsat formálně a teď vypsat množiny nebo prvky akorát deltu nechat a napsat s přechodovou funkcí delta popsanou grafem
-Jen to velké epsilon je jeden znak co není prázdný ale jakmile je to s hvězdičkou obsahuje to i prázdný znak
-Pozor v induktivní definici a v jazyku přijímaným automatem nesmí chybět definice z čeho jsou ty používaný symboly
-Znak odvoditelnosti s *
-Při převodu gramatiky na zásobníkovej automat přijímající prázdným zásobníkem tam nedávat Z protože pak bychom nepřijmuli prázdné slovo
-U psaní gramatiky je oddělovač | ne ,
-diagram nazýváme stavovým diagramem
-
-Přesné znění pumping lemmatu
-
-Někdy může bejt snažší udělat nejdřív gramatiku a prostě z ní přepsat zísobníkovej automat
-
-!!!!!! Dobrý trik pojmenovat ty stavy podle sufixu ( neboli prefixu hledaného vzoru ), nebo podle zbytkové třídy, nebo dvojici třeba sudý počet jednoho a lichý druhého, třetí znak od konce potřebuju všech 8 stavů posledních trojic
-
-„Jaká minimální informace o dosud přečtené části slova mi stačí k tomu, abych mohl po přečtení dalšího znaku udělat správné rozhodnutí?“
-Každá hodnota této informace pak tvoří přesně jeden stav automatu.
-
-Pointa často je že stačí sledovat stav několika posledních znaků tak je to například i u toho dělení
-Může se vyplatit nejdřív udělat ten příklad tři třeba když má být dvojka obecně jako jaro 2026
-Také se může vyplatit použít k označení stavu uspořádanou dvojici
-Jew také dobré uvést ostatní přechody jsou nedefinované nebo vedou do žumpy
-
-δ(i, 0) = 2i mod p,
-δ(i, 1) = (2i + 1) mod p
-
-Bezkontextovou gramatiku, zásobníkový automat, konečný automat, nedeterministický konečný automat, jazyk příjímaný konečný automatem, rozšířená přechodová funkce
-
-Když je čas vyzkoušet si jestli to funguje třeba prázdný či nějaký zákeřný vstup
-
-U převodu z NFA na DFA pozor vždy jít jedno písmenko po druhým nenechat se zvyklat tim když jsou někde obě vždy si říct do jaký množiny stavů můžu s thle množiny stavů přejít timhle písmenkem jedno pod ruhym
-
-Zopakovat konkrétně nejvíc definici gramatiky, zísobníkového automatu tvorbu gramatiky a převod gramatiky na zásobníkový automat
-
-Když je gramatika a nevim zkusit si to rozdlěi tna stejně velký části od okrajů dovnitř
 
 ## Lingebra
-Stenitzova věta o výměně vhodných vektorů mezi lineárně nezávislou a generující množinou (čili nikoli
-nutně bázemi).
-Matice jako lineární zobrazení, podobnost, diagonalizovatelnost, pozitivní definičnost vlastnosti, regularita vlastnosti
-Cauchy Schwarz, Gram-Schmidt
 
-U soustava zkontrolovat jednou aspoň že jsem správně opsal zadání není nic horšího než počítat ze špatnýho zadání nebo rovnou provést první úpravy z původního zadání, ale když beru jen nějaký vektory tak to moc nejde tady byl ještě trik že tam jednou byla jen jednička takže se dal tenhle vektor rovnou odečíst od výsledku a udělat si to lehčí
-Pak je dobré to zkontrolovat jestli opravdu lze vektor tak sestavit
+* **Steinitzova věta o výměně:**
+  * Předpoklady: $X$ je LN množina ve $V$, $Y$ je systém generátorů $V$ ($\mathcal{L}(Y) = V$).
+  1. $|X| \le |Y|$
+  2. $\exists Z \subseteq Y, |Z| = |Y| - |X|: \mathcal{L}(X \cup Z) = V$
+  * *Důsledky:* každou LN množinu lze doplnit na bázi, z generátorů vybrat bázi, všechny báze mají stejnou velikost $\dim(V)$.
 
-To že součet vlastních čísel je součet čísel na diagonále se může hodit když mi je jen zadaj ale neřeknou mi jejich násobnost
+* **Matice jako lineární zobrazení:**
+  * $[f(x)]_B = [f]_{A, B} \cdot [x]_A$ (ve sloupcích jsou $[f(a_i)]_B$).
+  * **Prostory matice a vlastnosti zobrazení:**
+    * $\operatorname{Ker}(A) = \operatorname{Ker}(f)$
+    * $f$ je **prosté (injekce)** $\iff \operatorname{Ker}(A) = \{0\} \iff \operatorname{rank}(A) = n$
+    * $\operatorname{Col}(A) = \operatorname{Im}(f)$
+    * $f$ je **na (surjekce)** $\iff \operatorname{rank}(A) = m \iff \operatorname{Col}(A) = \mathbb{K}^m$
+    * **Rank-Nullity teorém:** $\dim(\operatorname{Ker}(f)) + \dim(\operatorname{Im}(f)) = \dim(U) \implies \dim(\operatorname{Ker}(A)) + \operatorname{rank}(A) = n$
+    * **Isomorfismus (bijekce):** $m = n \land \operatorname{rank}(A) = n$ (matice $A$ je regulární)
 
-U Cauchy schwarze když je tma nějaká nerovnost druhý vektor je většinou sqamé jedničky nebo jednotková matice
+* **Složení zobrazení:**
+  * $(g \circ f)(x) = g(f(x)) \implies [g \circ f] = G \cdot F$
+  * Vektor vstupuje zprava: $(GF)x = G(Fx)$. Rozměry: $G_{m \times k} \cdot F_{k \times n} \in \mathbb{K}^{m \times n}$.
 
-Nebát se napsat si vzorce a klidně to pak přenásobit třeba A-1 na obou stranách a vyjádřit tu matici co mě zajímá.
+* **Podobnost matic ($A \sim B$):**
+  * $B = R^{-1} A R$ (tatáž transformace v jiné bázi, $R$ je matice přechodu).
+  * **Invarianty:** stejný $p(\lambda) \implies$ stejná vl. čísla $\lambda_i$ a násobnosti, $\det(A) = \det(B)$, $\operatorname{Tr}(A) = \operatorname{Tr}(B)$, $\operatorname{rank}(A) = \operatorname{rank}(B)$, $\dim \operatorname{Ker}(A) = \dim \operatorname{Ker}(B)$.
+
+* **Diagonalizovatelnost (Kritéria):**
+  * $A = S \Lambda S^{-1} \iff S^{-1} A S = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$ ($S$ má ve sloupcích vl. vektory).
+  * **Ekvivalentní kritérium:** $\mathbb{K}^n$ má bázi z vlastních vektorů $\iff \forall \lambda_i: \text{alg. násobnost} = \text{geom. násobnost } (\dim \operatorname{Ker}(A - \lambda_i I))$.
+  * **Postačující kritérium:** $n$ navzájem různých vlastních čísel $\implies$ vždy diagonalizovatelná.
+  * **Symetrické matice ($A = A^T$):** Vždy ortogonálně diagonalizovatelná $A = Q \Lambda Q^T$ ($Q^{-1} = Q^T$, $\lambda_i \in \mathbb{R}$, vl. vektory jsou navzájem kolmé).
+
+* **Pozitivní definitnost (Kritéria):**
+  * Definice: $A = A^T$ a $\forall x \ne 0: x^T A x > 0$ (PSD: $x^T A x \ge 0$).
+  * **Kritéria (ekvivalence pro PD):**
+    1. **Vlastní čísla:** $\forall i: \lambda_i > 0$ (pro PSD $\lambda_i \ge 0$).
+    2. **Sylvestrovo kritérium:** Všechny hlavní vedoucí minory $\det(A_k) > 0$ pro $k = 1, \dots, n$ (levé horní rohy).
+    3. **Choleského rozklad:** $\exists! U$ horní trojúhelníková s $u_{ii} > 0$ t.ž. $A = U^T U$ (resp. $A = L L^T$).
+    4. **Gramova matice:** $A$ je Gramova matice LN vektorů ($a_{ij} = \langle v_i, v_j \rangle$).
+    5. **Skalární součin:** $\langle x, y \rangle_A = x^T A y$ je skalární součin.
+  * *Vlastnosti:* $\det(A) > 0$, $\operatorname{Tr}(A) > 0$, diagonála $a_{ii} > 0$, $A$ je regulární, $A^{-1}$ je PD.
+
+* **Regularita matice (Kritéria a ekvivalence):**
+  * $\exists A^{-1} \iff \det(A) \ne 0 \iff \operatorname{rank}(A) = n \iff \operatorname{Ker}(A) = \{0\} \iff 0 \notin \sigma(A)$ (žádné $\lambda = 0$) $\iff$ sloupce (řádky) tvoří bázi $\iff \operatorname{RREF}(A) = I_n \iff Ax = b$ má právě 1 řešení $\forall b$.
+
+* **Cauchyho–Schwarzova nerovnost:**
+  * $|\langle u, v \rangle| \le \|u\| \cdot \|v\| \iff \langle u, v \rangle^2 \le \langle u \mid u \rangle \cdot \langle v \mid v \rangle$
+  * Rovnost nastává $\iff u, v$ jsou lineárně závislé.
+
+* **Gramova–Schmidtova ortogonalizace:**
+  * $y_1 = x_1$
+  * $y_k = x_k - \sum_{j=1}^{k-1} \frac{\langle x_k, y_j \rangle}{\langle y_j, y_j \rangle} y_j \quad$ *(pokud jsou již $z_j$ normalizované: $y_k = x_k - \sum_{j=1}^{k-1} \langle x_k, z_j \rangle z_j$)*
+  * Normalizace (jen pro ON bázi): $z_k = \frac{y_k}{\|y_k\|}$.
+  * *Pozor:* Chce-li zadání jen ortogonální bázi, **nenormalizuj** (neodmocňuj). Vede na QR rozklad ($A = QR$).
+
+
 
 * **Sestavení matice zobrazení $[\varphi]_{A, B}$:**
   * Do **sloupců** matice $[\varphi]_{A, B}$ dáváš obrazy vektorů z **VÝCHOZÍ báze $A$**, vyjádřené v souřadnicích vůči **CÍLOVÉ bázi $B$**:
     $$[\varphi]_{A, B} = \Big( [\varphi(v_1)]_B \;\big|\; [\varphi(v_2)]_B \;\big|\; \dots \;\big|\; [\varphi(v_n)]_B \Big)$$
   * *Mnemotechnická pomůcka:* $[\varphi(x)]_B = [\varphi]_{A, B} \cdot [x]_A$ (vektor $x$ z báze $A$ „vstupuje“ zprava a výsledkem je obraz v bázi $B$).
-
-Často jsou tam časové pasti nenechat se chytit
-Když mám A = BC, tak když to beru jako zobrazení nejdřív násobím tou maticí C ten vstupní vektor pak tou B, koukat na počty sloupců
-
-Jádro matice 
-Ker(M) není nic jiného než podprostor vlastních vektorů příslušných vlastnímu číslu λ = 0
 
 ### Zkouškový rychlý tahák – Klíčové triky
 
@@ -168,128 +153,4 @@ Ker(M) není nic jiného než podprostor vlastních vektorů příslušných vla
   * Determinanty čtverců v **LEVÉM HORNÍM ROHU** ($1 \times 1, 2 \times 2, \dots$) musí být ostře **$> 0$**.
   * U matice $a_{ij} = \min(i,j)$ odečti sousední řádky $\to$ vznikne trojúhelníková matice se samými $1$ na diagonále $\to \det = 1 > 0 \implies$ je PD.
 
----
 
-> **Zlaté pravidlo zkoušky:** Pokud by výpočet hrubou silou trval déle než 3 minuty, zastav se. Zkoušející tam schoval větu, která to zkrátí na jeden řádek.
-
-## Ads
-Master theorem
-Pozor že tam je v něm theta pro to n na c
-
-Pozor nepředávat pole ale pointery na půlku a je dobré zmínit i prostorovou složitost zásobníku
-Min-heap je záchrana vkladání i vybírání v O(log n)
-Dopsat tam že pro nízké n dopočítáme medián v konstatním čase
-Nezapomínat na tuhle okrajovou podmínku
-
-Existuje deterministický !! algoritmus/verifikátor
-
-## Logika
-Logická ekvivalence (
-φ
-≡
-ψ
-φ≡ψ
-)
-Znamená: Formule mají úplně stejnou pravdivost v úplně každém modelu.
-
-Znamená mnohem slabší věc:
-φ
- je splniteln
-a
-ˊ
- 
-⟺
-ψ
- je splniteln
-a
-ˊ
-φ je splniteln 
-a
-ˊ
-  ⟺ψ je splniteln 
-a
-ˊ
- 
-Lidsky řečeno: „Pokud existuje svět, kde platí 
-φ
-φ
-, tak existuje i nějaký svět, kde platí 
-ψ
-ψ
-. A pokud 
-φ
-φ
- vede ke sporu (je nesplnitelná), tak 
-ψ
-ψ
- vede ke sporu taky.
-
-U zkoušky se často ptají: „Jak poznáte konzervativní extenzi přes modely?“
-Trik je v tom, že nezměníte univerzum, jen do něj domalujete nový symbol (tzv. expanze modelu):
-Máte model 
-A
-A
- původní teorie 
-T
-T
-.
-Pokud se vám podaří vzít jeho stávající prvky a jenom jim přiřadit chování té nové funkce 
-f
-f
- (nebo predikátu), aniž byste museli měnit univerzum nebo původní relace, vyrobíte model 
-A
-′
-A 
-′
- 
- nové teorie
-
-Otevřená formule 
-φ
-(
-x
-)
-φ(x) platí ve struktuře 
-A
-A (
-A
-⊨
-φ
-A⊨φ), právě když platí pro každé ohodnocení 
-e
-e 
-  
-⟺
-  
-A
-⊨
-(
-∀
-x
-)
-φ
-(
-x
-)
-⟺A⊨(∀x)φ(x). Proto se u vět v matematice i při Skolemizaci univerzální kvantifikátory vynechávají (volné proměnné automaticky znamenají „pro jakékoliv 
-x
-x“).
-
-Pointa je že nelze substituovat bez toho abych to změnil i ve kvantifikátoru proto se do uzavřených formulí nesmí substituovat
-
-Obraceni kvantifikátoru u implace pokud vaechno neco pak neco pro aspon jeden z tech vsech plati cela ta implikace
-
-
-D8 tse m definici struktury a že univerzum je neprázdné
-A pak extenzi teoriea semanticke kriterium, konzervativní extenze nedokazuje v původním jazyce L žádné nové formule
-V tablu neodvozovat vždy používat pouze ty přesná pravidla
-Nejdřív svěděk tedy t existuje či false všichni vytvoříme si konstatny, pak až dosadíme libovolné do věichni 
-
-Vlatnšě struktura doručí doménu a pomocí těch realčních  afunkčních symbolů které už mohou mít význam v jazyce jako složil zkoušku Z(x) tak struktura řekne pro každý prvek z univerza zdali složilo zkoušku
-
-Když se přepisujou formule z lidského znění psát je už s rozdílnými písmeny pro každy kvantifikátor
-U tabla nejdřív rozmyslet jak chci spor najít ať nejdu zbytečně slepou uličkou
-Ta struktura se zpaisuje jako A = ⟨{0}, ZA = {0}, SA = P
-A = ∅⟩.
-
-Při extenzi musím ve struktuře dát ohodnocení nových věcí z jazyka, nemusí obsahovat c co přidáme stačí když ve starém jazyce použijeme existuje pro to cpro co jsme v novém dávali konstantu a to do staré teorie přidala

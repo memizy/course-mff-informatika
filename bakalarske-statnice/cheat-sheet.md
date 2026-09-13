@@ -309,7 +309,7 @@ V poznámkách můžu kouknout na žlutý nebo horší poznámky co jsem si tam 
 #### Matice, hodnost a regulární matice:
 * **Operace s maticemi:**
   * **Násobení matic:** Pro $A \in \mathbb{K}^{m \times p}$ a $B \in \mathbb{K}^{p \times n}$ je $AB \in \mathbb{K}^{m \times n}$, kde $(AB)_{i, j} = \sum_{k=1}^p A_{i, k} B_{k, j}$. (Asociativní, nekomutativní).
-  * **Transpozice matice:** Pro $A \in \mathbb{K}^{m \times n}$ je transponovaná matice $A^T \in \mathbb{K}^{n \times m}$ definována $(A^T)_{i, j} = A_{j, i}$ (překlopení podle hlavní diagonály). Platí $(AB)^T = B^T A^T$ a $(A^T)^T = A$.
+  * **Transpozice matice:** Pro $A \in \mathbb{K}^{m \times n}$ je transponovaná matice $A^T \in \mathbb{K}^{n \times m}$ definována $(A^T)_{i, j} = A_{j, i}$ (překlopení podle hlavní diagonály). Platí $(AB)^T = B^T A^T$ a $(A^VT)^T = A$.
   * **Symetrická matice:** Čtvercová matice splňující $A = A^T$ ($A_{i, j} = A_{j, i}$).
 * **Hodnost matice $\operatorname{rank}(A)$:** Počet lineárně nezávislých řádků (sloupců), což odpovídá počtu pivotů v libovolném REF tvaru matice. Platí $\operatorname{rank}(A) = \operatorname{rank}(A^T) \le \min(m, n)$.
 * **Inverzní matice $A^{-1}$:** K čtvercové matici $A \in \mathbb{K}^{n \times n}$ je to matice splňující $A \cdot A^{-1} = A^{-1} \cdot A = I_n$ (počítá se eliminací $(A \mid I_n) \sim (I_n \mid A^{-1})$).
